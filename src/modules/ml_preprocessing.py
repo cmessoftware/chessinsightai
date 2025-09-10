@@ -815,4 +815,4 @@ if __name__ == "__main__":
     sources = ["personal", "novice", "elite", "fide", "stockfish"]
     for source in sources:
         preprocessor = create_source_specific_preprocessor(source)
-        print(f"✅ {source.capitalize()} preprocessor configured")
+        print(f"[OK] {source.capitalize()} preprocessor configured")

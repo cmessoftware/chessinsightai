@@ -1,36 +1,4 @@
 services:
-  chess_trainer:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8501:8501"
-    volumes:
-      - ./data:/app/data
-      - chess_datasets:/app/src/data # Shared volume for generated datasets
-
-  notebooks:
-    build:
-      context: .
-      dockerfile: dockerfile.notebooks
-    ports:
-      - "8889:8888"  # Jupyter Lab
-      - "5000:5000"  # MLflow UI
-    volumes:
-      - ./notebooks:/notebooks
-      - ./data:/notebooks/data
-      - ./src:/notebooks/src  # Código ML accesible
-      - ./mlruns:/notebooks/mlruns  # MLflow artifacts
-    environment:
-      - POSTGRES_USER=chess
-      - POSTGRES_PASSWORD=chess_pass
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=chess_trainer_db
-      - PYTHONPATH=/notebooks/src
-    depends_on:
-      - postgres
-
   postgres:
     image: postgres:13
     environment:
@@ -44,4 +12,3 @@ services:
 
 volumes:
   chess_pgdata:
-  chess_datasets: # New shared volume for Parquet datasets

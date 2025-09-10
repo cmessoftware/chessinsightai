@@ -69,7 +69,7 @@ def extract_pgn_files(input_path):
         yield input_path, open(input_path, encoding="utf-8")
 
     else:
-        print(f"❌ Unsupported file or format: {input_path}")
+        print(f"[ERROR] Unsupported file or format: {input_path}")
 
 
 def chunked_iterable(iterable: Iterable, chunk_size: int) -> Generator[list, None, None]:
@@ -118,12 +118,12 @@ def load_pgn_batches(input_path: str, batch_size: int) -> Generator[list[Tuple[s
 
 def extract_features_from_game(game_text: str) -> dict:
     try:
-        print(f"🔍 Parsing game text resume: {game_text[:50]}")
+        print(f"Parsing game text resume: {game_text[:50]}")
         pgn_io = io.StringIO(game_text)
         game = chess.pgn.read_game(pgn_io)
 
         if game is None or not game.headers:
-            print("❌ No se pudo leer el juego o no tiene encabezados.")
+            print("[ERROR] No se pudo leer el juego o no tiene encabezados.")
             return None
 
         # Verificar si tiene encabezado FEN
@@ -159,7 +159,7 @@ def extract_features_from_game(game_text: str) -> dict:
             "source": headers.get("Source", "unknown"),
         }
     except Exception as e:
-        print(f"❌ Error al procesar el juego: {e} - {traceback.format_exc()}")
+        print(f"[ERROR] Error al procesar el juego: {e} - {traceback.format_exc()}")
         if e.__cause__:
-            print(f"🔍 Causa del error: {e.__cause__}")
+            print(f"Causa del error: {e.__cause__}")
         return None

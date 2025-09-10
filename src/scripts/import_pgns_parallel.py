@@ -21,7 +21,7 @@ def collect_pgn_files_by_source():
     for source in SOURCES:
         source_path = BASE_DIR / source
         if not source_path.exists():
-            print(f"⚠️ No se encontró la carpeta de la fuente: {source_path}")
+            print(f"[WARNING] No se encontró la carpeta de la fuente: {source_path}")
             continue
 
         file_list = []
@@ -78,7 +78,7 @@ def import_balanced_games():
                             game_data["source"] = source
 
                             print(
-                                f"🔍 Procesando partida: {game_data['game_id']}, source: {game_data['source']}, pgn: {game_data['pgn'][:50]}...")
+                                f"[DISCOVER] Procesando partida: {game_data['game_id']}, source: {game_data['source']}, pgn: {game_data['pgn'][:50]}...")
 
                             if not repo.game_exists(game_data["game_id"]):
                                 games_batch.append(game_data)
@@ -91,17 +91,17 @@ def import_balanced_games():
                                         repo.save_games_batch(games_batch)
                                         games_batch = []
                                     except Exception as batch_error:
-                                        print(f"❌ Error guardando lote: {batch_error}")
+                                        print(f"[ERROR] Error guardando lote: {batch_error}")
                                         repo.rollback()
                                         games_batch = []
                             else:
                                 print(
-                                    f"⚠️ Partida ya existe: {game_data['game_id']} - {game_data['pgn'][:50]}...")
+                                    f"[WARNING] Partida ya existe: {game_data['game_id']} - {game_data['pgn'][:50]}...")
 
                             if imported >= BLOCK_SIZE:
                                 break
                         except Exception as game_error:
-                            print(f"❌ Error procesando partida individual: {game_error}")
+                            print(f"[ERROR] Error procesando partida individual: {game_error}")
                             continue
                             
                     pgn_io.close()
@@ -113,17 +113,17 @@ def import_balanced_games():
                     try:
                         repo.save_games_batch(games_batch)
                     except Exception as batch_error:
-                        print(f"❌ Error guardando lote final: {batch_error}")
+                        print(f"[ERROR] Error guardando lote final: {batch_error}")
                         repo.rollback()
                         
             except Exception as e:
                 print(
-                    f"❌ Error procesando {file_path}: {e}\n{traceback.format_exc()}")
+                    f"[ERROR] Error procesando {file_path}: {e}\n{traceback.format_exc()}")
                 # Roll back the current transaction
                 repo.rollback()
 
             print(
-                f"✅ {imported} partidas importadas de {source} (archivo {file_path.name})")
+                f"[SUCCESS] {imported} partidas importadas de {source} (archivo {file_path.name})")
 
     repo.close()
     print(
@@ -132,3 +132,4 @@ def import_balanced_games():
 
 if __name__ == "__main__":
     import_balanced_games()
+

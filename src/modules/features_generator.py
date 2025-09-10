@@ -118,7 +118,7 @@ def generate_features_from_game(game, game_id=None, is_stockfish_test=False):
         try:
             board = chess.Board(fen)
         except Exception as e:
-            print(f"⚠️ FEN inválido en headers: {fen} -> {e}")
+            print(f"FEN invalido en headers: {fen} -> {e}")
             return []
     else:
         board = chess.Board()
@@ -128,7 +128,7 @@ def generate_features_from_game(game, game_id=None, is_stockfish_test=False):
 
     for move in game.mainline_moves():
         if not board.is_legal(move):
-            print(f"⚠️ Movimiento ilegal: {move} en {board.fen()}")
+            print(f"Movimiento ilegal: {move} en {board.fen()}")
             return []
 
         try:
@@ -149,7 +149,7 @@ def generate_features_from_game(game, game_id=None, is_stockfish_test=False):
             rows.append(row)
             board.push(move)
         except Exception as e:
-            print(f"⚠️ Error inesperado con {move}: {e}")
+            print(f"Error inesperado con {move}: {e}")
             return []
 
     return rows
