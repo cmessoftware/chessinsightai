@@ -1,18 +1,20 @@
-# CHESS TRAINER - Versión: v0.1.103-8c8f1c8
+# CHESS TRAINER - Versión: v0.1.105-e228da3
 
-# ♟ chess_trainer – Analysis and Training with Elite Games
+# ♟ chess_trainer – Analysis and Training for All Chess Players
 
-This project automates the import, analysis, labeling, and training from thousands of games played by elite players (ELO >2300), combining tactical analysis with visual exploration and exercise generation.
+This project automates the import, analysis, labeling, and training from thousands of chess games across all skill levels (from beginners to masters), combining tactical analysis with visual exploration and personalized exercise generation.
 
 ---
 
 ## 📚 Documentation Index
 
 ### Core Documentation
+- **[Changelog](./docs/CHANGELOG.md)** - Complete project changelog with version history
 - **[Main README](./README.md)** - Complete project documentation (this file)  
 - **[README (Español)](./README_es.md)** - Documentación completa del proyecto en español
 - **[Version Base (English)](./VERSION_BASE.md)** - Project overview and quick start guide
 - **[Version Base (Español)](./VERSION_BASE_es.md)** - Descripción del proyecto y guía rápida en español
+- **[Technical Roadmap](./docs/ROADMAP_TECHNICAL.md)** - 6-phase development roadmap with current status
 
 ### Technical Documentation
 - **[MLflow PostgreSQL Integration](./docs/MLFLOW_POSTGRES_INTEGRATION.md)** - Guide for the MLflow PostgreSQL backend integration
