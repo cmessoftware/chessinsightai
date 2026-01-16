@@ -2,8 +2,12 @@ import streamlit as st
 from pathlib import Path
 import base64
 
-from dotenv import load_dotenv
-load_dotenv()  # Carga las variables del archivo .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # Carga las variables del archivo .env
+except ImportError:
+    # dotenv is optional, continue without it
+    pass
 
 
 st.set_page_config(page_title="Chess Trainer", layout="wide")
@@ -27,7 +31,12 @@ with col1:
         st.switch_page("pages/create_exercise.py")
 
 with col2:
-    st.header("📊 Analizar dataset")
+    st.header("� Explorar partidas")
+    st.markdown("Visualizá y gestioná todas las partidas en la base de datos.")
+    if st.button("Ir al explorador"):
+        st.switch_page("pages/games_browser.py")
+
+    st.header("�📊 Analizar dataset")
     st.markdown("Explorá visualmente tu dataset enriquecido con tácticas.")
     if st.button("Ver resumen"):
         st.switch_page("pages/summary_viewer.py")

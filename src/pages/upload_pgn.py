@@ -2,10 +2,14 @@ import os
 import streamlit as st
 from pathlib import Path
 
-import dotenv
-dotenv.load_dotenv()  # Carga las variables del archivo .env
+try:
+    import dotenv
+    dotenv.load_dotenv()  # Carga las variables del archivo .env
+except ImportError:
+    # dotenv is optional, continue without it
+    pass
 
-PGN_PATH = os.environ.get("PGN_PATH")
+PGN_PATH = os.environ.get("PGN_PATH", "data/games/personal")
 if not Path(PGN_PATH).exists():
     Path(PGN_PATH).mkdir(parents=True, exist_ok=True)
 
