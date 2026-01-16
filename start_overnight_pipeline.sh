@@ -45,7 +45,7 @@ sleep 10
 
 if [ "$MODE" = "test" ]; then
     echo -e "${YELLOW}🧪 Running QUICK TEST mode with sample data${NC}"
-    python quick_ml_pipeline.py 2>&1 | tee -a "$LOG_FILE"
+    python src/scripts/quick_ml_pipeline.py 2>&1 | tee -a "$LOG_FILE"
 else
     echo -e "${CYAN}🌙 Running FULL OVERNIGHT mode${NC}"
     

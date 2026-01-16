@@ -165,3 +165,16 @@ class GamesRepository:
             stmt = select(Games).where(Games.game_id == game_id)
             result = session.execute(stmt).first()
             return result is not None
+
+    def get_games_by_source(self, source: str, limit: int = 100, offset: int = 0):
+        """
+        Returns Games objects filtered by source with pagination.
+        :param source: Source to filter by (elite, fide, personal, etc.)
+        :param limit: Maximum number of games to return.
+        :param offset: Number of games to skip.
+        :return: List of Games objects.
+        """
+        with self.session_factory() as session:
+            stmt = select(Games).where(Games.source == source).offset(offset).limit(limit)
+            games = session.execute(stmt).scalars().all()
+            return games
