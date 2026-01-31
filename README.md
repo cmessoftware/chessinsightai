@@ -2,7 +2,30 @@
 
 # ♟ chess_trainer – Analysis and Training for All Chess Players
 
-This project automates the import, analysis, labeling, and training from thousands of chess games across all skill levels (from beginners to masters), combining tactical analysis with visual exploration and personalized exercise generation.
+This project automates the import, analysis, labeling, and training from thousands of chess games across all skill levels (from beginners to masters), combining tactical analysis with visual exploration and personalized exercise generation using a modern tech stack with **React + Vite** frontend and **FastAPI** backend.
+
+## 🚀 Tech Stack
+
+### Frontend
+- **React 19** + **TypeScript** - Modern component-based UI framework
+- **Vite** - Fast build tool and development server
+- **Material-UI (MUI)** - Professional React component library
+- **React Query (@tanstack/react-query)** - Server state management
+- **Chess.js** + **React-Chessboard** - Chess logic and interactive board
+- **React Router Dom** - Client-side routing
+
+### Backend  
+- **FastAPI** - High-performance Python web framework
+- **PostgreSQL** - Production-ready relational database
+- **MLflow** - Machine learning experiment tracking
+- **Stockfish** - Chess engine for move analysis
+- **Docker + Docker Compose** - Containerized development environment
+
+### Data Science & ML
+- **Python** ecosystem: pandas, numpy, scikit-learn, tensorflow
+- **Jupyter Notebooks** - Interactive data analysis and ML experimentation
+- **Alembic** - Database migrations
+- **PGN parsing** - Chess game format processing
 
 ---
 
@@ -11,10 +34,11 @@ This project automates the import, analysis, labeling, and training from thousan
 ### Core Documentation
 - **[Changelog](./docs/CHANGELOG.md)** - Complete project changelog with version history
 - **[Main README](./README.md)** - Complete project documentation (this file)  
-- **[README (Español)](./README_es.md)** - Documentación completa del proyecto en español
-- **[Version Base (English)](./VERSION_BASE.md)** - Project overview and quick start guide
-- **[Version Base (Español)](./VERSION_BASE_es.md)** - Descripción del proyecto y guía rápida en español
+- **[README (Español)](./docs/README_es.md)** - Documentación completa del proyecto en español
+- **[Version Base (English)](./docs/VERSION_BASE.md)** - Project overview and quick start guide
+- **[Version Base (Español)](./docs/VERSION_BASE_es.md)** - Descripción del proyecto y guía rápida en español
 - **[Technical Roadmap](./docs/ROADMAP_TECHNICAL.md)** - 6-phase development roadmap with current status
+- **[Frontend Roadmap](./docs/ROADMAP_FRONT_CHESS_TRAINER.md)** - React frontend development roadmap
 
 ### Technical Documentation
 - **[MLflow PostgreSQL Integration](./docs/MLFLOW_POSTGRES_INTEGRATION.md)** - Guide for the MLflow PostgreSQL backend integration
@@ -25,44 +49,119 @@ This project automates the import, analysis, labeling, and training from thousan
 - **[Datasets Volumes Config](./docs/DATASETS_VOLUMES_CONFIG.md)** - Volume configuration for datasets
 - **[Git LFS Setup Guide](./docs/GIT_LFS_SETUP_GUIDE.md)** - Git Large File Storage setup guide
 
-## Quick usage
+### Development & Setup Guides
+- **[Ejecutar Entorno DEV](./docs/EJECUTAR_ENTORNO_DEV.md)** - Guía completa para configurar entorno de desarrollo
+- **[Feature Enhancement Guide](./docs/GENERATE_FEATURES_ENHANCEMENT.md)** - Guide for chess feature generation improvements
+- **[Architecture Improvement Update](./docs/ARCHITECTURE_IMPROVEMENT_UPDATE.md)** - Latest architecture improvements and updates
+- **[Postman Runner Guide](./docs/POSTMAN_RUNNER_GUIDE.md)** - API testing with Postman automation
+- **[Task Completion Summary](./docs/TASK_COMPLETION_SUMMARY.md)** - Project milestones and completion status
 
-### Docker Setup (Recommended)
+### Training & Studies System
+- **[Complete PGN Studies System](./docs/ESTUDIOS_PGN_SISTEMA_COMPLETO.md)** - Sistema completo de estudios PGN y análisis
+- **[Training System Complete](./docs/TRAINING_SYSTEM_COMPLETE.md)** - Complete training resources management system
+- **[Custom Studies Tutorial](./docs/TUTORIAL_ESTUDIOS_PERSONALIZADOS.md)** - Tutorial for creating personalized chess studies
+- **[Datasets Report](./docs/DATASETS_REPORT.md)** - Comprehensive analysis of available chess datasets
+
+## 🚀 Quick Start
+
+### Option 1: Complete Environment Setup (Recommended)
 
 #### Windows Users - One-Command Setup:
 ```powershell
+# Complete setup: Backend + Frontend + Database
 .\build_up_clean_all.ps1
 ```
 
-#### 🎯 Benefits of PowerShell Automation:
-- **Complete Environment Setup**: Builds and starts all containers with one command
-- **Cross-Platform Compatibility**: Native Windows PowerShell support without Unix permission requirements
-- **Automatic Cleanup**: Removes unused Docker images to optimize disk usage
-- **Service Integration**: Starts both main application and Jupyter notebooks containers
-- **Background Operation**: Containers run detached for continuous development workflow
-- **Error Reduction**: Automated sequence minimizes manual configuration mistakes
-
-#### Manual Docker Setup:
+#### Manual Setup:
 ```bash
-docker-compose build
+# Start all services with Docker Compose
 docker-compose up -d
+
+# Install frontend dependencies and start development server
+cd src/frontend
+npm install
+npm run dev
+
+# Start FastAPI backend (in another terminal)
+cd src/api
+python -m uvicorn main:app --reload --port 8000
 ```
 
-### Local Development:
+### Option 2: Development Mode
+
+#### Start Backend API:
+```powershell
+# Using PowerShell tasks (recommended)
+.\ds_tools.ps1 -Action StartAPI
+
+# Or manually
+cd src/api
+python -m uvicorn main:app --reload --port 8000
+```
+
+#### Start Frontend:
 ```bash
-# Run the main interface
-streamlit run app.py (In development)
-
-# Generate datasets
-cd /app/src/pipeline
-./run_pipeline.sh interactive
-
+cd src/frontend
+npm run dev
 ```
+
+### 🌐 Access Points:
+- **Frontend (React)**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+- **MLflow UI**: http://localhost:5000
+- **Database**: PostgreSQL on localhost:5432
+
+### 🎯 Benefits of Current Architecture:
+- **Modern UI/UX**: React + Material-UI for professional interface
+- **Type Safety**: TypeScript for frontend reliability  
+- **High Performance**: Vite for fast development and FastAPI for backend speed
+- **Real-time Updates**: React Query for efficient server state management
+- **Scalable**: Docker containerization for consistent environments
+- **ML Integration**: MLflow for experiment tracking and model management
 
 # chess_trainer
-Chess training software using data science tools and the Stockfish chess engine, implemented in a Docker environment.
+Modern chess training platform using React + TypeScript frontend, FastAPI backend, and advanced ML pipeline with MLflow integration for chess analysis and player improvement.
 
-# Theory on chess game analysis
+## 🏗️ Architecture Overview
+
+### Frontend Architecture (React + Vite)
+```
+src/frontend/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/         # Route-based page components  
+│   ├── hooks/         # Custom React hooks
+│   ├── services/      # API client services
+│   ├── utils/         # Helper functions
+│   └── types/         # TypeScript type definitions
+├── public/            # Static assets
+└── package.json       # Dependencies and scripts
+```
+
+### Backend Architecture (FastAPI)
+```
+src/api/
+├── routers/           # API route handlers
+│   ├── auth.py       # Authentication endpoints
+│   ├── chess.py      # Chess-specific endpoints
+│   └── logs.py       # Logging endpoints
+├── models/           # Pydantic data models
+├── services/         # Business logic services
+├── middleware/       # Custom middleware
+└── main.py          # FastAPI application entry point
+```
+
+### 🔄 Data Flow:
+1. **React Frontend** makes API calls to FastAPI backend
+2. **FastAPI** processes requests, interacts with PostgreSQL
+3. **MLflow** tracks experiments and model performance
+4. **Stockfish** provides chess engine analysis
+5. **Real-time updates** via React Query state management
+
+## 🧠 Theory on chess game analysis
+
+To use Machine Learning (ML) and Artificial Intelligence (AI) in chess game analysis, you must first understand how game data is represented and how AIs can "learn" game patterns.
 
 To use Machine Learning (ML) and Artificial Intelligence (AI) in chess game analysis, you must first understand how game data is represented and how AIs can "learn" game patterns.
 
@@ -199,30 +298,50 @@ Once the model is trained, you can use it to make personalized recommendations t
 
 # 5. Summary of next steps:
 
-| Item                                                                   | Status      | Priority | Issues #                                                                                                                        |
-| ---------------------------------------------------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Collect game data (PGN, Chess.com API or Lichess API)                  | ✅ Completed | ✅        | [#72](https://github.com/cmessoftware/chess_trainer/issues/72)                                                                  |
-| Get features and training data in datasets                             | ✅ Completed | ✅        | [#73](https://github.com/cmessoftware/chess_trainer/issues/73)                                                                  |
-| Preprocess the data (cleaning, transforming moves into numeric values) | ✅ Completed | HIGH     | [#66](https://github.com/cmessoftware/chess_trainer/issues/66)                                                                  |
-| Train a Machine Learning model to predict patterns or errors in games  | ✅ Completed | HIGH     | [#67](https://github.com/cmessoftware/chess_trainer/issues/67) → [#78](https://github.com/cmessoftware/chess_trainer/issues/78) |
-| Evaluate the model and make adjustments if necessary                   | ✅ Completed | HIGH     | [#68](https://github.com/cmessoftware/chess_trainer/issues/68) → [#78](https://github.com/cmessoftware/chess_trainer/issues/78) |
-| Implement the model in your Fast API API and generate recommendations  | ❌ Pending   | MEDIUM   | [#69](https://github.com/cmessoftware/chess_trainer/issues/69)                                                                  |
+## 📋 Implementation Status
 
-- Train a Machine Learning model to predict patterns or errors in games.
+| Component                                    | Status        | Technology Stack      | Priority |
+| -------------------------------------------- | ------------- | --------------------- | -------- |
+| React + TypeScript Frontend                  | ✅ Completed   | React 19 + Vite       | ✅        |
+| FastAPI Backend with Authentication          | ✅ Completed   | FastAPI + JWT         | ✅        |
+| PostgreSQL Database with Migrations          | ✅ Completed   | PostgreSQL + Alembic  | ✅        |
+| Chess Game Data Collection (PGN, APIs)       | ✅ Completed   | Python + Chess APIs   | ✅        |
+| Feature Engineering and Stockfish Analysis   | ✅ Completed   | Stockfish + pandas    | ✅        |
+| ML Pipeline with MLflow Tracking             | ✅ Completed   | MLflow + scikit-learn | HIGH     |
+| Docker Environment Setup                     | ✅ Completed   | Docker Compose        | ✅        |
+| Interactive Chess Board Component            | ✅ Completed   | React-Chessboard      | MEDIUM   |
+| Game Analysis Dashboard                      | ⏳ In Progress | Material-UI + Charts  | HIGH     |
+| User Management & Profiles                   | ⏳ In Progress | FastAPI + React       | MEDIUM   |
+| Real-time Game Import from Chess.com/Lichess | ❌ Pending     | API Integration       | MEDIUM   |
 
-| Item                                                                | Status      | Priority | Issues #                                                       |
-| ------------------------------------------------------------------- | ----------- | -------- | -------------------------------------------------------------- |
-| Complete PGN capture and ZIP file processing                        | ✅ Completed | HIGH     | [#74](https://github.com/cmessoftware/chess_trainer/issues/74) |
-| Generate Stockfish features (mate_in, error_label, score_diff)      | ✅ Completed | HIGH     | [#75](https://github.com/cmessoftware/chess_trainer/issues/75) |
-| Generate Parquet datasets by source (personal, novice, elite, fide) | ✅ Completed | HIGH     | [#76](https://github.com/cmessoftware/chess_trainer/issues/76) |
+### 🎯 Next Sprint Priorities:
+1. **Complete Game Analysis Dashboard** - Visual charts and statistics
+2. **User Profile Management** - Personal game history and preferences  
+3. **Real-time API Integration** - Live game import from major platforms
+4. **Mobile Responsiveness** - Optimize for tablet/mobile devices
 
-## ML Pipeline Core Issues
+### 🔧 Development Workflow:
 
-| Item                                                      | Status      | Priority | Issues #                                                                                                                        |
-| --------------------------------------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Preprocess chess data (cleaning, transforming moves)      | ✅ Completed | HIGH     | [#66](https://github.com/cmessoftware/chess_trainer/issues/66)                                                                  |
-| Train Machine Learning model for chess pattern prediction | ✅ Completed | HIGH     | [#67](https://github.com/cmessoftware/chess_trainer/issues/67) → [#78](https://github.com/cmessoftware/chess_trainer/issues/78) |
-| Real datasets ML analysis and comparison                  | ✅ Completed | HIGH     | [#21](https://github.com/cmessoftware/chess_trainer/issues/21) - ELO Standardization System (100% Complete)                     |
+#### Frontend Development:
+```bash
+cd src/frontend
+npm run dev          # Start Vite development server
+npm run build        # Build for production
+npm run lint         # Run ESLint checks
+```
+
+#### Backend Development:
+```bash
+cd src/api
+python -m uvicorn main:app --reload  # Start FastAPI with hot reload
+python -m pytest tests/              # Run API tests
+```
+
+#### Database Management:
+```bash
+alembic upgrade head     # Apply database migrations
+alembic revision --autogenerate -m "description"  # Create new migration
+```
 
 ## 📊 Real Datasets Analysis
 
@@ -282,10 +401,45 @@ Analyze-RealDatasets
 - **Issue #21**: ✅ ELO standardization system completed (100% complete) - Resolves rating anomalies like 655.0 warnings
 - **Issue #23**: ⏳ SHAP explainability integration pending
 
-This approach will provide you with a solid foundation to integrate Machine Learning and AI into your chess project, improving both game analysis and user experience.
+## 💻 Modern Development Stack
 
-## Credits
+### 🎨 Frontend (React + Vite)
+- **⚛️ React 19**: Latest React with concurrent features
+- **🚀 Vite**: Lightning-fast build tool and dev server  
+- **📘 TypeScript**: Type safety and better developer experience
+- **🎁 Material-UI**: Professional, accessible component library
+- **🔄 React Query**: Powerful server state management
+- **♟️ Chess.js**: Robust chess game logic library
+- **🏁 React Router**: Declarative client-side routing
 
-Developed by cmessoftware as part of their practical work for the Data Science Diploma.
+### ⚡ Backend (FastAPI)  
+- **🐍 FastAPI**: Modern, high-performance web framework
+- **🔐 JWT Authentication**: Secure token-based auth
+- **🗄️ PostgreSQL**: Enterprise-grade relational database
+- **🔄 Alembic**: Database migration management
+- **📊 MLflow**: ML experiment tracking and model registry
+- **🐳 Docker**: Containerized development environment
 
-Last update 12-07-2025
+### 🧠 Data Science & ML
+- **🔬 Jupyter Notebooks**: Interactive data analysis
+- **🤖 Stockfish**: World-class chess engine integration
+- **📈 scikit-learn**: Machine learning algorithms
+- **🐼 pandas**: Data manipulation and analysis
+- **📊 numpy**: Numerical computing foundation
+
+## 🏆 Credits
+
+**Chess Trainer** - Modern chess analysis platform combining React + FastAPI with advanced ML capabilities.
+
+Developed by **cmessoftware** as part of their practical work for the Data Science Diploma.
+
+### 🤝 Contributing
+This project welcomes contributions! Please check our documentation for development setup and contribution guidelines.
+
+### 📄 License
+This project is developed for educational and research purposes.
+
+---
+
+**Last Updated**: January 2025 - Version v0.1.107  
+**Tech Stack**: React 19 + TypeScript + Vite + FastAPI + PostgreSQL + MLflow + Docker
