@@ -71,8 +71,10 @@ class Phase1BaselineTrainer:
         self.label_encoder = LabelEncoder()
         self.scaler = StandardScaler()
         
-        # Configurar MLflow local
-        mlflow.set_tracking_uri("http://localhost:5000")
+        # Configurar MLflow local (file-based)
+        mlflow_dir = Path(__file__).parent.parent.parent / "mlruns"
+        mlflow_dir.mkdir(exist_ok=True)
+        mlflow.set_tracking_uri(f"file:///{mlflow_dir}")
         mlflow.set_experiment(experiment_name)
         
         print(f"🎯 Iniciando Phase 1 Baseline Trainer")
