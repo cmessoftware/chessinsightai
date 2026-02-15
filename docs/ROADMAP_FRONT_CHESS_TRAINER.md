@@ -431,8 +431,42 @@ const GameViewer = ({ gameId }) => {
 }
 ```
 
+### **FUNCIONALIDAD 3.6: Chess Games Stats**
+**Issue**: `#chess-stats`  
+**Duración**: 6 días  
+**Rol principal**: `stats_viewer`, `eda_analyst`
+
+**Objetivos**:
+- Dashboard estadísticas generales
+- Gráficos de rendimiento temporal
+- Análisis por apertura y fase de juego
+- Comparación entre jugadores
+
+**Implementación**:
+```javascript
+// src/frontend/src/pages/StatsViewerPage.jsx
+const StatsViewerPage = () => {
+    const [stats, setStats] = useState({})
+    const [filters, setFilters] = useState({})
+    
+    const { data: playerStats } = useQuery(
+        ['stats', filters],
+        () => statsService.getStats(filters)
+    )
+}
+```
+
+**APIs necesarias**:
+- `GET /api/stats/overview` - Estadísticas generales
+- `GET /api/stats/temporal` - Evolución temporal
+- `GET /api/stats/openings` - Stats por apertura
+- `GET /api/stats/comparison` - Comparar jugadores
+
 ---
-### **FUNCIONALIDAD 3.5: Analysis Feedback Module**
+
+---
+
+### **FUNCIONALIDAD 3.6: Analysis Feedback Module**
 **Issue**: `#analysis-feedback`  
 **Duración**: 5 días  
 **Rol principal**: `analysis_board`, `stats_viewer`
@@ -464,7 +498,7 @@ const AnalysisFeedbackPage = () => {
 
 ---
 
-### **FUNCIONALIDAD 3.6: Create Exercises (estilo Lichess)**
+### **FUNCIONALIDAD 3.7: Create Exercises (estilo Lichess)**
 **Issue**: `#exercise-creator`  
 **Duración**: 8 días  
 **Rol principal**: `exercise_creator`, `tactics_trainer`
@@ -499,39 +533,6 @@ const ExerciseCreatorPage = () => {
 - `GET /api/exercises/patterns` - Patrones tácticos
 - `PUT /api/exercises/{id}` - Actualizar ejercicio
 - `DELETE /api/exercises/{id}` - Eliminar ejercicio
-
----
-
-### **FUNCIONALIDAD 3.7: Chess Games Stats**
-**Issue**: `#chess-stats`  
-**Duración**: 6 días  
-**Rol principal**: `stats_viewer`, `eda_analyst`
-
-**Objetivos**:
-- Dashboard estadísticas generales
-- Gráficos de rendimiento temporal
-- Análisis por apertura y fase de juego
-- Comparación entre jugadores
-
-**Implementación**:
-```javascript
-// src/frontend/src/pages/StatsViewerPage.jsx
-const StatsViewerPage = () => {
-    const [stats, setStats] = useState({})
-    const [filters, setFilters] = useState({})
-    
-    const { data: playerStats } = useQuery(
-        ['stats', filters],
-        () => statsService.getStats(filters)
-    )
-}
-```
-
-**APIs necesarias**:
-- `GET /api/stats/overview` - Estadísticas generales
-- `GET /api/stats/temporal` - Evolución temporal
-- `GET /api/stats/openings` - Stats por apertura
-- `GET /api/stats/comparison` - Comparar jugadores
 
 ---
 
@@ -1062,11 +1063,112 @@ Crear issue `#chess-board-react` y comenzar desarrollo del tablero interactivo.
 
 ---
 
+## 📋 **ESTADO ACTUAL DEL PROYECTO**
+
+### **✅ SPRINT 1: Database Browser + Authentication - COMPLETADO**
+**Fecha de completado**: 14 de Febrero, 2026  
+**Branch**: `feature/frontend-sprint1-database-browser`  
+**Versión**: v0.1.122-f8e6b29
+
+#### **Funcionalidades Implementadas**
+
+##### **1. Sistema de Autenticación JWT**
+- ✅ Backend FastAPI con JWT tokens
+- ✅ Endpoints `/auth/register`, `/auth/login`, `/auth/me`
+- ✅ Role-Based Access Control (RBAC) implementado
+- ✅ Middleware de protección de rutas
+- ✅ 3 roles configurados: `admin`, `analyst`, `user`
+
+##### **2. Frontend React con Autenticación**
+- ✅ Componentes de login/registro
+- ✅ AuthContext con gestión de sesión
+- ✅ ProtectedRoute para protección de rutas
+- ✅ Gestión de tokens en localStorage
+- ✅ Refresh automático de sesión
+
+##### **3. Database Browser con Filtros por Rol**
+- ✅ Vista de todas las partidas para `admin` y `analyst`
+- ✅ Vista filtrada (solo partidas propias) para `user`
+- ✅ Campo `imported_by` en modelo `Game`
+- ✅ Migración Alembic para campo nuevo
+- ✅ Paginación funcional en todas las vistas
+
+##### **4. Testing y Validación**
+- ✅ 3 usuarios de prueba creados:
+  - **admin** (rol: admin) - Contraseña: `admin123`
+  - **analyst** (rol: analyst) - Contraseña: `analyst123`
+  - **user** (rol: user) - Contraseña: `user123`
+- ✅ 33 partidas importadas por usuario `user`
+- ✅ Total de 237,250 partidas en base de datos PostgreSQL
+- ✅ Validación de filtros por rol confirmada
+
+#### **Documentación de Pruebas**
+📖 Ver: [TESTING_AUTHENTICATION.md](TESTING_AUTHENTICATION.md) - Guía completa para reproducir todas las pruebas de autenticación y filtros por rol.
+
+#### **Repositorio y Versión Control**
+- **Commits**: 9 commits organizados (autenticación + docs + scripts + artifacts)
+- **Archivos**: 185+ archivos agregados, 33 legacy files eliminados
+- **Tamaño**: 53.79 MiB de cambios subidos
+- **Organización**: .gitignore actualizado para excluir mlartifacts/ y mlruns/
+
+---
+
+## 🎯 **PRÓXIMAS FUNCIONALIDADES (Roadmap Activo)**
+
+### **FUNCIONALIDAD 3.1: Chess Board Interactivo + Log System Base**
+**Prioridad**: ALTA (Siguiente sprint)  
+**Estado**: 🔜 Por iniciar
+
+#### **Objetivos**
+- Implementar tablero de ajedrez interactivo en React
+- Integrar Chess.js para validación de movimientos
+- Sistema de logs básico para eventos del tablero
+- Reproducción de partidas desde Database Browser
+
+#### **Componentes a Desarrollar**
+- `ChessBoard.jsx` - Tablero interactivo
+- `GameLoader.jsx` - Cargador de partidas desde DB
+- `MoveHistory.jsx` - Historial de movimientos
+- `LogViewer.jsx` - Visor de logs de eventos
+
+**Tiempo estimado**: 2-3 semanas
+
+---
+
+### **FUNCIONALIDAD 3.2: Conexión con Stockfish + Logs Engine**
+**Prioridad**: ALTA  
+**Estado**: 🔜 Por iniciar (después de 3.1)
+
+#### **Objetivos**
+- Integración backend con Stockfish engine
+- API endpoints para análisis de posiciones
+- Sistema de logs de engine (evaluaciones, variantes)
+- UI para mostrar evaluaciones en tiempo real
+
+**Tiempo estimado**: 2-3 semanas
+
+---
+
+### **FUNCIONALIDAD 3.3: Games Explorer en React + Logs Database**
+**Prioridad**: MEDIA  
+**Estado**: 🔜 Por iniciar (después de 3.2)
+
+#### **Objetivos**
+- Mejorar Database Browser con filtros avanzados
+- Búsqueda por posición FEN
+- Filtros por apertura, resultado, Elo
+- Logs de consultas a base de datos
+
+**Tiempo estimado**: 1-2 semanas
+
+---
+
 **✅ Roadmap Frontend React + Vite completado y listo para implementación**
 
 > **Nota**: Esta migración arquitectónica transformará completamente la experiencia del usuario, proporcionando una aplicación web moderna, escalable y profesional.
 
 ---
 
-_Documento actualizado: 2026-01-17_  
-_Próxima revisión: Al completar FASE 0_
+_Documento actualizado: 14 de Febrero, 2026_  
+_Última revisión: Sprint 1 completado_  
+_Próxima revisión: Al completar FUNCIONALIDAD 3.1_

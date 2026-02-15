@@ -58,6 +58,45 @@ Welcome to the `chess_trainer` project! This guide provides actionable, project-
 - **Preprocessing Guide:** `docs/ML_PREPROCESSING_GUIDE.md`
 - **Project Structure:** `README.md`, `docs/DOCKER_DEVELOPMENT_STRATEGY.md`
 - **DB Schema:** `alembic/`, `alembic.ini`
+- **Frontend Roadmap:** `docs/ROADMAP_FRONT_CHESS_TRAINER.md` (SOURCE OF TRUTH for frontend development)
+- **Testing Guide:** `docs/TESTING_AUTHENTICATION.md`
+
+## 🚨 CRITICAL: Roadmap Adherence (Frontend Development)
+- **ALWAYS follow `docs/ROADMAP_FRONT_CHESS_TRAINER.md` for frontend tasks**
+- **This roadmap is the SOURCE OF TRUTH for React + Vite development**
+- **Before starting ANY frontend task:**
+  1. Read the current roadmap status
+  2. Verify the task aligns with the next planned functionality
+  3. If user requests deviations from the roadmap: **WARN THEM EXPLICITLY**
+  
+### **Warning Protocol**
+When user requests work that deviates from the roadmap:
+```
+⚠️ ADVERTENCIA: La tarea solicitada se desvía del roadmap establecido.
+
+Roadmap actual indica: [funcionalidad X en fase Y]
+Tu solicitud: [descripción de la desviación]
+
+¿Deseas continuar de todos modos? Esto puede:
+- Interrumpir el flujo de desarrollo planificado
+- Crear dependencias fuera de orden
+- Retrasar funcionalidades prioritarias
+
+Confirma para proceder o ajusta la solicitud al roadmap.
+```
+
+### **Current Roadmap Status** (as of Feb 14, 2026)
+- ✅ **Sprint 1 COMPLETADO**: Database Browser + Authentication System
+- 🔜 **Next (High Priority)**: FUNCIONALIDAD 3.1 - Chess Board Interactivo + Log System Base
+- 🔜 **After that**: FUNCIONALIDAD 3.2 - Conexión con Stockfish + Logs Engine
+- 🔜 **Then**: FUNCIONALIDAD 3.3 - Games Explorer en React + Logs Database
+
+### **Roadmap Update Protocol**
+- **After completing each functionality**: Update roadmap status section with:
+  - Completion date
+  - Commit/version reference
+  - Testing documentation links
+  - Next steps
 
 ## AI Agent Reminders
 - **CRITICAL: Always use conda environment `chess_trainer` - NEVER use .venv or other environments.**
@@ -66,6 +105,8 @@ Welcome to the `chess_trainer` project! This guide provides actionable, project-
 - **Keep notebooks clean and focused.**
 - **Update documentation if workflows change.**
 - **Reference this file for project-specific conventions.**
+- **🚨 ALWAYS check and follow `docs/ROADMAP_FRONT_CHESS_TRAINER.md` before starting frontend work.**
+- **⚠️ WARN user if requested task deviates from the roadmap.**
 
 ---
-_Last updated: 2026-02-13_
+_Last updated: 2026-02-14_
