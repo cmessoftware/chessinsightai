@@ -178,64 +178,6 @@ chess_trainer/
 
 ---
 
-### **🆕 FUNCIONALIDAD 2.5: Sistema de Notificaciones + Extracción de Features**
-**Issue**: `#notification-system-features`  
-**Duración**: 3 días  
-**Rol principal**: `admin`, `pgn_uploader`  
-**Prioridad**: Alta - Requisito previo para 3.1
-
-**Objetivos**:
-- Implementar sistema de notificaciones con campanita en Navigation
-- Crear endpoint API para iniciar extracción de features desde UI
-- Integrar con script existente `generate_features_with_tactics.py`
-- Notificar cuando el proceso de extracción esté completo
-- Permitir a usuarios iniciar procesamiento desde ImportPage
-
-**Componentes**:
-```javascript
-// ✅ COMPLETADO
-// src/frontend/src/components/shared/NotificationBell.jsx
-// - Campanita en Navigation con badge de notificaciones no leídas
-// - Popover con lista de notificaciones
-// - Marcar como leídas, eliminar, limpiar todas
-// - Polling cada 10 segundos (futuro: WebSocket)
-
-// src/frontend/src/services/notificationService.js
-// - CRUD de notificaciones
-// - Integración con API
-
-// src/api/routers/features.py
-// - POST /api/features/extract - Iniciar extracción
-// - GET /api/features/status/{job_id} - Estado del job
-// - GET /api/features/jobs - Listar jobs
-// - Endpoints de notificaciones integrados
-
-// src/frontend/src/pages/ImportPage.jsx
-// - Botón "Extraer Features a PostgreSQL"
-// - Integración con featuresService
-```
-
-**Flujo de trabajo**:
-1. Usuario sube archivos PGN a través de ImportPage
-2. Usuario presiona botón "🚀 Extraer Features a PostgreSQL"
-3. Se inicia proceso en backend usando `generate_features_with_tactics.py`
-4. Se crea notificación "En proceso" visible en campanita
-5. Proceso se ejecuta en background
-6. Al completar, se actualiza notificación a "Completado" con estadísticas
-7. Usuario recibe notificación visual en campanita
-
-**APIs**:
-- `POST /api/features/extract` - Iniciar extracción de features
-- `GET /api/features/status/{job_id}` - Obtener estado del job
-- `GET /api/features/jobs` - Listar todos los jobs
-- `GET /api/features/notifications` - Obtener notificaciones
-- `PUT /api/features/notifications/{id}/read` - Marcar como leída
-- `DELETE /api/features/notifications/{id}` - Eliminar notificación
-
-**Estado**: ✅ Implementado completamente
-
----
-
 ### **FUNCIONALIDAD 3.1: Chess Board Interactivo + Log System Base**
 **Issue**: `#chess-board-react`  
 **Duración**: 6 días (ampliado +1 día para logging)  
@@ -431,38 +373,72 @@ const GameViewer = ({ gameId }) => {
 }
 ```
 
-### **FUNCIONALIDAD 3.6: Chess Games Stats**
-**Issue**: `#chess-stats`  
-**Duración**: 6 días  
-**Rol principal**: `stats_viewer`, `eda_analyst`
+---
+
+### **FUNCIONALIDAD 3.5: Sistema de Notificaciones + Extracción de Features**
+**Issue**: `#notification-system-features`  
+**Duración**: 3 días  
+**Rol principal**: `admin`, `pgn_uploader`  
+**Prioridad**: Alta  
+**Dependencia**: 3.3 Games Explorer + 3.4 Navegación
 
 **Objetivos**:
-- Dashboard estadísticas generales
-- Gráficos de rendimiento temporal
-- Análisis por apertura y fase de juego
-- Comparación entre jugadores
+- Implementar sistema de notificaciones con campanita en Navigation
+- Crear endpoint API para iniciar extracción de features desde UI
+- Integrar con script existente `generate_features_with_tactics.py`
+- Notificar cuando el proceso de extracción esté completo
+- Permitir a usuarios iniciar procesamiento desde ImportPage
 
-**Implementación**:
+**Componentes**:
 ```javascript
-// src/frontend/src/pages/StatsViewerPage.jsx
-const StatsViewerPage = () => {
-    const [stats, setStats] = useState({})
-    const [filters, setFilters] = useState({})
-    
-    const { data: playerStats } = useQuery(
-        ['stats', filters],
-        () => statsService.getStats(filters)
-    )
-}
+// 🟡 Código implementado - Requiere pruebas completas
+// src/frontend/src/components/shared/NotificationBell.jsx
+// - Campanita en Navigation con badge de notificaciones no leídas
+// - Popover con lista de notificaciones
+// - Marcar como leídas, eliminar, limpiar todas
+// - Polling cada 10 segundos (futuro: WebSocket)
+
+// src/frontend/src/services/notificationService.js
+// - CRUD de notificaciones
+// - Integración con API
+
+// src/api/routers/features.py
+// - POST /api/features/extract - Iniciar extracción
+// - GET /api/features/status/{job_id} - Estado del job
+// - GET /api/features/jobs - Listar jobs
+// - Endpoints de notificaciones integrados
+
+// src/frontend/src/pages/ImportPage.jsx
+// - Botón "Extraer Features a PostgreSQL"
+// - Integración con featuresService
 ```
 
-**APIs necesarias**:
-- `GET /api/stats/overview` - Estadísticas generales
-- `GET /api/stats/temporal` - Evolución temporal
-- `GET /api/stats/openings` - Stats por apertura
-- `GET /api/stats/comparison` - Comparar jugadores
+**Flujo de trabajo**:
+1. Usuario sube archivos PGN a través de ImportPage
+2. Usuario presiona botón "🚀 Extraer Features a PostgreSQL"
+3. Se inicia proceso en backend usando `generate_features_with_tactics.py`
+4. Se crea notificación "En proceso" visible en campanita
+5. Proceso se ejecuta en background
+6. Al completar, se actualiza notificación a "Completado" con estadísticas
+7. Usuario recibe notificación visual en campanita
 
----
+**APIs**:
+- `POST /api/features/extract` - Iniciar extracción de features
+- `GET /api/features/status/{job_id}` - Obtener estado del job
+- `GET /api/features/jobs` - Listar todos los jobs
+- `GET /api/features/notifications` - Obtener notificaciones
+- `PUT /api/features/notifications/{id}/read` - Marcar como leída
+- `DELETE /api/features/notifications/{id}` - Eliminar notificación
+
+**Estado**: 🟡 Código implementado - Pendiente de pruebas end-to-end completas
+
+**Tareas de Testing Pendientes**:
+- [ ] Probar carga de PGN desde ImportPage
+- [ ] Validar botón "Extraer Features" funciona correctamente
+- [ ] Verificar proceso de extracción se ejecuta en background
+- [ ] Confirmar notificaciones aparecen en campanita
+- [ ] Validar actualización de estado (En proceso → Completado)
+- [ ] Probar con diferentes volúmenes de PGN (1, 10, 100+ archivos)
 
 ---
 
@@ -498,7 +474,40 @@ const AnalysisFeedbackPage = () => {
 
 ---
 
-### **FUNCIONALIDAD 3.7: Create Exercises (estilo Lichess)**
+### **FUNCIONALIDAD 3.7: Chess Games Stats**
+**Issue**: `#chess-stats`  
+**Duración**: 6 días  
+**Rol principal**: `stats_viewer`, `eda_analyst`
+
+**Objetivos**:
+- Dashboard estadísticas generales
+- Gráficos de rendimiento temporal
+- Análisis por apertura y fase de juego
+- Comparación entre jugadores
+
+**Implementación**:
+```javascript
+// src/frontend/src/pages/StatsViewerPage.jsx
+const StatsViewerPage = () => {
+    const [stats, setStats] = useState({})
+    const [filters, setFilters] = useState({})
+    
+    const { data: playerStats } = useQuery(
+        ['stats', filters],
+        () => statsService.getStats(filters)
+    )
+}
+```
+
+**APIs necesarias**:
+- `GET /api/stats/overview` - Estadísticas generales
+- `GET /api/stats/temporal` - Evolución temporal
+- `GET /api/stats/openings` - Stats por apertura
+- `GET /api/stats/comparison` - Comparar jugadores
+
+---
+
+### **FUNCIONALIDAD 3.8: Create Exercises (estilo Lichess)**
 **Issue**: `#exercise-creator`  
 **Duración**: 8 días  
 **Rol principal**: `exercise_creator`, `tactics_trainer`
@@ -536,7 +545,7 @@ const ExerciseCreatorPage = () => {
 
 ---
 
-### **FUNCIONALIDAD 3.8: Training Module**
+### **FUNCIONALIDAD 3.10: Training Module**
 **Issue**: `#training-module`  
 **Duración**: 7 días  
 **Rol principal**: `tactics_trainer`, `basic_gamer`
@@ -572,7 +581,7 @@ const TrainingPage = () => {
 
 ---
 
-### **FUNCIONALIDAD 3.9: Survivorship Bias Module + Logs Analytics**
+### **FUNCIONALIDAD 3.11: Survivorship Bias Module + Logs Analytics**
 **Issue**: `#survivorship-bias`  
 **Duración**: 5 días (ampliado +1 día para logging)  
 **Rol principal**: `eda_analyst`, `stats_viewer` + `admin`
@@ -624,7 +633,7 @@ const SurvivorshipPage = () => {
 
 ---
 
-### **FUNCIONALIDAD 3.10: Sistema de Log Viewer Completo (Consolidación)**
+### **FUNCIONALIDAD 3.12: Sistema de Log Viewer Completo (Consolidación)**
 **Issue**: `#log-system-complete`  
 **Duración**: 2 días  
 **Rol principal**: `admin`
@@ -645,11 +654,13 @@ const LogViewerPage = () => {
         'engine',     // 3.2 - Stockfish interactions
         'database',   // 3.3 - Consultas BD
         'navigation', // 3.4 - Game navigation
-        'analysis',   // 3.5 - ML Analysis feedback
-        'exercises',  // 3.6 - Exercise creation
+        'features',   // 3.5 - Feature extraction
+        'analysis',   // 3.6 - ML Analysis feedback
         'stats',      // 3.7 - Statistics queries
-        'training',   // 3.8 - Training sessions
-        'analytics'   // 3.9 - Survivorship bias
+        'feedback',   // 3.8 - Analysis feedback
+        'exercises',  // 3.9 - Exercise creation
+        'training',   // 3.10 - Training sessions
+        'analytics'   // 3.11 - Survivorship bias
     ]
     
     return (
@@ -673,7 +684,7 @@ const LogViewerPage = () => {
 
 ---
 
-### **FUNCIONALIDAD 3.11: EDA Analysis (Admin)**
+### **FUNCIONALIDAD 3.13: EDA Analysis (Admin)**
 **Issue**: `#eda-analysis-admin`  
 **Duración**: 9 días  
 **Rol principal**: `admin`, `eda_analyst`
@@ -872,19 +883,19 @@ test('chess analysis logs events correctly', async () => {
 ## ⚡ **CRONOGRAMA DE DESARROLLO ACTUALIZADO**
 
 ### **Mes 1: Fundación + Logging Base**
-- **Semana 1**: FASE 0 (2 días) + **Funcionalidad 2.5** (4 días) - Carga Masiva PGN ⭐
+- **Semana 1**: FASE 0 (2 días) completada ✅
 - **Semana 2**: Funcionalidad 3.1 (6 días) + Log System Base  
 - **Semana 3-4**: Funcionalidad 3.2 (5 días) + 3.3 (7 días) + Logs Engine/Database
 
 ### **Mes 2: Core Features + Logging Expansion**  
-- **Semana 5**: Funcionalidad 3.4 (3 días) + Logs Navigation
-- **Semana 6-7**: Funcionalidad 3.5 (5 días) + 3.6 (8 días) + Logs Analysis/Exercises
-- **Semana 8**: Buffer y refinamiento del sistema de logs
+- **Semana 5**: Funcionalidad 3.4 (3 días) + 3.5 (3 días) + Logs Navigation/Features
+- **Semana 6-7**: Funcionalidad 3.6 (5 días) + 3.7 (6 días) + Logs Analysis/Stats
+- **Semana 8**: Funcionalidad 3.8 (5 días) + Buffer y refinamiento
 
 ### **Mes 3: Advanced Features + Logging Completo**
-- **Semana 9-10**: Funcionalidad 3.7 (6 días) + 3.8 (7 días) + Logs Stats/Training
-- **Semana 11**: Funcionalidad 3.9 (5 días) + Logs Analytics
-- **Semana 12**: Funcionalidad 3.10 (2 días) + 3.11 EDA (9 días) + Log System Final
+- **Semana 9-10**: Funcionalidad 3.9 (8 días) + 3.10 (7 días) + Logs Exercises/Training
+- **Semana 11**: Funcionalidad 3.11 (5 días) + Logs Analytics
+- **Semana 12**: Funcionalidad 3.12 (2 días) + 3.13 EDA (9 días) + Log System Final
 
 **Ventajas del logging progresivo**:
 - ✅ **Debugging inmediato** durante desarrollo
