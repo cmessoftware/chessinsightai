@@ -626,7 +626,8 @@ db.execute_query("DELETE FROM users WHERE username IN ('admin', 'analyst', 'user
 - **Frontend Auth**: [src/frontend/src/contexts/AuthContext.jsx](../src/frontend/src/contexts/AuthContext.jsx)
 - **Database Models**: [src/database/models.py](../src/database/models.py)
 - **Create Test Users Script**: [src/scripts/create_test_users.py](../src/scripts/create_test_users.py)
-- **Roadmap**: [ROADMAP_FRONT_CHESS_TRAINER.md](ROADMAP_FRONT_CHESS_TRAINER.md)
+- **Roadmap Funcional**: [ROADMAP_FUNCTIONAL_CHESS_TRAINER.md](ROADMAP_FUNCTIONAL_CHESS_TRAINER.md)
+- **Roadmap Técnico**: [ROADMAP_TECHNICAL.md](ROADMAP_TECHNICAL.md)
 
 ---
 

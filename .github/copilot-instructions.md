@@ -58,12 +58,14 @@ Welcome to the `chess_trainer` project! This guide provides actionable, project-
 - **Preprocessing Guide:** `docs/ML_PREPROCESSING_GUIDE.md`
 - **Project Structure:** `README.md`, `docs/DOCKER_DEVELOPMENT_STRATEGY.md`
 - **DB Schema:** `alembic/`, `alembic.ini`
-- **Frontend Roadmap:** `docs/ROADMAP_FRONT_CHESS_TRAINER.md` (SOURCE OF TRUTH for frontend development)
+- **Roadmap Técnico:** `docs/ROADMAP_TECHNICAL.md` (detalles de implementación para developers)
+- **Roadmap Funcional:** `docs/ROADMAP_FUNCTIONAL_CHESS_TRAINER.md` (SOURCE OF TRUTH para frontend development)
 - **Testing Guide:** `docs/TESTING_AUTHENTICATION.md`
 
 ## 🚨 CRITICAL: Roadmap Adherence (Frontend Development)
-- **ALWAYS follow `docs/ROADMAP_FRONT_CHESS_TRAINER.md` for frontend tasks**
+- **ALWAYS follow `docs/ROADMAP_FUNCTIONAL_CHESS_TRAINER.md` for frontend tasks**
 - **This roadmap is the SOURCE OF TRUTH for React + Vite development**
+- **For technical implementation details, consult `docs/ROADMAP_TECHNICAL.md`**
 - **Before starting ANY frontend task:**
   1. Read the current roadmap status
   2. Verify the task aligns with the next planned functionality
@@ -105,7 +107,8 @@ Confirma para proceder o ajusta la solicitud al roadmap.
 - **Keep notebooks clean and focused.**
 - **Update documentation if workflows change.**
 - **Reference this file for project-specific conventions.**
-- **🚨 ALWAYS check and follow `docs/ROADMAP_FRONT_CHESS_TRAINER.md` before starting frontend work.**
+- **🚨 ALWAYS check and follow `docs/ROADMAP_FUNCTIONAL_CHESS_TRAINER.md` before starting frontend work.**
+- **📋 For technical implementation details, consult `docs/ROADMAP_TECHNICAL.md`.**
 - **⚠️ WARN user if requested task deviates from the roadmap.**
 
 ---

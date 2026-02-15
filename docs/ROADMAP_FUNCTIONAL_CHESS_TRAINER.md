@@ -109,8 +109,8 @@ chess_trainer/
 │   │   │   │   ├── StockfishPage.jsx         # 3.2 Play vs Stockfish
 │   │   │   │   ├── GamesExplorerPage.jsx     # 3.3 Games Explorer
 │   │   │   │   ├── AnalysisFeedbackPage.jsx  # 3.5 Analysis Feedback
-│   │   │   │   ├── ExerciseCreatorPage.jsx   # 3.6 Create Exercises
-│   │   │   │   ├── StatsViewerPage.jsx       # 3.7 Chess Stats
+│   │   │   │   ├── StatsViewerPage.jsx       # 3.6 Chess Stats
+│   │   │   │   ├── ExerciseCreatorPage.jsx   # 3.7 Create Exercises
 │   │   │   │   ├── TrainingPage.jsx          # 3.8 Training Module
 │   │   │   │   ├── SurvivorshipPage.jsx      # 3.9 Survivorship Bias
 │   │   │   │   ├── LogViewerPage.jsx         # 3.10 Log Viewer (admin)
