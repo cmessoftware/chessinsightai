@@ -12,6 +12,15 @@ Welcome to the `chess_trainer` project! This guide provides actionable, project-
   - `data/`: Datasets (by source) and intermediate files.
   - `docs/`: Guides for MLflow, preprocessing, workflow, and PR instructions.
 
+## ⚠️ CRITICAL: Python Environment
+- **ALWAYS USE CONDA ENVIRONMENT:** `chess_trainer`
+- **NEVER use `.venv` or other virtual environments**
+- **Activation Command:** `conda activate chess_trainer`
+- **ALL Python commands, pip installs, and script executions MUST use this conda environment**
+- **When running terminal commands:** Ensure conda environment is activated first
+- **Backend API:** Must run in `chess_trainer` conda environment
+- **Scripts:** All scripts in `src/scripts/` must execute within `chess_trainer` environment
+
 ## Data & Database
 - **Primary Data Source:** PostgreSQL (in Docker, service: `postgres`).
 - **Datasets:** Located in `/app/src/data/games` (subfolders: `elite`, `personal`, `novice`, `stockfish`, `fide`).
@@ -51,6 +60,7 @@ Welcome to the `chess_trainer` project! This guide provides actionable, project-
 - **DB Schema:** `alembic/`, `alembic.ini`
 
 ## AI Agent Reminders
+- **CRITICAL: Always use conda environment `chess_trainer` - NEVER use .venv or other environments.**
 - **Always prefer scripts over notebooks for core logic.**
 - **Never use SQLite; always use PostgreSQL.**
 - **Keep notebooks clean and focused.**
@@ -58,4 +68,4 @@ Welcome to the `chess_trainer` project! This guide provides actionable, project-
 - **Reference this file for project-specific conventions.**
 
 ---
-_Last updated: 2024-06-27_
+_Last updated: 2026-02-13_

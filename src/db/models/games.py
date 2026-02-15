@@ -21,3 +21,6 @@ class Games(Base):
     eco = Column(String)
     date_played = Column(String)
     created_at = Column(String)
+    import_batch_id = Column(String)  # UUID del batch de importación
+    source_filename = Column(String)  # Nombre del archivo PGN original
+    imported_by = Column(String)  # Usuario que importó la partida

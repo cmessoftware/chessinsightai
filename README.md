@@ -1,4 +1,4 @@
-# CHESS TRAINER - Versión: v0.1.111-03b0772
+# CHESS TRAINER - Versión: v0.1.114-ccbef6b
 
 # ♟ chess_trainer – Analysis and Training for All Chess Players
 
@@ -300,18 +300,18 @@ Once the model is trained, you can use it to make personalized recommendations t
 
 ## 📊 Estado de Completitud por Fase del Roadmap
 
-| Fase       | Componente                            | Estado        | Completitud        | Prioridad | Próximos Pasos                  |
-| ---------- | ------------------------------------- | ------------- | ------------------ | --------- | ------------------------------- |
-| **Fase 1** | Clasificación de errores (ML Clásico) | 🟡 En Progreso | 85%                | 🔴 CRÍTICA | Completar etiquetado + baseline |
+| Fase       | Componente                            | Estado        | Completitud         | Prioridad | Próximos Pasos                  |
+| ---------- | ------------------------------------- | ------------- | ------------------- | --------- | ------------------------------- |
+| **Fase 1** | Clasificación de errores (ML Clásico) | 🟡 En Progreso | 85%                 | 🔴 CRÍTICA | Completar etiquetado + baseline |
 |            | - Etiquetado táctico de features      | ✅             | 100% (328K records) | 🔴         | ✅ Completado                    |
-|            | - Logistic Regression L2/L1           | 🏃             | 90%                | 🔴         | ⏳ Ejecutando ahora              |
-|            | - RandomForest baseline               | ✅             | 90%                | 🔴         | Consolidar en MLflow            |
-|            | - Métricas F1 + Confusion Matrix      | 🏃             | 80%                | 🔴         | ⏳ Generando resultados          |
-| **Fase 2** | Deep Learning Tabular (MLP)           | 🔵 Pendiente   | 0%                 | 🔵         | Esperar resultados Fase 1       |
-| **Fase 3** | Análisis Temporal (Errores en cadena) | 🔵 Pendiente   | 0%                 | 🟡         | Features temporales             |
-| **Fase 4** | Embeddings y Similitud                | 🔵 Pendiente   | 0%                 | 🟢         | Clustering por ELO              |
-| **Fase 5** | Tutor Adaptativo y Reportes           | 🟡 Diseño      | 5%                 | 🔴         | API + Reportes PDF              |
-| **Fase 6** | Human-in-the-Loop                     | 🔵 Planeado    | 0%                 | 🔵         | Futuro (B2B)                    |
+|            | - Logistic Regression L2/L1           | 🏃             | 90%                 | 🔴         | ⏳ Ejecutando ahora              |
+|            | - RandomForest baseline               | ✅             | 90%                 | 🔴         | Consolidar en MLflow            |
+|            | - Métricas F1 + Confusion Matrix      | 🏃             | 80%                 | 🔴         | ⏳ Generando resultados          |
+| **Fase 2** | Deep Learning Tabular (MLP)           | 🔵 Pendiente   | 0%                  | 🔵         | Esperar resultados Fase 1       |
+| **Fase 3** | Análisis Temporal (Errores en cadena) | 🔵 Pendiente   | 0%                  | 🟡         | Features temporales             |
+| **Fase 4** | Embeddings y Similitud                | 🔵 Pendiente   | 0%                  | 🟢         | Clustering por ELO              |
+| **Fase 5** | Tutor Adaptativo y Reportes           | 🟡 Diseño      | 5%                  | 🔴         | API + Reportes PDF              |
+| **Fase 6** | Human-in-the-Loop                     | 🔵 Planeado    | 0%                  | 🔵         | Futuro (B2B)                    |
 
 ### Leyenda de Estados:
 - ✅ **Completado**: Implementado y validado
@@ -418,16 +418,16 @@ Once the model is trained, you can use it to make personalized recommendations t
 
 ## 📊 Infraestructura y Tecnologías (Estado Actual)
 
-| Componente           | Tecnología                | Estado        | Versión | Notas                |
-| -------------------- | ------------------------- | ------------- | ------- | -------------------- |
-| **Frontend**         | React + TypeScript + Vite | ✅ Operativo   | 19.x    | -                    |
-| **Backend**          | FastAPI + JWT Auth        | ✅ Operativo   | 0.100+  | -                    |
-| **Database**         | PostgreSQL + Alembic      | ✅ Operativo   | 13+     | 11,676 partidas      |
-| **ML Tracking**      | MLflow (file-based)       | ✅ Operativo   | 3.2.0   | Baseline F1=0.890    |
-| **Data Pipeline**    | Python + Pandas           | ✅ Operativo   | -       | 328K features        |
-| **Chess Engine**     | Stockfish 17 + NNUE       | ✅ Operativo   | 17      | Análisis táctico     |
-| **Containerization** | Docker + Compose          | ✅ Operativo   | -       | PostgreSQL activo    |
-| **ML Framework**     | scikit-learn              | ✅ Configurado | 1.7.1   | Phase 1 completado   |
+| Componente           | Tecnología                | Estado        | Versión | Notas              |
+| -------------------- | ------------------------- | ------------- | ------- | ------------------ |
+| **Frontend**         | React + TypeScript + Vite | ✅ Operativo   | 19.x    | -                  |
+| **Backend**          | FastAPI + JWT Auth        | ✅ Operativo   | 0.100+  | -                  |
+| **Database**         | PostgreSQL + Alembic      | ✅ Operativo   | 13+     | 11,676 partidas    |
+| **ML Tracking**      | MLflow (file-based)       | ✅ Operativo   | 3.2.0   | Baseline F1=0.890  |
+| **Data Pipeline**    | Python + Pandas           | ✅ Operativo   | -       | 328K features      |
+| **Chess Engine**     | Stockfish 17 + NNUE       | ✅ Operativo   | 17      | Análisis táctico   |
+| **Containerization** | Docker + Compose          | ✅ Operativo   | -       | PostgreSQL activo  |
+| **ML Framework**     | scikit-learn              | ✅ Configurado | 1.7.1   | Phase 1 completado |
 
 ---
 
