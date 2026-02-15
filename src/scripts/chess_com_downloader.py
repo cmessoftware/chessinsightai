@@ -208,12 +208,23 @@ def convert_chess_com_to_pgn(games, username):
 
             headers.append("")  # Empty line after headers
 
-            # Add moves
-            moves = game.get("moves", "")
-            if moves:
-                headers.append(moves)
+            # Add moves - Chess.com API provides 'pgn' field with full notation
+            pgn_text = game.get("pgn", "")
+            if pgn_text:
+                # Extract only the moves part (after the headers)
+                pgn_lines = pgn_text.split('\n')
+                moves_started = False
+                moves_lines = []
+                for line in pgn_lines:
+                    if moves_started or (line and not line.startswith('[')):
+                        moves_started = True
+                        moves_lines.append(line)
+                if moves_lines:
+                    headers.append('\n'.join(moves_lines).strip())
+                else:
+                    headers.append(result)
             else:
-                headers.append("*")
+                headers.append(result)
 
             headers.append("")  # Empty line between games
 

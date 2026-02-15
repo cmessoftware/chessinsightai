@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, JSON, Boolean
+from sqlalchemy import Column, Integer, String, Float, JSON, Boolean, DateTime
+from datetime import datetime
 from db.database import Base
 from db.session import get_schema
 
@@ -48,6 +49,9 @@ class Features(Base):
     # Evaluation and metadata
     tags = Column(JSON, nullable=True)
     score_diff = Column(Float, nullable=True)
+    
+    # Timestamp
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=True)
 
     # Basic game info (for convenience, though redundant with games table)
     site = Column(String, nullable=True)

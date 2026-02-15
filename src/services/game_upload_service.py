@@ -9,6 +9,7 @@ import zipfile
 import tarfile
 import gzip
 import bz2
+import uuid
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import chess.pgn
@@ -143,10 +144,20 @@ class GameUploadService:
             logger.error(f"Error extracting {file_path}: {e}")
             raise
     
-    def import_pgn_file(self, file_path: Path, source: str = "uploaded") -> Tuple[int, int]:
-        """Import games from a single PGN file"""
+    def import_pgn_file(self, file_path: Path, source: str = "uploaded", batch_id: Optional[str] = None) -> Tuple[int, int, str]:
+        """Import games from a single PGN file
+        
+        Returns:
+            Tuple[int, int, str]: (imported_count, duplicate_count, batch_id)
+        """
         imported_count = 0
         duplicate_count = 0
+        
+        # Generate batch_id if not provided
+        if batch_id is None:
+            batch_id = str(uuid.uuid4())
+        
+        filename = file_path.name
         
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -159,6 +170,8 @@ class GameUploadService:
                         pgn_str = str(game)
                         game_data = extract_features_from_game(pgn_str)
                         game_data["source"] = source
+                        game_data["import_batch_id"] = batch_id
+                        game_data["source_filename"] = filename
                         
                         if not self.repository.game_exists(game_data["game_id"]):
                             self.repository.save_game(game_data)
@@ -171,7 +184,7 @@ class GameUploadService:
                         continue
             
             self.repository.commit()
-            return imported_count, duplicate_count
+            return imported_count, duplicate_count, batch_id
             
         except Exception as e:
             logger.error(f"Error importing from {file_path}: {e}")
@@ -191,12 +204,13 @@ class GameUploadService:
         
         try:
             if file_validation_result["file_type"] == "PGN":
-                imported, duplicates = self.import_pgn_file(file_path, source)
+                imported, duplicates, batch_id = self.import_pgn_file(file_path, source)
                 return {
                     "success": True,
                     "message": f"✅ {imported} partidas importadas, {duplicates} duplicadas",
                     "imported_count": imported,
-                    "duplicate_count": duplicates
+                    "duplicate_count": duplicates,
+                    "batch_id": batch_id
                 }
             else:
                 # For compressed files, extract and process all PGN files
@@ -208,7 +222,8 @@ class GameUploadService:
                 "success": False,
                 "message": f"❌ Error durante la importación: {e}",
                 "imported_count": 0,
-                "duplicate_count": 0
+                "duplicate_count": 0,
+                "batch_id": None
             }
     
     def _import_compressed_file(self, file_path: Path, source: str) -> Dict[str, Any]:
@@ -217,6 +232,7 @@ class GameUploadService:
             extracted_dir = self.extract_compressed_file(file_path)
             total_imported = 0
             total_duplicates = 0
+            batch_id = str(uuid.uuid4())  # Single batch for all files in archive
             
             # Find all PGN files in extracted directory
             pgn_files = list(extracted_dir.rglob("*.pgn"))
@@ -226,11 +242,12 @@ class GameUploadService:
                     "success": False,
                     "message": "❌ No se encontraron archivos PGN en el archivo comprimido",
                     "imported_count": 0,
-                    "duplicate_count": 0
+                    "duplicate_count": 0,
+                    "batch_id": None
                 }
             
             for pgn_file in pgn_files:
-                imported, duplicates = self.import_pgn_file(pgn_file, source)
+                imported, duplicates, _ = self.import_pgn_file(pgn_file, source, batch_id)
                 total_imported += imported
                 total_duplicates += duplicates
             
@@ -238,7 +255,8 @@ class GameUploadService:
                 "success": True,
                 "message": f"✅ {total_imported} partidas importadas de {len(pgn_files)} archivos PGN, {total_duplicates} duplicadas",
                 "imported_count": total_imported,
-                "duplicate_count": total_duplicates
+                "duplicate_count": total_duplicates,
+                "batch_id": batch_id
             }
             
         except Exception as e:
@@ -246,7 +264,8 @@ class GameUploadService:
             return {
                 "success": False,
                 "message": f"❌ Error procesando archivo comprimido: {e}",
-                "imported_count": 0,
+                "imported_count": 0,,
+                "batch_id": None
                 "duplicate_count": 0
             }
     

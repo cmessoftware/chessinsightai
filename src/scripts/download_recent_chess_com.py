@@ -8,7 +8,16 @@ Este script usa múltiples estrategias para descargar las partidas más reciente
 3. Manejo de rate limiting
 4. Fallback a diferentes endpoints
 
-Descarga partidas de cmess4401 y cmess1315 desde febrero 2025 hasta enero 2026.
+Permite especificar usuarios y fecha desde por parámetros de línea de comandos.
+
+Usage:
+    python download_recent_chess_com.py --users manuelfrp79 cmess4401 --after-date 2025-01-15
+    python download_recent_chess_com.py --users manuelfrp79 --after-date 2025-02-01 --output-dir ./custom_output
+
+Parameters:
+    --users: Lista de usuarios de Chess.com (requerido)
+    --after-date: Fecha desde la cual descargar (formato YYYY-MM-DD, default: 2025-01-01)
+    --output-dir: Directorio de salida (default: ./data/validation_recent)
 """
 
 import requests
@@ -19,6 +28,7 @@ from pathlib import Path
 import chess.pgn
 from io import StringIO
 import random
+import argparse
 
 class ChessComDownloader:
     def __init__(self):
@@ -280,14 +290,58 @@ class ChessComDownloader:
         
         return filepath
 
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description='Download recent Chess.com games for specified users',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python download_recent_chess_com.py --users manuelfrp79 cmess4401
+  python download_recent_chess_com.py --users manuelfrp79 --after-date 2025-01-15
+  python download_recent_chess_com.py --users manuelfrp79 --after-date 2025-02-01 --output-dir ./custom_output
+        """
+    )
+    
+    parser.add_argument(
+        '--users',
+        nargs='+',
+        required=True,
+        help='List of Chess.com usernames to download games from (space separated)'
+    )
+    
+    parser.add_argument(
+        '--after-date',
+        type=str,
+        default='2025-01-01',
+        help='Download games after this date (YYYY-MM-DD format, default: 2025-01-01)'
+    )
+    
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default='./data/validation_recent',
+        help='Output directory for downloaded PGN files (default: ./data/validation_recent)'
+    )
+    
+    return parser.parse_args()
+
 def main():
     print("🚀 DESCARGA DE PARTIDAS RECIENTES - CHESS.COM")
     print("=" * 60)
     
-    # Configuration
-    users = ['cmess4401', 'cmess1315']
-    after_date = datetime(2025, 2, 6)  # After our last known date
-    output_dir = Path('./data/validation_recent')
+    # Parse command line arguments
+    args = parse_arguments()
+    
+    # Configuration from arguments
+    users = args.users
+    try:
+        after_date = datetime.strptime(args.after_date, '%Y-%m-%d')
+    except ValueError:
+        print(f"❌ Invalid date format: {args.after_date}. Use YYYY-MM-DD format.")
+        return 1
+    
+    output_dir = Path(args.output_dir)
     
     print(f"👥 Users: {users}")
     print(f"📅 After: {after_date.date()}")
@@ -347,6 +401,10 @@ def main():
         print("- Verify usernames exist")
         print("- Try again later (rate limiting)")
         print("- Use VPN if IP is blocked")
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

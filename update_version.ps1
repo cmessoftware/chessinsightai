@@ -1,7 +1,7 @@
 # update_version.ps1 - Manual version update script for Windows
 
 # Get current version from hook logic
-$BASE_TAG = "v0.1"
+$BASE_TAG = "v0.2"
 $N = (git rev-list --count "$BASE_TAG..HEAD")
 $HASH = (git rev-parse --short HEAD)
 $VERSION = "$BASE_TAG.$N-$HASH"
@@ -20,7 +20,8 @@ foreach ($FILE in $FILES) {
         # Replace existing version or add at the beginning
         if ($content -match "^# CHESS TRAINER.*Versión:") {
             $content = $content -replace "^# CHESS TRAINER.*Versión:.*", "# CHESS TRAINER - Versión: $VERSION"
-        } else {
+        }
+        else {
             $content = "# CHESS TRAINER - Versión: $VERSION`n`n$content"
         }
         Set-Content -Path $FILE -Value $content -NoNewline

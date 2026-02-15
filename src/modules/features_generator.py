@@ -1,4 +1,5 @@
 import chess
+from datetime import datetime
 
 from modules.feature_engineering import is_center_controlled, is_pawn_endgame
 from modules.pgn_utils import get_game_id
@@ -62,6 +63,7 @@ def extract_features_from_position(board, move):
         "is_low_mobility": is_low_mobility,
         "is_center_controlled": int(is_center_controlled(board, player_color)),
         "is_pawn_endgame": is_pawn_endgame(board),
+        "created_at": datetime.utcnow(),
     }
 
 

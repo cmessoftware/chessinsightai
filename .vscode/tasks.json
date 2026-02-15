@@ -88,6 +88,20 @@
 			"group": "none",
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "🚀 Start Chess API",
+			"type": "shell",
+			"command": "cd src/api && C:/Users/sergiosal/miniforge3/envs/chess_trainer/python.exe -m uvicorn main:app --reload --port 8000",
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "🚀 Restart Chess API",
+			"type": "shell",
+			"command": "cd src/api && C:/Users/sergiosal/miniforge3/envs/chess_trainer/python.exe -m uvicorn main:app --reload --port 8000",
+			"isBackground": true,
+			"group": "build"
 		}
 	]
 }

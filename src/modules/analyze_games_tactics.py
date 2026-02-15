@@ -162,17 +162,18 @@ def detect_tactics_from_game(game, game_id=None, depth=10):
                 tag_alt = "unknown"
 
             print(f"Tactical tag: {tactical_tag} (alternative: {tag_alt})")
-            if tactical_tag:
-                tags.append({
-                    "game_id": game_id,
-                    "fen": fen_before,
-                    "move": move.uci(),
-                    "tag": pre_tag if pre_tag else tactical_tag or tag_alt,
-                    "error_label": error_label,
-                    "score_diff": score_diff,
-                    "player_color": 0 if board.turn == chess.WHITE else 1,
-                    "move_number": i + 1
-                })
+            
+            # SIEMPRE generar feature con error_label, no solo para tácticas
+            tags.append({
+                "game_id": game_id,
+                "fen": fen_before,
+                "move": move.uci(),
+                "tag": pre_tag if pre_tag else tactical_tag or tag_alt or "normal",
+                "error_label": error_label,
+                "score_diff": score_diff,
+                "player_color": 0 if board.turn == chess.WHITE else 1,
+                "move_number": i + 1
+            })
 
             fen_after = board.fen()
             print(f"Evaluating FEN after move: {fen_after}")

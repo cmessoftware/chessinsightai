@@ -39,7 +39,8 @@ if (-not (Test-Path "backups")) {
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 if ($BackupName) {
     $backup_file = "backups\chess_trainer_db_${BackupName}_${timestamp}.sql"
-} else {
+}
+else {
     $backup_file = "backups\chess_trainer_db_backup_${timestamp}.sql"
 }
 
@@ -96,15 +97,18 @@ if ($containerName) {
             }
             Write-Host ""
             
-        } else {
+        }
+        else {
             Write-Host "`n❌ Backup falló (archivo muy pequeño)" -ForegroundColor $Red
             Write-Host "   Contenido del error:`n" -ForegroundColor $Yellow
             Get-Content $backup_file
         }
-    } else {
+    }
+    else {
         Write-Host "`n❌ No se pudo crear el archivo de backup" -ForegroundColor $Red
     }
-} else {
+}
+else {
     Write-Host "❌ No se pudo iniciar el contenedor PostgreSQL" -ForegroundColor $Red
     exit 1
 }

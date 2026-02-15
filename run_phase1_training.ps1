@@ -21,11 +21,13 @@ try {
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`n✅ Entrenamiento completado exitosamente!" -ForegroundColor Green
         Write-Host "   Log guardado en: $logFile" -ForegroundColor Cyan
-    } else {
+    }
+    else {
         Write-Host "`n⚠️  Entrenamiento terminó con código de salida: $LASTEXITCODE" -ForegroundColor Yellow
         Write-Host "   Revisa el log: $logFile" -ForegroundColor Cyan
     }
-} catch {
+}
+catch {
     Write-Host "`n❌ Error durante el entrenamiento: $_" -ForegroundColor Red
     Write-Host "   Log guardado en: $logFile" -ForegroundColor Cyan
 }

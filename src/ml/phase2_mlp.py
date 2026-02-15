@@ -9,6 +9,7 @@ Input: Mismas features que Phase 1
 Modelos: 
 - MLP Keras (2-3 capas)
 - Regularización fuerte: L2, AdamW (weight decay), Dropout, Label smoothing
+- CRITICAL: Manejo de desbalanceo con sample_weight (ratio 59:1 good vs blunder)
 
 Output: error_label ∈ {brilliant, good, inaccuracy, mistake, blunder}
 Métricas: ΔF1 macro vs ML, Reducción de errores graves, Calibración (ECE)
@@ -36,6 +37,7 @@ from sklearn.metrics import (
     accuracy_score, precision_recall_fscore_support
 )
 from sklearn.calibration import calibration_curve
+from sklearn.utils.class_weight import compute_sample_weight  # ⚠️ CRITICAL for imbalance
 import numpy as np
 
 # MLflow imports
@@ -74,17 +76,17 @@ class Phase2MLPTrainer:
         self.phase1_results = {
             'random_forest_f1': 1.000,
             'logistic_l1_f1': 0.872,
-            'logistic_l2_f1': 0.860
+            'logistic_l2_f1': 0.890  # Actualizado con resultado real
         }
         
-        # Configurar MLflow
-        mlflow.set_tracking_uri("http://localhost:5000")
-        mlflow.set_experiment(experiment_name)
+        # Configurar MLflow - DISABLED temporalmente por problemas con artifacts
+        # mlflow.set_tracking_uri(f"file:///{mlflow_dir}")
+        # mlflow.set_experiment(experiment_name)
         
         print(f"🚀 Iniciando Phase 2 MLP Trainer")
-        print(f"📊 MLflow URI: {mlflow.get_tracking_uri()}")
+        print(f"📊 MLflow: DISABLED (guardando resultados localmente)")
         print(f"🧪 Experimento: {experiment_name}")
-        print(f"📈 Baseline Phase 1 - RF F1: {self.phase1_results['random_forest_f1']:.3f}")
+        print(f"📈 Baseline Phase 1 - Logistic L2 F1: {self.phase1_results['logistic_l2_f1']:.3f}")
     
     def load_data_from_db(self, sample_size=None, min_games_per_label=100):
         """
@@ -296,17 +298,31 @@ class Phase2MLPTrainer:
         """
         print(f"\n🧠 Entrenando modelo MLP: {model_name}")
         
-        with mlflow.start_run(run_name=f"phase2_{model_name}") as run:
-            
+        try:
             # Crear modelo
             model = self.create_mlp_model(model_type)
             
-            # Entrenar modelo - con debug específico
+            # ⚠️ CRITICAL: Compute sample weights for class imbalance (59:1 ratio)
+            # Phase 1 used class_weight='balanced' in Logistic Regression
+            # MLPClassifier doesn't support class_weight, so we use sample_weight
+            print(f"   ⚖️ Computing sample weights for class imbalance...")
+            sample_weights_train = compute_sample_weight('balanced', y_train)
+            
+            # Show weight distribution
+            unique_labels = np.unique(y_train)
+            for label in unique_labels:
+                mask = y_train == label
+                avg_weight = sample_weights_train[mask].mean()
+                count = mask.sum()
+                print(f"      Class '{label}': {count} samples, avg weight: {avg_weight:.3f}")
+            
+            # Entrenar modelo - con sample_weight para balancear clases
             print(f"   🔍 Datos para entrenar - X: {X_train.shape}, {X_train.dtype}")
             print(f"   🔍 Labels para entrenar - y: {len(y_train)} elementos")
             print(f"   🔍 X_train sample: {X_train[0][:3]}")  # Primeros 3 valores
             
-            model.fit(X_train, y_train)
+            # ⚠️ FIT WITH SAMPLE_WEIGHT - This is critical for handling imbalance
+            model.fit(X_train, y_train, sample_weight=sample_weights_train)
             
             # Predicciones
             y_pred_train = model.predict(X_train)
@@ -346,50 +362,18 @@ class Phase2MLPTrainer:
             labels = sorted(set(y_test))
             critical_confusion = self._analyze_critical_confusion(cm, labels)
             
-            # Log parámetros y métricas a MLflow
-            mlflow.log_params({
-                'model_type': model_type,
-                'hidden_layer_sizes': str(model.hidden_layer_sizes),
-                'alpha': model.alpha,
-                'max_iter': model.max_iter,
-                'solver': model.solver,
-                'activation': model.activation
-            })
+            # Log parámetros y métricas - SKIP MLflow por ahora
+            run_id = "local_run"
             
-            mlflow.log_metrics({
-                'train_f1_macro': train_f1_macro,
-                'test_f1_macro': test_f1_macro,
-                'train_accuracy': train_accuracy,
-                'test_accuracy': test_accuracy,
-                'cv_f1_macro_mean': cv_scores.mean(),
-                'cv_f1_macro_std': cv_scores.std(),
-                'ece': ece_score,
-                'delta_f1_vs_random_forest': delta_f1_vs_rf,
-                'delta_f1_vs_best_logistic': delta_f1_vs_best_lr,
-                'critical_confusion_pct': critical_confusion['percentage'],
-                'n_samples_train': len(X_train),
-                'n_samples_test': len(X_test),
-                'n_features': X_train.shape[1],
-                'n_iter': model.n_iter_
-            })
-            
-            # Guardar artifacts
+            # Save artifacts locally
             self._save_confusion_matrix(cm, labels, model_name)
             self._save_classification_report(y_test, y_pred_test, model_name)
-            
-            # Log del modelo
-            signature = infer_signature(X_test, y_pred_test)
-            mlflow.sklearn.log_model(
-                model, 
-                f"phase2_{model_name}", 
-                signature=signature
-            )
             
             # Resultados
             results = {
                 'model_name': model_name,
                 'model_type': model_type,
-                'run_id': run.info.run_id,
+                'run_id': run_id,
                 'train_f1_macro': train_f1_macro,
                 'test_f1_macro': test_f1_macro,
                 'train_accuracy': train_accuracy,
@@ -413,6 +397,10 @@ class Phase2MLPTrainer:
             print(f"   Confusión crítica: {critical_confusion['percentage']:.1f}%")
             
             return results
+        
+        except Exception as e:
+            print(f"❌ Error entrenando {model_name}: {e}")
+            return None
     
     def _analyze_critical_confusion(self, cm, labels):
         """Analizar confusión crítica good ↔ blunder (igual que Phase 1)"""
