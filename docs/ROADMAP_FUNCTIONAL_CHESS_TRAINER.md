@@ -178,13 +178,19 @@ chess_trainer/
 
 ---
 
-### **FUNCIONALIDAD 3.1: Chess Board Interactivo + Log System Base**
+### **FUNCIONALIDAD 3.1: Chess Board Interactivo Básico + Log System Base**
 **Issue**: `#chess-board-react`  
 **Duración**: 6 días (ampliado +1 día para logging)  
-**Rol principal**: `basic_gamer`, `analysis_board` + `admin`
+**Rol principal**: `basic_gamer`, `analysis_board` + `admin`  
+**Sprint**: Sprint 2
+
+**⚠️ Nota importante:**
+> Esta es una **versión MVP básica funcional** del tablero de ajedrez.  
+> La integración completa del **tablero de Lichess (Chessground)** con UX profesional  
+> se implementará en **FUNCIONALIDAD 3.10 (Training Module)** durante Sprint 4.
 
 **Objetivos**:
-- Tablero interactivo usando Chess.js + ChessBoard.js
+- Tablero interactivo básico usando Chess.js + ChessBoard.js
 - Navegación por jugadas (anterior/siguiente)
 - Click para mostrar información de casillas
 - Modo análisis con evaluación de posición
@@ -545,14 +551,29 @@ const ExerciseCreatorPage = () => {
 
 ---
 
-### **FUNCIONALIDAD 3.10: Training Module**
-**Issue**: `#training-module`  
-**Duración**: 7 días  
-**Rol principal**: `tactics_trainer`, `basic_gamer`
+### **FUNCIONALIDAD 3.10: Training Module + Lichess Board Integration**
+**Issue**: `#training-module-lichess-board`  
+**Duración**: 7 días (incluye integración Lichess Chessground)  
+**Rol principal**: `tactics_trainer`, `basic_gamer`  
+**Sprint**: Sprint 4  
+**Prioridad**: ALTA - Mejora crítica de UX
+
+**🎯 Nota crítica:**
+> **Esta funcionalidad incluye la integración completa del tablero de Lichess (Chessground)**  
+> Reemplazará el tablero básico de 3.1 con una experiencia profesional:
+> - Librería: `chessground` (usado por Lichess.org)
+> - Animaciones fluidas y naturales
+> - Highlights de movimientos legales/ilegales
+> - Flechas de análisis arrastrables
+> - Theming personalizable (oscuro/claro)
+> - Performance optimizada para móviles
+> - Integración con puzzles y ejercicios
 
 **Objetivos**:
+- **🆕 Integrar Lichess Chessground** en toda la aplicación
+- Migrar tablero básico (3.1) a Chessground
 - Sistema de entrenamiento adaptativo
-- Ejercicios tácticos progresivos
+- Ejercicios tácticos progresivos con tablero mejorado
 - Tracking de progreso individual
 - Sistema de puntuación y logros
 
@@ -1121,6 +1142,110 @@ Crear issue `#chess-board-react` y comenzar desarrollo del tablero interactivo.
 - **Archivos**: 185+ archivos agregados, 33 legacy files eliminados
 - **Tamaño**: 53.79 MiB de cambios subidos
 - **Organización**: .gitignore actualizado para excluir mlartifacts/ y mlruns/
+
+---
+
+## 📅 **PLANIFICACIÓN POR SPRINTS**
+
+### **Sprint 1: Database Browser + Authentication** ✅ COMPLETADO
+**Duración**: 2 semanas (Feb 1-14, 2026)  
+**Estado**: ✅ Completado 100%
+
+**Funcionalidades:**
+- ✅ FASE 0: Preparación y migración base
+- ✅ Sistema de autenticación JWT completo
+- ✅ Database Browser con filtros por rol
+- ✅ Testing y validación completa
+- ✅ Documentación técnica y funcional
+
+**Entregables:**
+- Backend FastAPI operativo (puerto 8000)
+- Frontend React operativo (puerto 5173)
+- 3 usuarios de prueba configurados
+- 237,250 partidas en PostgreSQL
+- Documentación: TESTING_AUTHENTICATION.md
+
+---
+
+### **Sprint 2: Chess Board + Stockfish + Games Explorer** 🔜 PLANIFICADO
+**Duración**: 3-4 semanas  
+**Estado**: 🔜 Por iniciar
+
+**Funcionalidades:**
+- 🔜 **FUNCIONALIDAD 3.1**: Chess Board Interactivo básico + Log System Base (6 días)
+- 🔜 **FUNCIONALIDAD 3.2**: Conexión con Stockfish + Logs Engine (5 días)
+- 🔜 **FUNCIONALIDAD 3.3**: Games Explorer en React + Logs Database (7 días)
+- 🔜 **FUNCIONALIDAD 3.4**: Navegación de Partidas (3 días)
+
+**Entregables esperados:**
+- Tablero interactivo funcional (versión MVP)
+- Jugar contra Stockfish con niveles de dificultad
+- Explorador de partidas con filtros avanzados
+- Sistema de logs para admin (módulos: chess, engine, database)
+
+**Nota sobre Chess Board:**
+> ℹ️ La versión 3.1 será un tablero básico funcional usando Chess.js + ChessBoard.js.
+> El tablero **Lichess mejorado** (mejor UX, análisis visual) se integrará en **Sprint 4 (FUNCIONALIDAD 3.10)**.
+
+---
+
+### **Sprint 3: Feature Extraction + Analysis** 🔜 PLANIFICADO
+**Duración**: 2-3 semanas  
+**Estado**: 🔜 Por iniciar
+
+**Funcionalidades:**
+- 🟡 **FUNCIONALIDAD 3.5**: Sistema de Notificaciones + Extracción de Features (3 días) - *Código implementado, requiere testing*
+- 🔜 **FUNCIONALIDAD 3.6**: Analysis Feedback Module (5 días)
+- 🔜 **FUNCIONALIDAD 3.7**: Chess Games Stats (6 días)
+
+**Entregables esperados:**
+- Sistema de notificaciones operativo
+- Extracción automática de features desde UI
+- Dashboard de análisis ML
+- Estadísticas avanzadas por jugador
+
+---
+
+### **Sprint 4: Exercises + Training + Lichess Board Mejorado** 🔜 PLANIFICADO
+**Duración**: 3-4 semanas  
+**Estado**: 🔜 Por iniciar
+
+**Funcionalidades:**
+- 🔜 **FUNCIONALIDAD 3.8**: Create Exercises (estilo Lichess) (8 días)
+- 🔜 **FUNCIONALIDAD 3.9**: Analysis Feedback avanzado (5 días)
+- 🔜 **FUNCIONALIDAD 3.10**: Training Module + **Lichess Board Integration** (7 días)
+
+**Entregables esperados:**
+- Editor de ejercicios tácticos
+- Sistema de training adaptativo
+- **Integración de Lichess Chessground** para UX profesional
+- Sistema de progreso y logros
+
+**Nota importante:**
+> 🎯 **FUNCIONALIDAD 3.10 incluirá la integración completa del tablero de Lichess (Chessground)**  
+> Esto proporcionará una experiencia de usuario profesional con:
+> - Animaciones fluidas de piezas
+> - Highlights de movimientos
+> - Flechas de análisis
+> - Theming personalizable
+> - Performance optimizada
+
+---
+
+### **Sprint 5: Advanced Analytics + Admin Tools** 🔜 PLANIFICADO
+**Duración**: 2-3 semanas  
+**Estado**: 🔜 Por iniciar
+
+**Funcionalidades:**
+- 🔜 **FUNCIONALIDAD 3.11**: Survivorship Bias Module + Logs Analytics (5 días)
+- 🔜 **FUNCIONALIDAD 3.12**: Sistema de Log Viewer Completo (2 días)
+- 🔜 **FUNCIONALIDAD 3.13**: EDA Analysis (Admin) (9 días)
+
+**Entregables esperados:**
+- Módulo Survivorship Bias integrado
+- Dashboard completo de logs para admin
+- Análisis exploratorio de datos (EDA)
+- Sistema de alertas y monitoreo
 
 ---
 
