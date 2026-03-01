@@ -17,6 +17,7 @@ from datetime import datetime
 
 from api.services.auth_service import AuthService
 from api.services.analysis_service import AnalysisService
+from api.services.llm_analysis_service import LLMAnalysisService
 from api.database import get_db
 
 router = APIRouter(prefix="/api", tags=["analysis"])
@@ -25,6 +26,7 @@ security = HTTPBearer()
 # Instancias de servicios
 auth_service = AuthService()
 analysis_service = AnalysisService()
+llm_analysis_service = LLMAnalysisService()
 
 
 # ========================
@@ -110,6 +112,36 @@ class ShapValueWithGame(BaseModel):
     move_uci: Optional[str] = None
     fen: Optional[str] = None
     player_color: Optional[str] = None
+
+
+class LLMReportRequest(BaseModel):
+    """Request para generar informe pedagógico con LLM"""
+
+    game_id: str
+    player_elo: int
+    analysis_id: Optional[int] = None  # Si None, ejecuta análisis ML automáticamente
+    username: Optional[str] = None  # Si None, usa current_user
+
+
+class TokenUsage(BaseModel):
+    """Uso de tokens en la llamada LLM"""
+
+    prompt: int
+    completion: int
+    total: int
+
+
+class LLMReportResponse(BaseModel):
+    """Response con informe pedagógico generado"""
+
+    analysis_id: int
+    game_id: str
+    player_elo: int
+    report: str  # Informe en formato Markdown
+    tokens_used: TokenUsage
+    model: str
+    cost_estimate_usd: float
+    generated_at: Optional[datetime] = None
 
 
 # ========================
@@ -544,4 +576,169 @@ async def get_shap_values_by_game(
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error obteniendo SHAP values: {str(e)}"
+        )
+
+
+# ========================
+# FUNCIONALIDAD 3.6.1 - LLM Pedagógico (Fase 1 - MVP)
+# ========================
+
+
+@router.post("/analysis/generate-llm-report", response_model=LLMReportResponse)
+async def generate_pedagogical_report(
+    request: LLMReportRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    🧠 FUNCIONALIDAD 3.6.1 - Fase 1: Generar informe pedagógico con LLM
+    
+    Genera un informe de entrenamiento personalizado usando GPT-4, adaptado
+    al nivel ELO del jugador. Traduce análisis técnico SHAP en feedback
+    pedagógico comprensible.
+    
+    **Flujo:**
+    1. Si no hay analysis_id: Ejecuta análisis ML + SHAP automáticamente
+    2. Obtiene resumen SHAP del análisis
+    3. Construye prompt adaptado al ELO del jugador
+    4. Llama a GPT-4 para generar informe
+    5. Retorna informe en Markdown + metadata
+    
+    **Adaptación por ELO:**
+    - <1200: Material, tácticas básicas, lenguaje simple
+    - 1200-1700: Desarrollo, iniciativa, conceptos posicionales
+    - 1700-2100: Estructura, planes, profilaxis
+    - 2100+: Optimización fina, precisión dinámica
+    
+    **Costos estimados (GPT-4):**
+    - Prompt: ~1,500 tokens
+    - Completion: ~1,000 tokens
+    - Total: ~2,500 tokens → $0.10 por análisis
+    
+    **Ejemplo de uso:**
+    ```bash
+    curl -X POST "http://localhost:8000/api/analysis/generate-llm-report" \\
+         -H "Authorization: Bearer <token>" \\
+         -H "Content-Type: application/json" \\
+         -d '{
+               "game_id": "5daf60d3cfe938ed...",
+               "player_elo": 1420,
+               "analysis_id": 49
+             }'
+    ```
+    
+    **Nota**: Requiere OPENAI_API_KEY configurada en .env
+    """
+    try:
+        # Usar username del request o del current_user
+        username = request.username or current_user.get("username")
+        
+        if not username:
+            raise HTTPException(
+                status_code=400, detail="Username requerido (token o request body)"
+            )
+        
+        print(f"\n{'='*60}")
+        print(f"🧠 GENERANDO INFORME PEDAGÓGICO CON LLM")
+        print(f"{'='*60}")
+        print(f"   Usuario: {username}")
+        print(f"   Game ID: {request.game_id}")
+        print(f"   ELO: {request.player_elo}")
+        print(f"   Analysis ID: {request.analysis_id or 'Auto (ejecutará ML)'}")
+        
+        # Generar informe usando LLM service
+        result = await llm_analysis_service.generate_pedagogical_report(
+            db=db,
+            game_id=request.game_id,
+            player_elo=request.player_elo,
+            analysis_id=request.analysis_id
+        )
+        
+        # Preparar respuesta
+        response = LLMReportResponse(
+            analysis_id=result["analysis_id"],
+            game_id=result["game_id"],
+            player_elo=result["player_elo"],
+            report=result["report"],
+            tokens_used=TokenUsage(**result["tokens_used"]),
+            model=result["model"],
+            cost_estimate_usd=result["cost_estimate_usd"],
+            generated_at=datetime.now()
+        )
+        
+        print(f"\n✅ Informe generado exitosamente")
+        print(f"   Tokens: {result['tokens_used']['total']}")
+        print(f"   Costo: ${result['cost_estimate_usd']:.4f}")
+        print(f"{'='*60}\n")
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except ValueError as e:
+        # Error de configuración (API key faltante)
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error generando informe LLM: {str(e)}"
+        )
+
+
+@router.post("/analysis/generate-batch-llm-reports")
+async def generate_batch_pedagogical_reports(
+    game_ids: List[str],
+    player_elo: int,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    🧠 FUNCIONALIDAD 3.6.1 - Fase 1: Generar informes en batch
+    
+    Genera múltiples informes pedagógicos para una lista de partidas.
+    Útil para análisis de múltiples juegos de un mismo jugador.
+    
+    **Ejemplo de uso:**
+    ```bash
+    curl -X POST "http://localhost:8000/api/analysis/generate-batch-llm-reports" \\
+         -H "Authorization: Bearer <token>" \\
+         -H "Content-Type: application/json" \\
+         -d '{
+               "game_ids": ["game1...", "game2...", "game3..."],
+               "player_elo": 1420
+             }'
+    ```
+    
+    **Nota**: El batch procesa secuencialmente para evitar rate limits de OpenAI.
+    """
+    try:
+        username = current_user.get("username")
+        
+        print(f"\n{'='*60}")
+        print(f"🧠 GENERANDO BATCH DE {len(game_ids)} INFORMES LLM")
+        print(f"{'='*60}")
+        print(f"   Usuario: {username}")
+        print(f"   ELO: {player_elo}")
+        
+        # Generar batch de informes
+        reports = await llm_analysis_service.generate_batch_reports(
+            db=db,
+            game_ids=game_ids,
+            player_elo=player_elo
+        )
+        
+        return {
+            "total_games": len(game_ids),
+            "successful": sum(1 for r in reports if "error" not in r),
+            "failed": sum(1 for r in reports if "error" in r),
+            "total_cost_usd": sum(r.get("cost_estimate_usd", 0) for r in reports),
+            "total_tokens": sum(r.get("tokens_used", {}).get("total", 0) for r in reports),
+            "reports": reports
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error en batch LLM: {str(e)}"
         )
