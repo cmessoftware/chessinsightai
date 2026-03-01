@@ -1,0 +1,547 @@
+# api/routers/analysis.py
+"""
+Router para análisis ML + SHAP explicable.
+
+Endpoints para:
+- Ejecutar análisis ML con SHAP sobre partidas
+- Obtener distribución y tendencias de errores
+- Acceder a feature importance global y move-level
+- Consultar historial de análisis
+"""
+from fastapi import APIRouter, HTTPException, Depends, Query, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
+from typing import List, Dict, Optional
+from sqlalchemy.orm import Session
+from datetime import datetime
+
+from api.services.auth_service import AuthService
+from api.services.analysis_service import AnalysisService
+from api.database import get_db
+
+router = APIRouter(prefix="/api", tags=["analysis"])
+security = HTTPBearer()
+
+# Instancias de servicios
+auth_service = AuthService()
+analysis_service = AnalysisService()
+
+
+# ========================
+# Pydantic Schemas
+# ========================
+
+
+class AnalysisRequest(BaseModel):
+    """Request para ejecutar análisis ML"""
+
+    game_id: str
+    username: Optional[str] = None  # Si None, usa current_user
+
+
+class AnalysisResponse(BaseModel):
+    """Response con ID del análisis creado"""
+
+    analysis_id: int
+    status: str
+    message: str
+
+
+class ErrorDistribution(BaseModel):
+    """Distribución de errores del usuario"""
+
+    blunder: int
+    mistake: int
+    inaccuracy: int
+    good: int
+
+
+class ErrorTrendPoint(BaseModel):
+    """Punto en evolución temporal de errores"""
+
+    date: str
+    blunder_rate: float
+    mistake_rate: float
+    inaccuracy_rate: float
+    accuracy: float
+
+
+class FeatureImportance(BaseModel):
+    """Importancia de una feature (SHAP)"""
+
+    feature_name: str
+    mean_abs_shap_value: float
+    mean_shap_value: float
+    total_samples: int
+
+
+class FeatureImpact(BaseModel):
+    """Impacto de una feature en una jugada específica"""
+
+    feature: str
+    impact: float
+    value: float
+
+
+class MoveShapExplanation(BaseModel):
+    """Explicación SHAP para una jugada específica"""
+
+    move_number: int
+    error_level: str
+    top_features: List[FeatureImpact]
+
+
+class ShapValueWithGame(BaseModel):
+    """SHAP value con información del game (desde vista SQL)"""
+
+    shap_id: int
+    analysis_id: int
+    game_id: str
+    username: str
+    error_label: str  # CORREGIDO: era error_level
+    accuracy_percentage: float
+    analyzed_at: datetime
+    move_number: int
+    feature_name: str
+    shap_value: float
+    feature_value: float
+    # Contexto del movimiento (agregado 2026-02-28)
+    move_san: Optional[str] = None
+    move_uci: Optional[str] = None
+    fen: Optional[str] = None
+    player_color: Optional[str] = None
+
+
+# ========================
+# Dependency: Current User
+# ========================
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    """Extraer usuario actual del token JWT"""
+    try:
+        payload = auth_service.verify_token(credentials.credentials, db)
+
+        if not payload:
+            raise HTTPException(status_code=401, detail="Token inválido")
+
+        return payload
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Error autenticación: {str(e)}")
+
+
+# ========================
+# Endpoints
+# ========================
+
+
+@router.post("/analysis/run", response_model=AnalysisResponse)
+async def run_ml_analysis(
+    request: AnalysisRequest,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    🧠 Ejecutar análisis ML + SHAP sobre una partida.
+
+    Workflow:
+    1. Obtener features de la partida
+    2. Ejecutar predicción ML
+    3. Calcular SHAP values
+    4. Persistir en analysis_results + move_shap_values
+    5. Actualizar player_feature_importance
+
+    Permissions: Requiere autenticación
+    """
+    try:
+        username = request.username or current_user["username"]
+
+        # Ejecutar análisis
+        analysis_id = analysis_service.analyze_game(
+            db=db, game_id=request.game_id, username=username
+        )
+
+        return AnalysisResponse(
+            analysis_id=analysis_id,
+            status="completed",
+            message=f"Análisis ML + SHAP completado para game_id={request.game_id}",
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error ejecutando análisis ML: {str(e)}"
+        )
+
+
+@router.get("/stats/error-distribution", response_model=ErrorDistribution)
+async def get_error_distribution(
+    days: int = Query(30, description="Últimos N días a analizar"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    📊 Obtener distribución de errores del usuario.
+
+    Returns:
+        Conteo de {blunder, mistake, inaccuracy, good} en últimos N días.
+
+    Usado por: ErrorDistributionChart (PieChart)
+    Permissions: Requiere autenticación
+    """
+    try:
+        username = current_user["username"]
+
+        distribution = analysis_service.get_error_distribution(
+            db=db, username=username, days=days
+        )
+
+        return ErrorDistribution(**distribution)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error obteniendo distribución: {str(e)}"
+        )
+
+
+@router.get("/stats/error-trend", response_model=List[ErrorTrendPoint])
+async def get_error_trend(
+    days: int = Query(90, description="Ventana de análisis en días"),
+    interval_days: int = Query(7, description="Intervalo de agrupación (días)"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    📈 Obtener evolución temporal de errores (agrupado por intervalos).
+
+    Returns:
+        Lista de puntos con {date, blunder_rate, mistake_rate, inaccuracy_rate, accuracy}.
+
+    Usado por: TemporalTrendChart (LineChart)
+    Permissions: Requiere autenticación
+    """
+    try:
+        username = current_user["username"]
+
+        trend = analysis_service.get_error_temporal_trend(
+            db=db, username=username, days=days, interval_days=interval_days
+        )
+
+        return [ErrorTrendPoint(**point) for point in trend]
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error obteniendo tendencia: {str(e)}"
+        )
+
+
+@router.get(
+    "/analysis/global-feature-importance", response_model=List[FeatureImportance]
+)
+async def get_global_feature_importance(
+    top_k: int = Query(10, description="Top K features más importantes"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    🧠 Obtener top features más importantes (SHAP agregado por jugador).
+
+    Returns:
+        Lista ordenada de {feature_name, mean_abs_shap_value, total_samples}.
+
+    Usado por: GlobalShapChart (BarChart horizontal)
+    Permissions: Requiere autenticación
+    """
+    try:
+        username = current_user["username"]
+
+        importance = analysis_service.get_global_feature_importance(
+            db=db, username=username, top_k=top_k
+        )
+
+        return [FeatureImportance(**item) for item in importance]
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error obteniendo feature importance: {str(e)}"
+        )
+
+
+@router.get("/analysis/game/{game_id}/shap", response_model=MoveShapExplanation)
+async def get_move_shap_explanation(
+    game_id: str,
+    move_number: int = Query(..., description="Número de jugada (1-indexed)"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    ♟️ Obtener explicación SHAP para una jugada específica.
+
+    Returns:
+        {move_number, error_level, top_features: [{feature, impact, value}]}
+
+    Usado por: MoveShapPanel (panel interactivo)
+    Permissions: Requiere autenticación
+    """
+    try:
+        explanation = analysis_service.get_move_shap_explanation(
+            db=db, game_id=game_id, move_number=move_number
+        )
+
+        return MoveShapExplanation(**explanation)
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error obteniendo SHAP de jugada: {str(e)}"
+        )
+
+
+@router.get("/analysis/history")
+async def get_analysis_history(
+    limit: int = Query(20, description="Cantidad de análisis a retornar"),
+    offset: int = Query(0, description="Offset para paginación"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    📜 Obtener historial de análisis ML del usuario.
+
+    Returns:
+        Lista de {analysis_id, game_id, error_level, analyzed_at, ...}.
+
+    Permissions: Requiere autenticación
+    """
+    try:
+        from db.models.analysis_results import AnalysisResult
+        from sqlalchemy import desc
+
+        username = current_user["username"]
+
+        # Query con paginación
+        history = (
+            db.query(AnalysisResult)
+            .filter(AnalysisResult.username == username)
+            .order_by(desc(AnalysisResult.analyzed_at))
+            .limit(limit)
+            .offset(offset)
+            .all()
+        )
+
+        # Convertir a dicts
+        results = [
+            {
+                "analysis_id": a.id,
+                "game_id": a.game_id,
+                "error_level": a.error_level,
+                "prediction_confidence": a.prediction_confidence,
+                "total_moves": a.total_moves,
+                "blunder_count": a.blunder_count,
+                "mistake_count": a.mistake_count,
+                "inaccuracy_count": a.inaccuracy_count,
+                "accuracy_percentage": a.accuracy_percentage,
+                "analyzed_at": a.analyzed_at.isoformat() if a.analyzed_at else None,
+            }
+            for a in history
+        ]
+
+        return {
+            "total": len(results),
+            "limit": limit,
+            "offset": offset,
+            "results": results,
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error obteniendo historial: {str(e)}"
+        )
+
+
+@router.get("/analysis/{analysis_id}")
+async def get_analysis_detail(
+    analysis_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    🔍 Obtener detalle completo de un análisis específico.
+
+    Returns:
+        Análisis completo con métricas y metadatos.
+
+    Permissions: Requiere autenticación (solo puede ver sus propios análisis)
+    """
+    try:
+        from db.models.analysis_results import AnalysisResult
+
+        username = current_user["username"]
+
+        analysis = (
+            db.query(AnalysisResult)
+            .filter(
+                AnalysisResult.id == analysis_id,
+                AnalysisResult.username == username,  # Security: solo own analysis
+            )
+            .first()
+        )
+
+        if not analysis:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Análisis {analysis_id} no encontrado o sin permisos",
+            )
+
+        return analysis.to_dict()
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error obteniendo análisis: {str(e)}"
+        )
+
+
+@router.get("/analysis/shap/game/{game_id}", response_model=List[ShapValueWithGame])
+async def get_shap_values_by_game(
+    game_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    move_number: Optional[int] = Query(
+        None, description="Filtrar por número de jugada específico"
+    ),
+    top_n: Optional[int] = Query(
+        None, description="Limitar a top N features por jugada", ge=1, le=50
+    ),
+):
+    """
+    📊 Obtener todos los SHAP values de una partida específica.
+
+    Consulta la vista shap_values_with_games que combina:
+    - move_shap_values
+    - analysis_results
+    - Información del game
+
+    Query Params:
+        - move_number: Filtrar por jugada específica
+        - top_n: Limitar a top N features por jugada (ordenado por |shap_value|)
+
+    Returns:
+        Lista de SHAP values con contexto completo del game
+
+    Permissions: Requiere autenticación (solo puede ver sus propios análisis)
+    """
+    try:
+        from sqlalchemy import text
+
+        username = current_user["username"]
+
+        # Query base sobre la vista SQL
+        query = """
+            SELECT 
+                shap_id,
+                analysis_id,
+                game_id,
+                username,
+                error_label,
+                accuracy_percentage,
+                analyzed_at,
+                move_number,
+                feature_name,
+                shap_value,
+                feature_value,
+                move_san,
+                move_uci,
+                fen,
+                player_color
+            FROM shap_values_with_games
+            WHERE game_id = :game_id
+            AND username = :username
+        """
+
+        params = {"game_id": game_id, "username": username}
+
+        # Filtro opcional por move_number
+        if move_number is not None:
+            query += " AND move_number = :move_number"
+            params["move_number"] = move_number
+
+        # Si top_n está especificado, usar una subconsulta con RANK
+        if top_n is not None:
+            query = f"""
+                SELECT * FROM (
+                    SELECT 
+                        shap_id,
+                        analysis_id,
+                        game_id,
+                        username,
+                        error_label,
+                        accuracy_percentage,
+                        analyzed_at,
+                        move_number,
+                        feature_name,
+                        shap_value,
+                        feature_value,
+                        move_san,
+                        move_uci,
+                        fen,
+                        player_color,
+                        RANK() OVER (PARTITION BY move_number ORDER BY ABS(shap_value) DESC) as rank
+                    FROM shap_values_with_games
+                    WHERE game_id = :game_id
+                    AND username = :username
+                    {f"AND move_number = :move_number" if move_number is not None else ""}
+                ) ranked
+                WHERE rank <= :top_n
+                ORDER BY move_number, rank
+            """
+            params["top_n"] = top_n
+        else:
+            query += " ORDER BY move_number, ABS(shap_value) DESC"
+
+        # Ejecutar query
+        result = db.execute(text(query), params)
+        rows = result.fetchall()
+
+        if not rows:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No se encontraron SHAP values para game_id={game_id} o sin permisos",
+            )
+
+        # Convertir a lista de objetos ShapValueWithGame
+        shap_values = []
+        for row in rows:
+            shap_values.append(
+                ShapValueWithGame(
+                    shap_id=row[0],
+                    analysis_id=row[1],
+                    game_id=row[2],
+                    username=row[3],
+                    error_label=row[4],  # CORREGIDO: era error_level
+                    accuracy_percentage=row[5],
+                    analyzed_at=row[6],
+                    move_number=row[7],
+                    feature_name=row[8],
+                    shap_value=row[9],
+                    feature_value=row[10],
+                    move_san=row[11] if len(row) > 11 else None,
+                    move_uci=row[12] if len(row) > 12 else None,
+                    fen=row[13] if len(row) > 13 else None,
+                    player_color=row[14] if len(row) > 14 else None,
+                )
+            )
+
+        return shap_values
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error obteniendo SHAP values: {str(e)}"
+        )
