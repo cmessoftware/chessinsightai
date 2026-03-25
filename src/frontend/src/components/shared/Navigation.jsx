@@ -131,7 +131,7 @@ const Navigation = () => {
                         />
 
                         {/* Campanita de notificaciones */}
-                        {/* <NotificationBell /> */}  {/* Temporalmente deshabilitado */}
+                        <NotificationBell />
 
                         <IconButton
                             size="large"

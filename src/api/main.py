@@ -15,7 +15,7 @@ from routers import (
     exercises,
     reports,
     notifications,
-    test_auth,
+    analysis,
 )
 
 from middleware.jwt_middleware import JWTMiddleware
@@ -62,11 +62,11 @@ jwt_middleware = JWTMiddleware(
         "/redoc",
         "/openapi.json",
         "/favicon.ico",
-        "/auth/login",
+        "/api/auth/login",
         # Rutas temporales para testing sin auth (si son necesarias)
-        "/chess/test/games/1",
-        "/chess/test/games/2",
-        "/chess/test/analyze",
+        "/api/chess/test/games/1",
+        "/api/chess/test/games/2",
+        "/api/chess/test/analyze",
     ]
 )
 
@@ -79,15 +79,15 @@ async def jwt_middleware_handler(request: Request, call_next):
 
 
 # Incluir routers
-app.include_router(test_auth.router, prefix="/test", tags=["testing"])
-app.include_router(auth.router, prefix="/auth", tags=["authentication"])
-app.include_router(chess.router, prefix="/chess", tags=["chess"])
-app.include_router(logs.router, prefix="/logs", tags=["logging"])
+app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
+app.include_router(chess.router, prefix="/api/chess", tags=["chess"])
+app.include_router(logs.router, prefix="/api/logs", tags=["logging"])
 app.include_router(import_pgn.router, tags=["import"])
 app.include_router(features.router, tags=["features"])
 app.include_router(exercises.router, tags=["exercises"])
 app.include_router(reports.router, tags=["reports"])
 app.include_router(notifications.router, tags=["notifications"])
+app.include_router(analysis.router, tags=["analysis", "ml", "shap"])
 
 
 @app.get("/")
@@ -117,10 +117,52 @@ async def favicon():
 
 @app.get("/health")
 async def health_check():
-    """Endpoint de salud"""
+    """
+    Health check endpoint para Render y monitoring.
+    Verifica: API, Database, Ollama (si está configurado)
+    """
+    import httpx
+    from datetime import datetime
+    
+    health_status = {
+        "status": "healthy",
+        "service": "chess-trainer-api",
+        "timestamp": datetime.now().isoformat(),
+        "checks": {
+            "api": "ok",
+            "database": "unknown",
+            "ollama": "unknown"
+        }
+    }
+    
+    # Check Database
+    try:
+        from db.session import get_session
+        db = get_session()
+        db.execute("SELECT 1")
+        db.close()
+        health_status["checks"]["database"] = "ok"
+    except Exception as e:
+        health_status["checks"]["database"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+    
+    # Check Ollama (optional - don't fail if not configured)
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            response = await client.get("http://localhost:11434/api/version")
+            if response.status_code == 200:
+                health_status["checks"]["ollama"] = "ok"
+            else:
+                health_status["checks"]["ollama"] = "not_running"
+    except Exception:
+        health_status["checks"]["ollama"] = "not_configured"
+    
+    # Return appropriate status code
+    status_code = 200 if health_status["status"] == "healthy" else 503
+    
     return JSONResponse(
-        status_code=200,
-        content={"status": "healthy", "service": "chess-trainer-api"},
+        status_code=status_code,
+        content=health_status,
         headers={"Content-Type": "application/json"},
     )
 
@@ -157,3 +199,5 @@ async def general_exception_handler(request, exc):
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
+
+

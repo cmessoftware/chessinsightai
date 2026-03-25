@@ -510,6 +510,7 @@ async def import_personal_pgn_endpoint(
                 "filename": file.filename,
                 "imported": result["imported"],
                 "skipped": result["skipped"],
+                "batch_id": result["batch_id"],  # CRÍTICO: retornar batch_id
                 "username": username,
                 "message": f"Se importaron {result['imported']} partidas correctamente",
             }

@@ -10,8 +10,8 @@ Endpoints para:
 """
 from fastapi import APIRouter, HTTPException, Depends, Query, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
-from typing import List, Dict, Optional
+from pydantic import BaseModel, Field, validator
+from typing import List, Dict, Optional, Literal
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -118,7 +118,12 @@ class LLMReportRequest(BaseModel):
     """Request para generar informe pedagógico con LLM"""
 
     game_id: str
-    player_elo: int
+    player_elo: int = Field(
+        gt=0, le=4000, description="Rating ELO del jugador (1-4000)"
+    )
+    player_color: Literal["white", "black"] = Field(
+        description="Color del jugador - CRÍTICO para filtrar movimientos. Solo 'white' o 'black'"
+    )
     analysis_id: Optional[int] = None  # Si None, ejecuta análisis ML automáticamente
     username: Optional[str] = None  # Si None, usa current_user
 
@@ -129,19 +134,26 @@ class TokenUsage(BaseModel):
     prompt: int
     completion: int
     total: int
+    paso_1_tokens: Optional[int] = None  # V4: Tokens del paso 1 (JSON)
+    paso_2_tokens: Optional[int] = None  # V4: Tokens del paso 2 (Narrativa)
 
 
 class LLMReportResponse(BaseModel):
-    """Response con informe pedagógico generado"""
+    """Response con informe pedagógico generado (arquitectura v6.2: trade sequence analysis)"""
 
     analysis_id: int
     game_id: str
     player_elo: int
     report: str  # Informe en formato Markdown
+    engine_analysis: Optional[Dict] = None  # V3+: Engine data precalculado
+    structured_analysis: Optional[Dict] = None  # V4+: JSON validado del Paso 1
+    validation_passed: Optional[bool] = None
+    validation_warning: Optional[str] = None
     tokens_used: TokenUsage
     model: str
     cost_estimate_usd: float
     generated_at: Optional[datetime] = None
+    architecture_version: Optional[str] = "v6.2_trade_analysis"  # V6.2: Detecta intercambios y secuencias
 
 
 # ========================
@@ -632,47 +644,57 @@ async def generate_pedagogical_report(
     try:
         # Usar username del request o del current_user
         username = request.username or current_user.get("username")
-        
+
         if not username:
             raise HTTPException(
                 status_code=400, detail="Username requerido (token o request body)"
             )
-        
+
         print(f"\n{'='*60}")
         print(f"🧠 GENERANDO INFORME PEDAGÓGICO CON LLM")
         print(f"{'='*60}")
         print(f"   Usuario: {username}")
         print(f"   Game ID: {request.game_id}")
         print(f"   ELO: {request.player_elo}")
+        print(f"   Jugador: {request.player_color}")
         print(f"   Analysis ID: {request.analysis_id or 'Auto (ejecutará ML)'}")
-        
+
         # Generar informe usando LLM service
         result = await llm_analysis_service.generate_pedagogical_report(
             db=db,
             game_id=request.game_id,
             player_elo=request.player_elo,
-            analysis_id=request.analysis_id
+            player_color=request.player_color,
+            username=username,
+            analysis_id=request.analysis_id,
         )
-        
+
         # Preparar respuesta
         response = LLMReportResponse(
             analysis_id=result["analysis_id"],
             game_id=result["game_id"],
             player_elo=result["player_elo"],
             report=result["report"],
+            engine_analysis=result.get("engine_analysis"),  # V3
+            structured_analysis=result.get("structured_analysis"),
+            validation_passed=result.get("validation_passed"),
+            validation_warning=result.get("validation_warning"),
             tokens_used=TokenUsage(**result["tokens_used"]),
             model=result["model"],
             cost_estimate_usd=result["cost_estimate_usd"],
-            generated_at=datetime.now()
+            generated_at=datetime.now(),
+            architecture_version=result.get(
+                "architecture_version", "v3_grounded_deterministic"
+            ),
         )
-        
+
         print(f"\n✅ Informe generado exitosamente")
         print(f"   Tokens: {result['tokens_used']['total']}")
         print(f"   Costo: ${result['cost_estimate_usd']:.4f}")
         print(f"{'='*60}\n")
-        
+
         return response
-        
+
     except HTTPException:
         raise
     except ValueError as e:
@@ -713,32 +735,182 @@ async def generate_batch_pedagogical_reports(
     """
     try:
         username = current_user.get("username")
-        
+
         print(f"\n{'='*60}")
         print(f"🧠 GENERANDO BATCH DE {len(game_ids)} INFORMES LLM")
         print(f"{'='*60}")
         print(f"   Usuario: {username}")
         print(f"   ELO: {player_elo}")
-        
+
         # Generar batch de informes
         reports = await llm_analysis_service.generate_batch_reports(
-            db=db,
-            game_ids=game_ids,
-            player_elo=player_elo
+            db=db, game_ids=game_ids, player_elo=player_elo, username=username
         )
-        
+
         return {
             "total_games": len(game_ids),
             "successful": sum(1 for r in reports if "error" not in r),
             "failed": sum(1 for r in reports if "error" in r),
             "total_cost_usd": sum(r.get("cost_estimate_usd", 0) for r in reports),
-            "total_tokens": sum(r.get("tokens_used", {}).get("total", 0) for r in reports),
-            "reports": reports
+            "total_tokens": sum(
+                r.get("tokens_used", {}).get("total", 0) for r in reports
+            ),
+            "reports": reports,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en batch LLM: {str(e)}")
+
+
+# ========================
+# V7 Pipeline Endpoint
+# ========================
+
+
+class V7FeedbackRequest(BaseModel):
+    """Request para generar feedback V7 (LLM grounded)."""
+
+    game_id: str
+    cp_loss_threshold: int = Field(
+        default=90, ge=0, le=1000, description="Threshold cp_loss para jugadas críticas"
+    )
+    max_items: int = Field(
+        default=10, ge=1, le=50, description="Máximo de jugadas críticas a analizar"
+    )
+
+
+class V7FeedbackResponse(BaseModel):
+    """Response con feedback V7 generado."""
+
+    game_id: str
+    stats: Dict[str, int]
+    critical_feedback: List[Dict]
+    architecture_version: str = "v7.0_grounded_llm"
+
+
+@router.post("/analysis/v7-feedback", response_model=V7FeedbackResponse)
+async def generate_v7_validated_feedback(
+    request: V7FeedbackRequest,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    🚀 V7 Pipeline: Generar feedback pedagógico con LLM grounded.
+
+    **Paradigma shift**: El LLM NO analiza ajedrez, solo verbaliza JSON validado.
+
+    **Previene alucinaciones mediante**:
+    1. Uso exclusivo de Stockfish como ground truth
+    2. Validación cruzada ML vs Stockfish
+    3. Detección conservadora de patrones
+    4. JSON completo autocontenido
+    5. Reglas estrictas de seguridad en prompt
+    6. Post-validación de output
+
+    **Arquitectura**:
+    ```
+    DB (Stockfish + ML + temporal)
+      ↓
+    Validator (cross-check)
+      ↓
+    PatternEngine (geometry)
+      ↓
+    ExplanationPack (JSON)
+      ↓
+    LLMExplainer (verbalizer)
+      ↓
+    Feedback validado
+    ```
+
+    **Ejemplo de uso:**
+    ```bash
+    curl -X POST "http://localhost:8000/api/analysis/v7-feedback" \\
+         -H "Authorization: Bearer <token>" \\
+         -H "Content-Type: application/json" \\
+         -d '{
+               "game_id": "aec7f86c...",
+               "cp_loss_threshold": 90,
+               "max_items": 10
+             }'
+    ```
+
+    **Mejoras vs V6**:
+    - ✅ Sin falsos positivos de material (usa cp_loss, no material_balance)
+    - ✅ Sin alucinaciones (LLM solo verbaliza JSON)
+    - ✅ Modular y testeable (funciones puras)
+    """
+    try:
+        from api.services.analysis_pipeline import (
+            generate_validated_feedback,
+            create_v7_repos,
+        )
+        from api.services.analysis_pipeline.integration_example import (
+            LLMClientWrapper,
+        )
+        from api import models
+
+        username = current_user.get("username")
+
+        print(f"\n{'='*60}")
+        print(f"🚀 GENERANDO FEEDBACK V7 (LLM GROUNDED)")
+        print(f"{'='*60}")
+        print(f"   Usuario: {username}")
+        print(f"   Game ID: {request.game_id}")
+        print(f"   Threshold: {request.cp_loss_threshold} cp_loss")
+        print(f"   Max items: {request.max_items}")
+
+        # Create V7 repository adapter
+        repos = create_v7_repos(db, models)
+
+        # TODO: Replace with actual LLM client
+        # For now, use placeholder wrapper
+        llm_client_placeholder = type(
+            "MockLLMClient",
+            (),
+            {
+                "complete": lambda self, prompt: (
+                    "Diagnosis: Error detectado en esta jugada\n"
+                    "Better move: Se recomienda alternativa más precisa\n"
+                    "Training rule: Analizar consecuencias antes de mover"
+                )
+            },
+        )()
+        llm_client = LLMClientWrapper(llm_client_placeholder)
+
+        # Generate V7 feedback
+        result = generate_validated_feedback(
+            request.game_id,
+            repos=repos,
+            llm_client=llm_client,
+            cp_loss_threshold=request.cp_loss_threshold,
+            max_items=request.max_items,
+        )
+
+        print(f"\n✅ Feedback V7 generado:")
+        print(f"   Jugadas analizadas: {result['stats']['num_moves_analyzed']}")
+        print(f"   Jugadas críticas: {result['stats']['num_critical']}")
+        print(f"   Desacuerdos ML/Stockfish: {result['stats']['num_disagreements']}")
+
+        return V7FeedbackResponse(
+            game_id=result["game_id"],
+            stats=result["stats"],
+            critical_feedback=result["critical_feedback"],
+        )
+
+    except ImportError as e:
         raise HTTPException(
-            status_code=500, detail=f"Error en batch LLM: {str(e)}"
+            status_code=500,
+            detail=f"Error importando pipeline V7: {str(e)}. Verifica que todos los módulos estén disponibles.",
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        print(f"❌ Error V7: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500, detail=f"Error generando feedback V7: {str(e)}"
         )

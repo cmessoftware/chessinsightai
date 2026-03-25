@@ -50,7 +50,9 @@ class AnalysisService:
             "good_move": "excellent",
         }
 
-    def analyze_game(self, db: Session, game_id: str, username: str) -> int:
+    def analyze_game(
+        self, db: Session, game_id: str, username: str, player_color: str = "white"
+    ) -> int:
         """
         Analizar partida completa con ML + SHAP y persistir resultados.
 
@@ -58,6 +60,7 @@ class AnalysisService:
             db: Sesión de base de datos SQLAlchemy
             game_id: ID de la partida a analizar
             username: Usuario para el cual se analiza (puede != imported_by)
+            player_color: Color del jugador a analizar ("white" o "black")
 
         Returns:
             analysis_id: ID del registro en analysis_results
@@ -66,9 +69,12 @@ class AnalysisService:
             ValueError: Si no hay features para la partida
 
         Example:
-            >>> analysis_id = analysis_service.analyze_game(db, "abc123", "user1")
+            >>> analysis_id = analysis_service.analyze_game(db, "abc123", "user1", "white")
             >>> print(f"Análisis completado: {analysis_id}")
         """
+        # Convertir player_color a int (1=white, 0=black)
+        color_int = 1 if player_color.lower() == "white" else 0
+
         # 1. Verificar si ya existe análisis reciente (cache)
         existing = (
             db.query(AnalysisResult)
@@ -86,8 +92,18 @@ class AnalysisService:
             print(f"♻️  Análisis existente encontrado (ID: {existing.id})")
             return existing.id
 
-        # 2. Obtener features de la partida
-        features_rows = db.query(Features).filter(Features.game_id == game_id).all()
+        # 2. Obtener features de la partida SOLO del jugador especificado
+        features_rows = (
+            db.query(Features)
+            .filter(
+                and_(Features.game_id == game_id, Features.player_color == color_int)
+            )
+            .all()
+        )
+
+        print(
+            f"🎯 Analizando {len(features_rows)} movimientos del jugador {player_color}"
+        )
 
         if not features_rows:
             raise ValueError(f"No se encontraron features para game_id={game_id}")

@@ -13,6 +13,12 @@ Usage Examples:
     # Process specific source with custom limits
     python generate_features_with_tactics.py --source elite --max-games 500
 
+    # Process games of a specific player (exact name match)
+    python generate_features_with_tactics.py --player sergio --max-games 200
+
+    # Combine filters: source + player
+    python generate_features_with_tactics.py --source personal --player magnus --max-games 100
+
     # Process with custom worker count
     python generate_features_with_tactics.py --source fide --max-games 5000 --workers 6
 
@@ -240,7 +246,7 @@ def get_games_to_process(source=None, batch_id=None, since_minutes=None, max_gam
             query += " AND g.source = :source"
             params['source'] = source
         
-        # Add player filter if specified
+        # Add player filter if specified (exact match)
         if player_name:
             query += " AND (g.white_player = :player_name OR g.black_player = :player_name)"
             params['player_name'] = player_name
@@ -277,6 +283,12 @@ Examples:
   # Process specific source
   python generate_features_with_tactics.py --source elite --max-games 500
 
+  # Process games of a specific player (exact name match)
+  python generate_features_with_tactics.py --player sergio --max-games 200
+
+  # Combine filters: source + player
+  python generate_features_with_tactics.py --source personal --player magnus --max-games 100
+
   # Process with custom workers
   python generate_features_with_tactics.py --source fide --max-games 5000 --workers 6
         """
@@ -288,7 +300,7 @@ Examples:
     parser.add_argument('--batch-id', help='Filter by import batch ID (specific upload)')
     parser.add_argument('--since-minutes', type=int, help='Only process games imported in last N minutes')
     parser.add_argument('--source', help='Filter by game source (lichess, chess.com, fide, elite, etc.)')
-    parser.add_argument('--player', help='Filter by specific player name (white or black)')
+    parser.add_argument('--player', help='Filter by player name (exact match, searches white and black)')
     parser.add_argument('--max-games', type=int, default=1000, help='Maximum number of games to process')
     parser.add_argument('--offset', type=int, default=0, help='Offset for pagination')
     parser.add_argument('--workers', type=int, default=MAX_WORKERS, help='Number of parallel workers')

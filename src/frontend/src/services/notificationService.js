@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { logger } from '../utils/helpers.js'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 /**
  * Servicio para gestionar notificaciones del sistema
@@ -12,17 +12,21 @@ export const notificationService = {
      */
     async getNotifications(unreadOnly = false, limit = 20) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/notifications/`, {
-                params: { unread_only: unreadOnly, limit },
+            const endpoint = unreadOnly
+                ? `${API_BASE_URL}/api/features/notifications/unread`
+                : `${API_BASE_URL}/api/features/notifications`
+
+            const response = await axios.get(endpoint, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             })
-            // Extraer solo el array de notificaciones del objeto de respuesta
-            return response.data.notifications || []
+            // El backend devuelve directamente un array
+            return Array.isArray(response.data) ? response.data : []
         } catch (error) {
             logger.error('notificationService', 'Error obteniendo notificaciones', { error })
-            throw error
+            // Retornar array vacío en caso de error para evitar crashes
+            return []
         }
     },
 
@@ -43,12 +47,13 @@ export const notificationService = {
      */
     async getUnreadCount() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/notifications/unread/count`, {
+            const response = await axios.get(`${API_BASE_URL}/api/features/notifications/unread`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             })
-            return response.data.unread_count
+            // El backend devuelve un array, contamos cuántos elementos tiene
+            return Array.isArray(response.data) ? response.data.length : 0
         } catch (error) {
             logger.error('notificationService', 'Error obteniendo conteo no leídas', { error })
             return 0
@@ -60,8 +65,8 @@ export const notificationService = {
      */
     async markAsRead(notificationId) {
         try {
-            const response = await axios.patch(
-                `${API_BASE_URL}/api/notifications/${notificationId}/read`,
+            const response = await axios.put(
+                `${API_BASE_URL}/api/features/notifications/${notificationId}/read`,
                 {},
                 {
                     headers: {
@@ -103,7 +108,7 @@ export const notificationService = {
     async deleteNotification(notificationId) {
         try {
             const response = await axios.delete(
-                `${API_BASE_URL}/api/notifications/${notificationId}`,
+                `${API_BASE_URL}/api/features/notifications/${notificationId}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -122,16 +127,10 @@ export const notificationService = {
      */
     async createNotification(title, message, type = 'info', metadata = {}) {
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/api/notifications/`,
-                { title, message, type, metadata },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                }
-            )
-            return response.data
+            logger.warn('notificationService', 'createNotification no implementado en backend - las notificaciones se crean automáticamente durante procesos')
+            // Las notificaciones se crean automáticamente en el backend durante procesos
+            // Este método queda como stub para compatibilidad
+            return { success: false, message: 'Use proceso de features para generar notificaciones' }
         } catch (error) {
             logger.error('notificationService', 'Error creando notificación', { error })
             throw error

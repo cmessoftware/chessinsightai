@@ -5,25 +5,8 @@ import { useAuth } from '../../hooks/useAuth.js'
 
 const ProtectedRoute = ({ children, requiredPermission = null, customCheck = null }) => {
     const { isAuthenticated, loading, hasPermission, user } = useAuth()
-    const [showLoading, setShowLoading] = React.useState(true)
 
-    // Safety timeout: si loading toma más de 3 segundos, forzar a mostrar contenido
-    React.useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (loading) {
-                console.warn('⚠️ Loading timeout reached, forcing render')
-                setShowLoading(false)
-            }
-        }, 3000)
-
-        if (!loading) {
-            setShowLoading(false)
-        }
-
-        return () => clearTimeout(timeout)
-    }, [loading])
-
-    console.log('🔒 ProtectedRoute:', { isAuthenticated, loading, showLoading, user: user?.username, requiredPermission, customCheck })
+    console.log('🔒 ProtectedRoute:', { isAuthenticated, loading, user: user?.username, requiredPermission, customCheck })
 
     // Check if user is admin (has ALL permissions)
     const isAdmin = () => {
@@ -53,7 +36,7 @@ const ProtectedRoute = ({ children, requiredPermission = null, customCheck = nul
             user?.permissions?.includes('eda_analysis')
     }
 
-    if (showLoading) {
+    if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
                 <CircularProgress />

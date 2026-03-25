@@ -380,15 +380,15 @@ shap_tool = Tool(
 
 ## Comparación: MVP vs MCP
 
-| Aspecto | MVP (Fase 1-2) | MCP (Fase 3) |
-|---------|----------------|--------------|
-| **Prompt tokens** | ~900 | ~400 (60% reducción) |
-| **Latencia** | 2-3s | 3-5s (múltiples calls) |
-| **Costo por reporte** | $0.027 | $0.020 (estimated) |
-| **Flexibilidad** | Fijo | Adaptativo |
-| **Preguntas libres** | ❌ | ✅ |
-| **Complejidad** | Baja | Media |
-| **Observabilidad** | Prompt + response | Trace completo con tools |
+| Aspecto               | MVP (Fase 1-2)    | MCP (Fase 3)             |
+| --------------------- | ----------------- | ------------------------ |
+| **Prompt tokens**     | ~900              | ~400 (60% reducción)     |
+| **Latencia**          | 2-3s              | 3-5s (múltiples calls)   |
+| **Costo por reporte** | $0.027            | $0.020 (estimated)       |
+| **Flexibilidad**      | Fijo              | Adaptativo               |
+| **Preguntas libres**  | ❌                 | ✅                        |
+| **Complejidad**       | Baja              | Media                    |
+| **Observabilidad**    | Prompt + response | Trace completo con tools |
 
 ---
 

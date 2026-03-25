@@ -41,9 +41,7 @@ async def get_games_list(
     # Analyst tiene permisos como 'stats_viewer' o 'analysis_board'
     user_filter = None
     is_admin_or_analyst = (
-        "admin" in roles 
-        or "stats_viewer" in roles 
-        or "analysis_board" in roles
+        "admin" in roles or "stats_viewer" in roles or "analysis_board" in roles
     )
 
     if not is_admin_or_analyst:

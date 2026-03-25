@@ -43,7 +43,10 @@ const LoginForm = () => {
 
             if (result.success) {
                 logger.info('auth', 'Login exitoso, redirigiendo')
-                navigate('/')
+                // Pequeño delay para asegurar que el estado se propague
+                setTimeout(() => {
+                    navigate('/')
+                }, 100)
             } else {
                 setError(result.error || 'Credenciales inválidas')
             }

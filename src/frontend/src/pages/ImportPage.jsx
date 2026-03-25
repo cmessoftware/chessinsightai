@@ -201,48 +201,35 @@ const ImportPage = () => {
 
             let result
             let jobId = null
-            
-            // Si el usuario solo puede subir PGN personal, usar el endpoint que importa directamente
-            // Esto aplica para usuarios con rol basic_gamer (usuario 'user')
-            if (hasPermission('personal_upload') && !hasPermission('admin')) {
-                // Importación directa para usuarios básicos (sube + importa + marca imported_by)
-                result = await importService.importPersonalPGN(formData, onProgress)
-                
-                // Marcar como completado con resultado de importación
-                setUploadedFiles(prev =>
-                    prev.map(f =>
-                        f.id === fileData.id
-                            ? { 
-                                ...f, 
-                                status: 'completed', 
-                                uploadedAt: new Date(), 
-                                imported: result.imported,
-                                skipped: result.skipped
-                            }
-                            : f
-                    )
-                )
-                
-                setSuccess(`✅ ${result.imported} partidas importadas exitosamente de ${fileData.name}`)
-                
-            } else {
-                // Upload masivo para admin (solo sube, importación en segundo paso)
-                jobId = await importService.uploadPGN(formData, onProgress)
 
-                // Marcar como completado
-                setUploadedFiles(prev =>
-                    prev.map(f =>
-                        f.id === fileData.id
-                            ? { ...f, status: 'uploaded', uploadedAt: new Date(), jobId }
-                            : f
-                    )
+            // ✅ FIX: Usar importación directa para TODOS los usuarios cuando suben un solo archivo
+            // Este endpoint sube E IMPORTA a la base de datos en un solo paso
+            // Admin también debería usar este flujo simple (no el flujo masivo de batch import)
+
+            // Importación directa (sube + importa + marca imported_by)
+            result = await importService.importPersonalPGN(formData, onProgress)
+
+            // Guardar el batch_id de las partidas importadas
+            const batchId = result.batch_id
+            setLastImportBatchId(batchId)
+
+            // Marcar como completado con resultado de importación
+            setUploadedFiles(prev =>
+                prev.map(f =>
+                    f.id === fileData.id
+                        ? {
+                            ...f,
+                            status: 'completed',
+                            uploadedAt: new Date(),
+                            imported: result.imported,
+                            skipped: result.skipped,
+                            batchId: batchId  // Guardar batch_id
+                        }
+                        : f
                 )
-                
-                // Guardar el batch_id para usar en reportes
-                setLastImportBatchId(jobId)
-                
-                setSuccess(`Archivo ${fileData.name} subido exitosamente`)
-            }
+            )
+
+            setSuccess(`✅ ${result.imported} partidas importadas exitosamente de ${fileData.name} (Batch: ${batchId.substring(0, 8)}...)`)
 
             // Log del upload completado (DISABLED - endpoint doesn't exist)
             // await logService.logImportEvent('file_uploaded', {
@@ -299,19 +286,35 @@ const ImportPage = () => {
         }
     }
 
-    // Función para iniciar extracción de features
+    // Función para iniciar extracción de features del ARCHIVO ACTUAL
+    // IMPORTANTE: Esta función procesa SOLO el batch recién importado (lastImportBatchId)
+    // NO es una extracción masiva de toda la base de datos
     const handleStartFeatureExtraction = async () => {
         try {
             setIsExtractingFeatures(true)
             setError('')
             setSuccess('')
 
-            // Si tenemos un batch_id de la última importación, usarlo
-            // De lo contrario, procesar últimos 5 minutos
+            // CRÍTICO: Solo procesar partidas del batch recién importado
             const batchId = lastImportBatchId || null
-            const sinceMinutes = lastImportBatchId ? null : 5
 
-            console.log('Iniciando extracción con:', { batchId, sinceMinutes, selectedSource })
+            if (!batchId) {
+                setError('⚠️ No hay importación reciente. Primero sube un archivo PGN.')
+                setIsExtractingFeatures(false)
+                return
+            }
+
+            // TODO: Verificar si el batch ya tiene features procesadas
+            // const featuresStatus = await featuresService.getBatchFeaturesStatus(batchId)
+            // if (featuresStatus.completed) {
+            //     setError('ℹ️ Este archivo ya tiene features extraídas.')
+            //     setIsExtractingFeatures(false)
+            //     return
+            // }
+
+            const sinceMinutes = null  // No usar since_minutes, SOLO batch_id
+
+            console.log('Iniciando extracción con:', { batchId, selectedSource })
 
             // Mostrar mensaje inmediato al usuario
             setSuccess('📊 Iniciando extracción de features, por favor espera...')
@@ -324,36 +327,82 @@ const ImportPage = () => {
                 4                   // workers
             )
 
-            setSuccess(`✅ Extracción de features iniciada exitosamente. Job ID: ${response.jobId || 'N/A'}`)
+            const jobId = response.jobId
 
-            // DISABLED - endpoint doesn't exist
-            // await logService.logImportEvent('feature_extraction_started', {
-            //     jobId: response.jobId,
-            //     batchId: lastImportBatchId,
-            //     source: selectedSource
-            // })
+            setSuccess(`📊 Extracción iniciada (Job: ${jobId.substring(0, 8)}...). Monitoreando progreso...`)
+            console.log(`🚀 Job iniciado:`, { jobId, batchId, source: selectedSource })
 
             logger.info('import', 'Extracción de features iniciada', response)
 
-            // Mostrar información útil para el usuario del frontend
-            setTimeout(() => {
-                setSuccess(prev => prev + ' 📊 El progreso se actualiza automáticamente en esta página cada 10 segundos.')
-            }, 3000)
+            // Monitorear el estado del job hasta que termine
+            let pollCount = 0
+            const checkJobStatus = async () => {
+                try {
+                    pollCount++
+                    console.log(`🔍 Polling intento #${pollCount} para job ${jobId.substring(0, 8)}`)
 
-            // Auto-activar monitoreo de progreso más frecuente durante extracción
+                    const statusResponse = await featuresService.getExtractionStatus(jobId)
+                    console.log(`📊 Status recibido:`, statusResponse)
+                    const status = statusResponse.status
+
+                    if (status === 'completed') {
+                        // ✅ Corrección: No mostrar número de partidas porque max_games es el límite, no el real
+                        const duration = statusResponse.duration_seconds?.toFixed(1) || '?'
+                        const gamesInfo = statusResponse.games_processed ? `${statusResponse.games_processed} partidas` : 'features'
+                        setSuccess(`✅ Extracción completada exitosamente! Procesadas ${gamesInfo} en ${duration}s`)
+                        setIsExtractingFeatures(false)
+                        console.log(`✅ Extracción completada en intento #${pollCount}`)
+                        return true
+                    } else if (status === 'failed') {
+                        setError(`❌ Error en extracción: ${statusResponse.error || 'Unknown error'}`)
+                        setIsExtractingFeatures(false)
+                        console.log(`❌ Extracción falló en intento #${pollCount}`)
+                        return true
+                    } else if (status === 'processing') {
+                        // Mostrar mensaje visual que indique que está trabajando
+                        const dots = '.'.repeat((pollCount % 3) + 1)
+                        setSuccess(`🔄 Extrayendo features del archivo${dots} (puede tardar varios minutos)`)
+                        console.log(`⏳ Sigue procesando... intento #${pollCount}`)
+                        return false
+                    } else {
+                        // queued
+                        setSuccess(`⏳ En cola, esperando inicio...`)
+                        console.log(`⏳ En cola... intento #${pollCount}`)
+                        return false
+                    }
+                } catch (err) {
+                    console.error(`❌ Error en polling intento #${pollCount}:`, err)
+                    logger.error('import', 'Error al verificar estado del job', { err })
+                    // No terminar el polling por errores transitorios
+                    return false
+                }
+            }
+
+            // Polling cada 2 segundos hasta que termine
+            console.log(`⏰ Iniciando polling cada 2s para job ${jobId.substring(0, 8)}`)
+            const pollInterval = setInterval(async () => {
+                const finished = await checkJobStatus()
+                if (finished) {
+                    console.log(`🏁 Polling terminado para job ${jobId.substring(0, 8)}`)
+                    clearInterval(pollInterval)
+                }
+            }, 2000)
+
+            // Timeout de seguridad: después de 5 minutos, detener el polling
             setTimeout(() => {
-                setSuccess('🔄 Procesando features... El progreso se muestra en tiempo real abajo.')
-            }, 6000)
+                console.log(`⏱️ Timeout alcanzado para job ${jobId.substring(0, 8)}`)
+                clearInterval(pollInterval)
+                if (isExtractingFeatures) {
+                    setIsExtractingFeatures(false)
+                    setError('⚠️ Extracción tomó demasiado tiempo. Verifica el log del backend.')
+                }
+            }, 300000) // 5 minutos
 
         } catch (error) {
             const errorMsg = error.response?.data?.detail || error.message
             setError(`❌ Error iniciando extracción: ${errorMsg}`)
             logger.error('import', 'Error iniciando extracción', { error })
-        } finally {
-            // Mantener el botón deshabilitado por unos segundos para evitar doble click
-            setTimeout(() => {
-                setIsExtractingFeatures(false)
-            }, 5000)
+            setIsExtractingFeatures(false)
         }
     }
 
@@ -449,7 +498,7 @@ const ImportPage = () => {
 
         const loadProgress = async () => {
             try {
-                const apiUrl = `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/api/features/progress`
+                const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/features/progress`
                 const token = localStorage.getItem('token')
 
                 const response = await fetch(apiUrl, {
@@ -603,11 +652,19 @@ const ImportPage = () => {
                                     📁 Archivos ({uploadedFiles.length})
                                 </Typography>
                                 <Box display="flex" gap={2}>
+                                    {/* NOTA: Si se necesita un botón de "Extracción Masiva" REAL (procesar TODAS 
+                                        las partidas de la base de datos, no solo el archivo actual), debería:
+                                        1. Estar FUERA de esta sección (no dentro del contexto de archivos subidos)
+                                        2. Tener su propia sección en la página (ej: "Mantenimiento de Base de Datos")
+                                        3. Mostrar estadísticas globales (partidas sin features, cobertura, etc.)
+                                        4. Usar un endpoint diferente (sin batch_id, procesando por source o fecha)
+                                    */}
+
                                     {/* Botones diferentes según el rol */}
-                                    {uploadedFiles.some(f => f.status === 'uploaded') && (
+                                    {uploadedFiles.some(f => f.status === 'uploaded' || f.status === 'completed') && (
                                         <Box display="flex" flexDirection="column" gap={1}>
                                             {isAdmin ? (
-                                                // Botón para Administradores - Extracción masiva
+                                                // Botón para Administradores - Extracción del archivo actual
                                                 <Button
                                                     variant="contained"
                                                     color={isExtractingFeatures ? "secondary" : "primary"}
@@ -620,7 +677,7 @@ const ImportPage = () => {
                                                         opacity: isExtractingFeatures ? 0.8 : 1
                                                     }}
                                                 >
-                                                    {isExtractingFeatures ? '📊 Extracción Masiva...' : '🚀 Extracción Masiva ML'}
+                                                    {isExtractingFeatures ? '📊 Procesando Features...' : '🔧 Extraer Features (Archivo Actual)'}
                                                 </Button>
                                             ) : isAnalyst ? (
                                                 // Botón para Analistas - Análisis multi-usuario
@@ -658,7 +715,7 @@ const ImportPage = () => {
                                             {isExtractingFeatures && (
                                                 <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
                                                     {isAdmin
-                                                        ? '⚠️ Procesamiento masivo en curso...'
+                                                        ? '⚠️ Extrayendo features del archivo...'
                                                         : isAnalyst
                                                             ? '⚠️ Análisis comparativo en curso...'
                                                             : '⚠️ Analizando tus partidas...'
@@ -770,11 +827,21 @@ const ImportPage = () => {
                                                         label={fileData.type}
                                                         variant="outlined"
                                                     />
+                                                    {/* Indicador de features procesadas */}
+                                                    {fileData.batchId && fileData.status === 'completed' && (
+                                                        <Chip
+                                                            size="small"
+                                                            label="✓ Features Listas"
+                                                            color="success"
+                                                            variant="outlined"
+                                                        />
+                                                    )}
                                                 </Box>
 
                                                 <Typography variant="body2" color="text.secondary">
                                                     {(fileData.size / 1024 / 1024).toFixed(2)} MB •
                                                     ~{fileData.estimatedGames.toLocaleString()} partidas
+                                                    {fileData.imported && ` • ${fileData.imported} importadas`}
                                                 </Typography>
                                                 {isAdmin && (
                                                     <Typography variant="caption" color="text.secondary" display="block">

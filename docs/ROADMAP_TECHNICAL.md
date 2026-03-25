@@ -239,13 +239,13 @@ Permitir que entrenadores evalúen prácticas y ajusten el plan.
   - Documentación de pruebas: `docs/TESTING_AUTHENTICATION.md`
 
 **Stack Tecnológico Web:**
-| Componente           | Tecnología          | Puerto | Estado      |
-| -------------------- | ------------------- | ------ | ----------- |
-| **Frontend**         | React 18 + Vite     | 5173   | 🟢 Operativo |
-| **Backend API**      | FastAPI + Uvicorn   | 8000   | 🟢 Operativo |
-| **Database**         | PostgreSQL 13       | 5432   | 🟢 Operativo |
-| **Authentication**   | JWT (PyJWT)         | -      | 🟢 Operativo |
-| **ORM/Migrations**   | SQLAlchemy + Alembic| -      | 🟢 Operativo |
+| Componente         | Tecnología           | Puerto | Estado      |
+| ------------------ | -------------------- | ------ | ----------- |
+| **Frontend**       | React 18 + Vite      | 5173   | 🟢 Operativo |
+| **Backend API**    | FastAPI + Uvicorn    | 8000   | 🟢 Operativo |
+| **Database**       | PostgreSQL 13        | 5432   | 🟢 Operativo |
+| **Authentication** | JWT (PyJWT)          | -      | 🟢 Operativo |
+| **ORM/Migrations** | SQLAlchemy + Alembic | -      | 🟢 Operativo |
 
 **Arquitectura API:**
 ```
@@ -478,17 +478,17 @@ Stack tecnológico con estado de implementación
 
 ### 🔧 Stack Tecnológico
 
-| Componente           | Tecnología          | Estado          |
-| -------------------- | ------------------- | --------------- |
-| **Frontend**         | React 18 + Vite     | 🟢 Operativo     |
-| **Backend API**      | FastAPI + Uvicorn   | 🟢 Operativo     |
-| **Authentication**   | JWT (PyJWT)         | 🟢 Operativo     |
-| **Database**         | PostgreSQL 13       | 🟢 Operativo     |
-| **ORM/Migrations**   | SQLAlchemy + Alembic| 🟢 Operativo     |
-| **ML Framework**     | scikit-learn, Keras | 🟡 Configurado   |
-| **Tracking**         | MLflow              | 🟡 Configurado   |
-| **Engine**           | Stockfish 17 + NNUE | 🟢 Integrado     |
-| **Containerization** | Docker Compose      | 🟢 Operativo     |
+| Componente           | Tecnología           | Estado        |
+| -------------------- | -------------------- | ------------- |
+| **Frontend**         | React 18 + Vite      | 🟢 Operativo   |
+| **Backend API**      | FastAPI + Uvicorn    | 🟢 Operativo   |
+| **Authentication**   | JWT (PyJWT)          | 🟢 Operativo   |
+| **Database**         | PostgreSQL 13        | 🟢 Operativo   |
+| **ORM/Migrations**   | SQLAlchemy + Alembic | 🟢 Operativo   |
+| **ML Framework**     | scikit-learn, Keras  | 🟡 Configurado |
+| **Tracking**         | MLflow               | 🟡 Configurado |
+| **Engine**           | Stockfish 17 + NNUE  | 🟢 Integrado   |
+| **Containerization** | Docker Compose       | 🟢 Operativo   |
 
 ---
 

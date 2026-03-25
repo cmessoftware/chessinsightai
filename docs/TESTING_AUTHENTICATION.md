@@ -85,11 +85,11 @@ db.execute_query("SELECT username, role FROM users")
 
 ### **Credenciales Configuradas**
 
-| Usuario  | Contraseña   | Rol      | Permisos                              |
-|----------|--------------|----------|---------------------------------------|
-| `admin`  | `admin123`   | admin    | Ver todas las partidas + gestión      |
-| `analyst`| `analyst123` | analyst  | Ver todas las partidas                |
-| `user`   | `user123`    | user     | Ver solo partidas propias (33 games)  |
+| Usuario   | Contraseña   | Rol     | Permisos                             |
+| --------- | ------------ | ------- | ------------------------------------ |
+| `admin`   | `admin123`   | admin   | Ver todas las partidas + gestión     |
+| `analyst` | `analyst123` | analyst | Ver todas las partidas               |
+| `user`    | `user123`    | user    | Ver solo partidas propias (33 games) |
 
 ### **Crear Usuarios de Prueba (Si no existen)**
 

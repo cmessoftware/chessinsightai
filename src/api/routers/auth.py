@@ -141,23 +141,24 @@ async def get_roles_matrix():
     """
     Obtener la matriz completa de roles y permisos para administración
     """
-    # Create role info list
-    role_infos = []
+    # First pass: collect all permissions from non-admin roles
     all_permissions = set()
-
+    for role, permissions in ROLE_PERMISSIONS.items():
+        if permissions != ["ALL"]:
+            all_permissions.update(permissions)
+    
+    # Second pass: create role info list with admin having all permissions
+    role_infos = []
     for role, permissions in ROLE_PERMISSIONS.items():
         role_infos.append(
             RoleInfo(
                 name=role,
                 description=f"Role: {role.value.replace('_', ' ').title()}",
                 permissions=(
-                    permissions if permissions != ["ALL"] else list(all_permissions)
+                    list(all_permissions) if permissions == ["ALL"] else permissions
                 ),
             )
         )
-
-        if permissions != ["ALL"]:
-            all_permissions.update(permissions)
 
     # Common role combinations
     role_combinations = {

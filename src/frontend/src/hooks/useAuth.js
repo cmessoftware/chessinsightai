@@ -141,10 +141,14 @@ export const useAuth = () => {
 
             // Store token and user data
             localStorage.setItem('token', access_token);
+
+            // ⚠️ CRÍTICO: Establecer loading a false PRIMERO para evitar race conditions
+            setLoading(false);
+
+            // Luego actualizar el resto del estado
             setToken(access_token);
             setUser(userWithPermissions);
             setIsAuthenticated(true);
-            setLoading(false); // Establecer loading a false inmediatamente después de login exitoso
 
             logger.info('auth', 'Login exitoso', { user: userWithPermissions });
             console.log('✅ Login successful, loading set to false', { user: userWithPermissions.username, loading: false });
