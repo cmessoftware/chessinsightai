@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.1.103] - 2026-03-26
+
+### Added
+- **Arquitectura Orquestada - Fase 0 Completada** - Documentación técnica completa para rediseño del módulo ai_chess_coach
+- **Especificación Técnica** (`docs/arquitectura-orquestada/00-fase0-especificacion-tecnica.md`) - 1,200 líneas detallando:
+  - 5 componentes arquitectónicos (Planner, Executor, Critic, Memory, Explainer)
+  - 5 reglas de validación programáticas del Critic
+  - Implementación completa de AnalyzeGameUseCase con Clean Architecture
+  - Estrategia de testing, métricas y patrones de diseño
+- **Interfaces y Schemas JSON** (`docs/arquitectura-orquestada/00-fase0-interfaces-json.md`) - 1,100 líneas con:
+  - 7 schemas completos con validación (AnalysisOptions, AnalysisPlan, ExecutionResult, CriticResult, EnrichedResult, AnalysisReport, PlayerPatterns)
+  - Modelos Pydantic con validadores personalizados
+  - Ejemplos de uso y documentación OpenAPI
+- **Plan de Migración** (`docs/arquitectura-orquestada/00-fase0-plan-migracion.md`) - 1,200 líneas cubriendo:
+  - Estrategia de migración en 5 fases sin breaking changes
+  - Implementación de dual write/read con feature flags
+  - Migraciones Alembic para esquema v2.0
+  - Plan de rollback y estrategia de pruebas
+- **Diagramas de Arquitectura** (`docs/arquitectura-orquestada/00-fase0-diagramas-arquitectura.md`) - 930 líneas con 10 diagramas Mermaid:
+  - Componentes (arquitectura de alto nivel con 4 capas)
+  - Secuencia (flujo completo AnalyzeGameUseCase)
+  - Flujo de datos (pipeline de transformación)
+  - Base de datos (ERD con esquema v2.0)
+  - Despliegue (topología Docker con puertos)
+  - Estados del Critic (máquina de estados con validaciones)
+  - Ciclo de vida (proceso end-to-end desde PGN hasta frontend)
+  - Migración (timeline de 5 fases visualizado)
+  - Dependencias (relaciones entre servicios)
+  - Feature flags (control de rollback y versiones)
+- **README Navegable** (`docs/arquitectura-orquestada/README.md`) - 350 líneas con índice de navegación y guía de referencia
+
+### Changed
+- **Issue Management** - Creados 6 issues para fases 0-5 (#85-90) del proyecto de Arquitectura Orquestada
+- **Branch Strategy** - Creadas 6 ramas de feature para implementación por fases
+
+### Fixed
+- **Git Cleanup** - Eliminadas 10 ramas obsoletas de desarrollo anterior
+- **Issue Organization** - Cerrados 10 issues legacy para mantener enfoque en nueva arquitectura
+
+### Technical Details
+- **Total Documentation**: ~4,400 líneas de especificación técnica
+- **Branch**: `feature/arquitectura-orquestada-fase0-documentacion`
+- **Commits**: 5 commits (b2c60c8, 58538fc, f678c97, 8f3d7f0, 1e8ec3d)
+- **Issue Closed**: #85 - Fase 0: Documentación y Preparación
+- **Architecture Pattern**: Clean Architecture + Planner/Executor/Critic/Memory/Explainer
+- **Migration Strategy**: 5 phases with feature flags (ENABLE_ORCHESTRATED_ANALYSIS, ENABLE_DUAL_WRITE, PREFER_VERSION)
+- **Design Patterns**: Use Case, Strategy, Chain of Responsibility, Builder, Repository, Facade
+
+### Next Steps
+- **Fase 1**: Implementación de Planner + Executor + Memory (Issue #86)
+- **Database**: Crear migraciones Alembic para tablas move_analyses y player_patterns
+- **Services**: Implementar PlannerService, ExecutorService, MemoryService con feature flags
+- **Testing**: Unit tests e integration tests para flujo Planner → Executor → Memory
+
+---
+
 ## [v0.1.43] - 2025-06-30
 
 ### Added
