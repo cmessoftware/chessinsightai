@@ -887,13 +887,13 @@ async def test_dual_read_fallback_to_legacy():
 
 ## 8. Cronograma de Migración
 
-| Fase | Duración | Descripción | Rollback Risk |
-|------|----------|-------------|---------------|
-| **Fase 1: Agregar tablas** | 1 día | Crear move_analyses, player_patterns | Bajo ✅ |
-| **Fase 2: Dual write** | 1 semana | Escribir en ambas tablas | Bajo ✅ |
-| **Fase 3: Dual read** | 1 semana | Leer de v2.0 con fallback | Medio ⚠️ |
-| **Fase 4: Migración histórica** | 2 semanas | Migrar datos legacy (opcional) | Alto ⛔ |
-| **Fase 5: Deprecar legacy** | 3 meses después | Eliminar tabla moves | Muy Alto ⛔ |
+| Fase                            | Duración        | Descripción                          | Rollback Risk |
+| ------------------------------- | --------------- | ------------------------------------ | ------------- |
+| **Fase 1: Agregar tablas**      | 1 día           | Crear move_analyses, player_patterns | Bajo ✅        |
+| **Fase 2: Dual write**          | 1 semana        | Escribir en ambas tablas             | Bajo ✅        |
+| **Fase 3: Dual read**           | 1 semana        | Leer de v2.0 con fallback            | Medio ⚠️       |
+| **Fase 4: Migración histórica** | 2 semanas       | Migrar datos legacy (opcional)       | Alto ⛔        |
+| **Fase 5: Deprecar legacy**     | 3 meses después | Eliminar tabla moves                 | Muy Alto ⛔    |
 
 ---
 

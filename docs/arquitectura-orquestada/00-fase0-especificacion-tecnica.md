@@ -489,13 +489,13 @@ class MLEngineConsistencyRule(ValidationRule):
     Matriz de consistencia:
     
     | score_diff | ml_prediction | consistent? |
-    |------------|---------------|-------------|
-    | < -200     | blunder       | ✅          |
-    | < -100     | mistake       | ✅          |
-    | < -50      | inaccuracy    | ✅          |
-    | >= -50     | good          | ✅          |
-    | < -200     | good          | ❌ ERROR    |
-    | >= -50     | blunder       | ❌ ERROR    |
+    | ---------- | ------------- | ----------- |
+    | < -200     | blunder       | ✅           |
+    | < -100     | mistake       | ✅           |
+    | < -50      | inaccuracy    | ✅           |
+    | >= -50     | good          | ✅           |
+    | < -200     | good          | ❌ ERROR     |
+    | >= -50     | blunder       | ❌ ERROR     |
     """
     
     CONSISTENCY_MATRIX = {

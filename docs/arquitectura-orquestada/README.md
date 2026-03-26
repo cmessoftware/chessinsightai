@@ -11,21 +11,22 @@
 
 ### Fase 0: Documentación Técnica (ACTUAL)
 
-| Documento | Descripción | Estado |
-|-----------|-------------|--------|
-| [00-fase0-especificacion-tecnica.md](./00-fase0-especificacion-tecnica.md) | Especificación completa de componentes (Planner, Executor, Critic, Memory, Explainer), reglas de validación, patrones de diseño | ✅ DRAFT v1.0 |
-| [00-fase0-interfaces-json.md](./00-fase0-interfaces-json.md) | Schemas JSON y Pydantic models de todas las interfaces entre módulos | ✅ DRAFT v1.0 |
-| [00-fase0-plan-migracion.md](./00-fase0-plan-migracion.md) | Estrategia de migración de base de datos con dual write/read, rollback plan | ✅ DRAFT v1.0 |
+| Documento                                                                                  | Descripción                                                                                                                     | Estado       |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| [00-fase0-especificacion-tecnica.md](./00-fase0-especificacion-tecnica.md)                 | Especificación completa de componentes (Planner, Executor, Critic, Memory, Explainer), reglas de validación, patrones de diseño | ✅ DRAFT v1.0 |
+| [00-fase0-interfaces-json.md](./00-fase0-interfaces-json.md)                               | Schemas JSON y Pydantic models de todas las interfaces entre módulos                                                            | ✅ DRAFT v1.0 |
+| [00-fase0-plan-migracion.md](./00-fase0-plan-migracion.md)                                 | Estrategia de migración de base de datos con dual write/read, rollback plan                                                     | ✅ DRAFT v1.0 |
+| [00-fase0-diagramas-arquitectura.md](./00-fase0-diagramas-arquitectura.md)                 | 10 diagramas Mermaid: componentes, secuencia, flujo de datos, DB, despliegue, feature flags                                     | ✅ DRAFT v1.0 |
 
 ### Fases Futuras (Pendientes)
 
-| Fase | Objetivo | Issue | Estado |
-|------|----------|-------|--------|
-| **Fase 1** | Implementar Planner + Executor + Memory | [#86](https://github.com/cmessoftware/chess_trainer/issues/86) | ⏳ Por iniciar |
+| Fase       | Objetivo                                    | Issue                                                          | Estado        |
+| ---------- | ------------------------------------------- | -------------------------------------------------------------- | ------------- |
+| **Fase 1** | Implementar Planner + Executor + Memory     | [#86](https://github.com/cmessoftware/chess_trainer/issues/86) | ⏳ Por iniciar |
 | **Fase 2** | Implementar Critic con reglas programáticas | [#87](https://github.com/cmessoftware/chess_trainer/issues/87) | ⏳ Por iniciar |
-| **Fase 3** | Integrar Explainer con LLM local | [#88](https://github.com/cmessoftware/chess_trainer/issues/88) | ⏳ Por iniciar |
-| **Fase 4** | Fine-tuning con LoRA | [#89](https://github.com/cmessoftware/chess_trainer/issues/89) | ⏳ Por iniciar |
-| **Fase 5** | Optimización y monitoreo | [#90](https://github.com/cmessoftware/chess_trainer/issues/90) | ⏳ Por iniciar |
+| **Fase 3** | Integrar Explainer con LLM local            | [#88](https://github.com/cmessoftware/chess_trainer/issues/88) | ⏳ Por iniciar |
+| **Fase 4** | Fine-tuning con LoRA                        | [#89](https://github.com/cmessoftware/chess_trainer/issues/89) | ⏳ Por iniciar |
+| **Fase 5** | Optimización y monitoreo                    | [#90](https://github.com/cmessoftware/chess_trainer/issues/90) | ⏳ Por iniciar |
 
 ---
 
@@ -159,13 +160,13 @@ if not critic_result.is_consistent:
 
 **Reglas Implementadas (Fase 2):**
 
-| Regla | Descripción | Severidad |
-|-------|-------------|-----------|
-| **BlunderScoreThreshold** | Blunder requiere \|score_diff\| ≥ 200 cp | ERROR |
-| **TacticalEvidenceRequired** | Mención de táctica requiere tactical_tags | WARNING |
-| **EngineSupportRequired** | Sugerencia de alternativa requiere citar best_move | ERROR |
-| **MLEngineConsistency** | ML prediction debe alinearse con score_diff | WARNING |
-| **PositionLegalityCheck** | FEN debe ser legal (python-chess) | ERROR |
+| Regla                        | Descripción                                        | Severidad |
+| ---------------------------- | -------------------------------------------------- | --------- |
+| **BlunderScoreThreshold**    | Blunder requiere \|score_diff\| ≥ 200 cp           | ERROR     |
+| **TacticalEvidenceRequired** | Mención de táctica requiere tactical_tags          | WARNING   |
+| **EngineSupportRequired**    | Sugerencia de alternativa requiere citar best_move | ERROR     |
+| **MLEngineConsistency**      | ML prediction debe alinearse con score_diff        | WARNING   |
+| **PositionLegalityCheck**    | FEN debe ser legal (python-chess)                  | ERROR     |
 
 **Estrategia de fallback:**
 - Si `is_consistent=False` → Re-generar con restricciones
@@ -264,14 +265,14 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
 
 **Schemas principales:**
 
-| Schema | Input/Output | Descripción |
-|--------|--------------|-------------|
-| `AnalysisOptions` | Input | Opciones de análisis (depth, enable_ml, focus_mode) |
-| `AnalysisPlan` | Planner → Executor | Plan de análisis (jugadas, modos, prioridades) |
-| `ExecutionResult` | Executor → Critic/Explainer | Evidencia objetiva (engine + ML + RAG) |
-| `CriticResult` | Critic → UseCase | Validación (is_consistent, issues) |
-| `EnrichedResult` | UseCase → Memory | Resultado final (execution + explanation + critique) |
-| `AnalysisReport` | UseCase → API | Reporte completo para frontend |
+| Schema            | Input/Output                | Descripción                                          |
+| ----------------- | --------------------------- | ---------------------------------------------------- |
+| `AnalysisOptions` | Input                       | Opciones de análisis (depth, enable_ml, focus_mode)  |
+| `AnalysisPlan`    | Planner → Executor          | Plan de análisis (jugadas, modos, prioridades)       |
+| `ExecutionResult` | Executor → Critic/Explainer | Evidencia objetiva (engine + ML + RAG)               |
+| `CriticResult`    | Critic → UseCase            | Validación (is_consistent, issues)                   |
+| `EnrichedResult`  | UseCase → Memory            | Resultado final (execution + explanation + critique) |
+| `AnalysisReport`  | UseCase → API               | Reporte completo para frontend                       |
 
 **Ver:** [00-fase0-interfaces-json.md](./00-fase0-interfaces-json.md)
 
@@ -283,13 +284,13 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
 
 ### Fases de Migración
 
-| Fase | Acción | Duración | Risk |
-|------|--------|----------|------|
-| 1 | **Agregar tablas nuevas** (move_analyses, player_patterns) | 1 día | Bajo ✅ |
-| 2 | **Dual write** (escribir en v1.0 + v2.0) | 1 semana | Bajo ✅ |
-| 3 | **Dual read** (leer v2.0, fallback a v1.0) | 1 semana | Medio ⚠️ |
-| 4 | **Migración histórica** (opcional) | 2 semanas | Alto ⛔ |
-| 5 | **Deprecar legacy** (eliminar tabla `moves`) | 3 meses después | Muy Alto ⛔ |
+| Fase | Acción                                                     | Duración        | Risk       |
+| ---- | ---------------------------------------------------------- | --------------- | ---------- |
+| 1    | **Agregar tablas nuevas** (move_analyses, player_patterns) | 1 día           | Bajo ✅     |
+| 2    | **Dual write** (escribir en v1.0 + v2.0)                   | 1 semana        | Bajo ✅     |
+| 3    | **Dual read** (leer v2.0, fallback a v1.0)                 | 1 semana        | Medio ⚠️    |
+| 4    | **Migración histórica** (opcional)                         | 2 semanas       | Alto ⛔     |
+| 5    | **Deprecar legacy** (eliminar tabla `moves`)               | 3 meses después | Muy Alto ⛔ |
 
 ### Nuevas Tablas
 
