@@ -11,12 +11,12 @@
 
 ### Fase 0: Documentación Técnica (ACTUAL)
 
-| Documento                                                                                  | Descripción                                                                                                                     | Estado       |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| [00-fase0-especificacion-tecnica.md](./00-fase0-especificacion-tecnica.md)                 | Especificación completa de componentes (Planner, Executor, Critic, Memory, Explainer), reglas de validación, patrones de diseño | ✅ DRAFT v1.0 |
-| [00-fase0-interfaces-json.md](./00-fase0-interfaces-json.md)                               | Schemas JSON y Pydantic models de todas las interfaces entre módulos                                                            | ✅ DRAFT v1.0 |
-| [00-fase0-plan-migracion.md](./00-fase0-plan-migracion.md)                                 | Estrategia de migración de base de datos con dual write/read, rollback plan                                                     | ✅ DRAFT v1.0 |
-| [00-fase0-diagramas-arquitectura.md](./00-fase0-diagramas-arquitectura.md)                 | 10 diagramas Mermaid: componentes, secuencia, flujo de datos, DB, despliegue, feature flags                                     | ✅ DRAFT v1.0 |
+| Documento                                                                  | Descripción                                                                                                                     | Estado       |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| [00-fase0-especificacion-tecnica.md](./00-fase0-especificacion-tecnica.md) | Especificación completa de componentes (Planner, Executor, Critic, Memory, Explainer), reglas de validación, patrones de diseño | ✅ DRAFT v1.0 |
+| [00-fase0-interfaces-json.md](./00-fase0-interfaces-json.md)               | Schemas JSON y Pydantic models de todas las interfaces entre módulos                                                            | ✅ DRAFT v1.0 |
+| [00-fase0-plan-migracion.md](./00-fase0-plan-migracion.md)                 | Estrategia de migración de base de datos con dual write/read, rollback plan                                                     | ✅ DRAFT v1.0 |
+| [00-fase0-diagramas-arquitectura.md](./00-fase0-diagramas-arquitectura.md) | 10 diagramas Mermaid: componentes, secuencia, flujo de datos, DB, despliegue, feature flags                                     | ✅ DRAFT v1.0 |
 
 ### Fases Futuras (Pendientes)
 

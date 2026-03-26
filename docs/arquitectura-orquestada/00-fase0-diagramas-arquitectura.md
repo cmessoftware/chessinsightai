@@ -851,18 +851,18 @@ graph LR
 
 ## Resumen de Diagramas
 
-| Diagrama | Propósito | Audiencia |
-|----------|-----------|-----------|
-| **1. Componentes** | Vista general de arquitectura | Todos |
-| **2. Secuencia** | Flujo detallado del use case | Desarrolladores |
-| **3. Flujo de Datos** | Transformación de datos | Arquitectos |
-| **4. Base de Datos** | Schema y relaciones | DBAs, Backend |
-| **5. Despliegue** | Infraestructura Docker | DevOps |
-| **6. Estados Critic** | Validación y fallbacks | Desarrolladores |
-| **7. Ciclo de Vida** | Proceso end-to-end | Product Managers |
-| **8. Migración DB** | Estrategia de migración | DBAs, Tech Leads |
-| **9. Dependencias** | Servicios y relaciones | Arquitectos |
-| **10. Feature Flags** | Control y rollback | DevOps, SRE |
+| Diagrama              | Propósito                     | Audiencia        |
+| --------------------- | ----------------------------- | ---------------- |
+| **1. Componentes**    | Vista general de arquitectura | Todos            |
+| **2. Secuencia**      | Flujo detallado del use case  | Desarrolladores  |
+| **3. Flujo de Datos** | Transformación de datos       | Arquitectos      |
+| **4. Base de Datos**  | Schema y relaciones           | DBAs, Backend    |
+| **5. Despliegue**     | Infraestructura Docker        | DevOps           |
+| **6. Estados Critic** | Validación y fallbacks        | Desarrolladores  |
+| **7. Ciclo de Vida**  | Proceso end-to-end            | Product Managers |
+| **8. Migración DB**   | Estrategia de migración       | DBAs, Tech Leads |
+| **9. Dependencias**   | Servicios y relaciones        | Arquitectos      |
+| **10. Feature Flags** | Control y rollback            | DevOps, SRE      |
 
 ---
 
