@@ -1,5 +1,15 @@
 Especificación completa para Copilot
 Curso AI Engineering basado en ChessTrainer
+
+--- v1 Status ---
+Notebooks disponibles en docs/courses/ (junto a este archivo):
+  01_architecture_overview.ipynb   — Módulo 0: Foundations  ✅
+  02_run_feature_pipeline.ipynb    — Módulo 1: Data Pipeline  ✅
+  03_dataset_builder.ipynb         — Módulo 2: Dataset Generation  ✅
+Módulos 3-12: pendientes de implementación futura.
+-----------------
+
+
 El curso debe reutilizar la infraestructura existente del proyecto.
 No debe reimplementar el pipeline de extracción de features.
 Arquitectura del sistema
@@ -118,17 +128,17 @@ Objetivo:
 comprender pipeline completo.
 Notebook:
 
-architecture_overview.ipynb
+01_architecture_overview.ipynb  [v1 — disponible en docs/courses/]
 Módulo 1 — Data pipeline
 No implementar parsing.
 Notebook:
 
-run_feature_pipeline.ipynb
+02_run_feature_pipeline.ipynb  [v1 — disponible en docs/courses/]
 Ejecuta script existente.
 Módulo 2 — Dataset generation
 Notebook:
 
-dataset_builder.ipynb
+03_dataset_builder.ipynb  [v1 — disponible en docs/courses/]
 Lee tabla features.
 Módulo 3 — Feature analysis
 Notebook:
