@@ -49,11 +49,26 @@ class PlannerService:
         logger.info(f"[Planner] Construyendo plan para game {game.id}")
 
         # Validar inputs
-        if not hasattr(game, "moves") or len(game.moves) == 0:
-            raise ValueError("Game must have at least one move")
-
         if not hasattr(game, "id"):
             raise ValueError("Game must have an ID")
+
+        # Caso especial: partida sin movimientos
+        if not hasattr(game, "moves") or len(game.moves) == 0:
+            logger.warning(f"[Planner] Game {game.id} has no moves, returning empty plan")
+            return AnalysisPlan(
+                game_id=game.id,
+                target_moves=[],
+                analysis_modes=self._determine_analysis_modes(options),
+                priorities={},
+                metadata={
+                    "total_moves": 0,
+                    "player_color": getattr(game, "player_color", "unknown"),
+                    "result": getattr(game, "result", "unknown"),
+                    "focus_mode": options.focus_mode,
+                    "player_elo": options.elo_threshold if options.elo_threshold else "unknown",
+                },
+                options=options
+            )
 
         # Identificar jugadas críticas según focus_mode
         target_moves = self._identify_critical_moments(game, options)
@@ -108,10 +123,13 @@ class PlannerService:
         - Tactical tags → medium priority
         - Game phase consideration
         """
-        critical_moves: List[Tuple[int, int]] = []  # (index, score)
+        critical_moves: List[Tuple[int, int]] = []  # (ply, score)
 
         for i, move in enumerate(game.moves):
             score = 0
+            
+            # Usar ply number del move si está disponible, sino usar índice
+            ply = move.ply if hasattr(move, "ply") else i
 
             # Criterio 1: Eval swing (peso alto)
             if hasattr(move, "eval_before") and hasattr(move, "eval_after"):
@@ -145,7 +163,7 @@ class PlannerService:
                 score += error_weights.get(move.error_label, 0)
 
             # Criterio 5: Fase de juego (ajuste según focus_mode)
-            phase = self._get_move_phase(i, len(game.moves))
+            phase = self._get_move_phase(ply, len(game.moves))
             if options.focus_mode == "tactical" and phase == "middlegame":
                 score += 3
             elif options.focus_mode == "positional" and phase == "endgame":
@@ -154,21 +172,21 @@ class PlannerService:
             # Agregar si supera threshold
             threshold = self._get_threshold_for_focus_mode(options.focus_mode)
             if score >= threshold:
-                critical_moves.append((i, score))
+                critical_moves.append((ply, score))
 
         # Ordenar por score descendente
         critical_moves.sort(key=lambda x: x[1], reverse=True)
 
         # Aplicar límite según focus_mode
         max_moves = self._get_max_moves_for_focus_mode(options.focus_mode)
-        target_indices = [idx for idx, _ in critical_moves[:max_moves]]
+        target_plys = [ply for ply, _ in critical_moves[:max_moves]]
 
         logger.debug(
-            f"[Planner] Identified {len(target_indices)} critical moves "
+            f"[Planner] Identified {len(target_plys)} critical moves "
             f"from {len(game.moves)} total (focus={options.focus_mode})"
         )
 
-        return target_indices
+        return target_plys
 
     def _determine_analysis_modes(self, options: AnalysisOptions) -> List[str]:
         """
@@ -201,16 +219,33 @@ class PlannerService:
 
         Args:
             game: Partida
-            target_moves: Índices de jugadas a analizar
+            target_moves: Ply numbers de jugadas a analizar
             options: Opciones
 
         Returns:
-            Diccionario {move_index: "high" | "medium" | "low"}
+            Diccionario {ply: "high" | "medium" | "low"}
         """
         priorities: Dict[int, str] = {}
+        
+        # Crear mapping de ply → move para búsqueda eficiente
+        ply_to_move = {}
+        for move in game.moves:
+            ply = move.ply if hasattr(move, "ply") else None
+            if ply is not None:
+                ply_to_move[ply] = move
 
-        for idx in target_moves:
-            move = game.moves[idx]
+        for ply in target_moves:
+            # Buscar el move por ply number
+            move = ply_to_move.get(ply)
+            if not move:
+                # Si no se encuentra por ply, intentar buscar por índice
+                # (fallback para compatibilidad con casos donde ply == índice)
+                if 0 <= ply < len(game.moves):
+                    move = game.moves[ply]
+                else:
+                    logger.warning(f"[Planner] No se encontró move para ply {ply}")
+                    continue
+                    
             priority_score = 0
 
             # Criterio 1: Error label
@@ -236,11 +271,11 @@ class PlannerService:
 
             # Asignar prioridad según score
             if priority_score >= 10:
-                priorities[idx] = "high"
+                priorities[ply] = "high"
             elif priority_score >= 5:
-                priorities[idx] = "medium"
+                priorities[ply] = "medium"
             else:
-                priorities[idx] = "low"
+                priorities[ply] = "low"
 
         return priorities
 
@@ -250,18 +285,24 @@ class PlannerService:
         Determina la fase de juego de una jugada.
 
         Args:
-            move_index: Índice de la jugada (0-based)
+            move_index: Índice de la jugada (0-based o ply number)
             total_moves: Total de jugadas en la partida
 
         Returns:
             "opening" | "middlegame" | "endgame"
         """
+        # Opening: primeros 15 plys
         if move_index < 15:
             return "opening"
-        elif move_index < 40 or move_index < total_moves * 0.7:
-            return "middlegame"
-        else:
+        
+        # Endgame: después de ply 40 O después del 70% de la partida
+        # (lo que ocurra primero en partidas cortas)
+        endgame_threshold = min(40, int(total_moves * 0.7))
+        if move_index >= endgame_threshold:
             return "endgame"
+        
+        # Middlegame: entre opening y endgame
+        return "middlegame"
 
     @staticmethod
     def _get_threshold_for_focus_mode(focus_mode: str) -> int:

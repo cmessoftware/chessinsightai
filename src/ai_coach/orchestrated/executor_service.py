@@ -102,21 +102,21 @@ class ExecutorService:
         results = []
         start_time = datetime.now()
 
-        for move_idx in plan.target_moves:
+        for ply in plan.target_moves:
             move_start = datetime.now()
 
             try:
-                result = await self._execute_move_analysis(game, plan, move_idx)
+                result = await self._execute_move_analysis(game, plan, ply)
                 results.append(result)
 
                 logger.debug(
-                    f"[Executor] Jugada {move_idx} completada en "
+                    f"[Executor] Jugada (ply {ply}) completada en "
                     f"{(datetime.now() - move_start).total_seconds():.2f}s"
                 )
 
             except Exception as e:
                 logger.error(
-                    f"[Executor] Error analizando jugada {move_idx}: {e}",
+                    f"[Executor] Error analizando jugada (ply {ply}): {e}",
                     exc_info=True,
                 )
                 # Continuar con siguiente jugada
@@ -131,7 +131,7 @@ class ExecutorService:
         return results
 
     async def _execute_move_analysis(
-        self, game: Any, plan: AnalysisPlan, move_idx: int
+        self, game: Any, plan: AnalysisPlan, ply: int
     ) -> ExecutionResult:
         """
         Ejecuta análisis completo de una jugada.
@@ -139,22 +139,32 @@ class ExecutorService:
         Args:
             game: Partida
             plan: Plan de análisis
-            move_idx: Índice de jugada
+            ply: Ply number de la jugada a analizar
 
         Returns:
             ExecutionResult con toda la evidencia
         """
         move_start = datetime.now()
+        
+        # Buscar el move por ply number
+        move = None
+        for m in game.moves:
+            if hasattr(m, "ply") and m.ply == ply:
+                move = m
+                break
+        
+        if not move:
+            raise ValueError(f"No se encontró move con ply={ply}")
 
         # ====================================================================
         # PASO 1: Engine Analysis (bloqueante)
         # ====================================================================
-        engine_result = await self._run_engine_analysis(game, move_idx, plan)
+        engine_result = await self._run_engine_analysis(game, ply, plan)
 
         # ====================================================================
-        # PASO 2: Feature Extraction (depende de engine)
+        # PASO  2: Feature Extraction (depende de engine)
         # ====================================================================
-        features = self._extract_features(game, move_idx, engine_result)
+        features = self._extract_features(game, ply, engine_result)
 
         # ====================================================================
         # PASO 3: ML + RAG en paralelo (independientes)
@@ -166,7 +176,7 @@ class ExecutorService:
             ml_task = self._run_ml_prediction(features, engine_result)
 
         if "rag" in plan.analysis_modes and self.rag is not None:
-            rag_task = self._run_rag_retrieval(game, move_idx)
+            rag_task = self._run_rag_retrieval(game, ply)
 
         # Ejecutar en paralelo solo si hay tasks
         ml_result = None
@@ -202,14 +212,12 @@ class ExecutorService:
         # ====================================================================
         execution_time = (datetime.now() - move_start).total_seconds()
 
-        move = game.moves[move_idx]
-
         result = ExecutionResult(
             game_id=game.id,
-            ply=move_idx,
-            move_san=getattr(move, "san", str(move)),
-            fen_before=game.get_fen_at(move_idx),
-            fen_after=game.get_fen_at(move_idx + 1),
+            ply=ply,
+            move_san=getattr(move, "move_san", getattr(move, "san", str(move))),
+            fen_before=game.get_fen_at(ply),
+            fen_after=game.get_fen_at(ply + 1),
             engine_eval_before=engine_result.get("eval_before", 0.0),
             engine_eval_after=engine_result.get("eval_after", 0.0),
             score_diff=engine_result.get("score_diff", 0.0),
@@ -217,7 +225,7 @@ class ExecutorService:
             best_line=engine_result.get("best_line", []),
             features=features,
             tactical_tags=engine_result.get("tactical_tags", []),
-            phase=self._determine_phase(move_idx, len(game.moves)),
+            phase=self._determine_phase(ply, len(game.moves)),
             ml_prediction=ml_result,
             rag_context=rag_result,
             timestamp=datetime.now(),
@@ -227,77 +235,115 @@ class ExecutorService:
         return result
 
     async def _run_engine_analysis(
-        self, game: Any, move_idx: int, plan: AnalysisPlan
+        self, game: Any, ply: int, plan: AnalysisPlan
     ) -> dict:
         """
         Ejecuta análisis de Stockfish.
 
         Args:
             game: Partida
-            move_idx: Índice de jugada
+            ply: Ply number de la jugada
             plan: Plan (tiene depth en options)
 
         Returns:
             dict con eval_before, eval_after, best_move, best_line, tactical_tags
         """
         if self.engine is None:
-            logger.warning("[Executor] Engine service not available")
-            return {
-                "eval_before": 0.0,
-                "eval_after": 0.0,
-                "score_diff": 0.0,
-                "best_move": "",
-                "best_line": [],
-                "tactical_tags": [],
-            }
+            logger.warning("[Executor] Engine service not available, using move data")
+            # Si no hay engine service, intentar usar datos del move
+            return self._extract_engine_data_from_move(game, ply)
 
         try:
-            fen = game.get_fen_at(move_idx)
-            depth = plan.options.depth
+            fen_before = game.get_fen_at(ply)
 
-            # TODO: Adaptar a la interface real de AnalysisService
-            # Por ahora, placeholder
-            analysis = await self._engine_analyze_position(fen, depth)
+            # Call engine service to analyze position
+            analysis = self.engine.analyze_position(fen_before)
 
-            return analysis
+            # Get eval_before from move data
+            move = None
+            for m in game.moves:
+                if hasattr(m, "ply") and m.ply == ply:
+                    move = m
+                    break
+
+            eval_before = getattr(move, "eval_before", 0.0) if move else 0.0
+            eval_after = analysis.get("eval", 0.0)
+
+            return {
+                "eval_before": eval_before,
+                "eval_after": eval_after,
+                "score_diff": eval_after - eval_before,
+                "best_move": analysis.get("best_move", ""),
+                "best_line": analysis.get("best_line", []),
+                "tactical_tags": analysis.get("tactical_tags", []),
+            }
 
         except Exception as e:
             logger.error(f"[Executor] Error en engine analysis: {e}")
+            return self._extract_engine_data_from_move(game, ply)
+
+    def _extract_engine_data_from_move(self, game: Any, ply: int) -> dict:
+        """
+        Extrae datos de evaluación del move si están disponibles.
+        
+        Args:
+            game: Partida
+            ply: Ply number
+            
+        Returns:
+            dict con eval_before, eval_after, score_diff, best_move, best_line, tactical_tags
+        """
+        # Buscar move por ply number
+        move = None
+        for m in game.moves:
+            if hasattr(m, "ply") and m.ply == ply:
+                move = m
+                break
+        
+        if move:
+            eval_before = getattr(move, "eval_before", 0.0)
+            eval_after = getattr(move, "eval_after", 0.0)
+            score_diff = eval_after - eval_before
+            best_move = getattr(move, "best_move", "")
+            move_san = getattr(move, "move_san", getattr(move, "san", ""))
+            tactical_tags = getattr(move, "tactical_tags", [])
+            
             return {
-                "eval_before": 0.0,
-                "eval_after": 0.0,
-                "score_diff": 0.0,
-                "best_move": "",
-                "best_line": [],
-                "tactical_tags": [],
+                "eval_before": eval_before,
+                "eval_after": eval_after,
+                "score_diff": score_diff,
+                "best_move": best_move or move_san,
+                "best_line": [best_move] if best_move else [move_san] if move_san else [],
+                "tactical_tags": tactical_tags if isinstance(tactical_tags, list) else [],
             }
-
-    async def _engine_analyze_position(self, fen: str, depth: int) -> dict:
-        """
-        Placeholder para análisis de engine.
-        TODO: Implementar integración real con AnalysisService
-        """
-        # Simular análisis asíncrono
-        await asyncio.sleep(0.1)
-
+        
+        # Fallback values
         return {
             "eval_before": 0.0,
             "eval_after": 0.0,
             "score_diff": 0.0,
-            "best_move": "e2e4",
-            "best_line": ["e2e4", "e7e5", "Ng1f3"],
+            "best_move": "",
+            "best_line": [],
             "tactical_tags": [],
         }
 
+    async def _engine_analyze_position(
+        self, game: Any, ply: int, fen_before: str, fen_after: str, depth: int
+    ) -> dict:
+        """
+        Fallback: análisis de engine via move data.
+        """
+        return self._extract_engine_data_from_move(game, ply)
+
     def _extract_features(
-        self, game: Any, move_idx: int, engine_result: dict
+        self, game: Any, ply: int, engine_result: dict
     ) -> dict:
         """
         Extrae features de la posición.
 
         Args:
             game: Partida
-            move_idx: Índice de jugada
+            ply: Ply number
             engine_result: Resultado del engine
 
         Returns:
@@ -308,16 +354,8 @@ class ExecutorService:
             return {}
 
         try:
-            # TODO: Adaptar a la interface real de FeatureService
-            # Por ahora, placeholder
-            features = {
-                "king_safety": 0.5,
-                "material_balance": 0.0,
-                "center_control": 0.6,
-                "piece_activity": 0.7,
-            }
-
-            return features
+            fen = game.get_fen_at(ply)
+            return self.features.extract_features(fen, engine_result)
 
         except Exception as e:
             logger.error(f"[Executor] Error en feature extraction: {e}")
@@ -340,35 +378,21 @@ class ExecutorService:
             return None
 
         try:
-            # TODO: Adaptar a la interface real de ChessErrorPredictor
-            # Por ahora, placeholder
-            await asyncio.sleep(0.05)  # Simular predicción
-
-            prediction = MLPrediction(
-                predicted_error="good",
-                confidence=0.85,
-                risk_score=0.15,
-                contributing_features=[
-                    {"feature_name": "king_safety", "impact": 0.3},
-                    {"feature_name": "center_control", "impact": 0.2},
-                ],
-            )
-
-            return prediction
+            return await self.ml.predict(features)
 
         except Exception as e:
             logger.error(f"[Executor] Error en ML prediction: {e}")
             return None
 
     async def _run_rag_retrieval(
-        self, game: Any, move_idx: int
+        self, game: Any, ply: int
     ) -> Optional[RAGContext]:
         """
         Recupera contexto similar via RAG.
 
         Args:
             game: Partida
-            move_idx: Índice de jugada
+            ply: Ply number
 
         Returns:
             RAGContext o None si falla
@@ -377,39 +401,27 @@ class ExecutorService:
             return None
 
         try:
-            # TODO: Implementar RAG service real
-            # Por ahora, placeholder
-            await asyncio.sleep(0.05)  # Simular retrieval
-
-            context = RAGContext(
-                similar_positions=[],
-                book_excerpts=[],
-                player_patterns=[],
-                total_retrieved=0,
-                relevance_scores=[],
-            )
-
-            return context
+            return await self.rag.retrieve(game, ply)
 
         except Exception as e:
             logger.error(f"[Executor] Error en RAG retrieval: {e}")
             return None
 
     @staticmethod
-    def _determine_phase(move_idx: int, total_moves: int) -> str:
+    def _determine_phase(ply: int, total_moves: int) -> str:
         """
         Determina la fase de juego.
 
         Args:
-            move_idx: Índice de la jugada
+            ply: Ply number de la jugada
             total_moves: Total de jugadas
 
         Returns:
             "opening" | "middlegame" | "endgame"
         """
-        if move_idx < 15:
+        if ply < 15:
             return "opening"
-        elif move_idx < 40 or move_idx < total_moves * 0.7:
+        elif ply < 40 or ply < total_moves * 0.7:
             return "middlegame"
         else:
             return "endgame"

@@ -1,4 +1,4 @@
-# CHESS TRAINER - Análisis del Estado Actual ML Pipeline
+# CHESSINSIGHTAI - Análisis del Estado Actual ML Pipeline
 
 ## 📊 Estado Actual vs Objetivos de Machine Learning
 

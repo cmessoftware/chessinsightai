@@ -3,7 +3,7 @@
 
 **Status: ✅ COMPLETED (100%)**  
 **Date Completed: July 5, 2025**  
-**GitHub Issue**: [#74](https://github.com/cmessoftware/chess_trainer/issues/74)
+**GitHub Issue**: [#74](https://github.com/cmessoftware/chessinsightai/issues/74)
 
 ---
 

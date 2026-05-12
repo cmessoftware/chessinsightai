@@ -14,13 +14,13 @@ pip install mlflow psycopg2-binary pandas scikit-learn matplotlib seaborn
 
 ### 2. Crear directorio para experimentos
 ```powershell
-# En tu directorio chess_trainer:
+# En tu directorio chessinsightai:
 mkdir mlruns
 ```
 
 ### 3. Iniciar MLflow Server Local
 ```powershell
-# Desde c:\Users\sergiosal\source\repos\chess_trainer:
+# Desde c:\Users\sergiosal\source\repos\chessinsightai:
 mlflow server --host 127.0.0.1 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns
 ```
 

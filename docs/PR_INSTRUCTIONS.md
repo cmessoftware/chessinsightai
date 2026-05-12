@@ -1,7 +1,7 @@
 # 🚀 Pull Request Instructions
 
 ## Repository Information
-- **Repository**: https://github.com/cmessoftware/chess_trainer
+- **Repository**: https://github.com/cmessoftware/chessinsightai
 - **Source Branch**: `bug/fix-pipeline-estimate-tactical-features`  
 - **Target Branch**: `main`
 
@@ -18,7 +18,7 @@ Use the content from `/app/PR_DESCRIPTION.md`
 ## 🔗 Quick Links
 
 ### Create PR via GitHub Web Interface
-1. Go to: https://github.com/cmessoftware/chess_trainer/compare/main...bug/fix-pipeline-estimate-tactical-features
+1. Go to: https://github.com/cmessoftware/chessinsightai/compare/main...bug/fix-pipeline-estimate-tactical-features
 2. Click "Create Pull Request"
 3. Copy the title and description from PR_DESCRIPTION.md
 4. Add reviewers if needed

@@ -243,7 +243,7 @@ class MemoryService:
                 return
 
             # Calcular estadísticas
-            stats = self._compute_player_statistics(player_id, analysis_results)
+            stats = self._compute_player_statistics(analysis_results)
 
             # Upsert a player_patterns
             await self._upsert_player_patterns(player_id, stats)
@@ -260,13 +260,12 @@ class MemoryService:
             raise
 
     def _compute_player_statistics(
-        self, player_id: int, results: List[EnrichedResult]
+        self, results: List[EnrichedResult]
     ) -> Dict[str, Any]:
         """
         Calcula estadísticas agregadas del jugador.
 
         Args:
-            player_id: ID del jugador
             results: Resultados de análisis
 
         Returns:

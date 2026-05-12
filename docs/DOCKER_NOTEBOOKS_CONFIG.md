@@ -1,11 +1,11 @@
-# 🐳 Docker Configuration for Chess Trainer
+# 🐳 Docker Configuration for ChessInsightAI
 
 ## 📋 Container Architecture Update
 
 ### **🔧 Changes Made:**
 
 #### **dockerfile.notebooks** ✅ UPDATED
-- **WORKDIR**: Changed from `/notebooks` to `/chess_trainer`
+- **WORKDIR**: Changed from `/notebooks` to `/chessinsightai`
 - **PYTHONPATH**: Updated to include full repository structure
 - **Git LFS**: Pre-configured with global git settings
 - **JupyterLab**: Now serves from repository root
@@ -74,4 +74,4 @@ git lfs ls-files
 ---
 
 *Updated: July 1, 2025*  
-*Configuration: Docker + Git LFS + JupyterLab + Chess Trainer*
+*Configuration: Docker + Git LFS + JupyterLab + ChessInsightAI*

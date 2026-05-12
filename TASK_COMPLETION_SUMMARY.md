@@ -1,5 +1,5 @@
 # TASK COMPLETION SUMMARY
-## Documentation Reorganization and Docker Unification - Chess Trainer Project
+## Documentation Reorganization and Docker Unification - ChessInsightAI Project
 
 **Date**: June 30, 2025  
 **Version**: v0.1.53-8063938  
@@ -57,7 +57,7 @@
 ## 📁 FINAL PROJECT STRUCTURE
 
 ```
-chess_trainer/
+chessinsightai/
 ├── README.md                    # 📖 MAIN COMPREHENSIVE DOCUMENTATION
 ├── README_es.md                 # 📖 DOCUMENTACIÓN PRINCIPAL COMPLETA  
 ├── VERSION_BASE.md              # 🚀 QUICK START GUIDE
