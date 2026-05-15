@@ -1,6 +1,6 @@
 # Tests Directory
 
-This directory contains all test scripts and utilities for the chess_trainer project. All tests have been centralized here for better organization and management.
+This directory contains all test scripts and utilities for the chessinsightai project. All tests have been centralized here for better organization and management.
 
 ## Prerequisites
 

@@ -1,8 +1,8 @@
-# Chess Trainer: SQLite to PostgreSQL Migration - COMPLETED ✅
+# ChessInsightAI: SQLite to PostgreSQL Migration - COMPLETED ✅
 
 ## Summary
 
-Successfully migrated the chess_trainer project from SQLite to PostgreSQL using the connection URL: `postgresql://chess:chess_pass@postgres:5432/chess_trainer_db`
+Successfully migrated the chessinsightai project from SQLite to PostgreSQL using the connection URL: `postgresql://chess:chess_pass@postgres:5432/chess_trainer_db`
 
 ## Migration Completed
 
@@ -178,8 +178,8 @@ with get_postgres_connection() as conn:
 - ✅ Documentation updated
 - ✅ Schema compatibility verified
 
-The chess_trainer application is now fully compatible with PostgreSQL and ready for production use with improved scalability, performance, and multi-user support.
+The chessinsightai application is now fully compatible with PostgreSQL and ready for production use with improved scalability, performance, and multi-user support.
 
 ---
 *Completed: June 29, 2025*
-*SQLite to PostgreSQL Migration for chess_trainer*
+*SQLite to PostgreSQL Migration for chessinsightai*

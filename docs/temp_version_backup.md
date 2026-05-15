@@ -1,6 +1,6 @@
-# CHESS TRAINER - Versión: v0.1.51-7633ef4
+# CHESSINSIGHTAI - Versión: v0.1.51-7633ef4
 
-# Chess Trainer (stable base version)
+# ChessInsightAI (stable base version)
 
 This project allows you to analyze and tactically train chess games using data science and interactive visualization.
 
@@ -24,7 +24,7 @@ This project allows you to analyze and tactically train chess games using data s
 
 ## Structure
 
-See the [`README.md`](./README.md) file for the complete project structure.
+See the [`README.md`](../README.md) file for the complete project structure.
 
 ## Quick usage
 
@@ -60,7 +60,7 @@ cd /app/src/pipeline
 
 ```
 
-# chess_trainer
+# chessinsightai
 Chess training software using data science tools and the Stockfish chess engine, implemented in a Docker environment.
 
 # Theory on chess game analysis
@@ -217,16 +217,16 @@ This approach will provide you with a solid foundation to integrate Machine Lear
 Developed by cmessoftware as part of their practical work for the Data Science Diploma.
 
 ### Reports
-- **[Test Reports](./test_reports/)** - Automated test execution reports
-- **[Analysis Reports](./test_reports/analyze_tactics_parallel_20250629_035806_summary.md)** - Tactical analysis execution summaries
+- **Test Reports** - Automated test execution reports *(test_reports/ not available)*
+- **Analysis Reports** - Tactical analysis execution summaries *(not available)*
 
 ### 📦 Installation & Requirements
 
 **All dependencies are automatically installed via Docker containers:**
-- **[Dockerfile](./dockerfile)** - Main application container with Python 3.11+ and all required packages
-- **[Dockerfile.notebooks](./dockerfile.notebooks)** - Jupyter environment with Keras, TensorFlow, and data science libraries
-- **[requirements.txt](./requirements.txt)** - Complete Python dependencies list
-- **[docker-compose.yml](./docker-compose.yml)** - Container orchestration with automatic setup
+- **[Dockerfile](../dockerfile)** - Main application container with Python 3.11+ and all required packages
+- **[Dockerfile.notebooks](../dockerfile.notebooks)** - Jupyter environment with Keras, TensorFlow, and data science libraries
+- **[requirements.txt](../requirements.txt)** - Complete Python dependencies list
+- **[docker-compose.yml](../docker-compose.yml)** - Container orchestration with automatic setup
 
 **Manual installation (if not using Docker):**
 ```bash
@@ -311,7 +311,7 @@ docker-compose up -d
 ## 📂 Project Structure
 
 ```
-chess_trainer/
+chessinsightai/
 ├── alembic/                     # Database migration management
 │   ├── env.py
 │   ├── versions/
@@ -510,7 +510,7 @@ With `publish_to_lichess.py` you can upload games from the database as studies. 
 ---
 ### 🧠 Project Architecture
 
-![Chess_trainer architecture](../img/architecture.png)
+![ChessInsightAI architecture](../img/architecture.png)
 
 ---
 
@@ -527,7 +527,7 @@ With `publish_to_lichess.py` you can upload games from the database as studies. 
 ## Optimizations to Speed Up Tactical Analysis (reduce from days to hours) 
 **Updated: 2025-06-02**
 
-## ✅ List of optimizations in `tactical_analysis.py` - `chess_trainer`
+## ✅ List of optimizations in `tactical_analysis.py` - `chessinsightai`
 
 | Nº  | Optimization                               | Status        | Details / Comments                                                                   |
 | --- | ------------------------------------------ | ------------- | ------------------------------------------------------------------------------------ |
@@ -570,7 +570,7 @@ predict_and_eval.py           ➜  generates predictions and evaluation metrics
 
 ## 🧠 Tactics Generator Module (`tactics_generator.py`)
 
-This module is part of the automatic tactical exercise generation system for the `chess_trainer` project. Its goal is to analyze previously processed games, detect moves with instructional value, and store them as reusable tactical exercises.
+This module is part of the automatic tactical exercise generation system for the `chessinsightai` project. Its goal is to analyze previously processed games, detect moves with instructional value, and store them as reusable tactical exercises.
 
 ### ✅ Implemented functionalities
 
@@ -607,7 +607,7 @@ python -m app.src.modules.tactics_generator
  - Suggest similar exercises based on the most frequent tactical error (error_label).
  - Export selected exercises as PGN, JSON or PDF.
 
-## 🧩 Current State of Predictive Functionalities in `chess_trainer`
+## 🧩 Current State of Predictive Functionalities in `chessinsightai`
 
 | Aspect                                | Status            | Description                                                                          |
 | ------------------------------------- | ----------------- | ------------------------------------------------------------------------------------ |
@@ -653,7 +653,7 @@ python -m app.src.modules.tactics_generator
 | 📊 Progress visualization  | Show evolution and frequent errors | Dashboard in Streamlit                       | 2 days         |
 | ⚙️ Opponent analysis       | Detect patterns in frequent rivals | Filtering and simplified clustering          | 2 days         |
 
-**Result:** Chess_trainer adapts to the user, showing profile, errors and key rivals.
+**Result:** ChessInsightAI adapts to the user, showing profile, errors and key rivals.
 
 ---
 
@@ -696,7 +696,7 @@ python -m app.src.modules.tactics_generator
 | Tablebases               | Perfect endgame play              | Only applies to specific cases          |
 | Opponent analysis        | Better preparation against rivals | Depends on available previous games     |
 
-## 🧠 Machine Learning Summary in `chess_trainer`
+## 🧠 Machine Learning Summary in `chessinsightai`
 
 ### ✅ Implemented / sketched modules
 

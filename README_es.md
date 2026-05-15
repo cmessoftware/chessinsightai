@@ -1,6 +1,6 @@
-# CHESS TRAINER - Versión: v0.1.51-7633ef4
+# CHESSINSIGHTAI - Versión: v0.1.51-7633ef4
 
-# ♟ chess_trainer – Análisis y entrenamiento con partidas de élite
+# ♟ chessinsightai – Análisis y entrenamiento con partidas de élite
 
 Este proyecto automatiza la importación, análisis, etiquetado y entrenamiento a partir de miles de partidas de jugadores de élite (ELO >2300), combinando análisis táctico con exploración visual y generación de ejercicios.
 
@@ -86,7 +86,7 @@ Este proyecto proporciona un script PowerShell integral para la gestión complet
 ```
 
 Este script de PowerShell:
-- 🚀 Construye las imágenes chess_trainer y notebooks
+- 🚀 Construye las imágenes chessinsightai y notebooks
 - ✅ Inicia todos los contenedores en modo separado
 - 🧹 Limpia automáticamente las imágenes Docker no utilizadas
 - 🏁 Muestra el estado de los contenedores activos
@@ -103,7 +103,7 @@ Este script de PowerShell:
 ## 📂 Estructura del proyecto
 
 ```
-chess_trainer/
+chessinsightai/
 ├── alembic/                     # Gestión de migraciones de base de datos
 │   ├── env.py
 │   ├── versions/

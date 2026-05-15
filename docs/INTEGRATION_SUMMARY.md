@@ -2,7 +2,7 @@
 
 ## 🎯 Resumen de la Integración
 
-Se ha integrado exitosamente un flujo de trabajo ML completo y reproducible para el proyecto Chess Trainer en VS Code.
+Se ha integrado exitosamente un flujo de trabajo ML completo y reproducible para el proyecto ChessInsightAI en VS Code.
 
 ## 🚀 Componentes Implementados
 
@@ -112,10 +112,10 @@ notebooks/ml_workflow_integrated.ipynb
 ### 📊 Servicios Docker:
 ```
 NAME                            STATUS
-chess_trainer-chess_trainer-1   Up 29 hours
-chess_trainer-mlflow-1          Up 2 minutes  
-chess_trainer-notebooks-1       Up 29 hours
-chess_trainer-postgres-1        Up 29 hours
+chessinsightai-chess_trainer-1   Up 29 hours
+chessinsightai-mlflow-1          Up 2 minutes  
+chessinsightai-notebooks-1       Up 29 hours
+chessinsightai-postgres-1        Up 29 hours
 ```
 
 ## 🚀 Próximos Pasos Sugeridos
@@ -149,4 +149,4 @@ chess_trainer-postgres-1        Up 29 hours
 - ✅ Integración completa con AI Toolkit y extensiones
 - ✅ Documentación completa y troubleshooting
 
-**🎯 El proyecto Chess Trainer ahora tiene un flujo ML profesional, reproducible y escalable integrado en VS Code.**
+**🎯 El proyecto ChessInsightAI ahora tiene un flujo ML profesional, reproducible y escalable integrado en VS Code.**

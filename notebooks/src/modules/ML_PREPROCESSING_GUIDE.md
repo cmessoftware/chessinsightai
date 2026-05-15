@@ -2,7 +2,7 @@
 
 ## Overview
 
-The ML preprocessing pipeline for Chess Trainer provides comprehensive data preparation capabilities for training machine learning models on chess game data. It handles multiple source types with specialized transformations and ensures data quality and consistency.
+The ML preprocessing pipeline for ChessInsightAI provides comprehensive data preparation capabilities for training machine learning models on chess game data. It handles multiple source types with specialized transformations and ensures data quality and consistency.
 
 ## Source Types & Configurations
 
@@ -382,4 +382,4 @@ psycopg2>=2.8.0
 
 ---
 
-*This pipeline represents the complete implementation of the 30% missing ML preprocessing functionality for Chess Trainer Issue #66.*
+*This pipeline represents the complete implementation of the 30% missing ML preprocessing functionality for ChessInsightAI Issue #66.*

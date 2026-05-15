@@ -1,4 +1,4 @@
-# 🐳 Docker Development Strategy - Chess Trainer
+# 🐳 Docker Development Strategy - ChessInsightAI
 
 ## 🎯 Recommended Hybrid Approach
 
@@ -130,7 +130,7 @@ volumes:
 ### **Memory Management**
 ```bash
 # Monitor container resources
-docker stats chess_trainer-notebooks-1
+docker stats chessinsightai-notebooks-1
 
 # Clean up when needed
 docker-compose down

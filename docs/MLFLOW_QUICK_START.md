@@ -1,8 +1,8 @@
-# 🚀 MLflow Quick Start - Chess Trainer
+# 🚀 MLflow Quick Start - ChessInsightAI
 
 ## 📋 ¿Qué acabamos de configurar?
 
-Hemos configurado **MLflow** completamente integrado con tu proyecto chess_trainer. MLflow es una herramienta que te permite:
+Hemos configurado **MLflow** completamente integrado con tu proyecto chessinsightai. MLflow es una herramienta que te permite:
 
 - 🔬 **Trackear experimentos**: Cada vez que entrenes un modelo, MLflow registra automáticamente parámetros, métricas y resultados
 - 📊 **Comparar modelos**: Ver fácilmente qué modelo funciona mejor para predecir errores en ajedrez
@@ -190,4 +190,4 @@ Ya tienes todo configurado para empezar a usar Machine Learning de forma profesi
 ---
 
 *Creado: 2025-01-26*  
-*Proyecto: chess_trainer + MLflow + Docker*
+*Proyecto: chessinsightai + MLflow + Docker*
