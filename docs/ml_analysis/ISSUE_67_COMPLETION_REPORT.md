@@ -59,7 +59,7 @@ git push -u origin issue-67-ml-preprocessing-tactical-features
 - **Commit Hash:** `a3587f0`
 - **Version Updated:** `v0.1.70-9196e4d`
 - **Files Modified:** 3 files, 1134 insertions
-- **Link for PR:** https://github.com/cmessoftware/chessinsightai/pull/new/issue-67-ml-preprocessing-tactical-features
+- **Link for PR:** https://github.com/cmessoftware/chess_trainer/pull/new/issue-67-ml-preprocessing-tactical-features
 
 ---
 
@@ -95,7 +95,7 @@ Data Quality: ✅ No NaN or infinite values in output
 
 ### **Docker Services Running**
 ```
-✅ chessinsightai:  Streamlit app (port 8501)
+✅ chess_trainer:  Streamlit app (port 8501)
 ✅ notebooks:      Jupyter Lab (port 8888) 
 ✅ mlflow:         ML tracking (port 5000)
 ✅ postgres:       Database (port 5432)
@@ -151,4 +151,4 @@ For future development, continue this proven pattern:
 
 **🎉 Issue #67 Successfully Completed!**
 
-*The missing 30% of tactical features are now fully integrated into the ML preprocessing pipeline, making the chessinsightai ML system complete and production-ready.*
+*The missing 30% of tactical features are now fully integrated into the ML preprocessing pipeline, making the chess_trainer ML system complete and production-ready.*

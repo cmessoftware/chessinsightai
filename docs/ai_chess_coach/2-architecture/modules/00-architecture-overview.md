@@ -1,133 +1,141 @@
-# 🏗️ 00-Arquitectura General de ChessInsightAI
+# 🏗️ 00-General Architecture of ChessInsightAI
 
-## Objetivo General
-Comprender la arquitectura completa de **ChessInsightAI**: qué problema resuelve, cómo se organizan sus componentes, y cómo fluyen los datos desde un archivo PGN hasta una explicación pedagógica personalizada.
+## General Objective
+Understand the complete architecture of **ChessInsightAI**: what problem it solves, how its components are organized, and how data flows from a PGN file to a personalized pedagogical explanation.
 
-## ¿Qué problema resuelve?
+## What problem does it solve?
 
-Los motores de ajedrez (Stockfish) son excelentes evaluando posiciones, pero **no explican por qué una jugada es mala**. ChessInsightAI combina:
+Chess engines (Stockfish) are excellent at evaluating positions, but they **do not explain why a move is bad**. ChessInsightAI combines:
 
-| Componente | Rol |
+| Component | Role |
 |------------|-----|
-| **Stockfish** | Evaluación objetiva (*ground truth*) |
-| **ML (RandomForest/GradientBoosting)** | Clasificación de errores: blunder, mistake, inaccuracy |
-| **RAG** | Contexto de posiciones similares y libros de ajedrez |
-| **LLM (Llama 3.1)** | Explicación en lenguaje natural adaptada al nivel del jugador |
+| **Stockfish** | Objective evaluation (*ground truth*) |
+| **ML (RandomForest/GradientBoosting)** | Error classification: blunder, mistake, inaccuracy |
+| **RAG** | Context from similar positions and chess books |
+| **LLM (Llama 3.1)** | Natural language explanations adapted to the player's level |
 
-> **Principio fundamental**: El LLM solo **EXPLICA**, nunca **DECIDE**. Las decisiones las toman Stockfish + ML.
+> **Fundamental principle**: The LLM only **EXPLAINS**, it never **DECIDES**. Decisions are made by Stockfish + ML.
 
-## 📊 Diagrama de Arquitectura en Capas
+## 📊 Layered Architecture Diagram
 
-La arquitectura de ChessInsightAI se organiza en **5 capas** principales, cada una con responsabilidades bien definidas:
+The ChessInsightAI architecture is organized into **5 main layers**, each with clearly defined responsibilities:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
-│                 CAPA DE PRESENTACIÓN                    │
+│                 PRESENTATION LAYER                      │
 │         React (upload, stats, training)                 │
-│              Puerto: 8501                               │
+│              Port: 8501                                 │
 ├─────────────────────────────────────────────────────────┤
-│                   CAPA DE API                           │
+│                    API LAYER                            │
 │         FastAPI endpoints + Services                    │
 │           (analysis, predictions)                       │
 ├─────────────────────────────────────────────────────────┤
-│              CAPA DE ORQUESTACIÓN                       │
+│               ORCHESTRATION LAYER                       │
 │      Planner → Executor → Critic → Memory               │
-│         (Arquitectura Orquestada v2.0)                  │
+│         (Orchestrated Architecture v2.0)                │
 ├──────────────┬──────────────┬───────────────────────────┤
-│   CAPA ML    │  CAPA RAG    │    CAPA ENGINE            │
-│  RF/GB/SHAP  │  Embeddings  │    Stockfish              │
-│  MLflow      │  Libros      │    Features               │
+│   ML LAYER   │  RAG LAYER   │      ENGINE LAYER         │
+│ RF/GB/SHAP   │  Embeddings  │      Stockfish            │
+│  MLflow      │  Books       │      Features             │
 ├──────────────┴──────────────┴───────────────────────────┤
-│              CAPA DE DATOS                              │
+│                    DATA LAYER                           │
 │    PostgreSQL + Parquet datasets + PGN files            │
-│              Puerto: 5432                               │
+│              Port: 5432                                 │
 └─────────────────────────────────────────────────────────┘
 ```
 
-**Principio clave**: Cada capa solo se comunica con las capas adyacentes. La capa de orquestación coordina todas las fuentes de evidencia.
+**Key principle**: Each layer only communicates with adjacent layers. The orchestration layer coordinates all evidence sources.
 
-## 🗂️ Estructura del Proyecto
+# 🗂️ Project Structure
 
-El repositorio sigue una organización modular clara:
+The repository follows a clear modular organization:
 
-| Directorio | Contenido | Ejemplos |
+| Directory | Content | Examples |
 |:-----------|:----------|:---------|
-| `src/modules/` | Lógica core de ajedrez | `extractor.py`, `features_generator.py`, `pgn_utils.py` |
-| `src/ml/` | Pipeline ML completo | `chess_error_predictor.py`, `shap_explainer.py` |
-| `src/ai_coach/orchestrated/` | Arquitectura orquestada | `planner_service.py`, `executor_service.py`, `critic_service.py`, `memory_service.py` |
-| `src/pages/` | Páginas Streamlit | `upload_pgn.py`, `elite_stats.py`, `tactics_viewer.py` |
-| `notebooks/` | Análisis y entrenamiento | `ml_workflow_integrated.ipynb`, `course/` |
-| `datasets/` | Datos de entrenamiento | `tactics/`, `studies/`, `models/` |
-| `data/` | Datos de aplicación | `games/`, `chess_books/`, `vectorstore/` |
-| `tests/` | Tests unitarios + integración | `tests/ai_coach/`, `tests/ml/`, `tests/modules/` |
-| `docs/` | Documentación técnica | `ROADMAP.md`, guías de configuración |
+| `src/modules/` | Core chess logic | `extractor.py`, `features_generator.py`, `pgn_utils.py` |
+| `src/ml/` | Complete ML pipeline | `chess_error_predictor.py`, `shap_explainer.py` |
+| `src/ai_coach/orchestrated/` | Orchestrated architecture | `planner_service.py`, `executor_service.py`, `critic_service.py`, `memory_service.py` |
+| `src/pages/` | Streamlit pages | `upload_pgn.py`, `elite_stats.py`, `tactics_viewer.py` |
+| `notebooks/` | Analysis and training | `ml_workflow_integrated.ipynb`, `course/` |
+| `datasets/` | Training data | `tactics/`, `studies/`, `models/` |
+| `data/` | Application data | `games/`, `chess_books/`, `vectorstore/` |
+| `tests/` | Unit + integration tests | `tests/ai_coach/`, `tests/ml/`, `tests/modules/` |
+| `docs/` | Technical documentation | `ROADMAP.md`, configuration guides |
 
-### Servicios Docker
+# Docker Services
 
 ```yaml
 services:
-  chess_trainer:  # App Streamlit          → puerto 8501
-  notebooks:     # Jupyter Lab             → puerto 8889
-  postgres:      # Base de datos           → puerto 5432
-  mlflow:        # Tracking de experimentos → puerto 5000
+  chess_trainer:  # React+Vite app         → port 8501
+  notebooks:      # Jupyter Lab           → port 8889
+  postgres:       # Database              → port 5432
+  mlflow:         # Experiment tracking   → port 5000
 ```
 
-## ♟️ Pipeline de Procesamiento de Partidas (ETL)
+# ♟️ Game Processing Pipeline (ETL)
 
-El flujo de datos sigue un pipeline ETL clásico adaptado al dominio del ajedrez:
+The data flow follows a classic ETL pipeline adapted to the chess domain:
 
-```
+```text
 PGN File → Parser → Moves + FEN → Stockfish Analysis → Feature Extraction → ML Classification
 ```
 
-### Paso 1: Parsing PGN
-Se utiliza la librería `python-chess` para parsear archivos PGN (Portable Game Notation). Cada partida se descompone en:
-- **Metadatos**: jugadores, ELO, apertura, resultado, fecha
-- **Movimientos**: secuencia de jugadas con notación algebraica
-- **Posiciones FEN**: estado del tablero después de cada jugada
+## Step 1: PGN Parsing
 
-### Paso 2: Análisis con Stockfish
-Para cada posición, Stockfish calcula:
-- **Evaluación** (centipawns): diferencia de ventaja material+posicional
-- **Mejor jugada**: el movimiento óptimo según el motor
-- **Profundidad**: niveles de búsqueda del árbol de juego
+The `python-chess` library is used to parse PGN (Portable Game Notation) files. Each game is decomposed into:
 
-### Paso 3: Extracción de Features
-El módulo `features_generator.py` extrae **16 características** de cada posición:
+- **Metadata**: players, ELO, opening, result, date
+- **Moves**: sequence of moves in algebraic notation
+- **FEN positions**: board state after each move
 
-| Feature | Tipo | Descripción |
+## Step 2: Stockfish Analysis
+
+For each position, Stockfish computes:
+
+- **Evaluation (centipawns)**: material + positional advantage difference
+- **Best move**: the engine’s optimal move
+- **Depth**: search tree depth levels
+
+## Step 3: Feature Extraction
+
+The `features_generator.py` module extracts 16 features from each position:
+
+| Feature | Type | Description |
 |:--------|:-----|:------------|
-| `score_diff` | float | Cambio en evaluación del motor |
-| `material_balance` | int | Diferencia de material (blancas - negras) |
-| `num_pieces` | int | Total de piezas en el tablero |
-| `branching_factor` | int | Movimientos legales disponibles |
-| `self_mobility` | int | Movilidad del jugador activo |
-| `opponent_mobility` | int | Movilidad del oponente |
-| `is_center_controlled` | bool | Control de casillas centrales |
-| `has_castling_rights` | bool | Derechos de enroque disponibles |
-| `threatens_mate` | bool | Si hay amenaza de mate |
-| `is_pawn_endgame` | bool | Solo peones y reyes |
+| `score_diff` | float | Change in engine evaluation |
+| `material_balance` | int | Material difference (white - black) |
+| `num_pieces` | int | Total number of pieces on the board |
+| `branching_factor` | int | Available legal moves |
+| `self_mobility` | int | Mobility of the active player |
+| `opponent_mobility` | int | Mobility of the opponent |
+| `is_center_controlled` | bool | Control of central squares |
+| `has_castling_rights` | bool | Castling rights available |
+| `threatens_mate` | bool | Whether there is a mating threat |
+| `is_pawn_endgame` | bool | Only pawns and kings remain |
 
-## 🤖 Pipeline de Machine Learning
+# 🤖 Machine Learning Pipeline
 
-### Clasificación de Errores
-El modelo de ML clasifica cada jugada en una de **4 categorías** basándose en la pérdida de evaluación del motor:
+## Error Classification
 
-| Clasificación | score_diff (cp) | Descripción |
+The ML model classifies each move into one of 4 categories based on engine evaluation loss:
+
+| Classification | score_diff (cp) | Description |
 |:--------------|:----------------|:------------|
-| **Good** | 0 – 30 | Jugada correcta o casi óptima |
-| **Inaccuracy** | 30 – 80 | Imprecisión menor, pierde ventaja |
-| **Mistake** | 80 – 200 | Error significativo, cambia la evaluación |
-| **Blunder** | > 200 | Error grave, pierde material o la partida |
+| **Good** | 0 – 30 | Correct or nearly optimal move |
+| **Inaccuracy** | 30 – 80 | Minor inaccuracy, loses advantage |
+| **Mistake** | 80 – 200 | Significant error, changes evaluation |
+| **Blunder** | > 200 | Severe error, loses material or the game |
 
-### Modelos Utilizados
-- **RandomForestClassifier**: Modelo principal para clasificación
-- **GradientBoostingClassifier**: Modelo alternativo con mejor rendimiento en datos desbalanceados
-- **SHAP**: Explainability — identifica qué features influyen más en cada predicción
+## Models Used
 
-### Tracking con MLflow
-Todos los experimentos se registran en **MLflow** (puerto 5000):
-- Hiperparámetros del modelo
-- Métricas (accuracy, precision, recall, F1)
-- Artefactos (modelo serializado, gráficos SHAP)
+- `RandomForestClassifier`: Main classification model
+- `GradientBoostingClassifier`: Alternative model with better performance on imbalanced datasets
+- `SHAP`: Explainability — identifies which features most influence each prediction
 
+## MLflow Tracking
+
+All experiments are logged in MLflow (port 5000):
+
+- Model hyperparameters
+- Metrics (`accuracy`, `precision`, `recall`, `F1`)
+- Artifacts (serialized model, SHAP plots)

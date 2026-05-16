@@ -1,4 +1,4 @@
-# 🚀 ML Workflow Integrado - ChessInsightAI
+# 🚀 ML Workflow Integrado - Chess Trainer
 
 ## 🎯 Descripción
 
@@ -149,7 +149,7 @@ production_model = load_production_model("chess_position_classifier")
 ## 📁 Estructura del Proyecto
 
 ```
-chessinsightai/
+chess_trainer/
 ├── .vscode/
 │   ├── tasks.json          # Tareas automatizadas
 │   ├── settings.json       # Configuración de VS Code

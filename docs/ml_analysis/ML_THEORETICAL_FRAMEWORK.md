@@ -1,11 +1,11 @@
-# CHESSINSIGHTAI - Marco Teórico de Machine Learning
+# CHESS TRAINER - Marco Teórico de Machine Learning
 
-## 📚 Métodos de Predicción en ChessInsightAI
+## 📚 Métodos de Predicción en Chess Trainer
 
 ### 1. Regresión Lineal
 **Teoría**: Modela la relación entre una variable dependiente y variables independientes mediante una línea recta.
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Predicción de Accuracy**: `accuracy = β0 + β1*elo + β2*time_per_move + β3*opening_accuracy`
 - **Predicción de Score Difference**: Estimar la diferencia de evaluación entre jugadas
 
@@ -19,7 +19,7 @@ target = 'game_accuracy'
 ### 2. Regresión Logística
 **Teoría**: Utiliza la función logística para modelar la probabilidad de un evento binario.
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Predicción de Error Label**: P(error_type) = 1 / (1 + e^-(β0 + β1*x1 + ... + βn*xn))
 - **Predicción de Victoria**: P(win) basada en features de la partida
 
@@ -37,7 +37,7 @@ target = 'is_blunder'  # 0: No error, 1: Error
 
 <img src="image.png" alt="alt text" width="50%">
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Recomendación de Aperturas**: Encontrar jugadores similares y sus aperturas exitosas
 - **Identificación de Patrones Tácticos**: Buscar posiciones similares y sus mejores continuaciones
 
@@ -53,7 +53,7 @@ features = ['elo_standardized', 'aggressive_style', 'tactical_rating', 'endgame_
 
 <img src="image-3.png" alt="alt text" width="50%">
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Segmentación de Estilos de Juego**: Agrupar jugadores por características similares
 - **Análisis de Patrones de Error**: Identificar tipos comunes de errores
 
@@ -73,7 +73,7 @@ features = ['aggression_score', 'positional_play', 'tactical_sharpness', 'time_m
 <img src="image-8.png" alt="alt text" width="20%">
 
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Clasificación de Fases del Juego**: Determinar si una posición es apertura, medio juego o final
 - **Detección de Patrones de Apertura**: Clasificar tipo de apertura basado en primeras jugadas
 
@@ -89,7 +89,7 @@ target = 'game_phase'  # 'opening', 'middlegame', 'endgame'
 
 <img src="image-9.png" alt="alt text" width="20%">
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Predicción Multi-clase de Error Types**: Distinguir entre blunder, mistake, inaccuracy
 - **Análisis de Importancia de Features**: Identificar qué características son más predictivas
 
@@ -112,18 +112,18 @@ target = 'error_type'  # 'blunder', 'mistake', 'inaccuracy', 'good_move'
 <img src="image-16.png" alt="alt text" width="20%">
 
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Clasificación de Nivel de Jugador**: Basado en patrones de juego
 - **Detección de Anomalías**: Identificar partidas atípicas o sospechosas
 
 ### 8. Neural Networks (Deep Learning)
 **Teoría**: Redes de neuronas artificiales que aprenden representaciones complejas.
 
-**Aplicación en ChessInsightAI**:
+**Aplicación en Chess Trainer**:
 - **Evaluación de Posiciones**: Estimar valor de posición chess
 - **Predicción de Jugadas**: Sugerir mejores continuaciones
 
-## 🎯 Features Definidos en ChessInsightAI
+## 🎯 Features Definidos en Chess Trainer
 
 ### Features Principales:
 - `error_label`: Tipo de error (blunder, mistake, inaccuracy)

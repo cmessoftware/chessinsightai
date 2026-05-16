@@ -1,4 +1,4 @@
-# ChessInsightAI - Pages Architecture Analysis and Recommendations
+# Chess Trainer - Pages Architecture Analysis and Recommendations
 
 ## Current State Analysis
 

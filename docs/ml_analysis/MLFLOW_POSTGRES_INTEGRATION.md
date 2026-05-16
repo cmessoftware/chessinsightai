@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes how the `chessinsightai` project has been configured to use PostgreSQL as the backend store for MLflow, replacing the local SQLite database approach.
+This document describes how the `chess_trainer` project has been configured to use PostgreSQL as the backend store for MLflow, replacing the local SQLite database approach.
 
 ## Architecture
 

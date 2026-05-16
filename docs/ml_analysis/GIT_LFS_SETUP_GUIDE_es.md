@@ -1,4 +1,4 @@
-# Guía de Configuración Git LFS para ChessInsightAI
+# Guía de Configuración Git LFS para Chess Trainer
 
 ## Visión General
 
@@ -105,8 +105,8 @@ git lfs install
 
 ### 3. Clonar Repositorio
 ```bash
-git clone https://github.com/cmessoftware/chessinsightai.git
-cd chessinsightai
+git clone https://github.com/cmessoftware/chess_trainer.git
+cd chess_trainer
 ```
 
 ### 4. Descargar Archivos LFS
@@ -129,7 +129,7 @@ docker-compose up notebooks
 
 El `dockerfile.notebooks` incluye:
 - ✅ Instalación y configuración de Git LFS
-- ✅ Acceso completo al repositorio en `/chessinsightai`
+- ✅ Acceso completo al repositorio en `/chess_trainer`
 - ✅ Descarga automática de archivos LFS
 - ✅ JupyterLab con acceso completo a datasets
 
@@ -212,7 +212,7 @@ git lfs pull --exclude="*.zip"
 
 ### **Configuración de Docker**
 El `dockerfile.notebooks` está optimizado para LFS:
-- **WORKDIR**: `/chessinsightai` (acceso completo al repositorio)
+- **WORKDIR**: `/chess_trainer` (acceso completo al repositorio)
 - **Git LFS**: Pre-instalado y configurado
 - **Auto-descarga**: Archivos LFS descargados al iniciar contenedor
 - **GitHub CLI**: Disponible para autenticación
@@ -257,8 +257,8 @@ docker-compose exec notebooks git lfs status
 ## 🔗 Documentación Relacionada
 
 - [Configuración de Volúmenes de Datasets](./DATASETS_VOLUMES_CONFIG_es.md)
-- [Configuración de Desarrollo](../README_es.md#configuración-docker-recomendado)
-- [Configuración de Docker](../README_es.md#configuración-manual-de-docker)
+- [Configuración de Desarrollo](./README_es.md#configuración-docker-recomendado)
+- [Configuración de Docker](./README_es.md#configuración-manual-de-docker)
 
 ---
 

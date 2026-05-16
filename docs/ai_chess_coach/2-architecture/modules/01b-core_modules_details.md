@@ -1,18 +1,19 @@
-# 🎭 Especificación: Arquitectura Orquestada v2.0
+# 🎭 Specification: Orchestrated Architecture v2.0
 
-## Visión General
+## Overview
 
-La **Arquitectura Orquestada v2.0** es el corazón inteligente de ChessInsightAI. Se inspira en el patrón **Plan-Execute-Evaluate** de sistemas multi-agente. Coordina Stockfish, ML, RAG y LLM para proporcionar análisis completos y explicaciones pedagogógicas.
+The **Orchestrated Architecture v2.0** is the intelligent core of ChessInsightAI. It is inspired by the **Plan-Execute-Evaluate** pattern used in multi-agent systems. It coordinates Stockfish, ML, RAG, and LLMs to provide complete analysis and pedagogical explanations.
 
 ---
 
-## Componentes Principales
+# Main Components
 
-### 1. **Planner Service** (`planner_service.py`)
+## 1. `Planner Service` (`planner_service.py`)
 
-**Responsabilidad**: Analizar la posición y decidir qué análisis ejecutar.
+**Responsibility**: Analyze the position and decide which analyses to execute.
 
-#### Entrada
+### Input
+
 ```python
 AnalysisPlan = {
     "game_id": "sha256_hash",
@@ -24,20 +25,21 @@ AnalysisPlan = {
 }
 ```
 
-#### Lógica de Planificación
+### Planning Logic
+
 ```python
 def plan_analysis(fen, player_elo, phase):
     plan = AnalysisPlan()
     
-    # Determinar fuentes de análisis según fase
+    # Determine analysis sources according to game phase
     if phase == "opening":
-        plan.priority_sources = ["rag_books", "engine", "ml"]  # Teoría primero
+        plan.priority_sources = ["rag_books", "engine", "ml"]  # Theory first
     elif phase == "middlegame":
-        plan.priority_sources = ["engine", "ml", "rag"]  # Táctica primero
+        plan.priority_sources = ["engine", "ml", "rag"]  # Tactics first
     else:  # endgame
-        plan.priority_sources = ["engine", "ml", "tablebases"]  # Precisión primero
+        plan.priority_sources = ["engine", "ml", "tablebases"]  # Precision first
     
-    # Ajustar profundidad según rating
+    # Adjust depth according to player rating
     if player_elo >= 2600:
         plan.engine_depth = 25
     elif player_elo >= 2200:
@@ -48,7 +50,8 @@ def plan_analysis(fen, player_elo, phase):
     return plan
 ```
 
-#### Salida
+### Output
+
 ```python
 AnalysisPlan = {
     "game_id": "sha256_hash",
@@ -56,26 +59,28 @@ AnalysisPlan = {
     "fen": "...",
     "priority_sources": ["engine", "ml", "rag"],
     "engine_depth": 20,
-    "rag_k": 5,  # Top 5 posiciones similares
+    "rag_k": 5,  # Top 5 similar positions
     "phase": "opening"
 }
 ```
 
 ---
 
-### 2. **Executor Service** (`executor_service.py`)
+## 2. `Executor Service` (`executor_service.py`)
 
-**Responsabilidad**: Ejecutar análisis en paralelo (Engine, ML, RAG).
+**Responsibility**: Execute analyses in parallel (Engine, ML, RAG).
 
-#### Entrada
+### Input
+
 ```python
-AnalysisPlan  # Del Planner
+AnalysisPlan  # From Planner
 ```
 
-#### Ejecución Paralela
+### Parallel Execution
+
 ```python
 async def execute_analysis(plan: AnalysisPlan) -> ExecutionResult:
-    """Ejecuta análisis en paralelo desde múltiples fuentes."""
+    """Executes analyses in parallel from multiple sources."""
     
     tasks = [
         asyncio.create_task(engine_analysis(plan)),
@@ -84,6 +89,7 @@ async def execute_analysis(plan: AnalysisPlan) -> ExecutionResult:
     ]
     
     results = await asyncio.gather(*tasks)
+    
     return ExecutionResult(
         engine_result=results[0],
         ml_result=results[1],
@@ -91,7 +97,8 @@ async def execute_analysis(plan: AnalysisPlan) -> ExecutionResult:
     )
 ```
 
-#### Engine Analysis
+### Engine Analysis
+
 ```python
 {
     "best_move": "e4",
@@ -102,7 +109,8 @@ async def execute_analysis(plan: AnalysisPlan) -> ExecutionResult:
 }
 ```
 
-#### ML Prediction
+### ML Prediction
+
 ```python
 {
     "predicted_error": "good",
@@ -117,7 +125,8 @@ async def execute_analysis(plan: AnalysisPlan) -> ExecutionResult:
 }
 ```
 
-#### RAG Retrieval
+### RAG Retrieval
+
 ```python
 {
     "similar_positions": [
@@ -138,7 +147,8 @@ async def execute_analysis(plan: AnalysisPlan) -> ExecutionResult:
 }
 ```
 
-#### Salida (ExecutionResult)
+### Output (`ExecutionResult`)
+
 ```python
 ExecutionResult = {
     "game_id": "sha256_hash",
@@ -163,32 +173,33 @@ ExecutionResult = {
 
 ---
 
-### 3. **Critic Service** (`critic_service.py`)
+## 3. `Critic Service` (`critic_service.py`)
 
-**Responsabilidad**: Validar resultados y detectar inconsistencias.
+**Responsibility**: Validate results and detect inconsistencies.
 
-#### Validaciones
+### Validations
+
 ```python
 def validate_execution(result: ExecutionResult) -> ValidationResult:
-    """Valida consistencia de resultados."""
+    """Validates result consistency."""
     
     issues = []
     
-    # ✓ Validar que Engine y ML coinciden en clasificación
+    # ✓ Validate Engine and ML classification consistency
     engine_error = classify_by_score(result.engine.score_diff)
     ml_error = result.ml_prediction.predicted_error
     
     if engine_error != ml_error:
-        issues.append(f"Inconsistencia: Engine → {engine_error}, ML → {ml_error}")
+        issues.append(f"Inconsistency: Engine → {engine_error}, ML → {ml_error}")
     
-    # ✓ Validar confianza de predicción
+    # ✓ Validate prediction confidence
     if result.ml_prediction.confidence < 0.7:
-        issues.append(f"Baja confianza: {result.ml_prediction.confidence:.2f}")
+        issues.append(f"Low confidence: {result.ml_prediction.confidence:.2f}")
     
-    # ✓ Validar features están dentro de rango
+    # ✓ Validate feature ranges
     for feat, val in result.features.items():
         if not in_valid_range(feat, val):
-            issues.append(f"Feature fuera de rango: {feat} = {val}")
+            issues.append(f"Feature out of range: {feat} = {val}")
     
     return ValidationResult(
         is_valid=len(issues) == 0,
@@ -197,7 +208,8 @@ def validate_execution(result: ExecutionResult) -> ValidationResult:
     )
 ```
 
-#### Salida
+### Output
+
 ```python
 ValidationResult = {
     "is_valid": True,
@@ -209,16 +221,17 @@ ValidationResult = {
 
 ---
 
-### 4. **Memory Service** (`memory_service.py`)
+## 4. `Memory Service` (`memory_service.py`)
 
-**Responsabilidad**: Persiste análisis y aprende patrones del jugador.
+**Responsibility**: Persist analyses and learn player patterns.
 
-#### Almacenamiento
+### Storage
+
 ```python
 async def store_analysis(result: ExecutionResult, validation: ValidationResult):
-    """Almacena resultado en base de datos y actualiza memoria del jugador."""
+    """Stores result in database and updates player memory."""
     
-    # 1. Guardar análisis individual
+    # 1. Store individual analysis
     await db.moves.insert_one({
         "game_id": result.game_id,
         "ply": result.ply,
@@ -229,7 +242,7 @@ async def store_analysis(result: ExecutionResult, validation: ValidationResult):
         "timestamp": datetime.now()
     })
     
-    # 2. Actualizar estadísticas del jugador
+    # 2. Update player statistics
     player_profile = await db.players.find_one({"id": result.player_id})
     
     player_profile["stats"].update({
@@ -247,7 +260,8 @@ async def store_analysis(result: ExecutionResult, validation: ValidationResult):
     await db.players.update_one({"id": result.player_id}, {"$set": player_profile})
 ```
 
-#### Estadísticas del Jugador
+### Player Statistics
+
 ```python
 player_profile = {
     "player_id": "user_123",
@@ -261,7 +275,7 @@ player_profile = {
             "mistake": 0.10,
             "blunder": 0.02
         },
-        "improvement_trend": 0.95,  # Mejorando
+        "improvement_trend": 0.95,  # Improving
         "common_mistakes": [
             {
                 "position_pattern": "weak_king_safety",
@@ -275,131 +289,141 @@ player_profile = {
 
 ---
 
-## Flujo Completo del Pipeline Orquestado
+# Complete Orchestrated Pipeline Flow
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
-│ 1. ENTRADA: PGN + Contexto del Jugador                     │
+│ 1. INPUT: PGN + Player Context                             │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│ 2. PLANNER: Analiza posición, elige estrategia            │
-│    ├─ ¿Apertura? → Priorizar RAG                         │
-│    ├─ ¿Mediojuego? → Priorizar Engine                    │
-│    └─ ¿Final? → Priorizar Tablebases                     │
+│ 2. PLANNER: Analyzes position, selects strategy             │
+│    ├─ Opening? → Prioritize RAG                             │
+│    ├─ Middlegame? → Prioritize Engine                       │
+│    └─ Endgame? → Prioritize Tablebases                      │
 │                                                             │
 ├─────────────────────────────────────────────────────────────┤
-│ 3. EXECUTOR: Ejecuta análisis EN PARALELO                 │
-│    ├─ Engine: Stockfish eval + PV                        │
-│    ├─ ML: Predicción error + confianza                   │
-│    └─ RAG: Posiciones similares + libros                 │
+│ 3. EXECUTOR: Executes analyses IN PARALLEL                  │
+│    ├─ Engine: Stockfish eval + PV                           │
+│    ├─ ML: Error prediction + confidence                     │
+│    └─ RAG: Similar positions + books                        │
 │                                                             │
 ├─────────────────────────────────────────────────────────────┤
-│ 4. CRITIC: Valida consistencia y confianza               │
-│    ├─ ¿Engine ≈ ML?                                      │
-│    ├─ ¿Confianza > umbral?                               │
-│    └─ ¿Features válidas?                                 │
+│ 4. CRITIC: Validates consistency and confidence             │
+│    ├─ Engine ≈ ML?                                          │
+│    ├─ Confidence > threshold?                               │
+│    └─ Valid features?                                       │
 │                                                             │
 ├─────────────────────────────────────────────────────────────┤
-│ 5. MEMORY: Almacena en DB, actualiza perfil              │
-│    ├─ INSERT en tabla moves                              │
-│    ├─ UPDATE stats del jugador                           │
-│    └─ Detecta patrones de error                          │
+│ 5. MEMORY: Stores in DB, updates profile                    │
+│    ├─ INSERT into moves table                               │
+│    ├─ UPDATE player statistics                              │
+│    └─ Detect error patterns                                 │
 │                                                             │
 ├─────────────────────────────────────────────────────────────┤
-│ 6. SALIDA: AnalysisResult                                │
-│    {                                                       │
-│        "game_id": "...",                                 │
-│        "move": "e4",                                     │
-│        "classification": "good",                         │
-│        "confidence": 0.94,                               │
-│        "engine_eval": 0.5,                               │
-│        "similar_positions": [...],                       │
-│        "explanation": "Buena jugada abridor..."          │
-│    }                                                       │
+│ 6. OUTPUT: AnalysisResult                                   │
+│    {                                                        │
+│        "game_id": "...",                                    │
+│        "move": "e4",                                        │
+│        "classification": "good",                            │
+│        "confidence": 0.94,                                  │
+│        "engine_eval": 0.5,                                  │
+│        "similar_positions": [...],                          │
+│        "explanation": "Good opening move..."                │
+│    }                                                        │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Fases del Juego y Estrategias de Análisis
+# Game Phases and Analysis Strategies
 
-### Apertura (moves 1-15)
-- **Objetivo**: Comprender la teoría de aperturas
-- **Estrategia**: Priorizar RAG + libros → Engine para "sorpresas"
+## Opening (moves 1-15)
+
+- **Goal**: Understand opening theory
+- **Strategy**: Prioritize RAG + books → Engine for surprises
 - **Engine depth**: 18-20
-- **RAG k**: 5-10 posiciones similares
+- **RAG k**: 5-10 similar positions
 
-### Mediojuego (moves 15-40)
-- **Objetivo**: Identificar errores tácticos
-- **Estrategia**: Priorizar Engine → ML → RAG para contexto
+## Middlegame (moves 15-40)
+
+- **Goal**: Identify tactical mistakes
+- **Strategy**: Prioritize Engine → ML → RAG for context
 - **Engine depth**: 20-25
-- **RAG k**: 3-5 posiciones similares
+- **RAG k**: 3-5 similar positions
 
-### Final (moves 40+)
-- **Objetivo**: Dominar técnica de finales
-- **Estrategia**: Priorizar Engine + Tablebases → ML para patrones
+## Endgame (moves 40+)
+
+- **Goal**: Master endgame technique
+- **Strategy**: Prioritize Engine + Tablebases → ML for patterns
 - **Engine depth**: 25-30
-- **RAG k**: 1-3 posiciones similares (tablebases)
+- **RAG k**: 1-3 similar positions (tablebases)
 
 ---
 
-## Integración con LLM para Explicaciones
+# Integration with LLM for Explanations
 
-Una vez completada la orquestación, los resultados se envían al LLM (Llama 3.1) para generar explicaciones pedagogógicas:
+Once orchestration is complete, the results are sent to the LLM (Llama 3.1) to generate pedagogical explanations:
 
 ```python
 async def explain_move(result: ExecutionResult, player_level: str):
-    """Genera explicación en lenguaje natural."""
+    """Generates a natural language explanation."""
     
     prompt = f"""
-    Posición: {result.fen}
-    Movimiento jugado: {result.move_played}
-    Mejor movimiento según Stockfish: {result.engine.best_move}
+    Position: {result.fen}
+    Move played: {result.move_played}
+    Best move according to Stockfish: {result.engine.best_move}
     
-    Clasificación del error: {result.ml_prediction.predicted_error}
-    Confianza: {result.ml_prediction.confidence * 100:.1f}%
+    Error classification: {result.ml_prediction.predicted_error}
+    Confidence: {result.ml_prediction.confidence * 100:.1f}%
     
-    Contexto similar de libros: {result.rag_context.book_references}
+    Similar book context: {result.rag_context.book_references}
     
-    Genera una explicación pedagógica para un jugador de nivel {player_level}.
-    Sé conciso, claro y educa al jugador sobre POR QUÉ fue un error.
+    Generate a pedagogical explanation for a {player_level} player.
+    Be concise, clear, and teach the player WHY the move was a mistake.
     """
     
     explanation = await llm.generate(prompt, max_tokens=200)
+    
     return explanation
 ```
 
-**Salida de ejemplo**:
-> "En esta posición, dominaste el centro, pero tu movimiento permitió que las negras contraatacaran el flanco de reina. Stockfish sugería f3, que refuerza el control y evita la invasión en d4. A tu nivel, es importante reconocer cuándo tu oponente tiene recursos tácticos."
+### Example Output
+
+> "In this position, you controlled the center well, but your move allowed Black to counterattack on the queenside. Stockfish suggested f3, which reinforces control and prevents invasion on d4. At your level, it is important to recognize when your opponent has tactical resources."
 
 ---
 
-## Métricas y Observabilidad
+# Metrics and Observability
 
-### MLflow Tracking
+## MLflow Tracking
+
 ```python
-# Log de cada análisis
+# Log each analysis
 mlflow.start_run()
+
 mlflow.log_param("phase", plan.phase)
 mlflow.log_param("engine_depth", plan.engine_depth)
+
 mlflow.log_metric("ml_confidence", result.ml_prediction.confidence)
 mlflow.log_metric("validation_passed", validation.is_valid)
+
 mlflow.end_run()
 ```
 
-### Prometheus Metrics (si aplica)
-- `chess_analyses_total`: Total de análisis realizados
-- `chess_error_rate`: % de errores detectados
-- `engine_analysis_duration_ms`: Tiempo promedio del engine
-- `ml_prediction_confidence`: Confianza promedio de ML
+## Prometheus Metrics (optional)
+
+- `chess_analyses_total`: Total analyses performed
+- `chess_error_rate`: Percentage of detected mistakes
+- `engine_analysis_duration_ms`: Average engine analysis time
+- `ml_prediction_confidence`: Average ML confidence
 
 ---
 
-## Próximas Mejoras
+# Future Improvements
 
-1. **Async completo**: Todas las operaciones deben ser async
-2. **Caché de posiciones**: No re-evaluar posiciones idénticas
-3. **Feedback del usuario**: Permitir que usuario corrija clasificaciones
-4. **Active Learning**: Entrenar modelo con feedback en tiempo real
-5. **Tabla de finales**: Integrar Syzygy tablebases
-6. **Explicabilidad mejorada**: SHAP values + visualización
+1. **Full async support**: All operations should be asynchronous
+2. **Position caching**: Avoid re-evaluating identical positions
+3. **User feedback**: Allow users to correct classifications
+4. **Active Learning**: Train models using real-time feedback
+5. **Endgame tablebases**: Integrate Syzygy tablebases
+6. **Enhanced explainability**: SHAP values + visualization

@@ -29,7 +29,7 @@ echo $CHESS_TRAINER_DB_URL  # Should be your PostgreSQL connection string
 ### Method 1: Direct Streamlit Execution
 ```bash
 # Navigate to the project root
-cd c:\Users\sergiosal\source\repos\chessinsightai
+cd c:\Users\sergiosal\source\repos\chess_trainer
 
 # Run the upload page directly
 streamlit run src/pages/upload_pgn.py --server.port 8501

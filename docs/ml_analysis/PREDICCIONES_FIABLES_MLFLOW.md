@@ -2,7 +2,7 @@
 
 ## ✅ Estado Actual: LISTO PARA PREDICCIONES
 
-Tu proyecto **chessinsightai** ya está completamente preparado para hacer predicciones fiables usando MLflow. Aquí tienes el procedimiento completo:
+Tu proyecto **chess_trainer** ya está completamente preparado para hacer predicciones fiables usando MLflow. Aquí tienes el procedimiento completo:
 
 ## 🚀 Procedimiento Completo para Hacer Predicciones
 
@@ -123,10 +123,10 @@ mltest
 mlclean
 
 # Ver estado de los servicios
-Show-ChessInsightAIStatus
+Show-ChessTrainerStatus
 
 # Reiniciar todos los servicios si hay problemas
-Restart-ChessInsightAI
+Restart-ChessTrainer
 ```
 
 ## 📈 Métricas de Performance Esperadas
@@ -149,7 +149,7 @@ mltrain
 ### Problema: "PostgreSQL connection failed"
 ```powershell
 # Reiniciar servicios
-Restart-ChessInsightAI
+Restart-ChessTrainer
 # Esperar 30 segundos y probar
 mlinit
 ```

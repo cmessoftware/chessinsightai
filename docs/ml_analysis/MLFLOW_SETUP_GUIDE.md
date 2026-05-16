@@ -1,15 +1,15 @@
-# MLflow Setup Guide for ChessInsightAI
+# MLflow Setup Guide for Chess Trainer
 
 ## 📚 ¿Qué es MLflow?
 
-**MLflow** es una plataforma open-source para gestionar el **ciclo de vida completo de Machine Learning**. En nuestro proyecto chessinsightai, MLflow nos ayudará a:
+**MLflow** es una plataforma open-source para gestionar el **ciclo de vida completo de Machine Learning**. En nuestro proyecto chess_trainer, MLflow nos ayudará a:
 
 - **🔬 Experiment Tracking**: Registrar experimentos, parámetros, métricas y resultados
 - **📦 Model Registry**: Versionar y gestionar modelos entrenados  
 - **🚀 Model Deployment**: Desplegar modelos para predicciones en producción
 - **📊 Visualization**: Comparar experimentos y visualizar métricas
 
-## 🎯 MLflow en ChessInsightAI - Casos de Uso
+## 🎯 MLflow en Chess Trainer - Casos de Uso
 
 ### **Experiment Tracking para Chess ML**
 ```python
@@ -45,7 +45,7 @@ with mlflow.start_run(experiment_id="chess_error_prediction"):
 4. **Versionar datasets**: Diferentes fuentes (elite, novice, personal, fide)
 5. **Tracking por fases**: Modelos para opening, middlegame, endgame
 
-## 🐳 Configuración Docker para ChessInsightAI
+## 🐳 Configuración Docker para Chess Trainer
 
 ### **1. Actualizar docker-compose.yml**
 
@@ -100,7 +100,7 @@ volumes:
 ### **2. Estructura de Directorios MLflow**
 
 ```
-chessinsightai/
+chess_trainer/
 ├── mlruns/                     # Experimentos y métricas
 │   ├── 0/                      # Experimento Default
 │   ├── 1/                      # chess_error_prediction
@@ -119,7 +119,7 @@ chessinsightai/
     └── model_comparison.ipynb
 ```
 
-## 🚀 Scripts de MLflow para ChessInsightAI
+## 🚀 Scripts de MLflow para Chess Trainer
 
 ### **src/ml/mlflow_utils.py**
 ```python
@@ -136,7 +136,7 @@ class ChessMLflowTracker:
         self.client = mlflow.tracking.MlflowClient()
     
     def create_chess_experiments(self):
-        """Crear experimentos específicos para chessinsightai"""
+        """Crear experimentos específicos para chess_trainer"""
         experiments = [
             ("chess_error_prediction", "Predecir tipo de error (blunder, mistake, inaccuracy)"),
             ("chess_accuracy_prediction", "Predecir accuracy de partidas"),
@@ -149,7 +149,7 @@ class ChessMLflowTracker:
             try:
                 experiment = self.client.create_experiment(
                     name=name, 
-                    tags={"project": "chessinsightai", "description": description}
+                    tags={"project": "chess_trainer", "description": description}
                 )
                 print(f"✅ Experimento creado: {name} (ID: {experiment})")
             except mlflow.exceptions.MlflowException as e:
@@ -330,7 +330,7 @@ python src/ml/train_error_model.py
 3. **Charts**: Visualizar métricas en gráficos
 4. **Models**: Ver modelos registrados
 
-## 🎲 Ejemplos Prácticos para ChessInsightAI
+## 🎲 Ejemplos Prácticos para Chess Trainer
 
 ### **Experimento 1: Optimización de RandomForest**
 ```python
@@ -400,7 +400,7 @@ for set_name, features in feature_sets.items():
         print(f"Feature set '{set_name}' ({len(features)} features) -> Accuracy: {accuracy:.3f}")
 ```
 
-## 🔧 Tasks específicos para chessinsightai
+## 🔧 Tasks específicos para chess_trainer
 
 ### **Agregar a requirements.txt**
 ```text
@@ -414,7 +414,7 @@ mlflow[extras]>=2.0.0
 from src.ml.mlflow_utils import ChessMLflowTracker
 
 def setup_chess_mlflow():
-    print("🚀 Configurando MLflow para ChessInsightAI...")
+    print("🚀 Configurando MLflow para Chess Trainer...")
     tracker = ChessMLflowTracker()
     tracker.create_chess_experiments()
     print("✅ MLflow configurado correctamente!")
@@ -479,7 +479,7 @@ python src/ml/train_error_model.py
 
 ---
 
-**✨ Con esta configuración tendrás experiment tracking completo para todos los modelos de chessinsightai!**
+**✨ Con esta configuración tendrás experiment tracking completo para todos los modelos de chess_trainer!**
 
 **Próximos pasos**: Una vez que tengas MLflow funcionando, podremos continuar con mejorar el EDA sistemático (#66) y entrenar los primeros modelos baseline (#67).
 

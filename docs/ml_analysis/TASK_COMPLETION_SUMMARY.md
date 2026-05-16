@@ -1,5 +1,5 @@
 # TASK COMPLETION SUMMARY
-## Documentation Reorganization and Docker Unification - ChessInsightAI Project
+## Documentation Reorganization and Docker Unification - Chess Trainer Project
 
 **Date**: June 30, 2025  
 **Version**: v0.1.53-8063938  
@@ -57,7 +57,7 @@
 ## 📁 FINAL PROJECT STRUCTURE
 
 ```
-chessinsightai/
+chess_trainer/
 ├── README.md                    # 📖 MAIN COMPREHENSIVE DOCUMENTATION
 ├── README_es.md                 # 📖 DOCUMENTACIÓN PRINCIPAL COMPLETA  
 ├── VERSION_BASE.md              # 🚀 QUICK START GUIDE
@@ -155,28 +155,28 @@ Se han creado exitosamente **4 issues de alta prioridad** para los items de Mach
 ## 📊 Issues Creados
 
 ### 1. **Preprocesamiento de Datos** ✅
-- **Issue**: [#66](https://github.com/cmessoftware/chessinsightai/issues/66)
+- **Issue**: [#66](https://github.com/cmessoftware/chess_trainer/issues/66)
 - **Título**: ML: Preprocess chess data (cleaning, transforming moves)
 - **Estado**: In Progress
 - **Prioridad**: Alta
 - **Labels**: `high-priority`, `ml-workflow`
 
 ### 2. **Entrenamiento del Modelo** ✅  
-- **Issue**: [#67](https://github.com/cmessoftware/chessinsightai/issues/67)
+- **Issue**: [#67](https://github.com/cmessoftware/chess_trainer/issues/67)
 - **Título**: ML: Train Machine Learning model for chess pattern prediction
 - **Estado**: Pending
 - **Prioridad**: Alta
 - **Labels**: `high-priority`, `ml-workflow`
 
 ### 3. **Evaluación y Optimización** ✅
-- **Issue**: [#68](https://github.com/cmessoftware/chessinsightai/issues/68)
+- **Issue**: [#68](https://github.com/cmessoftware/chess_trainer/issues/68)
 - **Título**: ML: Model evaluation and performance optimization
 - **Estado**: Pending
 - **Prioridad**: Alta
 - **Labels**: `high-priority`, `ml-workflow`
 
 ### 4. **Integración API** ✅
-- **Issue**: [#69](https://github.com/cmessoftware/chessinsightai/issues/69)
+- **Issue**: [#69](https://github.com/cmessoftware/chess_trainer/issues/69)
 - **Título**: API: Implement ML model in FastAPI with recommendations
 - **Estado**: Pending
 - **Prioridad**: Alta
@@ -189,10 +189,10 @@ La tabla en `README.md` ha sido actualizada con los links a los issues correspon
 ```markdown
 | Item                                                                   | Status      | Issues #                                                       |
 | ---------------------------------------------------------------------- | ----------- | -------------------------------------------------------------- |
-| Preprocess the data (cleaning, transforming moves into numeric values) | In Progress | [#66](https://github.com/cmessoftware/chessinsightai/issues/66) |
-| Train a Machine Learning model to predict patterns or errors in games  | Pending     | [#67](https://github.com/cmessoftware/chessinsightai/issues/67) |
-| Evaluate the model and make adjustments if necessary                   | Pending     | [#68](https://github.com/cmessoftware/chessinsightai/issues/68) |
-| Implement the model in your Fast API API and generate recommendations  | Pending     | [#69](https://github.com/cmessoftware/chessinsightai/issues/69) |
+| Preprocess the data (cleaning, transforming moves into numeric values) | In Progress | [#66](https://github.com/cmessoftware/chess_trainer/issues/66) |
+| Train a Machine Learning model to predict patterns or errors in games  | Pending     | [#67](https://github.com/cmessoftware/chess_trainer/issues/67) |
+| Evaluate the model and make adjustments if necessary                   | Pending     | [#68](https://github.com/cmessoftware/chess_trainer/issues/68) |
+| Implement the model in your Fast API API and generate recommendations  | Pending     | [#69](https://github.com/cmessoftware/chess_trainer/issues/69) |
 ```
 
 ---
@@ -206,22 +206,22 @@ La tabla en `README.md` ha sido actualizada con los links a los issues correspon
 **Objective**: Validate existence of issues for ML macro-steps and create missing high-priority issues
 
 #### **Issues Validated and Created**
-1. **Issue #74**: [Data Collection: Complete PGN capture and ZIP file processing](https://github.com/cmessoftware/chessinsightai/issues/74)
+1. **Issue #74**: [Data Collection: Complete PGN capture and ZIP file processing](https://github.com/cmessoftware/chess_trainer/issues/74)
    - **Priority**: HIGH  
    - **Status**: Created with detailed requirements
    - **Scope**: Improve PGN upload, add ZIP support, validation, error handling
 
-2. **Issue #75**: [Feature Engineering: Generate Stockfish features](https://github.com/cmessoftware/chessinsightai/issues/75)
+2. **Issue #75**: [Feature Engineering: Generate Stockfish features](https://github.com/cmessoftware/chess_trainer/issues/75)
    - **Priority**: HIGH
    - **Status**: Created with comprehensive feature list  
    - **Scope**: mate_in, error_label, score_diff, depth_score_diff implementation
 
-3. **Issue #76**: [Data Pipeline: Generate Parquet datasets by source](https://github.com/cmessoftware/chessinsightai/issues/76)
+3. **Issue #76**: [Data Pipeline: Generate Parquet datasets by source](https://github.com/cmessoftware/chess_trainer/issues/76)
    - **Priority**: HIGH
    - **Status**: Created with source specifications
    - **Scope**: personal, novice, elite, fide, stockfish datasets in /app/src/data/export/<source>/
 
-4. **Issue #77**: [UI Architecture: Refactor pages to modular architecture](https://github.com/cmessoftware/chessinsightai/issues/77) 
+4. **Issue #77**: [UI Architecture: Refactor pages to modular architecture](https://github.com/cmessoftware/chess_trainer/issues/77) 
    - **Priority**: MEDIUM
    - **Status**: Created with detailed refactoring plan
    - **Scope**: UI → Services → Repository → DB architecture implementation

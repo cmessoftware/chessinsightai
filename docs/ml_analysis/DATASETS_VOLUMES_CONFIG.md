@@ -30,7 +30,7 @@ docker-compose up -d
 
 ```
 docker-compose.yml
-├── chessinsightai (app container)
+├── chess_trainer (app container)
 │   └── /app/src/data -> chess_datasets volume
 └── notebooks container  
     └── /notebooks/datasets -> chess_datasets volume
@@ -38,7 +38,7 @@ docker-compose.yml
 
 ## Dataset Locations
 
-### In the application container (`chessinsightai`):
+### In the application container (`chess_trainer`):
 - **Path**: `/app/src/data/`
 - **Important subdirectories**:
   - `/app/src/data/processed/` - Final combined datasets
@@ -90,12 +90,12 @@ docker-compose up -d
 
 ### View shared volume:
 ```bash
-docker volume inspect chessinsightai_chess_datasets
+docker volume inspect chess_trainer_chess_datasets
 ```
 
 ### Access app container to generate datasets:
 ```bash
-docker exec -it chessinsightai_chess_trainer_1 bash
+docker exec -it chess_trainer_chess_trainer_1 bash
 cd /app
 python src/scripts/export_features_dataset_parallel.py --source elite
 ```

@@ -1,184 +1,208 @@
-## FASE 0 — Base obligatoria (si no está sólida)
-1. Machine Learning Specialization
+## PHASE 0 — Mandatory Foundation (if this is not solid, everything else becomes fragile)
+
+### 1. Machine Learning Specialization
 https://www.coursera.org/specializations/machine-learning-introduction?utm_source=chatgpt.com
 
-- regresión logística
-- clasificación
-- métricas
+Topics:
+- logistic regression
+- classification
+- metrics
 - overfitting
 
-Por qué:
+Why:
 
-Copilot usa estos conceptos en features y modelos
-base de todo lo demás
+Copilot relies on these concepts in:
+- features
+- models
+- pipelines
 
+This is the foundation of everything else.
 
-Mi objetivo no es:
+My goal is NOT:
+- learning abstract theory
 
-- saber teoría abstracta
+My goal is:
+- understanding Copilot-generated code
+- modifying pipelines
+- building features
 
-Mi objetivo es:
+Therefore:
+- Only YouTube → insufficient
+- Paid courses → significantly accelerate learning
 
-- entender código de Copilot
-- modificar pipelines
-- construir features
+### Critical insight (the most important one)
 
-Entonces:
+The bottleneck is NOT:
+- content
 
-- YouTube solo → insuficiente
-- Cursos pagos → aceleran muchísimo
+The bottleneck is:
+- guided execution + practice
 
-Insight crítico (el más importante)
+### Optimal strategy (non-binary)
+- Do not choose one or the other. Combine both.
 
-El cuello de botella NO es:
-- contenido
-El cuello de botella es:
-- ejecución guiada + práctica
+### Optimal setup
+- Paid course → backbone
+- YouTube → conceptual deepening
 
-Estrategia óptima (no binaria)
-- No elegir uno u otro. Combinar.
+### Concrete example
+- NLP Specialization → structured foundation
+- CS224N (YouTube) → deeper understanding
 
-Setup óptimo
-- Curso pago → columna vertebral
-- YouTube → profundización conceptual
+---
 
-Ejemplo concreto
-- NLP Specialization → base estructurada
-- CS224N (YouTube) → profundización
+# PHASE 1 — Real NLP (your current level as of April 2026)
 
+## Free Option
 
-
-## FASE 1 — NLP real (tu nivel actual a abril 2026)
-
-Gratuitas
-CMU Advanced NLP Fall 2024 
+### CMU Advanced NLP Fall 2024
 https://www.youtube.com/playlist?list=PL8PYTP1V4I8D4BeyjwWczukWq9d8PNyZp
 
-Qué cubre típicamente
-- preprocesamiento de texto
+### What it typically covers
+- text preprocessing
 - bag of words / TF-IDF
-- clasificación básica
- introducción a embeddings
+- basic classification
+- introduction to embeddings
 
-Nivel
-- bajo–intermedio
+### Level
+- beginner–intermediate
 
-Impacto en tu proyecto
+### Impact on your project
 
-Te permite:
-- entender features textuales
-- entender clasificación (ej: error_label)
-- base para interpretar código simple
+It allows you to:
+- understand textual features
+- understand classification (e.g. `error_label`)
+- interpret simple ML codebases
 
-2. Natural Language Processing Specialization
+---
+
+### 2. Natural Language Processing Specialization
 https://www.coursera.org/specializations/natural-language-processing?utm_source=chatgpt.com
 
-Incluye 4 cursos:
-
-- clasificación + vector spaces
-- modelos probabilísticos
+### Includes 4 courses
+- classification + vector spaces
+- probabilistic models
 - sequence models
 - attention
 
-Qué vas a entender:
-
-- sentiment analysis (lo que estás viendo)
+### What you will understand
+- sentiment analysis
 - embeddings
-- similitud de textos
-- modelos secuenciales
+- text similarity
+- sequential models
 
-Impacto directo:
+### Direct impact
+- understanding how the LLM generates move explanations
+- understanding textual features
 
-- entender cómo el LLM genera explicaciones de jugadas
-- entender features textuales
+---
 
+# PHASE 2 — Deep Learning Applied to NLP
 
-## FASE 2 — Deep Learning aplicado a NLP
+## Free Option
 
-Gratuitas:
-Stanford CS224N: NLP with Deep Learning (2023) (FASE 2 + parte de FASE 3)
+### Stanford CS224N: NLP with Deep Learning (2023)
+(Phase 2 + part of Phase 3)
+
 https://www.youtube.com/playlist?list=PLoROMvodv4rMFqRtEuo6SGjY4XbRIVRd4
 
-Qué cubre realmente
+### What it actually covers
 - embeddings (word2vec, GloVe)
 - RNN / LSTM
 - transformers
 - attention
 - language models
-- generación de texto
-Nivel
-- alto (universitario Stanford)
-- requiere base previa en ML
+- text generation
 
-Te permite:
-- entender cómo funciona un LLM internamente
-- dejar de ver embeddings como “magia”
-- entender por qué el modelo genera ciertas explicaciones
-  
-1. Deep Learning for Natural Language Processing
+### Level
+- advanced (Stanford university level)
+- requires prior ML foundations
+
+### It allows you to
+- understand how an LLM works internally
+- stop seeing embeddings as “magic”
+- understand why the model generates certain explanations
+
+---
+
+### 1. Deep Learning for Natural Language Processing
 https://www.coursera.org/learn/deep-learning-natural-language-processing?utm_source=chatgpt.com
 
-Qué cubre:
-
+### What it covers
 - RNN, LSTM, GRU
 - transformers
-- embeddings avanzados
+- advanced embeddings
 
-Impacto:
+### Impact
+- understanding how an LLM works internally
+- stop treating the model as a “black box”
 
-- entender cómo funciona un LLM internamente
-- dejar de ver al modelo como “caja negra”
+---
 
-## FASE 3 — Conceptos modernos (LLM) — (opcional, según necesidad)
+# PHASE 3 — Modern Concepts (LLMs)
+(Optional, depending on your needs)
 
-Solo si querés profundizar:
-Opciones:
+Only if you want to go deeper.
 
+## Paid Options
 
-Pagas
-Generative AI Engineering with LLMs Specialization
-→ más orientado a ingeniería real
+### Generative AI Engineering with LLMs Specialization
+More focused on real-world engineering.
+
 https://www.coursera.org/specializations/generative-ai-engineering-with-llms?utm_source=chatgpt.com
 
-Generative AI and LLM Architecture and Data Preparation
-→ arquitectura + datos (opcional si se quiere diseñar modelos - no aplica en este caso.)
+---
+
+### Generative AI and LLM Architecture and Data Preparation
+Architecture + data preparation.
+
+(Optional if you want to design models. Not strictly necessary in this case.)
+
 https://www.coursera.org/learn/generative-ai-llm-architecture-data-preparation?utm_source=chatgpt.com
 
-Sirve cuando ya tenés base.
+### Useful once you already have foundations
 
-Impacto:
+### Impact
+- understanding prompts
+- understanding why the model “explains” moves the way it does
 
-- entender prompts
-- entender por qué el modelo “explica” jugadas
+---
 
-## FASE 4 — Conectar con tu proyecto
-5. (clave aunque no es uno solo)
+# PHASE 4 — Connecting Everything to Your Project
 
-Cursos/prácticas de:
+### 5. Critical Complementary Topics
+(Not a single course)
 
+Courses/practice on:
 - embeddings
 - similarity search
-- vector spaces (ya incluido arriba)
+- vector spaces
 
-Esto es crítico porque:
+(already partially included above)
 
-- tu AI Chess Coach es esencialmente:
-- posición → features → interpretación → lenguaje
+### This is critical because
 
-## ORDEN FINAL (ejecución directa)
+Your AI Chess Coach is essentially:
+- position → features → interpretation → language
 
-- Machine Learning Specialization
-- NLP Specialization 
-- Deep Learning for NLP
-- NLP moderno (LLM intro)
-- Qué vas a lograr exactamente
+---
 
-Después de esto vas a poder:
+# FINAL ORDER (direct execution path)
 
-- leer código de Copilot sin “magia”
+1. Machine Learning Specialization
+2. NLP Specialization
+3. Deep Learning for NLP
+4. Modern NLP / LLM Introduction
 
-entender:
-- por qué usa embeddings
-- por qué usa ciertas features
-- por qué el LLM responde como responde
-- modificar tu pipeline con criterio
+---
+
+# What You Will Actually Achieve
+
+After this, you will be able to:
+- read Copilot-generated code without seeing it as “magic”
+
+You will understand:
+- why embeddings are used
+- why certain features are selected
+- why the LLM responds the way it does
+- how to modify your pipeline with technical judgment

@@ -118,4 +118,4 @@ tactical_cols = [col for col in df_processed.columns
 3. **Optimizar** parámetros de scaling por tipo de fuente
 4. **Documentar** impacto en modelos ML downstream
 
-El preprocesador ML está ahora **100% completo** para manejar todo el espectro de features de chessinsightai, incluyendo las críticas features tácticas generadas por Stockfish.
+El preprocesador ML está ahora **100% completo** para manejar todo el espectro de features de chess_trainer, incluyendo las críticas features tácticas generadas por Stockfish.
