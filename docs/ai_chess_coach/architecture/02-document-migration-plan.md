@@ -10,13 +10,13 @@ Legacy architecture docs currently live under:
 
 All active architecture documentation must be split by domain under:
 
-- `docs/architecture`
-- `docs/modules`
-- `docs/roadmap`
-- `docs/testing`
-- `docs/devops`
-- `docs/observability`
-- `docs/research`
+- `docs/ai_chess_coach/architecture`
+- `docs/ai_chess_coach/modules`
+- `docs/ai_chess_coach/roadmap`
+- `docs/ai_chess_coach/testing`
+- `docs/ai_chess_coach/devops`
+- `docs/ai_chess_coach/observability`
+- `docs/ai_chess_coach/research`
 
 ## Migration Steps
 
