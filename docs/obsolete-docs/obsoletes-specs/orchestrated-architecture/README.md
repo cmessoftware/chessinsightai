@@ -22,10 +22,10 @@ CANONICAL_LOCATION: docs/ai_chess_coach/2-architecture/modules/
 
 | Documento                                                                  | Descripción                                                                                                                     | Estado       |
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| [00-fase0-especificacion-tecnica.md](./00-fase0-especificacion-tecnica.md) | Especificación completa de componentes (Planner, Executor, Critic, Memory, Explainer), reglas de validación, patrones de diseño | ✅ DRAFT v1.0 |
-| [00-fase0-interfaces-json.md](./00-fase0-interfaces-json.md)               | Schemas JSON y Pydantic models de todas las interfaces entre módulos                                                            | ✅ DRAFT v1.0 |
-| [00-fase0-plan-migracion.md](./00-fase0-plan-migracion.md)                 | Estrategia de migración de base de datos con dual write/read, rollback plan                                                     | ✅ DRAFT v1.0 |
-| [00-fase0-diagramas-arquitectura.md](./00-fase0-diagramas-arquitectura.md) | 10 diagramas Mermaid: componentes, secuencia, flujo de datos, DB, despliegue, feature flags                                     | ✅ DRAFT v1.0 |
+| [00-phase0-technical-specification.md](./00-phase0-technical-specification.md) | Especificación completa de componentes (Planner, Executor, Critic, Memory, Explainer), reglas de validación, patrones de diseño | ✅ DRAFT v1.0 |
+| [00-phase0-json-interfaces.md](./00-phase0-json-interfaces.md)               | Schemas JSON y Pydantic models de todas las interfaces entre módulos                                                            | ✅ DRAFT v1.0 |
+| [00-phase0-database-migration-plan.md](./00-phase0-database-migration-plan.md)                 | Estrategia de migración de base de datos con dual write/read, rollback plan                                                     | ✅ DRAFT v1.0 |
+| [00-phase0-architecture-diagrams.md](./00-phase0-architecture-diagrams.md) | 10 diagramas Mermaid: componentes, secuencia, flujo de datos, DB, despliegue, feature flags                                     | ✅ DRAFT v1.0 |
 
 ### Fases Futuras (Pendientes)
 
@@ -138,7 +138,7 @@ if not critic_result.is_consistent:
 - Tactical tags → `medium`
 - Fase del juego (opening/middlegame/endgame)
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 1.1](./00-fase0-especificacion-tecnica.md#11-planner-planificador)
+**Ver:** [00-phase0-technical-specification.md - Sección 1.1](./00-phase0-technical-specification.md#11-planner-planificador)
 
 ---
 
@@ -158,7 +158,7 @@ if not critic_result.is_consistent:
 - Engine + Features: Secuencial (Features dependen de Engine)
 - ML + RAG: Paralelo (independientes)
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 1.2](./00-fase0-especificacion-tecnica.md#12-executor-ejecutor)
+**Ver:** [00-phase0-technical-specification.md - Sección 1.2](./00-phase0-technical-specification.md#12-executor-ejecutor)
 
 ---
 
@@ -181,7 +181,7 @@ if not critic_result.is_consistent:
 - Si `is_consistent=False` → Re-generar con restricciones
 - Si re-generación falla → Template simple
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 1.3](./00-fase0-especificacion-tecnica.md#13-critic-crítico)
+**Ver:** [00-phase0-technical-specification.md - Sección 1.3](./00-phase0-technical-specification.md#13-critic-crítico)
 
 ---
 
@@ -199,7 +199,7 @@ if not critic_result.is_consistent:
 - Fases débiles (endgame con 25% error rate)
 - Tendencia de mejora (-1: empeorando, +1: mejorando)
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 1.4](./00-fase0-especificacion-tecnica.md#14-memory-memoria)
+**Ver:** [00-phase0-technical-specification.md - Sección 1.4](./00-phase0-technical-specification.md#14-memory-memoria)
 
 ---
 
@@ -219,7 +219,7 @@ if not critic_result.is_consistent:
 - ✅ NO mencionar tácticas sin tactical_tags
 - ✅ Formato: 3-5 oraciones pedagógicas
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 1.5](./00-fase0-especificacion-tecnica.md#15-explainer-explicador-llm)
+**Ver:** [00-phase0-technical-specification.md - Sección 1.5](./00-phase0-technical-specification.md#15-explainer-explicador-llm)
 
 ---
 
@@ -261,7 +261,7 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
     return AnalysisReport(...)
 ```
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 2](./00-fase0-especificacion-tecnica.md#2-use-case-principal-analyzegameusecase)
+**Ver:** [00-phase0-technical-specification.md - Sección 2](./00-phase0-technical-specification.md#2-use-case-principal-analyzegameusecase)
 
 ---
 
@@ -283,7 +283,7 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
 | `EnrichedResult`  | UseCase → Memory            | Resultado final (execution + explanation + critique) |
 | `AnalysisReport`  | UseCase → API               | Reporte completo para frontend                       |
 
-**Ver:** [00-fase0-interfaces-json.md](./00-fase0-interfaces-json.md)
+**Ver:** [00-phase0-json-interfaces.md](./00-phase0-json-interfaces.md)
 
 ---
 
@@ -315,7 +315,7 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
 - Tendencias de mejora
 - Auto-actualizado por Memory Service
 
-**Ver:** [00-fase0-plan-migracion.md](./00-fase0-plan-migracion.md)
+**Ver:** [00-phase0-database-migration-plan.md](./00-phase0-database-migration-plan.md)
 
 ---
 
@@ -336,7 +336,7 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
 - Verificación de versionado
 - Frontend legacy con datos v2.0
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 5](./00-fase0-especificacion-tecnica.md#5-testing-strategy)
+**Ver:** [00-phase0-technical-specification.md - Sección 5](./00-phase0-technical-specification.md#5-testing-strategy)
 
 ---
 
@@ -363,7 +363,7 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
 - `hallucination_rate` ≤ 5%
 - `elo_adaptation_accuracy` ≥ 90%
 
-**Ver:** [00-fase0-especificacion-tecnica.md - Sección 4](./00-fase0-especificacion-tecnica.md#4-métricas-de-calidad)
+**Ver:** [00-phase0-technical-specification.md - Sección 4](./00-phase0-technical-specification.md#4-métricas-de-calidad)
 
 ---
 
@@ -397,5 +397,5 @@ async def execute(game: Game, options: AnalysisOptions) -> AnalysisReport:
 
 **Última Actualización:** Marzo 25, 2026  
 **Mantenido por:** sergiosal + AI Assistant  
-**Branch:** `feature/arquitectura-orquestada-fase0-documentacion`
+**Branch:** `feature/orchestrated-architecture-fase0-documentacion`
 
