@@ -56,6 +56,9 @@
 
 ## 📁 FINAL PROJECT STRUCTURE
 
+*Historical snapshot captured when this summary was written.*
+
+
 ```
 chessinsightai/
 ├── README.md                    # 📖 PROJECT OVERVIEW AND DOCUMENTATION HUB
