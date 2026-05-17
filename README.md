@@ -1,8 +1,7 @@
-# CHESS TRAINER - Versión: v0.1.122-259c8fd
+# CHESSINSIGHTAI - Versión: v0.1.122-259c8fd
 
-# CHESSINSIGHTAI - Versión: v0.1.108-4c28cb4
 
-# ♟ chessinsightai – Analysis and Training with Elite Games
+# ♟ chessinsightai – Analysis and Training with a Novices upto Elite Games
 
 This project automates the import, analysis, labeling, and training from thousands of games played by elite players (ELO >2300), combining tactical analysis with visual exploration and exercise generation.
 
