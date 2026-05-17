@@ -67,11 +67,11 @@ Este diagrama muestra el flujo de datos y la arquitectura del sistema chessinsig
 - **modules/extractor.py**: Extracción de características de partidas
 - **modules/export_utils.py**: Utilidades de exportación
 
-### 5. Capa API / Servicios Backend
+### 4.1 Capa API / Servicios Backend
 - **API/Servicios**: Capa intermedia entre frontend React+Vite y persistencia (DB/CSV)
 - **Objetivo**: Evitar acceso directo del frontend a la base de datos
 
-### 6. El Frontend Web (React+Vite, parcialmente desarrollado)
+### 5. El Frontend Web (React+Vite, parcialmente desarrollado)
 - **elite_explorer**: Exploración de partidas de élite
 - **tag_games_ui**: Interface para etiquetar partidas
 - **elite_training**: Entrenamiento con ejercicios

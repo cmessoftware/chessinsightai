@@ -53,8 +53,7 @@ The React+Vite frontend is currently partially developed and being integrated.
 In this branch, the dedicated frontend module path is not yet consolidated.
 
 ```bash
-# Generate datasets
-# Local path (container path: /app/src/pipeline)
+# Generate datasets (local: ./src/pipeline, container: /app/src/pipeline)
 cd ./src/pipeline
 ./run_pipeline.sh interactive
 ```
