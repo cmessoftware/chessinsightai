@@ -1,6 +1,6 @@
 # Directorio de Pruebas
 
-Este directorio contiene todos los scripts de prueba y utilidades para el proyecto chess_trainer. Todas las pruebas han sido centralizadas aquí para una mejor organización y gestión.
+Este directorio contiene todos los scripts de prueba y utilidades para el proyecto chessinsightai. Todas las pruebas han sido centralizadas aquí para una mejor organización y gestión.
 
 ## Prerrequisitos
 

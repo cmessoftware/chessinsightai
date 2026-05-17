@@ -39,9 +39,9 @@ graph TD
   style CSV fill:#fff3e0
 ```
 
-# Arquitectura del Sistema Chess Trainer
+# Arquitectura del Sistema ChessInsightAI
 
-Este diagrama muestra el flujo de datos y la arquitectura del sistema chess_trainer.
+Este diagrama muestra el flujo de datos y la arquitectura del sistema chessinsightai.
 
 ## Componentes Principales
 

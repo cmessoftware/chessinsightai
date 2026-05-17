@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Node.js dependencies
+node_modules/
+**/node_modules/
+
 #pgn games
 *.pgn
 stockfish*
