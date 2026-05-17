@@ -141,10 +141,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Documentation Structure Enhancement** - Comprehensive documentation improvements addressing issue #62
-- **Localized Documentation Updates** - Spanish versions for major documentation files plus the shared testing guide:
+- **Localized Documentation Updates** - Spanish versions for major documentation files:
   - `src/architecture_es.md` - System architecture diagram and explanations in Spanish
-  - `tests/README.md` - Shared testing guide reference (English document used by the current repository layout)
   - `DATASETS_VOLUMES_CONFIG_es.md` - Docker volumes configuration for dataset sharing in Spanish
+- **Testing Documentation Reference** - `tests/README.md` remains the shared testing guide in the current repository layout
 - **Documentation Index** - Organized navigation structure replacing requirements sections in both VERSION_BASE files
 - **Docker Installation References** - Clear references to automatic dependency installation via:
   - `Dockerfile` - Main application container setup
