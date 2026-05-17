@@ -15,18 +15,18 @@ graph TD
   F --> M2
   F --> M3
 
-  G1[streamlit: elite_explorer] --> DB
-  G2[streamlit: tag_games_ui] --> DB
-  G3[streamlit: elite_training] --> DB
-  G4[streamlit: summary_viewer] --> DB
+  G1[frontend React+Vite: elite_explorer] --> DB
+  G2[frontend React+Vite: tag_games_ui] --> DB
+  G3[frontend React+Vite: elite_training] --> DB
+  G4[frontend React+Vite: summary_viewer] --> DB
   
   CSV[training_dataset.csv]
-  G5[streamlit: streamlit_eda] --> CSV
+  G5[frontend React+Vite: eda] --> CSV
 
   F --> CSV
   CSV --> G5
 
-  subgraph Streamlit_Pages
+  subgraph React_Vite_Frontend_Parcial
     G1
     G2
     G3

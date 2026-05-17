@@ -15,18 +15,18 @@ graph TD
   F --> M2
   F --> M3
 
-  G1[streamlit: elite_explorer] --> DB
-  G2[streamlit: tag_games_ui] --> DB
-  G3[streamlit: elite_training] --> DB
-  G4[streamlit: summary_viewer] --> DB
+  G1[frontend React+Vite: elite_explorer] --> DB
+  G2[frontend React+Vite: tag_games_ui] --> DB
+  G3[frontend React+Vite: elite_training] --> DB
+  G4[frontend React+Vite: summary_viewer] --> DB
   
   CSV[training_dataset.csv]
-  G5[streamlit: streamlit_eda] --> CSV
+  G5[frontend React+Vite: eda] --> CSV
 
   F --> CSV
   CSV --> G5
 
-  subgraph Páginas_Streamlit
+  subgraph Frontend_React_Vite_Parcial
     G1
     G2
     G3
@@ -64,9 +64,9 @@ Este diagrama muestra el flujo de datos y la arquitectura del sistema chessinsig
 - **modules/extractor.py**: Extracción de características de partidas
 - **modules/export_utils.py**: Utilidades de exportación
 
-### 5. Interfaz Web (Streamlit)
+### 5. Frontend Web (React+Vite, parcialmente desarrollado)
 - **elite_explorer**: Exploración de partidas de élite
 - **tag_games_ui**: Interface para etiquetar partidas
 - **elite_training**: Entrenamiento con ejercicios
 - **summary_viewer**: Visualización de resúmenes
-- **streamlit_eda**: Análisis exploratorio de datos
+- **eda**: Análisis exploratorio de datos

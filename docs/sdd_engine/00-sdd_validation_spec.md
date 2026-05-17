@@ -14,7 +14,7 @@ verification logs (JSON)
 aggregator service
         │
         ▼
-Streamlit dashboard
+Dashboard React+Vite (parcial)
 ```
 
 ### Componentes
@@ -65,7 +65,7 @@ Ejemplo:
 - fallas por componente
 - tendencias
 
-4. Dashboard (Streamlit)
+4. Dashboard (React+Vite, parcial)
 
 Secciones:
 
@@ -111,7 +111,7 @@ Debe incluir:
   - critic con 3 reglas
   - logs JSON
   
-- dashboard Streamlit con:
+- dashboard React+Vite con:
   - tabla de specs
   - estado
   - filtro por game_id

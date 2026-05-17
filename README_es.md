@@ -133,7 +133,7 @@ chessinsightai/
 │   │   ├── extractor.py
 │   │   ├── tactics_generator.py
 │   │   └── eda_utils.py
-│   ├── pages/                   # Páginas de interfaz Streamlit
+│   ├── pages/                   # Componentes de interfaz legacy (migración a React+Vite)
 │   │   ├── elite_explorer.py
 │   │   ├── elite_stats.py
 │   │   ├── elite_training.py
@@ -156,7 +156,7 @@ chessinsightai/
 │   │   ├── elite_explorer.py
 │   │   └── create_issues_from_json.py
 │   ├── validators/              # Utilidades de validación de datos
-│   └── app.py                   # Aplicación principal de Streamlit
+│   └── app.py                   # Aplicación de interfaz legacy (en migración)
 ├── tests/                       # Suite de pruebas unificada
 │   ├── test_elite_pipeline.py
 │   ├── test_db_integrity.py
@@ -196,18 +196,19 @@ jupyter lab eda_analysis.ipynb
 
 ## 🎯 **Módulos principales**
 
-### **Interfaz de Usuario (Streamlit)**
+### **Frontend Web (React+Vite, parcialmente desarrollado)**
 ```bash
-streamlit run src/app.py
+npm install
+npm run dev
 ```
 
-La aplicación incluye las siguientes páginas:
+El frontend incluye actualmente estas vistas funcionales o en migración:
 - **Elite Explorer**: Navegación de partidas de élite con filtros avanzados
 - **Elite Stats**: Estadísticas detalladas de jugadores y partidas
 - **Elite Training**: Generación de ejercicios tácticos personalizados
 - **Export Exercises**: Exportación de ejercicios en diferentes formatos
 - **Tag Games UI**: Etiquetado manual de partidas
-- **Streamlit EDA**: Análisis exploratorio de datos interactivo
+- **EDA**: Análisis exploratorio de datos interactivo
 
 ### **Scripts de Análisis**
 - `analyze_games_tactics_parallel.py`: Análisis táctico distribuido con Stockfish
@@ -322,8 +323,8 @@ pip install -r requirements.txt
 # Configurar base de datos
 alembic upgrade head
 
-# Iniciar aplicación
-streamlit run src/app.py --server.port 8501
+# Iniciar frontend React+Vite
+npm run dev -- --port 8501
 ```
 
 ---
@@ -381,8 +382,8 @@ tail -f logs/app.log
 # Logs de Docker
 docker-compose logs -f app
 
-# Modo debug de Streamlit
-streamlit run src/app.py --logger.level=debug
+# Modo debug de React+Vite
+npm run dev -- --debug --port 8501
 ```
 
 ---
@@ -437,7 +438,8 @@ streamlit run src/app.py --logger.level=debug
 **🔗 Enlaces Útiles:**
 - [Stockfish Engine](https://stockfishchess.org/)
 - [Python Chess Library](https://python-chess.readthedocs.io/)
-- [Streamlit Documentation](https://docs.streamlit.io/)
+- [React Documentation](https://react.dev/)
+- [Vite Documentation](https://vite.dev/)
 - [Docker Documentation](https://docs.docker.com/)
 - [Lichess API](https://lichess.org/api)
 

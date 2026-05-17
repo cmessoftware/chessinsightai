@@ -50,8 +50,8 @@ docker-compose up -d
 
 ### Local Development:
 ```bash
-# Run the main interface
-streamlit run app.py (In development)
+# Run the React+Vite frontend (partially developed)
+npm run dev
 
 # Generate datasets
 cd /app/src/pipeline
