@@ -16,7 +16,7 @@ A reliable prediction pipeline should produce repeatable inputs, stable training
 | Model training | [`../src/ml/train_error_model.py`](../src/ml/train_error_model.py) | Existing | Core ML training entry point |
 | Predictor wrapper | [`../src/ml/chess_error_predictor.py`](../src/ml/chess_error_predictor.py) | Existing | Encapsulates model usage |
 | Real-time predictor | [`../src/ml/realtime_predictor.py`](../src/ml/realtime_predictor.py) | Existing | Early inference-oriented helper |
-| Experiment tracking | [`./MLFLOW_POSTGRES_INTEGRATION.md`](./MLFLOW_POSTGRES_INTEGRATION.md) | Existing doc / existing modules | Supports reproducibility |
+| Experiment tracking | [`./MLFLOW_POSTGRES_INTEGRATION.md`](./MLFLOW_POSTGRES_INTEGRATION.md) | Implemented and documented | Supports reproducibility |
 | API-grade serving layer | Not yet implemented | Future plan | Would expose stable prediction endpoints |
 
 ## Reliability principles
