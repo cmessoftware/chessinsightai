@@ -206,7 +206,7 @@ El frontend incluye actualmente estas vistas funcionales o en migración:
 - **Elite Training**: Generación de ejercicios tácticos personalizados
 - **Export Exercises**: Exportación de ejercicios en diferentes formatos
 - **Tag Games UI**: Etiquetado manual de partidas
-- **EDA**: Análisis exploratorio de datos interactivo
+- **EDA Viewer**: Análisis exploratorio de datos interactivo
 
 ### **Scripts de Análisis**
 - `analyze_games_tactics_parallel.py`: Análisis táctico distribuido con Stockfish
