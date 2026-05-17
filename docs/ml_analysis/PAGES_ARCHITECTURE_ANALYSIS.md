@@ -1,158 +1,269 @@
 # Chess Trainer - Pages Architecture Analysis and Recommendations
 
-## Current State Analysis
+## Summary
+The repository is currently in a **migration phase**: the active UI is still Streamlit, while the target architecture is a dedicated **React + Vite frontend** consuming backend APIs.
 
-### Existing Frontend and Legacy UI Structure
-The repository currently shows a **transition state** between a legacy Streamlit UI and the target React + Vite frontend architecture.
+## Current State
 
-#### 1. **Legacy UI still present in `/src/pages/`**
-The current UI-related files in `/src/pages/` are still Python/Streamlit-oriented pages:
+### What exists today
+- `src/app.py` is still the main UI entrypoint and uses Streamlit page navigation.
+- `/src/pages/` still contains the legacy Python UI pages.
+- `src/architecture.md` still describes Streamlit pages connected close to the data layer.
+- Docker still exposes the main application on port `8501`, which aligns with the current Streamlit runtime.
+- The repository documents React as the target presentation layer, but the reviewed snapshot does **not** yet show a clearly established Vite frontend structure.
 
-##### Game Data Management
-- `upload_pgn.py` - PGN upload flow
-- `tag_games _ui.py` - Game tagging interface
+### Legacy UI inventory
+#### Game data
+- `upload_pgn.py`
+- `tag_games _ui.py`
 
-##### Analysis and Prediction
-- `analyze_feedback.py` - Feedback analysis view
-- `prediction_history.py` - Prediction history viewer
-- `predictor_error_label.py` - Error-label prediction UI
+#### Analysis and prediction
+- `analyze_feedback.py`
+- `prediction_history.py`
+- `predictor_error_label.py`
 
-##### Training and Tactical
-- `tactics.py` - Tactical training entry point
-- `tactics_viewer.py` - Tactical exercise viewer
-- `elite_training.py` - Elite training interface
-- `streamlit_tacticals_viewer.py` - Additional tactical viewer variant
+#### Training and tactical
+- `tactics.py`
+- `tactics_viewer.py`
+- `elite_training.py`
+- `streamlit_tacticals_viewer.py`
 
-##### Exploration and Dataset Views
-- `elite_explorer.py` - Elite games exploration
-- `elite_stats.py` - Statistics page
-- `streamlit_eda.py` - EDA page
-- `summary_viewer.py` - Dataset summary interface
-- `streamlit_study_viewer.py` - Study viewer
+#### Exploration and study
+- `elite_explorer.py`
+- `elite_stats.py`
+- `streamlit_eda.py`
+- `summary_viewer.py`
+- `streamlit_study_viewer.py`
 
-#### 2. **Current application entrypoint is still Streamlit**
-The main app entrypoint at `src/app.py` is a Streamlit dashboard using `st.switch_page(...)` to navigate to Python pages. This confirms that the repository still runs through the old page model at the moment.
+## Short Issue List
 
-#### 3. **React architecture is documented, but not yet visible as a full Vite app in this repository snapshot**
-The repository documentation already describes the intended presentation layer as React, and obsolete docs reference a React + Vite frontend. However, in the current repository snapshot reviewed for this document, the concrete frontend structure typically expected for Vite is not yet clearly present at the root level:
-- no visible `package.json`
-- no visible `vite.config.ts` or `vite.config.js`
-- no visible `src/main.tsx` / `src/main.jsx`
-- no visible React route/page/component tree in a dedicated frontend directory
+### High priority
+1. **Incomplete frontend migration**  
+   Streamlit is still the active UI entrypoint while React + Vite is the target architecture.
 
-This means the architectural direction is React + Vite, but the checked-in implementation still appears to be primarily legacy Streamlit UI code.
+2. **Docs and runtime are inconsistent**  
+   Some docs describe React as current, but the executable UI still runs through Streamlit.
 
-### Existing Repository Infrastructure
-✅ **Good foundation already exists in backend/data layers:**
-- `GamesRepository`
-- `FeaturesRepository`
-- `StudyRepository`
-- `ChapterRepository`
-- `AnalyzedTacticalsRepository`
-- `ProcessedFeatureRepository`
+3. **No single frontend boundary**  
+   The repository still mixes “current UI” and “future UI” concepts without a formal migration boundary.
 
-✅ **Some services already exist in `/src/services/`**
+4. **Legacy page duplication remains**  
+   Tactical, analysis, and exploration features are spread across overlapping pages.
 
-✅ **Docker / platform structure already suggests a multi-layer application**
+5. **API contracts for React are not documented enough**  
+   The frontend target is defined conceptually, but not yet as a concrete contract table.
 
-## Current Issues Identified
+6. **Frontend testing strategy is missing**  
+   There is no explicit testing plan for React routes, hooks, components, and API integration.
 
-### 🔴 High Priority Issues
-1. **Frontend migration is incomplete**: The repository still uses Streamlit as the active UI entrypoint while the target architecture is React + Vite.
-2. **Documentation and implementation are out of sync**: Some docs describe React presentation, but the current executable UI remains Python pages.
-3. **Legacy page model still drives navigation**: `src/app.py` uses Streamlit navigation instead of route-based frontend navigation.
-4. **UI business logic remains coupled to page implementations**: The page-oriented Python UI likely still mixes rendering with orchestration/business logic.
-5. **No clearly visible dedicated React app structure in this snapshot**: The expected Vite frontend scaffolding is not yet obvious in the repository root or common frontend folders.
-6. **Duplicate/overlapping UI surfaces remain**: Multiple tactical and exploration pages suggest the migration has not yet consolidated features into a single frontend information architecture.
-7. **Backend contract for frontend migration is not explicitly documented here**: The document should describe which API/service contracts the React frontend must consume.
-8. **Testing strategy for the new frontend is not defined**: Existing tests are mostly Python-oriented; React component, hook, and integration testing expectations are not specified.
+### Medium priority
+1. **Outdated architecture diagrams**  
+   `src/architecture.md` still describes Streamlit-centered flow.
 
-### 🟡 Medium Priority Issues
-1. **Naming and file consistency issues**: Example: `tag_games _ui.py` includes an inconsistent filename with a space.
-2. **Legacy Streamlit-specific files still influence architecture decisions**: Files like `streamlit_eda.py`, `streamlit_study_viewer.py`, and `streamlit_tacticals_viewer.py` make the UI boundary unclear.
-3. **Page ownership and destination mapping are unclear**: It is not yet documented which legacy pages map to which React routes/screens.
-4. **Potential duplication of responsibilities across services and pages**: Exploration, prediction, analysis, and tactical flows appear split across several legacy pages.
-5. **Port and deployment semantics may still reflect the old UI**: Docker exposes the main app on port `8501`, which is historically a Streamlit convention and may need review during migration.
-6. **Architecture diagrams are outdated**: Files such as `src/architecture.md` still document Streamlit pages directly connected to the data layer.
+2. **Naming inconsistencies**  
+   Example: `tag_games _ui.py` contains a space in the filename.
 
-## Recommended Modular Architecture
+3. **Deployment semantics still reflect Streamlit**  
+   Port `8501` and current container assumptions should be reviewed during migration.
 
-### 🏗️ Target Architecture Pattern
+4. **Feature ownership is unclear**  
+   It is not yet explicit which legacy pages map to which React routes.
+
+## Target Architecture
+
 ```text
-⚛️ Frontend Layer (React + Vite)
-    ↓ (HTTP / REST calls)
+⚛️ React + Vite Frontend
+    ↓ HTTP / REST
 🪝 Frontend Hooks + API Client Layer
     ↓
-🔧 Backend Service Layer (Business Logic)
+🔧 Backend Service Layer
     ↓
-🗄️ Repository Layer (Data Access)
+🗄️ Repository Layer
     ↓
-💾 Data Layer (PostgreSQL + Files + ML artifacts)
+💾 PostgreSQL + Files + ML artifacts
 ```
 
-### Key Architectural Principle
-The **React frontend must never access repositories, database connections, CSV files, or local datasets directly**. It should only interact through backend APIs and typed service contracts.
+### Rule
+The frontend must **never** access repositories, raw files, CSVs, or database connections directly.
+It should only consume backend APIs.
 
-## Updated Implementation Plan
+## Legacy-to-React Route Mapping
 
-### Phase 1: Document the Existing State and Migration Boundary
-Create a clear migration inventory from legacy pages to the new frontend.
+| Legacy page(s) | Target React route/page |
+|---|---|
+| `upload_pgn.py` | `UploadPGNPage.tsx` |
+| `tag_games _ui.py` | `TagGamesPage.tsx` |
+| `analyze_feedback.py`, `prediction_history.py`, `predictor_error_label.py` | `AnalysisDashboardPage.tsx` |
+| `tactics.py`, `tactics_viewer.py`, `elite_training.py`, `streamlit_tacticals_viewer.py` | `TacticalTrainingPage.tsx` |
+| `elite_explorer.py`, `elite_stats.py`, `streamlit_eda.py`, `summary_viewer.py` | `DataExplorerPage.tsx` |
+| `streamlit_study_viewer.py` | `StudyViewerPage.tsx` |
 
-#### Legacy-to-React route mapping to define
-1. **Upload / Import**
-   - Legacy: `upload_pgn.py`
-   - Target: `UploadPGNPage.tsx`
+## Recommended API Endpoint Table
 
-2. **Game Tagging**
-   - Legacy: `tag_games _ui.py`
-   - Target: `TagGamesPage.tsx`
+### 1. Upload / Import
+Used by: `UploadPGNPage.tsx`
 
-3. **Analysis / Prediction**
-   - Legacy: `analyze_feedback.py`, `prediction_history.py`, `predictor_error_label.py`
-   - Target: `AnalysisDashboardPage.tsx`
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/games/uploads` | Upload one or more PGN files |
+| `GET` | `/api/games/uploads` | List upload jobs / uploaded files |
+| `GET` | `/api/games` | List imported games |
+| `GET` | `/api/games/{game_id}` | Get game details |
+| `DELETE` | `/api/games/{game_id}` | Remove an imported game if supported |
 
-4. **Tactical Training**
-   - Legacy: `tactics.py`, `tactics_viewer.py`, `elite_training.py`, `streamlit_tacticals_viewer.py`
-   - Target: `TacticalTrainingPage.tsx`
+#### Suggested request/response
+- `POST /api/games/uploads`
+  - request: multipart form-data with one or more PGN files
+  - response:
+```json
+{
+  "upload_id": "upl_123",
+  "files_received": 2,
+  "games_imported": 48,
+  "warnings": []
+}
+```
 
-5. **Exploration / Stats / EDA**
-   - Legacy: `elite_explorer.py`, `elite_stats.py`, `streamlit_eda.py`, `summary_viewer.py`
-   - Target: `DataExplorerPage.tsx`
+### 2. Game Tagging
+Used by: `TagGamesPage.tsx`
 
-6. **Study Viewer**
-   - Legacy: `streamlit_study_viewer.py`
-   - Target: `StudyViewerPage.tsx`
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/games` | Search/filter games |
+| `GET` | `/api/games/{game_id}/tags` | Get current tags |
+| `PUT` | `/api/games/{game_id}/tags` | Replace tags for a game |
+| `PATCH` | `/api/games/{game_id}` | Update metadata fields |
+| `POST` | `/api/games/bulk-tags` | Apply tags in bulk |
 
-### Phase 2: Backend Contract First
-Before continuing frontend migration, define the backend contracts required by React:
+#### Suggested response
+```json
+{
+  "game_id": 101,
+  "tags": ["sicilian", "blitz", "needs-review"],
+  "updated_at": "2026-05-17T04:00:00Z"
+}
+```
 
-1. **Game API**
-   - upload PGN
-   - list uploaded games
-   - tag/update metadata
+### 3. Analysis Dashboard
+Used by: `AnalysisDashboardPage.tsx`
 
-2. **Analysis API**
-   - request analysis
-   - retrieve analysis results
-   - retrieve metrics / summaries
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/analysis/jobs` | Start a game analysis job |
+| `GET` | `/api/analysis/jobs/{job_id}` | Get analysis job status |
+| `GET` | `/api/analysis/games/{game_id}` | Get completed analysis result |
+| `GET` | `/api/analysis/games/{game_id}/summary` | Get summary metrics |
+| `GET` | `/api/analysis/games/{game_id}/critical-moments` | Get critical positions/moments |
 
-3. **Prediction API**
-   - run prediction
-   - fetch prediction history
+#### Suggested async job response
+```json
+{
+  "job_id": "an_456",
+  "status": "queued",
+  "game_id": 101
+}
+```
 
-4. **Tactical API**
-   - list tactical exercises
-   - fetch next training position
-   - submit move / answer
-   - retrieve progress
+#### Suggested completed result shape
+```json
+{
+  "game_id": 101,
+  "status": "completed",
+  "summary": {
+    "accuracy": 78.4,
+    "blunders": 1,
+    "mistakes": 3,
+    "inaccuracies": 5
+  },
+  "critical_moments": [
+    {
+      "ply": 24,
+      "fen": "...",
+      "label": "blunder",
+      "score_diff": 210
+    }
+  ]
+}
+```
 
-5. **Exploration API**
-   - aggregate stats
-   - query elite games
-   - fetch EDA summaries
+### 4. Prediction
+Used by: `AnalysisDashboardPage.tsx`
 
-### Phase 3: React + Vite Frontend Structure
-The document should assume a target frontend structure like:
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/predictions/error-label` | Predict error label from feature input |
+| `GET` | `/api/predictions/history` | Retrieve prediction history |
+| `GET` | `/api/predictions/history/{prediction_id}` | Get prediction details |
+
+#### Suggested prediction response
+```json
+{
+  "prediction_id": "pred_999",
+  "predicted_label": "mistake",
+  "confidence": 0.82,
+  "inputs": {
+    "score_diff": 96,
+    "mate_in": null
+  }
+}
+```
+
+### 5. Tactical Training
+Used by: `TacticalTrainingPage.tsx`
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/tactics/sessions/next` | Get next tactical exercise |
+| `POST` | `/api/tactics/sessions` | Start a training session |
+| `POST` | `/api/tactics/sessions/{session_id}/moves` | Submit a move/answer |
+| `GET` | `/api/tactics/sessions/{session_id}` | Get current session state |
+| `GET` | `/api/tactics/progress` | Get training progress and stats |
+
+#### Suggested exercise response
+```json
+{
+  "session_id": "sess_321",
+  "exercise_id": 77,
+  "fen": "...",
+  "side_to_move": "white",
+  "theme": "fork",
+  "difficulty": "medium"
+}
+```
+
+### 6. Data Explorer / Stats / EDA
+Used by: `DataExplorerPage.tsx`
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/exploration/summary` | Dataset summary metrics |
+| `GET` | `/api/exploration/elite-games` | Query elite games |
+| `GET` | `/api/exploration/stats` | Aggregate stats |
+| `GET` | `/api/exploration/charts` | Chart-ready data |
+| `GET` | `/api/exploration/filters` | Available filter metadata |
+
+#### Suggested summary response
+```json
+{
+  "games_total": 12500,
+  "players_total": 3100,
+  "openings_top": [
+    {"name": "Sicilian Defense", "count": 1200}
+  ]
+}
+```
+
+### 7. Study Viewer
+Used by: `StudyViewerPage.tsx`
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/studies` | List studies |
+| `GET` | `/api/studies/{study_id}` | Get study details |
+| `GET` | `/api/studies/{study_id}/chapters` | List chapters |
+| `GET` | `/api/studies/{study_id}/chapters/{chapter_id}` | Get chapter content |
+
+## Recommended Frontend Structure
 
 ```text
 frontend/
@@ -184,82 +295,27 @@ frontend/
       predictionApi.ts
       tacticalApi.ts
       explorationApi.ts
+      studyApi.ts
     types/
       game.ts
       analysis.ts
       prediction.ts
       tactic.ts
+      study.ts
 ```
 
-### Phase 4: Decommission Legacy Streamlit Pages Gradually
-Refactor by feature area and remove legacy pages once React replacements are functional.
+## Minimal Checklist
+- [ ] Keep this document aligned with migration reality
+- [ ] Define the actual API contract before continuing UI migration
+- [ ] Map every legacy page to one React route
+- [ ] Implement React route navigation
+- [ ] Add frontend test coverage
+- [ ] Decommission Streamlit pages after feature parity
 
-## Page Consolidation Opportunities
+## Next Recommendation
+Start with:
+1. `UploadPGNPage.tsx`
+2. `AnalysisDashboardPage.tsx`
+3. `TacticalTrainingPage.tsx`
 
-### Combine Similar Features into React Routes
-1. **Tactical Training Hub**
-   - Consolidate: `tactics.py`, `tactics_viewer.py`, `elite_training.py`, `streamlit_tacticals_viewer.py`
-   - Replace with a single routed experience and subviews/modes
-
-2. **Analysis Dashboard**
-   - Consolidate: `analyze_feedback.py`, `prediction_history.py`, `predictor_error_label.py`
-   - Replace with a single analysis workspace
-
-3. **Data Explorer**
-   - Consolidate: `elite_explorer.py`, `elite_stats.py`, `streamlit_eda.py`, `summary_viewer.py`
-   - Replace with one analytics route using tabs/panels
-
-4. **Study Workspace**
-   - Re-evaluate `streamlit_study_viewer.py` as a dedicated route or tab within analysis/exploration
-
-## Benefits of the Updated Architecture
-
-### Technical Benefits
-- ✅ Clear separation between frontend and backend responsibilities
-- ✅ Better support for reusable UI components and route composition
-- ✅ Easier frontend testing with component and integration tests
-- ✅ Cleaner backend contracts for React consumption
-- ✅ Progressive decommissioning of legacy Streamlit pages
-
-### Development Benefits
-- ✅ Reduced confusion during migration
-- ✅ Better roadmap from legacy pages to React routes
-- ✅ Easier onboarding because the intended architecture is explicit
-- ✅ More maintainable documentation aligned with the actual migration state
-
-## Updated Implementation Checklist
-
-### Phase 1: Reality Alignment
-- [ ] Document that current executable UI is still Streamlit-based
-- [ ] Inventory every legacy page in `/src/pages/`
-- [ ] Map each legacy page to a target React route
-- [ ] Update architecture diagrams to remove Streamlit as the target frontend
-
-### Phase 2: API and Service Contracts
-- [ ] Define frontend-facing API contracts per feature domain
-- [ ] Ensure backend services hide repository/data-source details
-- [ ] Standardize response/error payloads for frontend consumption
-- [ ] Document async/long-running analysis flows
-
-### Phase 3: React Frontend Migration
-- [ ] Create or formalize the dedicated React + Vite app structure
-- [ ] Implement route-based navigation
-- [ ] Replace Streamlit upload flow with React upload page
-- [ ] Replace prediction/history pages with React dashboard views
-- [ ] Replace tactical viewers with a unified tactical route
-- [ ] Replace exploration/statistics pages with a consolidated explorer
-
-### Phase 4: Testing and Cleanup
-- [ ] Add frontend unit tests for components and hooks
-- [ ] Add integration tests for frontend ↔ API flows
-- [ ] Remove obsolete Streamlit pages once feature parity is achieved
-- [ ] Remove outdated documentation that still describes Streamlit as the target UI
-
-## Next Steps
-1. **Update this document to reflect migration reality** rather than assuming Streamlit remains the target.
-2. **Define the React route map** from the existing Python pages.
-3. **Document required backend APIs** for each route.
-4. **Choose a migration order by feature value**: upload, analysis, tactical training, exploration.
-5. **Retire legacy pages incrementally** instead of maintaining parallel UI concepts indefinitely.
-
-This updated view better reflects the current repository state: **legacy Streamlit UI still exists, but the architecture should now be documented as a migration toward a dedicated React + Vite frontend.**
+These provide the clearest value while collapsing the most legacy duplication.
