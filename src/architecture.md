@@ -22,7 +22,7 @@ graph TD
   G4[frontend React+Vite: summary_viewer] --> API
   
   CSV[training_dataset.csv]
-  G5[frontend React+Vite: eda] --> API
+  G5[frontend React+Vite: eda_viewer] --> API
   API --> DB
   API --> CSV
 

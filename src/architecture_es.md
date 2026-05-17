@@ -22,7 +22,7 @@ graph TD
   G4[frontend React+Vite: summary_viewer] --> API
   
   CSV[training_dataset.csv]
-  G5[frontend React+Vite: eda] --> API
+  G5[frontend React+Vite: eda_viewer] --> API
   API --> DB
   API --> CSV
 
@@ -72,4 +72,4 @@ Este diagrama muestra el flujo de datos y la arquitectura del sistema chessinsig
 - **tag_games_ui**: Interface para etiquetar partidas
 - **elite_training**: Entrenamiento con ejercicios
 - **summary_viewer**: Visualización de resúmenes
-- **eda**: Análisis exploratorio de datos
+- **eda_viewer**: Análisis exploratorio de datos

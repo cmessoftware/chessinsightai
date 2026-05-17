@@ -198,6 +198,7 @@ jupyter lab eda_analysis.ipynb
 
 ### **Frontend Web (React+Vite, parcialmente desarrollado)**
 El frontend React+Vite se encuentra parcialmente desarrollado y en integración.
+La ruta final del módulo frontend aún no está consolidada en esta rama.
 
 El frontend incluye actualmente estas vistas funcionales o en migración:
 - **Elite Explorer**: Navegación de partidas de élite con filtros avanzados
@@ -320,7 +321,7 @@ pip install -r requirements.txt
 # Configurar base de datos
 alembic upgrade head
 
-# Iniciar frontend React+Vite (desde el módulo frontend cuando esté disponible)
+# Iniciar frontend React+Vite (cuando exista el módulo frontend dedicado)
 npm run dev -- --port=5173
 ```
 
@@ -379,7 +380,7 @@ tail -f logs/app.log
 # Logs de Docker
 docker-compose logs -f app
 
-# Logs detallados de Vite en desarrollo (desde el módulo frontend)
+# Logs detallados de Vite en desarrollo (cuando exista el módulo frontend dedicado)
 npm run dev -- --port=5173 --logLevel info
 ```
 

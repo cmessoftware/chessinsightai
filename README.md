@@ -50,6 +50,7 @@ docker-compose up -d
 
 ### Local Development:
 The React+Vite frontend is currently partially developed and being integrated.
+In this branch, the dedicated frontend module path is not yet consolidated.
 
 ```bash
 # Generate datasets
