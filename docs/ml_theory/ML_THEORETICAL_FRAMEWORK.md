@@ -192,7 +192,7 @@ Data Sources (PostgreSQL, Parquet, JSON)
 
 ## ✅ Summary and Next Steps
 
-This framework provides the ML foundations for classifying chess errors, predicting outcomes, and generating player recommendations in chessinsightai.
+This framework provides the ML foundations for classifying chess errors, predicting outcomes, and generating player recommendations in ChessInsightAI.
 
 Recommended next steps:
 - Connect each theoretical method to implemented notebooks and training scripts.
