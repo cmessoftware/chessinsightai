@@ -58,8 +58,7 @@
 
 ```
 chess_trainer/
-├── README.md                    # 📖 MAIN COMPREHENSIVE DOCUMENTATION
-├── README.md                 # 📖 DOCUMENTACIÓN PRINCIPAL COMPLETA  
+├── README.md                    # 📖 PROJECT OVERVIEW AND DOCUMENTATION HUB
 ├── VERSION_BASE.md              # 🚀 QUICK START GUIDE
 ├── VERSION_BASE_es.md           # 🚀 GUÍA RÁPIDA
 ├── build_up_clean_all.ps1       # 🐳 UNIFIED DOCKER MANAGEMENT (Windows)
