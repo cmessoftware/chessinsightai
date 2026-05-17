@@ -321,8 +321,8 @@ pip install -r requirements.txt
 # Configurar base de datos
 alembic upgrade head
 
-# Iniciar frontend React+Vite (cuando exista el módulo frontend dedicado)
-npm run dev -- --port=5173
+# Iniciar frontend React+Vite
+# (el comando definitivo se documentará cuando se consolide el módulo frontend)
 ```
 
 ---
@@ -380,8 +380,8 @@ tail -f logs/app.log
 # Logs de Docker
 docker-compose logs -f app
 
-# Logs detallados de Vite en desarrollo (cuando exista el módulo frontend dedicado)
-npm run dev -- --port=5173 --logLevel info
+# Logs del frontend React+Vite
+# (la configuración final de logging se documentará junto al módulo frontend)
 ```
 
 ---
