@@ -15,16 +15,19 @@ graph TD
   F --> M2
   F --> M3
 
-  G1[frontend React+Vite: elite_explorer] --> DB
-  G2[frontend React+Vite: tag_games_ui] --> DB
-  G3[frontend React+Vite: elite_training] --> DB
-  G4[frontend React+Vite: summary_viewer] --> DB
+  API[Backend API / Service Layer]
+  G1[frontend React+Vite: elite_explorer] --> API
+  G2[frontend React+Vite: tag_games_ui] --> API
+  G3[frontend React+Vite: elite_training] --> API
+  G4[frontend React+Vite: summary_viewer] --> API
   
   CSV[training_dataset.csv]
-  G5[frontend React+Vite: eda] --> CSV
+  G5[frontend React+Vite: eda] --> API
+  API --> DB
+  API --> CSV
 
   F --> CSV
-  CSV --> G5
+  CSV --> API
 
   subgraph React_Vite_Frontend
     G1

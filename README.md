@@ -49,14 +49,12 @@ docker-compose up -d
 ```
 
 ### Local Development:
-```bash
-# Run the React+Vite frontend (partially developed)
-npm run dev
+The React+Vite frontend is currently partially developed and being integrated.
 
+```bash
 # Generate datasets
 cd /app/src/pipeline
 ./run_pipeline.sh interactive
-
 ```
 
 # chessinsightai

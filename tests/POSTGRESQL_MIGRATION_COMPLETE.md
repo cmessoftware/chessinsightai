@@ -13,7 +13,7 @@ Successfully migrated the chessinsightai project from SQLite to PostgreSQL using
 - **Environment variable configuration** updated to use `CHESS_TRAINER_DB_URL`
 
 ### ✅ **Application Layer Migration**
-**UI Integration Files Updated (React+Vite frontend):**
+**Legacy UI Integration Files Updated (compatibility layer):**
 - `src/pages/tag_games_ui.py` - Game tagging interface
 - `src/pages/elite_stats.py` - Statistics dashboard  
 - `src/pages/elite_explorer.py` - Game exploration interface
