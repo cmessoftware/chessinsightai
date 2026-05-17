@@ -323,6 +323,7 @@ alembic upgrade head
 
 # Iniciar frontend React+Vite
 # (el comando definitivo se documentará cuando se consolide el módulo frontend)
+# Mientras tanto, en este repositorio se utilizan backend Python y notebooks.
 ```
 
 ---

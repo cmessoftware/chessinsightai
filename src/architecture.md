@@ -44,3 +44,5 @@ graph TD
     F
   end
 ```
+
+Note: the React+Vite frontend is partially developed; the diagram already models interaction through a backend API/service layer rather than direct database access.
