@@ -133,7 +133,7 @@ chessinsightai/
 │   │   ├── extractor.py
 │   │   ├── tactics_generator.py
 │   │   └── eda_utils.py
-│   ├── pages/                   # Componentes de interfaz legacy (migración a React+Vite)
+│   ├── pages/                   # Vistas legacy de Streamlit (compatibilidad temporal)
 │   │   ├── elite_explorer.py
 │   │   ├── elite_stats.py
 │   │   ├── elite_training.py
@@ -156,7 +156,7 @@ chessinsightai/
 │   │   ├── elite_explorer.py
 │   │   └── create_issues_from_json.py
 │   ├── validators/              # Utilidades de validación de datos
-│   └── app.py                   # Aplicación de interfaz legacy (en migración)
+│   └── app.py                   # Entrada legacy de Streamlit (se mantiene mientras migra React+Vite)
 ├── tests/                       # Suite de pruebas unificada
 │   ├── test_elite_pipeline.py
 │   ├── test_db_integrity.py
@@ -324,7 +324,7 @@ pip install -r requirements.txt
 alembic upgrade head
 
 # Iniciar frontend React+Vite
-npm run dev -- --port=8501
+npm run dev -- --port=5173
 ```
 
 ---
@@ -383,7 +383,7 @@ tail -f logs/app.log
 docker-compose logs -f app
 
 # Logs detallados de Vite en desarrollo
-npm run dev -- --port=8501 --logLevel=info
+npm run dev -- --port=5173 --logLevel info
 ```
 
 ---
