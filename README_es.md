@@ -198,7 +198,7 @@ jupyter lab eda_analysis.ipynb
 
 ### **Frontend Web (React+Vite, parcialmente desarrollado)**
 El frontend React+Vite se encuentra parcialmente desarrollado y en integración.
-La ruta final del módulo frontend aún no está consolidada en esta rama.
+La ruta final del módulo frontend aún no está consolidada actualmente en el repositorio.
 
 El frontend incluye actualmente estas vistas funcionales o en migración:
 - **Elite Explorer**: Navegación de partidas de élite con filtros avanzados

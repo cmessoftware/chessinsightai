@@ -71,7 +71,7 @@ Este diagrama muestra el flujo de datos y la arquitectura del sistema chessinsig
 - **API/Servicios**: Capa intermedia entre frontend React+Vite y persistencia (DB/CSV)
 - **Objetivo**: Evitar acceso directo del frontend a la base de datos
 
-### 6. Frontend Web (React+Vite, parcialmente desarrollado)
+### 6. El Frontend Web (React+Vite, parcialmente desarrollado)
 - **elite_explorer**: Exploración de partidas de élite
 - **tag_games_ui**: Interface para etiquetar partidas
 - **elite_training**: Entrenamiento con ejercicios

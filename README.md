@@ -54,7 +54,7 @@ In this branch, the dedicated frontend module path is not yet consolidated.
 
 ```bash
 # Generate datasets
-cd /app/src/pipeline
+cd ./src/pipeline
 ./run_pipeline.sh interactive
 ```
 
