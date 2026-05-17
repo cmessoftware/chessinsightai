@@ -217,3 +217,10 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 /app/src/data/chess_trainer.db
+
+# MLflow artifacts and runs (generados automáticamente)
+mlartifacts/
+mlruns/
+
+# Scripts de debug temporales
+debug_*.py

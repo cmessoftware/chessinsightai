@@ -1,90 +1,84 @@
-# MLflow PostgreSQL Integration
+# MLflow PostgreSQL Integration Guide
 
 ## Overview
 
-This document describes how the `chess_trainer` project has been configured to use PostgreSQL as the backend store for MLflow, replacing the local SQLite database approach.
+This guide covers the integration of MLflow with PostgreSQL backend for the Chess Trainer project.
 
-## Architecture
+## Configuration
 
-- **MLflow Backend**: PostgreSQL database (same as the main application)
-- **MLflow Artifacts**: Stored in the `mlruns` directory
-- **Integration Pattern**: Repository pattern using SQLAlchemy
+### PostgreSQL Backend Setup
 
-## Key Components
+```bash
+# Start PostgreSQL container
+docker-compose up -d postgres
 
-1. **MLflowRepository**: Provides connection string and database operations for MLflow
-   - Located at: `src/db/repository/mlflow_repository.py`
+# MLflow tracking URI
+export MLFLOW_TRACKING_URI="postgresql://chess:chess_pass@localhost:5432/chess_trainer_db"
+```
 
-2. **MLflow Initialization Script**: Verifies and initializes MLflow database tables
-   - Located at: `src/ml/init_mlflow_db.py`
+### Environment Variables
 
-3. **MLflow PostgreSQL Setup**: Sets environment variables for MLflow
-   - Located at: `src/ml/mlflow_postgres_setup.py`
-
-4. **MLflow Utils**: Updated to use PostgreSQL by default
-   - Located at: `src/ml/mlflow_utils.py`
-
-5. **Docker Configuration**: Updated to use PostgreSQL for MLflow
-   - Updated in: `docker-compose.yml`
-
-6. **PowerShell Helpers**: Functions for MLflow PostgreSQL operations
-   - Located at: `mlflow-helpers.ps1`
-   - Imported by: `PowerShell-Helpers.ps1` and `quick-helpers.ps1`
+```bash
+# .env file
+MLFLOW_TRACKING_URI=postgresql://chess:chess_pass@localhost:5432/chess_trainer_db
+MLFLOW_DEFAULT_ARTIFACT_ROOT=./mlruns
+```
 
 ## Usage
 
-### VS Code Tasks
+### Starting MLflow Server
 
-- **🔧 ML Workflow: Initialize MLflow with PostgreSQL**: Sets up MLflow with PostgreSQL
-- **🚀 ML Workflow: Start MLflow Server**: Starts the MLflow server with PostgreSQL backend
-- **🌐 ML Workflow: Open MLflow UI**: Opens the MLflow UI in your browser
+```python
+import mlflow
+import mlflow.sklearn
 
-### PowerShell Commands
+# Set tracking URI
+mlflow.set_tracking_uri("postgresql://chess:chess_pass@localhost:5432/chess_trainer_db")
 
-- **Initialize-MLflow**: Initialize MLflow with PostgreSQL
-- **Start-MLflowWithPostgres**: Start MLflow server with PostgreSQL
-- **Open-MLflowUI**: Open MLflow UI in the browser
-- **Run-MLExperiment**: Run a machine learning experiment with tracking
-- **Invoke-RealDatasetsAnalysis**: Run comprehensive ML analysis on real chess datasets
+# Start experiment
+with mlflow.start_run():
+    # Your ML code here
+    pass
+```
 
-### Quick Commands
+### Model Registry
 
-- **mlinit**: Initialize MLflow with PostgreSQL
-- **mlexp**: Run an ML experiment with MLflow tracking
+```python
+# Register model
+mlflow.sklearn.log_model(
+    model, 
+    "chess_error_classifier",
+    registered_model_name="ChessErrorPredictor"
+)
+```
 
-## Database Details
+## Best Practices
 
-MLflow tables are automatically created in the PostgreSQL database the first time the MLflow server starts. The database connection is configured through the `MLflowRepository` class, which uses the same database connection as the main application.
-
-## Migrations
-
-Currently, no custom Alembic migrations are needed for MLflow tables, as they are automatically managed by MLflow itself. If custom extensions to MLflow metadata are needed in the future, Alembic migrations will be created.
+1. **Experiment Organization**: Use meaningful experiment names
+2. **Parameter Logging**: Log all hyperparameters
+3. **Metric Tracking**: Track F1 macro, confusion matrix
+4. **Artifact Storage**: Save models and plots
 
 ## Troubleshooting
 
-If you encounter issues with the MLflow PostgreSQL integration:
+### Common Issues
 
-1. Verify PostgreSQL service is running: `docker-compose ps postgres`
-2. Check MLflow logs: `docker-compose logs mlflow`
-3. Verify PostgreSQL connection: `docker-compose exec mlflow python -c "from src.db.repository.mlflow_repository import mlflow_repo; print(mlflow_repo.test_connection())"`
-4. Reset and reinitialize: Run the task "🧹 ML Workflow: Clean and Restart" then "🔧 ML Workflow: Initialize MLflow with PostgreSQL"
+- **Connection refused**: Verify PostgreSQL is running
+- **Authentication failed**: Check credentials in connection string
+- **Database not found**: Ensure chess_trainer_db exists
 
-## Notes for Developers
+### Solutions
 
-When developing new ML features:
+```bash
+# Test PostgreSQL connection
+psql -h localhost -U chess -d chess_trainer_db -c "SELECT 1;"
 
-1. Always use the `ChessMLflowTracker` class from `src/ml/mlflow_utils.py` to ensure proper PostgreSQL integration
-2. For scripts that need to connect to MLflow, import and use `mlflow_repo` from `src.db.repository.mlflow_repository`
-3. Use the PowerShell helpers (Initialize-MLflow, Run-MLExperiment) for consistent workflow
+# Reset MLflow tables if needed
+mlflow db upgrade postgresql://chess:chess_pass@localhost:5432/chess_trainer_db
+```
 
-## Real Datasets Analysis
+## References
 
-The project includes a comprehensive analysis tool for comparing model performance across different chess datasets:
-
-- **Elite Dataset**: High-level players (Elo 2500+) - Rich error labels
-- **FIDE Dataset**: Official FIDE tournament games
-- **Novice Dataset**: Beginner players (Elo ~1200)  
-- **Personal Dataset**: Personal games from Chess.com/Lichess - Most realistic error distribution
-- **Stockfish Dataset**: Engine analysis data
-
-Use `Invoke-RealDatasetsAnalysis` or `Analyze-RealDatasets` to run the analysis.
+- [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
+- [PostgreSQL Docker Setup](../docker-compose.yml)
+- [Chess Trainer ML Pipeline](../src/ml/)
