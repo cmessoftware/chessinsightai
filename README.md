@@ -17,13 +17,16 @@ This project automates the import, analysis, labeling, and training from thousan
 - **[Version Base (Español)](./VERSION_BASE_es.md)** - Descripción del proyecto y guía rápida en español
 
 ### Technical Documentation
-- **[MLflow PostgreSQL Integration](./docs/MLFLOW_POSTGRES_INTEGRATION.md)** - Guide for the MLflow PostgreSQL backend integration
-- **[Reliable Predictions with MLflow](./docs/PREDICCIONES_FIABLES_MLFLOW.md)** - Complete guide for making reliable chess move predictions
-- **[ELO Standardization Guide](./docs/ELO_STANDARDIZATION_GUIDE.md)** - Technical guide for the ELO standardization system
-- **[Issue #21 Completion Report](./docs/ISSUE_21_COMPLETION_REPORT.md)** - Complete report on ELO standardization implementation
-- **[Docker Development Strategy](./docs/DOCKER_DEVELOPMENT_STRATEGY.md)** - Docker development workflow guide
-- **[Datasets Volumes Config](./docs/DATASETS_VOLUMES_CONFIG.md)** - Volume configuration for datasets
-- **[Git LFS Setup Guide](./docs/GIT_LFS_SETUP_GUIDE.md)** - Git Large File Storage setup guide
+- **[Reliable Predictions with MLflow](./docs/ml_analysis/PREDICCIONES_FIABLES_MLFLOW.md)** - Complete guide for making reliable chess move predictions
+- **[ELO Standardization Guide](./docs/ml_analysis/ELO_STANDARDIZATION_GUIDE.md)** - Technical guide for the ELO standardization system
+- **[Issue #21 Completion Report](./docs/ml_analysis/ISSUE_21_COMPLETION_REPORT.md)** - Complete report on ELO standardization implementation
+- **[MLflow PostgreSQL Integration](./docs/devops/MLFLOW_POSTGRES_INTEGRATION.md)** - Guide for the MLflow PostgreSQL backend integration
+- **[Docker Development Strategy](./docs/devops/DOCKER_DEVELOPMENT_STRATEGY.md)** - Docker development workflow guide
+- **[Datasets Volumes Config](./docs/devops/DATASETS_VOLUMES_CONFIG.md)** - Volume configuration for datasets
+- **[Git LFS Setup Guide](./docs/devops/GIT_LFS_SETUP_GUIDE.md)** - Git Large File Storage setup guide
+
+### ML Theory Documentation
+- **[ML Theoretical Framework](./docs/ml_theory/ML_THEORETICAL_FRAMEWORK.md)** - Core ML concepts and model approaches for chess analysis
 
 ## Quick usage
 
@@ -266,10 +269,9 @@ Analyze-RealDatasets
 ## 📚 Technical Documentation
 
 ### Core ML Framework Documents:
-- **[ML Theoretical Framework](./docs/ML_THEORETICAL_FRAMEWORK.md)** - Conceptos teóricos de algoritmos ML aplicados a chessinsightai
-- **[ML Current State Analysis](./docs/ML_CURRENT_STATE_ANALYSIS.md)** - Análisis detallado del estado actual vs objetivos ML
-- **[MLflow PostgreSQL Integration](./docs/MLFLOW_POSTGRES_INTEGRATION.md)** - Configuración MLflow con PostgreSQL para tracking
-- **[Reliable Chess Predictions](./docs/PREDICCIONES_FIABLES_MLFLOW.md)** - Pipeline completo ML para predicciones fiables
+- **[ML Theoretical Framework](./docs/ml_theory/ML_THEORETICAL_FRAMEWORK.md)** - Core theoretical concepts for ML algorithms in chessinsightai
+- **[MLflow PostgreSQL Integration](./docs/devops/MLFLOW_POSTGRES_INTEGRATION.md)** - MLflow setup with PostgreSQL for experiment tracking
+- **[Reliable Chess Predictions](./docs/ml_analysis/PREDICCIONES_FIABLES_MLFLOW.md)** - End-to-end ML pipeline for reliable move predictions
 
 ### Current ML Implementation Status:
 - **Issue #66**: ✅ Chess data preprocessing completed
