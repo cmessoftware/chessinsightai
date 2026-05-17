@@ -324,7 +324,7 @@ pip install -r requirements.txt
 alembic upgrade head
 
 # Iniciar frontend React+Vite
-npm run dev -- --port 8501
+npm run dev -- --port=8501
 ```
 
 ---
@@ -382,8 +382,8 @@ tail -f logs/app.log
 # Logs de Docker
 docker-compose logs -f app
 
-# Modo debug de React+Vite
-npm run dev -- --debug --port 8501
+# Logs detallados de Vite en desarrollo
+npm run dev -- --port=8501 --logLevel=info
 ```
 
 ---

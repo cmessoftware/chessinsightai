@@ -26,7 +26,7 @@ graph TD
   F --> CSV
   CSV --> G5
 
-  subgraph React_Vite_Frontend_Parcial
+  subgraph React_Vite_Frontend_Partial
     G1
     G2
     G3
