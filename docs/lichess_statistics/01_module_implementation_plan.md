@@ -18,13 +18,13 @@ Lichess NDJSON (official API)
 
 Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_tool.md).
 
-**Last status update:** 2026-09-12.
+**Last status update:** 2026-09-12 (LS01-001 done).
 
 ### Current progress
 
 | Area | Status | Notes |
 |---|---|---|
-| LS01.0 NDJSON client (LS01-001) | ⬜ Todo | Own client. Do not extend `src/modules/fetch_games.py` / `player_ingest.py`. |
+| LS01.0 NDJSON client (LS01-001) | ✅ Done | `src/lichess_statistics/client.py`; fixture `tests/lichess_statistics/fixtures/cmess4401_rapid_two_games.ndjson`. |
 | LS01.0 Filters (LS01-002) | ⬜ Todo | Drop Lichess AI engines and games with fewer than 10 moves. |
 | LS01.0 Project `game_id` (LS01-003) | ⬜ Todo | SHA256 of PGN as in `get_game_id` (`src/modules/pgn_utils.py`). Store Lichess `id` only as metadata. |
 | LS01.1 SQLite schema (LS01-004) | ⬜ Todo | Separate file; not `course_data.sqlite`, not product PostgreSQL `games`/`features`. |
@@ -42,7 +42,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 
 ## Principles
 
-- One verifiable capability at a time (catalog id), on branch **`feature/lichess_statistics_tool`** (single epic branch; not `feature/07_*`).
+- One verifiable capability at a time (catalog id). Epic base: **`feature/lichess_statistics_tool`**. Item branch: **`feature/ls01_<id>_<slug>`** (example: `feature/ls01_001_ndjson_client`). Not `feature/07_*`.
 - This module is **Lichess-only**. Product ingest stays generic (any source → PostgreSQL). Do not merge NDJSON parsing into `player_ingest`.
 - Do not import `docs/ai_chess_coach_course/` or `analysis/mental_model/`.
 - Do not write to product `games` / `features` or change `games.game_id` semantics in PostgreSQL.
@@ -95,7 +95,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-001 | Lichess NDJSON client | username, since/until, perfType | Stream of game objects (`id`, pgn, players, evals…) | Fixture NDJSON `cmess4401` rapid | P0 | ⬜ Todo | Official `GET /api/games/user/{user}`; `Accept: application/x-ndjson`; `clocks`, `evals`, `opening`; timeout; retries; HTTP 429 wait ≥60s. Do not reuse `fetch_lichess_games` as-is (`evals=false`, `max=300`, in-memory PGN-only). |
+| LS01-001 | Lichess NDJSON client | username, since/until, perfType | Stream of game objects (`id`, pgn, players, evals…) | Fixture NDJSON `cmess4401` rapid | P0 | ✅ Done | `LichessClient.iter_user_games`; official `GET /api/games/user/{user}`; `Accept: application/x-ndjson`; `clocks`/`evals`/`opening`; timeout; retries; HTTP 429 wait ≥60s. Tests: `tests/lichess_statistics/test_ls01_001_ndjson_client.py`. Branch `feature/ls01_001_ndjson_client`. |
 | LS01-002 | Import filters | NDJSON game | Keep / skip + reason | AI bot game skipped; 8-move game skipped; 40-move human kept | P0 | ⬜ Todo | Lichess AI engines and total moves &lt; 10. |
 | LS01-003 | Project `game_id` | PGN text | SHA256 hex, stable | Same PGN → same id as `pgn_utils.get_game_id` | P0 | ⬜ Todo | Primary key in SQLite. Persist `lichess_id` separately if present. |
 
@@ -234,7 +234,7 @@ NDJSON fixture
 
 ### Included features
 
-- [ ] LS01-001 — NDJSON client
+- [x] LS01-001 — NDJSON client
 - [ ] LS01-002 — Filters
 - [ ] LS01-003 — Project `game_id`
 - [ ] LS01-004 — SQLite schema
