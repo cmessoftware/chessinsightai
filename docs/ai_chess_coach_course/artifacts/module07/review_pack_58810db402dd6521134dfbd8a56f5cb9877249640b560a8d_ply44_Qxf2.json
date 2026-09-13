@@ -1,0 +1,177 @@
+{
+  "schema_version": "chessinsight.review_pack.v1",
+  "feature_id": "F07-035",
+  "case_id": "58810db402dd6521134dfbd8a56f5cb9877249640b560a8de4d6dd27a87e62fd-ply44-Qxf2",
+  "game_id": "58810db402dd6521134dfbd8a56f5cb9877249640b560a8de4d6dd27a87e62fd",
+  "pgn_source": "C:\\Users\\sergiosal\\source\\repos\\chessinsightai\\docs\\ai_chess_coach_course\\data\\games\\50_rapids.pgn",
+  "pgn": "[Event \"rated rapid game\"]\n[Site \"lichess.org\"]\n[Date \"2026.09.08\"]\n[Round \"?\"]\n[White \"cmess4401\"]\n[Black \"Aleksandr_85_82\"]\n[Result \"1-0\"]\n[ECO \"C50\"]\n[WhiteElo \"1630\"]\n[BlackElo \"1559\"]\n[WhiteFideId \"-1\"]\n[PlyCount \"45\"]\n[GameId \"2351923439169536\"]\n[EventDate \"2026.??.??\"]\n[EventType \"rapid\"]\n[TimeControl \"900+10\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bc4 h6 4. d4 exd4 5. c3 Na5 6. Bxf7+ Kxf7 7. Ne5+ Ke7 8.\nNg6+ Ke8 9. Nxh8 Qf6 10. Qh5+ Kd8 11. Nf7+ Ke7 12. Ne5 d6 13. Ng6+ Kd8 14. Nxf8\nQxf8 15. Qxa5 b6 16. Qd5 Rb8 17. Qxd4 Bb7 18. O-O Nf6 19. e5 Ne4 20. exd6 cxd6\n21. Nd2 Ba6 22. Re1 Nxf2 23. Qxf2 1-0",
+  "player": "cmess4401",
+  "player_color": "WHITE",
+  "move_number": 23,
+  "ply": 44,
+  "fen_before": "1r1k1q2/p5p1/bp1p3p/8/3Q4/2P5/PP1N1nPP/R1B1R1K1 w - - 0 23",
+  "fen_after": "1r1k1q2/p5p1/bp1p3p/8/8/2P5/PP1N1QPP/R1B1R1K1 b - - 0 23",
+  "played_move": {
+    "san": "Qxf2",
+    "uci": "d4f2",
+    "in_multipv": true,
+    "multipv_rank": 1,
+    "source": "multipv",
+    "score": {
+      "kind": "cp",
+      "white_cp": 778,
+      "white_mate": null
+    },
+    "player_score": {
+      "player_color": "white",
+      "kind": "cp",
+      "cp": 778,
+      "mate": null,
+      "as_cp_units": 778
+    },
+    "pv_san": [
+      "Qxf2",
+      "Qxf2+",
+      "Kxf2",
+      "Kd7",
+      "Kg3",
+      "Re8",
+      "Nf3",
+      "Bb7"
+    ],
+    "purpose": "D1",
+    "consequence": {
+      "tags": [
+        "CAPTURE"
+      ],
+      "gives_check": false,
+      "is_capture": true,
+      "is_mate": false,
+      "material_delta_cp": 300,
+      "opponent_pv_san": "Qxf2+"
+    }
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "san": "Qxf2",
+      "uci": "d4f2",
+      "pv_san": [
+        "Qxf2",
+        "Qxf2+",
+        "Kxf2",
+        "Kd7",
+        "Kg3",
+        "Re8",
+        "Nf3",
+        "Bb7"
+      ],
+      "player_score": {
+        "player_color": "white",
+        "kind": "cp",
+        "cp": 778,
+        "mate": null,
+        "as_cp_units": 778
+      },
+      "eval_gap_cp": 0,
+      "same_move": true,
+      "purpose": "D1",
+      "purpose_differs": false,
+      "consequence_tags": [
+        "CAPTURE"
+      ]
+    },
+    {
+      "rank": 2,
+      "san": "Nf3",
+      "uci": "d2f3",
+      "pv_san": [
+        "Nf3",
+        "Nd3",
+        "Rd1",
+        "Kc7",
+        "Rxd3",
+        "Re8"
+      ],
+      "player_score": {
+        "player_color": "white",
+        "kind": "cp",
+        "cp": 741,
+        "mate": null,
+        "as_cp_units": 741
+      },
+      "eval_gap_cp": -37,
+      "same_move": false,
+      "purpose": "D2",
+      "purpose_differs": true,
+      "consequence_tags": []
+    },
+    {
+      "rank": 3,
+      "san": "Qh4+",
+      "uci": "d4h4",
+      "pv_san": [
+        "Qh4+",
+        "Kd7",
+        "Qxf2",
+        "Qxf2+",
+        "Kxf2",
+        "g5",
+        "Kg3",
+        "Rf8",
+        "Nf3"
+      ],
+      "player_score": {
+        "player_color": "white",
+        "kind": "cp",
+        "cp": 739,
+        "mate": null,
+        "as_cp_units": 739
+      },
+      "eval_gap_cp": -39,
+      "same_move": false,
+      "purpose": "D1",
+      "purpose_differs": false,
+      "consequence_tags": [
+        "CHECK"
+      ]
+    }
+  ],
+  "actual_result": {
+    "eval_gap_vs_best_cp": 0,
+    "played_is_best": true,
+    "best_san": "Qxf2",
+    "abstention": {
+      "status": "UNKNOWN",
+      "reasons": [
+        "NO_OBJECTIVE_ERROR"
+      ],
+      "may_diagnose": false,
+      "message": "Cannot be determined with sufficient confidence."
+    },
+    "primary_error": null
+  },
+  "expected_result": {},
+  "human_label": {
+    "confirmed": null,
+    "comment": ""
+  },
+  "evidence": {
+    "engine": "Stockfish",
+    "multipv": 3,
+    "layer": "evidence",
+    "inference_as_fact": false
+  },
+  "status": "UNKNOWN",
+  "notes": "",
+  "criticality": {
+    "score": 0.0,
+    "level": "Routine",
+    "critical": false
+  },
+  "eval_loss": {
+    "eval_delta": -14,
+    "eval_loss": 14,
+    "cp_loss": 14
+  }
+}

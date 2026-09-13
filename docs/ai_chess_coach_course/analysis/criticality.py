@@ -9,6 +9,7 @@ from analysis.engine_eval import NormalizedPlyEval, analyze_ply_for_player, open
 from analysis.engine_triggers import (
     DEFAULT_EVALUATION_DROP_CP,
     EVALUATION_DROP,
+    IMMEDIATE_THREAT,
     POSITION_TRANSFORMATION,
     ONLY_MOVE,
     EngineTrigger,
@@ -74,6 +75,8 @@ def _trigger_weight(trigger: EngineTrigger) -> float:
         return RELEVANT_MIN
     if trigger.code == POSITION_TRANSFORMATION:
         return RELEVANT_MIN
+    if trigger.code == IMMEDIATE_THREAT:
+        return RELEVANT_MIN
     return 0.0
 
 
@@ -97,6 +100,12 @@ def _reason_for(trigger: EngineTrigger, weight: float) -> CriticalityReason | No
             type=POSITION_TRANSFORMATION,
             weight=weight,
             description=trigger.detail or POSITION_TRANSFORMATION,
+        )
+    if trigger.code == IMMEDIATE_THREAT:
+        return CriticalityReason(
+            type=IMMEDIATE_THREAT,
+            weight=weight,
+            description=trigger.detail or IMMEDIATE_THREAT,
         )
     return CriticalityReason(type=trigger.code, weight=weight, description=trigger.code)
 

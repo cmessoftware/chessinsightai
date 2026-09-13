@@ -1,0 +1,184 @@
+{
+  "schema_version": "chessinsight.review_pack.v1",
+  "feature_id": "F07-035",
+  "case_id": "bccf8c1a52c10b65af323a1dd9926e2faa8323df11a95961b8bab1f2f2d2c7b4-ply72-Kg1",
+  "game_id": "bccf8c1a52c10b65af323a1dd9926e2faa8323df11a95961b8bab1f2f2d2c7b4",
+  "pgn_source": "C:\\Users\\sergiosal\\source\\repos\\chessinsightai\\docs\\ai_chess_coach_course\\data\\games\\sample_game_rapid2.pgn",
+  "pgn": "[Event \"cmess1315 vs. hdbenitez\"] \n[Site \"Chess.com\"] \n[Date \"2026-09-01\"] \n[White \"cmess1315\"] \n[Black \"hdbenitez\"] \n[Result \"0-1\"] \n[WhiteElo \"1599\"] \n[BlackElo \"1628\"] \n[TimeControl \"600\"] \n[Termination \"Victoria de hdbenitez por tiempo\"] \n\n1. e4 e5 2. Nf3 Nc6 3. Bc4 h6 4. d4 exd4 5. Nxd4 Bc5 6. Nxc6 bxc6 7. O-O Qh4 8. Nd2 Nf6 9. Nf3 Qh5 10. c3 O-O 11. Qb3 Nxe4 12. Be3 d5 13. Bd3 Bh3 14. gxh3 Qxf3 15. Bxe4 dxe4 16. Bxc5 Rfe8 17. c4 Qf6 18. Kh1 Rab8 19. Qc3 Qg5 20. Rg1 Qe5 21. Bd4 Qe6 22. Rxg7+ Kf8 23. Bc5+ Re7 24. Bxe7+ Kxe7 25. Rag1 e3 26. fxe3 Rd8 27. Qe1 Qe4+ 28. R1g2 Rd3 29. Qb4+ Rd6 30. Qe1 Rd3 31. Kg1 Rxe3 32. Qf2 Re1+ 33. Qf1 Rxf1+ 34. Kxf1 Qd3+ 35. Kg1 Qd1+ 36. Kf2 Qd2+ 37. Kg1 Qd3 0-1",
+  "player": "cmess1315",
+  "player_color": "WHITE",
+  "move_number": 37,
+  "ply": 72,
+  "fen_before": "8/p1p1kpR1/2p4p/8/2P5/7P/PP1q1KRP/8 w - - 5 37",
+  "fen_after": "8/p1p1kpR1/2p4p/8/2P5/7P/PP1q2RP/6K1 b - - 6 37",
+  "played_move": {
+    "san": "Kg1",
+    "uci": "f2g1",
+    "in_multipv": false,
+    "multipv_rank": null,
+    "source": "independent",
+    "score": {
+      "kind": "mate",
+      "white_cp": null,
+      "white_mate": -1
+    },
+    "player_score": {
+      "player_color": "white",
+      "kind": "mate",
+      "cp": null,
+      "mate": -1,
+      "as_cp_units": -99999
+    },
+    "pv_san": [
+      "Kg1"
+    ],
+    "purpose": "D2",
+    "consequence": {
+      "tags": [],
+      "gives_check": false,
+      "is_capture": false,
+      "is_mate": false,
+      "material_delta_cp": 0,
+      "opponent_pv_san": null
+    }
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "san": "Kg3",
+      "uci": "f2g3",
+      "pv_san": [
+        "Kg3",
+        "Qd3+",
+        "Kh4",
+        "Qxc4+",
+        "Kh5",
+        "Qe6",
+        "h4",
+        "c5",
+        "R7g3",
+        "c4",
+        "a3"
+      ],
+      "player_score": {
+        "player_color": "white",
+        "kind": "cp",
+        "cp": -70,
+        "mate": null,
+        "as_cp_units": -70
+      },
+      "eval_gap_cp": 99929,
+      "same_move": false,
+      "purpose": "D2",
+      "purpose_differs": false,
+      "consequence_tags": []
+    },
+    {
+      "rank": 2,
+      "san": "Kf3",
+      "uci": "f2f3",
+      "pv_san": [
+        "Kf3",
+        "Qd3+",
+        "Kf2",
+        "Qxc4",
+        "a3",
+        "h5",
+        "R7g5",
+        "c5",
+        "R5g3",
+        "Qc2+",
+        "Kf3"
+      ],
+      "player_score": {
+        "player_color": "white",
+        "kind": "cp",
+        "cp": -75,
+        "mate": null,
+        "as_cp_units": -75
+      },
+      "eval_gap_cp": 99924,
+      "same_move": false,
+      "purpose": "D2",
+      "purpose_differs": false,
+      "consequence_tags": []
+    },
+    {
+      "rank": 3,
+      "san": "Kf1",
+      "uci": "f2f1",
+      "pv_san": [
+        "Kf1",
+        "Qc1+",
+        "Ke2",
+        "Qxb2+",
+        "Kd3",
+        "Qa3+",
+        "Ke4",
+        "Qc3",
+        "R7g3",
+        "Qxc4+",
+        "Kf3",
+        "Qd5+",
+        "Kf4",
+        "Qd4+",
+        "Kf3",
+        "Qc3+",
+        "Kf2",
+        "Qb2+",
+        "Ke3",
+        "Qe5+",
+        "Kf3"
+      ],
+      "player_score": {
+        "player_color": "white",
+        "kind": "cp",
+        "cp": -186,
+        "mate": null,
+        "as_cp_units": -186
+      },
+      "eval_gap_cp": 99813,
+      "same_move": false,
+      "purpose": "D2",
+      "purpose_differs": false,
+      "consequence_tags": []
+    }
+  ],
+  "actual_result": {
+    "eval_gap_vs_best_cp": 99929,
+    "played_is_best": false,
+    "best_san": "Kg3",
+    "abstention": {
+      "status": "NONE",
+      "reasons": [
+        "CLEAR_EVAL_GAP"
+      ],
+      "may_diagnose": true,
+      "message": "Objective gap is sufficient to allow a later chess diagnosis."
+    },
+    "primary_error": null
+  },
+  "expected_result": {},
+  "human_label": {
+    "confirmed": null,
+    "comment": ""
+  },
+  "evidence": {
+    "engine": "Stockfish",
+    "multipv": 3,
+    "layer": "evidence",
+    "inference_as_fact": false
+  },
+  "status": "PENDING_REVIEW",
+  "notes": "",
+  "criticality": {
+    "score": 10.0,
+    "level": "HighlyCritical",
+    "critical": true
+  },
+  "eval_loss": {
+    "eval_delta": -99929,
+    "eval_loss": 99929,
+    "cp_loss": 99929
+  }
+}

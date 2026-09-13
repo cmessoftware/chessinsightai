@@ -10,11 +10,17 @@ import chess
 from analysis.engine_eval import EvaluationLoss, NormalizedPlyEval, ply_evaluation_loss
 from analysis.multipv import MultiPVResult, analyze_multipv
 
-EngineTriggerCode = Literal["EVALUATION_DROP", "ONLY_MOVE", "POSITION_TRANSFORMATION"]
+EngineTriggerCode = Literal[
+    "EVALUATION_DROP",
+    "ONLY_MOVE",
+    "POSITION_TRANSFORMATION",
+    "IMMEDIATE_THREAT",
+]
 
 EVALUATION_DROP: EngineTriggerCode = "EVALUATION_DROP"
 ONLY_MOVE: EngineTriggerCode = "ONLY_MOVE"
 POSITION_TRANSFORMATION: EngineTriggerCode = "POSITION_TRANSFORMATION"
+IMMEDIATE_THREAT: EngineTriggerCode = "IMMEDIATE_THREAT"
 DEFAULT_EVALUATION_DROP_CP = 150
 DEFAULT_ONLY_MOVE_GAP_CP = 150
 ONLY_MOVE_SOLE_LEGAL_GAP = 100_000
@@ -218,6 +224,88 @@ def position_transformation_trigger(
     tags = position_transformation_tags(fen_before, move_uci)
     return EngineTrigger(
         code=POSITION_TRANSFORMATION,
+        fired=bool(tags),
+        eval_loss=1 if tags else 0,
+        threshold_cp=1,
+        detail=",".join(tags),
+    )
+
+
+_MIN_HANGING_PIECE_VALUE = 3
+_PIECE_VALUE = {
+    chess.PAWN: 1,
+    chess.KNIGHT: 3,
+    chess.BISHOP: 3,
+    chess.ROOK: 5,
+    chess.QUEEN: 9,
+    chess.KING: 0,
+}
+
+
+def _piece_value(piece: chess.Piece | None) -> int:
+    if piece is None:
+        return 0
+    return _PIECE_VALUE[piece.piece_type]
+
+
+def _opponent_mate_in_one(board: chess.Board) -> bool:
+    """True if the opponent would mate in one if the side to move passed."""
+    if board.is_check() or board.is_game_over():
+        return False
+    probe = board.copy(stack=False)
+    probe.turn = not probe.turn
+    for move in probe.legal_moves:
+        if not probe.gives_check(move):
+            continue
+        probe.push(move)
+        mate = probe.is_checkmate()
+        probe.pop()
+        if mate:
+            return True
+    return False
+
+
+def _hanging_minor_or_more(board: chess.Board) -> bool:
+    """True if opponent can take N/B/R/Q that is undefended or taken cheaper."""
+    if board.is_check() or board.is_game_over():
+        return False
+    us = board.turn
+    probe = board.copy(stack=False)
+    probe.turn = not probe.turn
+    for move in probe.legal_moves:
+        if not probe.is_capture(move):
+            continue
+        victim = probe.piece_at(move.to_square)
+        if victim is None or victim.piece_type == chess.PAWN:
+            continue
+        if _piece_value(victim) < _MIN_HANGING_PIECE_VALUE:
+            continue
+        attacker = probe.piece_at(move.from_square)
+        cheaper = _piece_value(attacker) < _piece_value(victim)
+        defended = bool(board.attackers(us, move.to_square))
+        if not defended or cheaper:
+            return True
+    return False
+
+
+def immediate_threat_tags(fen: str) -> tuple[str, ...]:
+    """Observable immediate-threat tags for the side to move (F07-009)."""
+    board = chess.Board(fen)
+    tags: list[str] = []
+    if board.is_check():
+        tags.append("CHECK")
+    if _opponent_mate_in_one(board):
+        tags.append("MATE_IN_1")
+    if _hanging_minor_or_more(board):
+        tags.append("HANGING_MATERIAL")
+    return tuple(tags)
+
+
+def immediate_threat_trigger(fen: str) -> EngineTrigger:
+    """Fire ``IMMEDIATE_THREAT`` on check, mate-in-1, or hanging N/B/R/Q."""
+    tags = immediate_threat_tags(fen)
+    return EngineTrigger(
+        code=IMMEDIATE_THREAT,
         fired=bool(tags),
         eval_loss=1 if tags else 0,
         threshold_cp=1,

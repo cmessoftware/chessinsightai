@@ -1,0 +1,175 @@
+{
+  "schema_version": "chessinsight.review_pack.v1",
+  "feature_id": "F07-035",
+  "case_id": "d63cbbacf33258c6c68e561e8ddfe1588d1c272c79bc6e9f24e4df6509ec07bb-ply43-Nf5",
+  "game_id": "d63cbbacf33258c6c68e561e8ddfe1588d1c272c79bc6e9f24e4df6509ec07bb",
+  "pgn_source": "C:\\Users\\sergiosal\\source\\repos\\chessinsightai\\docs\\ai_chess_coach_course\\data\\games\\sample_game_rapid3.pgn",
+  "pgn": "[Event \"rated rapid game\"]\n[Site \"https://lichess.org/TmWdfU9g\"]\n[Date \"2026.09.11\"]\n[Round \"-\"]\n[White \"Meteor_2020\"]\n[Black \"cmess4401\"]\n[Result \"0-1\"]\n[GameId \"TmWdfU9g\"]\n[UTCDate \"2026.09.11\"]\n[UTCTime \"03:48:35\"]\n[WhiteElo \"1769\"]\n[BlackElo \"1650\"]\n[WhiteRatingDiff \"-14\"]\n[BlackRatingDiff \"+9\"]\n[Variant \"Standard\"]\n[TimeControl \"900+10\"]\n[Termination \"Normal\"]\n\n1. d4 Nf6 2. Nf3 d5 3. e3 e6 4. Bd3 c5 5. b3 Nc6 6. Bb2 cxd4 7. exd4 Bb4+ 8.\nNbd2 O-O 9. O-O Re8 10. a3 Bd6 11. Re1 Qc7 12. Ne5 Bd7 13. f4 Rac8 14. g4 h6\n15. h4 Nh7 16. g5 Bxe5 17. dxe5 Ne7 18. gxh6 gxh6 19. Qg4+ Kh8 20. Qh5 Rg8+ 21.\nKh2 Qc5 22. Re2 Nf5 23. Bxf5 exf5 24. Qxf7 Qxc2 25. e6+ Qxb2 26. exd7 Rcd8 27.\nRae1 Nf6 28. Nf3 Qc3 29. Re3 Ng4+ 30. Kh3 Nxe3 31. Rxe3 Qxe3 32. Qf6+ Kh7 33.\nQxf5+ Rg6 34. Qf7+ Rg7 35. Qf5+ Kh8 36. Qxd5 Rdxd7 37. Qh5 Qe6+ 38. f5 Qd6 39.\na4 Qg3# 0-1",
+  "player": "cmess4401",
+  "player_color": "BLACK",
+  "move_number": 22,
+  "ply": 43,
+  "fen_before": "2r3rk/pp1bnp1n/4p2p/2qpP2Q/5P1P/PP1B4/1BPNR2K/R7 b - - 7 22",
+  "fen_after": "2r3rk/pp1b1p1n/4p2p/2qpPn1Q/5P1P/PP1B4/1BPNR2K/R7 w - - 8 23",
+  "played_move": {
+    "san": "Nf5",
+    "uci": "e7f5",
+    "in_multipv": false,
+    "multipv_rank": null,
+    "source": "independent",
+    "score": {
+      "kind": "cp",
+      "white_cp": 277,
+      "white_mate": null
+    },
+    "player_score": {
+      "player_color": "black",
+      "kind": "cp",
+      "cp": -277,
+      "mate": null,
+      "as_cp_units": -277
+    },
+    "pv_san": [
+      "Nf5"
+    ],
+    "purpose": "D2",
+    "consequence": {
+      "tags": [],
+      "gives_check": false,
+      "is_capture": false,
+      "is_mate": false,
+      "material_delta_cp": 0,
+      "opponent_pv_san": null
+    }
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "san": "Rg7",
+      "uci": "g8g7",
+      "pv_san": [
+        "Rg7",
+        "b4",
+        "Qb6",
+        "Nb3",
+        "Rcg8",
+        "Bd4"
+      ],
+      "player_score": {
+        "player_color": "black",
+        "kind": "cp",
+        "cp": -85,
+        "mate": null,
+        "as_cp_units": -85
+      },
+      "eval_gap_cp": 192,
+      "same_move": false,
+      "purpose": "D2",
+      "purpose_differs": false,
+      "consequence_tags": []
+    },
+    {
+      "rank": 2,
+      "san": "Ng6",
+      "uci": "e7g6",
+      "pv_san": [
+        "Ng6",
+        "Qxh6",
+        "Bb5",
+        "b4",
+        "Bxd3",
+        "bxc5",
+        "Bxe2",
+        "f5",
+        "Ne7",
+        "Qe3",
+        "Bh5",
+        "fxe6",
+        "fxe6"
+      ],
+      "player_score": {
+        "player_color": "black",
+        "kind": "cp",
+        "cp": -151,
+        "mate": null,
+        "as_cp_units": -151
+      },
+      "eval_gap_cp": 126,
+      "same_move": false,
+      "purpose": "D2",
+      "purpose_differs": false,
+      "consequence_tags": []
+    },
+    {
+      "rank": 3,
+      "san": "Bb5",
+      "uci": "d7b5",
+      "pv_san": [
+        "Bb5",
+        "c4",
+        "dxc4",
+        "bxc4",
+        "Bc6",
+        "Nb3",
+        "Qb6",
+        "Qxh6",
+        "Ng6",
+        "Nd4",
+        "Rcd8",
+        "Rd1",
+        "Nf8",
+        "Nxc6",
+        "bxc6"
+      ],
+      "player_score": {
+        "player_color": "black",
+        "kind": "cp",
+        "cp": -161,
+        "mate": null,
+        "as_cp_units": -161
+      },
+      "eval_gap_cp": 116,
+      "same_move": false,
+      "purpose": "D2",
+      "purpose_differs": false,
+      "consequence_tags": []
+    }
+  ],
+  "actual_result": {
+    "eval_gap_vs_best_cp": 192,
+    "played_is_best": false,
+    "best_san": "Rg7",
+    "abstention": {
+      "status": "NONE",
+      "reasons": [
+        "CLEAR_EVAL_GAP"
+      ],
+      "may_diagnose": true,
+      "message": "Objective gap is sufficient to allow a later chess diagnosis."
+    },
+    "primary_error": null
+  },
+  "expected_result": {},
+  "human_label": {
+    "confirmed": null,
+    "comment": ""
+  },
+  "evidence": {
+    "engine": "Stockfish",
+    "multipv": 3,
+    "layer": "evidence",
+    "inference_as_fact": false
+  },
+  "status": "PENDING_REVIEW",
+  "notes": "",
+  "criticality": {
+    "score": 3.6,
+    "level": "Relevant",
+    "critical": false
+  },
+  "eval_loss": {
+    "eval_delta": -178,
+    "eval_loss": 178,
+    "cp_loss": 178
+  }
+}
