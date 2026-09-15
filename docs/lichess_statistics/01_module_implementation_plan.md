@@ -18,7 +18,7 @@ Lichess NDJSON (official API)
 
 Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_tool.md).
 
-**Last status update:** 2026-09-15 (LS01-002 done).
+**Last status update:** 2026-09-15 (LS01-003 done).
 
 ### Current progress
 
@@ -26,7 +26,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 |---|---|---|
 | LS01.0 NDJSON client (LS01-001) | ✅ Done | `src/lichess_statistics/client.py`; fixture `tests/lichess_statistics/fixtures/cmess4401_rapid_two_games.ndjson`. |
 | LS01.0 Filters (LS01-002) | ✅ Done | `filters.py`: skip `aiLevel` / name `lichess AI *`; skip &lt;10 plies. Titled BOT kept. |
-| LS01.0 Project `game_id` (LS01-003) | ⬜ Todo | SHA256 of PGN as in `get_game_id` (`src/modules/pgn_utils.py`). Store Lichess `id` only as metadata. |
+| LS01.0 Project `game_id` (LS01-003) | ✅ Done | `game_id.py` wraps `pgn_utils.get_game_id`; `lichess_id` is metadata. |
 | LS01.1 SQLite schema (LS01-004) | ⬜ Todo | Separate file; not `course_data.sqlite`, not product PostgreSQL `games`/`features`. |
 | LS01.2 Game metadata (LS01-005) | ⬜ Todo | G/T/P, ratings, ECO, clocks, opening. |
 | LS01.3 Lichess cloud evals (LS01-006) | ⬜ Todo | Prefer API `evals=true`. |
@@ -97,7 +97,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 |---|---|---|---|---|---|---|---|
 | LS01-001 | Lichess NDJSON client | username, since/until, perfType | Stream of game objects (`id`, pgn, players, evals…) | Fixture NDJSON `cmess4401` rapid | P0 | ✅ Done | `LichessClient.iter_user_games`; official `GET /api/games/user/{user}`; `Accept: application/x-ndjson`; `clocks`/`evals`/`opening`; timeout; retries; HTTP 429 wait ≥60s. Tests: `tests/lichess_statistics/test_ls01_001_ndjson_client.py`. Branch `feature/ls01_001_ndjson_client`. |
 | LS01-002 | Import filters | NDJSON game | Keep / skip + reason | AI bot game skipped; 8-move game skipped; 40-move human kept | P0 | ✅ Done | `filter_import_game`; reasons `lichess_ai` / `too_short`; ply count from `moves` or PGN. Tests: `tests/lichess_statistics/test_ls01_002_import_filters.py`. Branch `feature/ls01_002_import_filters`. |
-| LS01-003 | Project `game_id` | PGN text | SHA256 hex, stable | Same PGN → same id as `pgn_utils.get_game_id` | P0 | ⬜ Todo | Primary key in SQLite. Persist `lichess_id` separately if present. |
+| LS01-003 | Project `game_id` | PGN text | SHA256 hex, stable | Same PGN → same id as `pgn_utils.get_game_id` | P0 | ✅ Done | `identity_from_ndjson`; primary key SHA256; `lichess_id` metadata. Tests: `tests/lichess_statistics/test_ls01_003_game_id.py`. Branch `feature/ls01_003_game_id`. |
 
 ### 01.1 — SQLite persistence
 
@@ -236,7 +236,7 @@ NDJSON fixture
 
 - [x] LS01-001 — NDJSON client
 - [x] LS01-002 — Filters
-- [ ] LS01-003 — Project `game_id`
+- [x] LS01-003 — Project `game_id`
 - [ ] LS01-004 — SQLite schema
 - [ ] LS01-005 — Metadata G/T/P + ratings
 - [ ] LS01-006 — Lichess cloud evals
