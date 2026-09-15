@@ -49,9 +49,10 @@ def test_iter_user_games_streams_fixture_objects():
     client = LichessClient(session=session, token=None)
     games = list(client.iter_user_games("cmess4401", perf_type="rapid"))
 
-    assert [g["id"] for g in games] == ["ls01fix001", "ls01fix002"]
-    assert games[0]["players"]["white"]["user"]["name"] == "cmess4401"
-    assert "evals" in games[0]
+    assert [g["id"] for g in games] == ["tOsxrK57", "ApzutTLl"]
+    assert games[0]["players"]["black"]["user"]["name"] == "cmess4401"
+    assert games[0]["pgn"].startswith("[Event")
+    assert f"https://lichess.org/{games[0]['id']}" in games[0]["pgn"]
     assert "opening" in games[0]
     assert session.get.call_args.kwargs["stream"] is True
     params = session.get.call_args.kwargs["params"]
