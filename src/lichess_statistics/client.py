@@ -45,6 +45,15 @@ def _to_millis(value: datetime | str | int | None, *, end_of_day: bool = False) 
     return int(value.timestamp() * 1000)
 
 
+def lichess_token_from_env() -> str | None:
+    """Prefer ``LICHESS_API_TOKEN`` (repo .env), then ``LICHESS_TOKEN``."""
+    for key in ("LICHESS_API_TOKEN", "LICHESS_TOKEN"):
+        value = (os.environ.get(key) or "").strip()
+        if value:
+            return value
+    return None
+
+
 class LichessClient:
     """Official export API client. Yields one JSON object per game (does not buffer the archive)."""
 
@@ -58,8 +67,8 @@ class LichessClient:
         session: requests.Session | None = None,
         sleep: Any = time.sleep,
     ) -> None:
-        env_token = os.environ.get("LICHESS_TOKEN") or None
-        self._token = token if token is not None else env_token
+        env_token = lichess_token_from_env()
+        self._token = env_token if token is None else token
         self.timeout_s = timeout_s
         self.max_retries = max_retries
         self.rate_limit_wait_s = rate_limit_wait_s

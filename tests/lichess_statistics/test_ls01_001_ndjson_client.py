@@ -106,11 +106,22 @@ def test_skips_invalid_ndjson_and_continues():
 
 def test_token_sets_authorization_header(monkeypatch):
     monkeypatch.delenv("LICHESS_TOKEN", raising=False)
+    monkeypatch.delenv("LICHESS_API_TOKEN", raising=False)
     session = MagicMock()
     session.get.return_value = _FakeResponse(200, [b'{"id":"a"}'])
     client = LichessClient(session=session, token="secret-token")
     list(client.iter_user_games("user"))
     assert session.get.call_args.kwargs["headers"]["Authorization"] == "Bearer secret-token"
+
+
+def test_env_lichess_api_token_is_preferred(monkeypatch):
+    monkeypatch.setenv("LICHESS_API_TOKEN", "api-token-from-env")
+    monkeypatch.setenv("LICHESS_TOKEN", "legacy-token")
+    session = MagicMock()
+    session.get.return_value = _FakeResponse(200, [b'{"id":"a"}'])
+    client = LichessClient(session=session)
+    list(client.iter_user_games("user"))
+    assert session.get.call_args.kwargs["headers"]["Authorization"] == "Bearer api-token-from-env"
 
 
 def test_http_429_waits_at_least_60_seconds():

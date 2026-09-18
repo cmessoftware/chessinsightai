@@ -5,8 +5,6 @@ import io
 from pathlib import Path
 from typing import Tuple
 
-from nbconvert import ScriptExporter
-
 # Validate pgn text
 
 

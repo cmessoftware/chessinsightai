@@ -18,7 +18,7 @@ Lichess NDJSON (official API)
 
 Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_tool.md).
 
-**Last status update:** 2026-09-15 (LS01-003 done).
+**Last status update:** 2026-09-17 (LS01-014 done).
 
 ### Current progress
 
@@ -27,17 +27,17 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | LS01.0 NDJSON client (LS01-001) | ✅ Done | `src/lichess_statistics/client.py`; fixture `tests/lichess_statistics/fixtures/cmess4401_rapid_two_games.ndjson`. |
 | LS01.0 Filters (LS01-002) | ✅ Done | `filters.py`: skip `aiLevel` / name `lichess AI *`; skip &lt;10 plies. Titled BOT kept. |
 | LS01.0 Project `game_id` (LS01-003) | ✅ Done | `game_id.py` wraps `pgn_utils.get_game_id`; `lichess_id` is metadata. |
-| LS01.1 SQLite schema (LS01-004) | ⬜ Todo | Separate file; not `course_data.sqlite`, not product PostgreSQL `games`/`features`. |
-| LS01.2 Game metadata (LS01-005) | ⬜ Todo | G/T/P, ratings, ECO, clocks, opening. |
-| LS01.3 Lichess cloud evals (LS01-006) | ⬜ Todo | Prefer API `evals=true`. |
-| LS01.3 Local Stockfish fallback (LS01-007) | ⬜ Todo | Only when cloud evals missing or incomplete. |
-| LS01.4 POV + win% (LS01-008) | ⬜ Todo | Player-perspective cp/mate → win probability (Lichess). |
-| LS01.4 AccuracyPercent (LS01-009) | ⬜ Todo | Port public Lichess algorithm; overall ≠ mean of phases. |
-| LS01.4 Phase classifier (LS01-010) | ⬜ Todo | Replaceable component; Lichess divider preferred over piece-count fallback. |
-| LS01.4 Judgments (LS01-011) | ⬜ Todo | Inaccuracy / mistake / blunder from Lichess win% insight, not ML `error_label`. |
-| LS01.5 Export XLSX/CSV (LS01-012) | ⬜ Todo | Sheet `Jugar en Lichess`; fixed column order. |
-| LS01.6 CLI (LS01-013) | ⬜ Todo | `sync` / `analyze` / `export`; `LICHESS_TOKEN` from `.env`. |
-| LS01.7 Aggregates (LS01-014) | ⬜ Todo | Queries over stored stats; no extra engine. |
+| LS01.1 SQLite schema (LS01-004) | ✅ Done | `db.py`: `games` / `evals` / `stats`; PK `game_id`; second insert is `INSERT OR IGNORE`. |
+| LS01.2 Game metadata (LS01-005) | ✅ Done | `import_games.py`: user POV `G`/`T`/`P`; `ranking_final = inicial + variacion`. |
+| LS01.3 Lichess cloud evals (LS01-006) | ✅ Done | `evals.py`: complete `analysis` → one row/ply, `fuente_evaluacion=lichess`. |
+| LS01.3 Local Stockfish fallback (LS01-007) | ✅ Done | `StockfishAnalysisService`; `fuente_evaluacion=stockfish_local`; `--force-stockfish` flag. |
+| LS01.4 POV + win% (LS01-008) | ✅ Done | `accuracy.py`: Lichess `WinPercent`; user POV; mate → ±1000 cp. |
+| LS01.4 AccuracyPercent (LS01-009) | ✅ Done | `accuracy.py`: per-move + volatility/harmonic mean → `precision_general`. |
+| LS01.4 Phase classifier (LS01-010) | ✅ Done | `phases.py`: NDJSON `division` → Divider port → piece-count fallback. |
+| LS01.4 Judgments (LS01-011) | ✅ Done | Insight bands 10/20/30% winningChances; counts + mean eval-swing ACPL. |
+| LS01.5 Export XLSX/CSV (LS01-012) | ✅ Done | `export.py`: sheet `Jugar en Lichess`; UTF-8 CSV; no macros. |
+| LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
+| LS01.7 Aggregates (LS01-014) | ✅ Done | `aggregates.py`; means always carry `n` + period; CLI `stats`. |
 | UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Out of this epic. |
 
 ## Principles
@@ -48,7 +48,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 - Do not write to product `games` / `features` or change `games.game_id` semantics in PostgreSQL.
 - Prefer Lichess cloud evaluations; local Stockfish is fallback only. Mixing sources on the same spreadsheet without `fuente_evaluacion` is forbidden.
 - Accuracy and judgments follow **Lichess win%**, not raw 50/100/300 cp and not the ML classifier.
-- Never log `LICHESS_TOKEN`.
+- Never log `LICHESS_API_TOKEN` or `LICHESS_TOKEN`.
 - No UI in this epic.
 - Aggregates are SQL/services over persisted rows, not a second analysis engine.
 - Tests must not call the live Lichess API (NDJSON fixtures).
@@ -62,7 +62,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | Isolation | Separate Python package + tests. Exclusive Lichess statistics epic. |
 | Accuracy | Lichess `AccuracyPercent` (win%, volatility-weighted mean, harmonic mean, average of both). |
 | Eval source | Lichess cloud first; local Stockfish if incomplete. |
-| Auth | `LICHESS_TOKEN` in `.env`, optional but required for large exports / rate limits. |
+| Auth | `LICHESS_API_TOKEN` in `.env` (preferred; same name as the rest of the repo), then `LICHESS_TOKEN`. Optional but required for large exports / rate limits. |
 | Git | `feature/lichess_statistics_tool`. |
 | Filters | Skip Lichess AI opponents and games with fewer than 10 moves. |
 
@@ -103,47 +103,47 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-004 | Schema and unique `game_id` | SQLite URL | Tables `games`, `evals`, `stats` | Second insert of same `game_id` is no-op | P0 | ⬜ Todo | Tool-owned SQLite. No Alembic on product Postgres. Schema created by the module. |
+| LS01-004 | Schema and unique `game_id` | SQLite URL | Tables `games`, `evals`, `stats` | Second insert of same `game_id` is no-op | P0 | ✅ Done | `StatisticsRepository`; default `data/lichess_statistics.sqlite`. Tests: `tests/lichess_statistics/test_ls01_004_sqlite_schema.py`. Branch `feature/ls01_004_sqlite_schema`. |
 
 ### 01.2 — Game metadata
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-005 | Per-game basics | NDJSON + PGN | Row: date, user, color, opponent, G/T/P, time control, duration, ratings, opening, ECO, move count, PGN | One win, one draw, one loss; `ranking_final = inicial + variacion` | P0 | ⬜ Todo | Result from **user** POV: `G` / `T` / `P`. |
+| LS01-005 | Per-game basics | NDJSON + PGN | Row: date, user, color, opponent, G/T/P, time control, duration, ratings, opening, ECO, move count, PGN | One win, one draw, one loss; `ranking_final = inicial + variacion` | P0 | ✅ Done | `game_row_from_ndjson` / `GameImportService`. Draw fixture `cmess4401_rapid_draw.ndjson` (`5bJcGi3M`). Tests: `tests/lichess_statistics/test_ls01_005_game_metadata.py`. Branch `feature/ls01_005_game_metadata`. |
 
 ### 01.3 — Evaluations
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-006 | Lichess cloud evals | NDJSON `evals` | One eval row per ply when complete | Fixture with complete cloud evals → `fuente_evaluacion=lichess` | P0 | ⬜ Todo | Uniform config snapshot stored (engine name/version if present). |
-| LS01-007 | Local Stockfish fallback | PGN without complete evals | Same ply schema; `fuente_evaluacion=stockfish_local` | Incomplete evals game analyzed locally; complete cloud game **not** reanalyzed | P0 | ⬜ Todo | `STOCKFISH_PATH`, depth / movetime / threads / hash from config. `--force-stockfish` overrides. |
+| LS01-006 | Lichess cloud evals | NDJSON `evals` | One eval row per ply when complete | Fixture with complete cloud evals → `fuente_evaluacion=lichess` | P0 | ✅ Done | `persist_cloud_evals`; incomplete / missing analysis is skipped (LS01-007). Tests: `tests/lichess_statistics/test_ls01_006_lichess_cloud_evals.py`. Branch `feature/ls01_006_lichess_cloud_evals`. |
+| LS01-007 | Local Stockfish fallback | PGN without complete evals | Same ply schema; `fuente_evaluacion=stockfish_local` | Incomplete evals game analyzed locally; complete cloud game **not** reanalyzed | P0 | ✅ Done | `persist_evals`; `STOCKFISH_PATH`, depth / movetime / threads / hash. `force_stockfish` overrides cloud. Tests: `tests/lichess_statistics/test_ls01_007_stockfish_fallback.py`. Branch `feature/ls01_007_stockfish_fallback`. |
 
 ### 01.4 — Accuracy (Lichess)
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-008 | POV + win% | cp or mate, user color | Win probability before/after each user move | White and Black fixtures; mate sign | P0 | ⬜ Todo | Document any rounding vs Lichess Scala. |
-| LS01-009 | AccuracyPercent | Per-move win% series | `precision_general` 0–100 | Golden vs Lichess UI/API accuracy ± documented tolerance (e.g. 1.0) | P0 | ⬜ Todo | cp→win%; per-move accuracy; volatility-weighted mean; harmonic mean; average of both. **Not** the mean of opening/middle/end. |
-| LS01-010 | Phase classifier | Board / material per ply | `opening` / `middlegame` / `endgame` | Same game: phase labels + phase accuracies | P0 | ⬜ Todo | Port Lichess divider; piece-count (`features_generator`) only as documented fallback. Independent component. |
-| LS01-011 | Judgments | Win% drop per move | Counts: imprecisiones, errores, errores graves; `perdida_promedio_cp` | Counts match Lichess analysis page within tolerance | P0 | ⬜ Todo | Lichess Insight / win% bands, not ML `error_label`. |
+| LS01-008 | POV + win% | cp or mate, user color | Win probability before/after each user move | White and Black fixtures; mate sign | P0 | ✅ Done | `win_percent_user_pov`; k=-0.00368208; Cp.initial=15; Python float vs JVM Double (no extra rounding). Tests: `tests/lichess_statistics/test_ls01_008_pov_winpercent.py`. Branch `feature/ls01_008_pov_winpercent`. |
+| LS01-009 | AccuracyPercent | Per-move win% series | `precision_general` 0–100 | Golden vs Lichess UI/API accuracy ± documented tolerance (e.g. 1.0) | P0 | ✅ Done | Port of lila `AccuracyPercent.gameAccuracy`; not mean of phases. Tests: `tests/lichess_statistics/test_ls01_009_accuracy_percent.py`. Branch `feature/ls01_009_accuracy_percent`. UI golden ±1.0 still HITL. |
+| LS01-010 | Phase classifier | Board / material per ply | `opening` / `middlegame` / `endgame` | Same game: phase labels + phase accuracies | P0 | ✅ Done | Prefer NDJSON `division`; else scalachess Divider; else `features_generator` piece-count. Tests: `tests/lichess_statistics/test_ls01_010_phase_classifier.py`. Branch `feature/ls01_010_phase_classifier`. |
+| LS01-011 | Judgments | Win% drop per move | Counts: imprecisiones, errores, errores graves; `perdida_promedio_cp` | Counts match Lichess analysis page within tolerance | P0 | ✅ Done | `Advice.scala` bands on `winningChances` [-1,1]; not ML `error_label`. ACPL = mean user eval swing (Lichess UI `acpl` is vs-best; ±1 on `tOsxrK57`). Tests: `tests/lichess_statistics/test_ls01_011_judgments.py`. Branch `feature/ls01_011_judgments`. |
 
 ### 01.5 — Export
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-012 | CSV + XLSX | Stats rows | Files open in Excel and Google Sheets; sheet `Jugar en Lichess`; column order as spec | Snapshot test of headers + one data row | P0 | ⬜ Todo | Precisions numeric 0–100. No macros. `Comentarios` may be empty. |
+| LS01-012 | CSV + XLSX | Stats rows | Files open in Excel and Google Sheets; sheet `Jugar en Lichess`; column order as spec | Snapshot test of headers + one data row | P0 | ✅ Done | `ExcelStatisticsExporter`; precisions numeric 0–100; `Comentarios` empty. Tests: `tests/lichess_statistics/test_ls01_012_csv_xlsx.py`. Branch `feature/ls01_012_csv_xlsx`. |
 
 ### 01.6 — CLI
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-013 | CLI commands | argv + `.env` | `sync`, `analyze --only-missing`, `export`; download-only; analyze-only; reprocess game/period; `--max-games`; `--perf-type`; `--force-stockfish` | Help + dry-run on fixture (no network) | P0 | ⬜ Todo | Adapt module path to repo (`src/lichess_statistics`, argparse like other scripts). `LICHESS_TOKEN` from env. Logs: downloaded/new/skipped/lichess-analyzed/local-analyzed/errors/timings. |
+| LS01-013 | CLI commands | argv + `.env` | `sync`, `analyze --only-missing`, `export`; download-only; analyze-only; reprocess game/period; `--max-games`; `--perf-type`; `--force-stockfish` | Help + dry-run on fixture (no network) | P0 | ✅ Done | `cli.py` / `service.py`; `python -m lichess_statistics`. Token from `.env`, never logged. Tests: `tests/lichess_statistics/test_ls01_013_cli.py`. Branch `feature/ls01_013_cli`. |
 
 ### 01.7 — Aggregates
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-014 | Aggregate queries | SQLite stats | Rating evolution; mean ACPL; mean accuracy; mean by phase; judgment counts; W/B; opening; month; period compare; last N | Fixture of ≥5 games; averages include **n** and period | P1 | ⬜ Todo | Read-only over stored metrics. |
+| LS01-014 | Aggregate queries | SQLite stats | Rating evolution; mean ACPL; mean accuracy; mean by phase; judgment counts; W/B; opening; month; period compare; last N | Fixture of ≥5 games; averages include **n** and period | P1 | ✅ Done | `AggregateQueryService`; nulls excluded from means (`n` vs `n_games`). CLI `stats`. Tests: `tests/lichess_statistics/test_ls01_014_aggregates.py`. Branch `feature/ls01_014_aggregates`. |
 
 ## 3. Per-feature test format
 
@@ -237,16 +237,16 @@ NDJSON fixture
 - [x] LS01-001 — NDJSON client
 - [x] LS01-002 — Filters
 - [x] LS01-003 — Project `game_id`
-- [ ] LS01-004 — SQLite schema
-- [ ] LS01-005 — Metadata G/T/P + ratings
-- [ ] LS01-006 — Lichess cloud evals
-- [ ] LS01-007 — Local Stockfish fallback
-- [ ] LS01-008 — POV + win%
-- [ ] LS01-009 — AccuracyPercent
-- [ ] LS01-010 — Phases
-- [ ] LS01-011 — Judgments + ACPL
-- [ ] LS01-012 — CSV/XLSX
-- [ ] LS01-013 — CLI sync/analyze/export
+- [x] LS01-004 — SQLite schema
+- [x] LS01-005 — Metadata G/T/P + ratings
+- [x] LS01-006 — Lichess cloud evals
+- [x] LS01-007 — Local Stockfish fallback
+- [x] LS01-008 — POV + win%
+- [x] LS01-009 — AccuracyPercent
+- [x] LS01-010 — Phases
+- [x] LS01-011 — Judgments + ACPL
+- [x] LS01-012 — CSV/XLSX
+- [x] LS01-013 — CLI sync/analyze/export
 
 ### Out of scope for this increment
 
@@ -296,9 +296,9 @@ NDJSON fixture
 
 ### Phase 5 — CLI, observability, aggregates
 
-- [ ] Commands: download-only, analyze-only, export-only, reprocess, `--max-games`.
-- [ ] Counters in logs (no token).
-- [ ] LS01-014 queries with n + period.
+- [x] Commands: download-only, analyze-only, export-only, reprocess, `--max-games`.
+- [x] Counters in logs (no token).
+- [x] LS01-014 queries with n + period.
 
 **Completion criterion:** `cmess4401` rapid window can be synced, analyzed, and exported twice without duplicate rows.
 
