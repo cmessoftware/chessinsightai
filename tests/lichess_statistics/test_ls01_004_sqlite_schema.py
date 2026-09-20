@@ -70,6 +70,17 @@ def test_second_insert_same_game_id_is_noop(tmp_path: Path):
     assert count == 1
 
 
+def test_same_lichess_id_different_pgn_reuses_stored_game_id(tmp_path: Path):
+    conn, repo = _repo(tmp_path)
+    first = repo.insert_game("hash-aaaa", lichess_id="sameLichess", pgn="pgn-a", usuario="cmess4401")
+    second = repo.insert_game("hash-bbbb", lichess_id="sameLichess", pgn="pgn-b", usuario="other")
+    assert first.inserted is True
+    assert second.inserted is False
+    assert second.game_id == "hash-aaaa"
+    assert repo.get_game("hash-bbbb") is None
+    assert conn.execute("SELECT COUNT(*) FROM games").fetchone()[0] == 1
+
+
 def test_two_fixture_games_insert_as_two_rows(tmp_path: Path):
     _, repo = _repo(tmp_path)
     ids: list[str] = []

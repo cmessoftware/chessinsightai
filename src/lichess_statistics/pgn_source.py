@@ -1,4 +1,4 @@
-"""Convert a multi-game PGN file into NDJSON-shaped dicts for GameImportService."""
+"""Convert a Lichess multi-game PGN export into NDJSON-shaped dicts."""
 
 from __future__ import annotations
 
@@ -8,11 +8,23 @@ from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
 import chess.pgn
 
-_SITE_ID = re.compile(r"(?:lichess\.org|chess\.com/(?:game/live|live/game))/([A-Za-z0-9_-]+)", re.I)
+from lichess_statistics.filters import (
+    REASON_INCOMPLETE_HEADERS,
+    REASON_INVALID_RESULT,
+    REASON_NOT_LICHESS,
+    REASON_PGN_ERRORS,
+    REASON_UNFINISHED,
+)
+
+_LICHESS_GAME = re.compile(
+    r"lichess\.org/(?:embed/)?([A-Za-z0-9]{8,12})",
+    re.I,
+)
+_FINISHED = {"1-0", "0-1", "1/2-1/2", "½-½"}
+SKIP_KEY = "_skip"
 
 
 def _header(game: chess.pgn.Game, name: str) -> str:
@@ -43,8 +55,6 @@ def _winner(result: str) -> str | None:
         return "white"
     if result == "0-1":
         return "black"
-    if result in {"1/2-1/2", "½-½"}:
-        return None
     return None
 
 
@@ -110,22 +120,32 @@ def _speed_from_clock(clock: dict[str, int] | None, event: str) -> str | None:
     return "classical"
 
 
-def _external_id(game: chess.pgn.Game, pgn_text: str) -> str | None:
+def _combined_text(game: chess.pgn.Game, pgn_text: str) -> str:
+    parts = [
+        _header(game, "Site"),
+        _header(game, "Link"),
+        _header(game, "GameId"),
+        _header(game, "LichessId"),
+        pgn_text,
+    ]
+    return " ".join(part for part in parts if part)
+
+
+def is_lichess_export(game: chess.pgn.Game, pgn_text: str) -> bool:
+    blob = _combined_text(game, pgn_text).lower()
+    if "chess.com" in blob:
+        return False
+    if _header(game, "GameId") or _header(game, "LichessId"):
+        return True
+    return "lichess.org" in blob
+
+
+def lichess_id_from_pgn(game: chess.pgn.Game, pgn_text: str) -> str | None:
     for key in ("GameId", "LichessId"):
         raw = _header(game, key)
         if raw:
             return raw
-    for key in ("Site", "Link"):
-        raw = _header(game, key)
-        match = _SITE_ID.search(raw)
-        if match:
-            return match.group(1)
-        parsed = urlparse(raw)
-        if parsed.path:
-            tail = parsed.path.rstrip("/").split("/")[-1]
-            if tail and re.fullmatch(r"[A-Za-z0-9_-]{6,}", tail):
-                return tail
-    match = _SITE_ID.search(pgn_text)
+    match = _LICHESS_GAME.search(_combined_text(game, pgn_text))
     return match.group(1) if match else None
 
 
@@ -143,31 +163,66 @@ def _pgn_text(game: chess.pgn.Game) -> str:
     return game.accept(exporter).strip() + "\n"
 
 
+def _skip_payload(reason: str, game: chess.pgn.Game, pgn_text: str) -> dict[str, Any]:
+    return {
+        SKIP_KEY: reason,
+        "id": lichess_id_from_pgn(game, pgn_text),
+        "pgn": pgn_text,
+        "source": "pgn",
+    }
+
+
+def _result_skip(result: str) -> str | None:
+    if result in _FINISHED:
+        return None
+    if result in {"*", ""}:
+        return REASON_UNFINISHED
+    return REASON_INVALID_RESULT
+
+
 def ndjson_from_pgn_game(game: chess.pgn.Game, pgn_text: str | None = None) -> dict[str, Any]:
-    """One chess.pgn.Game → dict compatible with GameImportService."""
+    """One chess.pgn.Game → dict compatible with GameImportService, or a skip record."""
     pgn_text = (pgn_text or "").strip() or _pgn_text(game)
+    try:
+        list(game.mainline_moves())
+    except ValueError:
+        return _skip_payload(REASON_PGN_ERRORS, game, pgn_text)
+    if getattr(game, "errors", None):
+        return _skip_payload(REASON_PGN_ERRORS, game, pgn_text)
+    if not is_lichess_export(game, pgn_text):
+        return _skip_payload(REASON_NOT_LICHESS, game, pgn_text)
+    white = _header(game, "White")
+    black = _header(game, "Black")
+    if not white or not black:
+        return _skip_payload(REASON_INCOMPLETE_HEADERS, game, pgn_text)
+    result = _header(game, "Result")
+    result_reason = _result_skip(result)
+    if result_reason:
+        return _skip_payload(result_reason, game, pgn_text)
+
     clock = _clock(game)
     event = _header(game, "Event")
     speed = _speed_from_clock(clock, event)
     eco = _header(game, "ECO") or None
     opening = _header(game, "Opening") or None
     payload: dict[str, Any] = {
-        "id": _external_id(game, pgn_text),
+        "id": lichess_id_from_pgn(game, pgn_text),
         "rated": "rated" in event.lower() if event else None,
         "variant": (_header(game, "Variant") or "standard").lower(),
         "speed": speed,
         "perf": speed,
         "createdAt": _created_at_ms(game),
-        "status": "mate" if _header(game, "Termination").lower() == "normal" else "unknown",
-        "winner": _winner(_header(game, "Result")),
+        "status": "draw" if result in {"1/2-1/2", "½-½"} else "finished",
+        "winner": _winner(result),
+        "pgnResult": result,
         "players": {
             "white": _player(
-                _header(game, "White"),
+                white,
                 _int_header(game, "WhiteElo"),
                 _int_header(game, "WhiteRatingDiff"),
             ),
             "black": _player(
-                _header(game, "Black"),
+                black,
                 _int_header(game, "BlackElo"),
                 _int_header(game, "BlackRatingDiff"),
             ),
@@ -188,6 +243,8 @@ def iter_pgn_file(path: str | Path) -> Iterator[dict[str, Any]]:
         text = raw.decode("utf-8-sig")
     except UnicodeDecodeError:
         text = raw.decode("latin-1")
+    if text.lstrip().startswith("version https://git-lfs.github.com"):
+        raise ValueError(f"{path} looks like a Git LFS pointer, not a PGN export")
     handle = io.StringIO(text)
     while True:
         start = handle.tell()

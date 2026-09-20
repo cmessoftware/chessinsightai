@@ -36,7 +36,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | LS01.4 Phase classifier (LS01-010) | ✅ Done | `phases.py`: NDJSON `division` → Divider port → piece-count fallback. |
 | LS01.4 Judgments (LS01-011) | ✅ Done | Insight bands 10/20/30% winningChances; counts + mean eval-swing ACPL. |
 | LS01.5 Export XLSX/CSV (LS01-012) | ✅ Done | `export.py`: sheet `Jugar en Lichess`; UTF-8 CSV; no macros. |
-| LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; `--from-pgn` multi-game file; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
+| LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; `--from-pgn` **Lichess export only**; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
 | LS01.7 Aggregates (LS01-014) | ✅ Done | `aggregates.py`; means always carry `n` + period; CLI `stats`. |
 | UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Out of this epic. |
 

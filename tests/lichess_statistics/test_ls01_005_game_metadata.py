@@ -44,7 +44,7 @@ def test_time_control_labels_use_minutes_plus_increment():
 def test_ranking_final_is_inicial_plus_variacion():
     assert ranking_final(1640, 8) == 1648
     assert ranking_final(1647, -7) == 1640
-    assert ranking_final(1611, None) == 1611
+    assert ranking_final(1611, None) is None
     assert ranking_final(None, 4) is None
 
 

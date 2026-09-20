@@ -58,7 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sync.add_argument(
         "--from-pgn",
-        help="Import a multi-game PGN (Chess.com / Lichess / generic) instead of calling Lichess",
+        help="Import a Lichess multi-game PGN export (Chess.com / generic PGN is rejected)",
     )
     sync.add_argument(
         "--download-only",
@@ -165,6 +165,9 @@ def run(argv: list[str] | None = None) -> int:
             force_stockfish=args.force_stockfish,
             max_games=args.max_games,
             dry_run=args.dry_run,
+            since=args.since,
+            until=args.until,
+            perf_type=args.perf_type,
         )
         return 0
     if args.command == "analyze":
