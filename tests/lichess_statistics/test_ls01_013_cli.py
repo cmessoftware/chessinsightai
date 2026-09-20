@@ -78,6 +78,7 @@ def test_help_lists_sync_analyze_export():
     assert "--force-stockfish" in sync_text
     assert "--download-only" in sync_text
     assert "--from-ndjson" in sync_text
+    assert "--from-pgn" in sync_text
     assert "--only-missing" in analyze_text
     assert "--lichess-id" in analyze_text
     assert "--output" in export_text

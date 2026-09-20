@@ -20,7 +20,8 @@ from lichess_statistics.evals import (
 )
 from lichess_statistics.export import ExcelStatisticsExporter, rows_from_repository
 from lichess_statistics.filters import filter_import_game
-from lichess_statistics.import_games import GameImportService
+from lichess_statistics.import_games import GameImportService, GameMetadataError
+from lichess_statistics.pgn_source import iter_pgn_file
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,10 @@ class GameStatisticsService:
                     stockfish_service=self._stockfish,
                     analyze=analyze,
                 )
+            except GameMetadataError:
+                report.skipped += 1
+                logger.info("skipped id=%s reason=user_not_in_game", game.get("id"))
+                continue
             except Exception:
                 report.errors += 1
                 logger.exception("Failed to import game id=%s", game.get("id"))

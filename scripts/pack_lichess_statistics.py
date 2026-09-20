@@ -37,6 +37,7 @@ No hace falta instalar Python. Copiá ESTA CARPETA completa a la otra PC.
    lichess_statistics.exe --help
 
    lichess_statistics.exe sync --username TU_USER --perf-type rapid --max-games 20
+   lichess_statistics.exe sync --username TU_USER --from-pgn partidas.pgn --force-stockfish
    lichess_statistics.exe export --username TU_USER --last-n 20 --output lichess_statistics.xlsx
    lichess_statistics.exe stats --username TU_USER --perf-type rapid --last-n 20
 
@@ -82,6 +83,8 @@ def main() -> int:
         "lichess_statistics.cli",
         "--hidden-import",
         "lichess_statistics.client",
+        "--hidden-import",
+        "lichess_statistics.pgn_source",
         "--hidden-import",
         "modules.pgn_utils",
         "--hidden-import",
