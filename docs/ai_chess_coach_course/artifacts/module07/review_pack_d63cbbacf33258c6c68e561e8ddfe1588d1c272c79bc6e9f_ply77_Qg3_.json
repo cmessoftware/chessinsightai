@@ -1,0 +1,174 @@
+{
+  "schema_version": "chessinsight.review_pack.v1",
+  "feature_id": "F07-035",
+  "case_id": "d63cbbacf33258c6c68e561e8ddfe1588d1c272c79bc6e9f24e4df6509ec07bb-ply77-Qg3#",
+  "game_id": "d63cbbacf33258c6c68e561e8ddfe1588d1c272c79bc6e9f24e4df6509ec07bb",
+  "pgn_source": "C:\\Users\\sergiosal\\source\\repos\\chessinsightai\\docs\\ai_chess_coach_course\\data\\games\\sample_game_rapid3.pgn",
+  "pgn": "[Event \"rated rapid game\"]\n[Site \"https://lichess.org/TmWdfU9g\"]\n[Date \"2026.09.11\"]\n[Round \"-\"]\n[White \"Meteor_2020\"]\n[Black \"cmess4401\"]\n[Result \"0-1\"]\n[GameId \"TmWdfU9g\"]\n[UTCDate \"2026.09.11\"]\n[UTCTime \"03:48:35\"]\n[WhiteElo \"1769\"]\n[BlackElo \"1650\"]\n[WhiteRatingDiff \"-14\"]\n[BlackRatingDiff \"+9\"]\n[Variant \"Standard\"]\n[TimeControl \"900+10\"]\n[Termination \"Normal\"]\n\n1. d4 Nf6 2. Nf3 d5 3. e3 e6 4. Bd3 c5 5. b3 Nc6 6. Bb2 cxd4 7. exd4 Bb4+ 8.\nNbd2 O-O 9. O-O Re8 10. a3 Bd6 11. Re1 Qc7 12. Ne5 Bd7 13. f4 Rac8 14. g4 h6\n15. h4 Nh7 16. g5 Bxe5 17. dxe5 Ne7 18. gxh6 gxh6 19. Qg4+ Kh8 20. Qh5 Rg8+ 21.\nKh2 Qc5 22. Re2 Nf5 23. Bxf5 exf5 24. Qxf7 Qxc2 25. e6+ Qxb2 26. exd7 Rcd8 27.\nRae1 Nf6 28. Nf3 Qc3 29. Re3 Ng4+ 30. Kh3 Nxe3 31. Rxe3 Qxe3 32. Qf6+ Kh7 33.\nQxf5+ Rg6 34. Qf7+ Rg7 35. Qf5+ Kh8 36. Qxd5 Rdxd7 37. Qh5 Qe6+ 38. f5 Qd6 39.\na4 Qg3# 0-1",
+  "player": "cmess4401",
+  "player_color": "BLACK",
+  "move_number": 39,
+  "ply": 77,
+  "fen_before": "7k/pp1r2r1/3q3p/5P1Q/P6P/1P3N1K/8/8 b - - 0 39",
+  "fen_after": "7k/pp1r2r1/7p/5P1Q/P6P/1P3NqK/8/8 w - - 1 40",
+  "played_move": {
+    "san": "Qg3#",
+    "uci": "d6g3",
+    "in_multipv": true,
+    "multipv_rank": 1,
+    "source": "multipv",
+    "score": {
+      "kind": "mate",
+      "white_cp": null,
+      "white_mate": -1
+    },
+    "player_score": {
+      "player_color": "black",
+      "kind": "mate",
+      "cp": null,
+      "mate": 1,
+      "as_cp_units": 99999
+    },
+    "pv_san": [
+      "Qg3#"
+    ],
+    "purpose": "D1",
+    "consequence": {
+      "tags": [
+        "CHECK",
+        "MATE"
+      ],
+      "gives_check": true,
+      "is_capture": false,
+      "is_mate": true,
+      "material_delta_cp": 0,
+      "opponent_pv_san": null
+    }
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "san": "Qg3#",
+      "uci": "d6g3",
+      "pv_san": [
+        "Qg3#"
+      ],
+      "player_score": {
+        "player_color": "black",
+        "kind": "mate",
+        "cp": null,
+        "mate": 1,
+        "as_cp_units": 99999
+      },
+      "eval_gap_cp": 0,
+      "same_move": true,
+      "purpose": "D1",
+      "purpose_differs": false,
+      "consequence_tags": [
+        "CHECK",
+        "MATE"
+      ]
+    },
+    {
+      "rank": 2,
+      "san": "Rg3+",
+      "uci": "g7g3",
+      "pv_san": [
+        "Rg3+",
+        "Kh2",
+        "Rxf3+",
+        "Kh1",
+        "Qd1+",
+        "Kg2",
+        "Rd2#"
+      ],
+      "player_score": {
+        "player_color": "black",
+        "kind": "mate",
+        "cp": null,
+        "mate": 4,
+        "as_cp_units": 99996
+      },
+      "eval_gap_cp": -3,
+      "same_move": false,
+      "purpose": "D1",
+      "purpose_differs": false,
+      "consequence_tags": [
+        "CHECK"
+      ]
+    },
+    {
+      "rank": 3,
+      "san": "Kh7",
+      "uci": "h8h7",
+      "pv_san": [
+        "Kh7",
+        "Ng5+",
+        "Rxg5",
+        "hxg5",
+        "Qd3+",
+        "Kh2",
+        "Qd2+",
+        "Kh1",
+        "Qd1+",
+        "Qxd1",
+        "Rxd1+",
+        "Kg2",
+        "hxg5",
+        "f6",
+        "Kg6",
+        "f7",
+        "Kxf7"
+      ],
+      "player_score": {
+        "player_color": "black",
+        "kind": "cp",
+        "cp": 699,
+        "mate": null,
+        "as_cp_units": 699
+      },
+      "eval_gap_cp": -99300,
+      "same_move": false,
+      "purpose": "D4",
+      "purpose_differs": true,
+      "consequence_tags": []
+    }
+  ],
+  "actual_result": {
+    "eval_gap_vs_best_cp": 0,
+    "played_is_best": true,
+    "best_san": "Qg3#",
+    "abstention": {
+      "status": "UNKNOWN",
+      "reasons": [
+        "NO_OBJECTIVE_ERROR"
+      ],
+      "may_diagnose": false,
+      "message": "Cannot be determined with sufficient confidence."
+    },
+    "primary_error": null
+  },
+  "expected_result": {},
+  "human_label": {
+    "confirmed": null,
+    "comment": ""
+  },
+  "evidence": {
+    "engine": "Stockfish",
+    "multipv": 3,
+    "layer": "evidence",
+    "inference_as_fact": false
+  },
+  "status": "UNKNOWN",
+  "notes": "",
+  "criticality": {
+    "score": 10.0,
+    "level": "HighlyCritical",
+    "critical": true
+  },
+  "eval_loss": {
+    "eval_delta": -199999,
+    "eval_loss": 199999,
+    "cp_loss": 199999
+  }
+}
