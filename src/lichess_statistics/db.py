@@ -173,7 +173,14 @@ class StatisticsRepository:
             [columns[name] for name in names],
         )
         self._conn.commit()
-        return InsertResult(inserted=cur.rowcount == 1, game_id=game_id)
+        if cur.rowcount == 1:
+            return InsertResult(inserted=True, game_id=game_id)
+        existing = self.get_game(game_id)
+        if existing is None and lichess_id:
+            existing = self.get_game_by_lichess_id(lichess_id)
+        if existing is None:
+            return InsertResult(inserted=False, game_id=game_id)
+        return InsertResult(inserted=False, game_id=str(existing["game_id"]))
 
     def update_game_fields(self, game_id: str, **fields: Any) -> None:
         allowed = {

@@ -17,6 +17,7 @@ from lichess_statistics.service import (
     GameStatisticsService,
     iter_games_from_client,
     iter_ndjson_file,
+    iter_pgn_file,
 )
 
 
@@ -54,6 +55,10 @@ def build_parser() -> argparse.ArgumentParser:
     sync.add_argument(
         "--from-ndjson",
         help="Replay a local NDJSON fixture instead of calling Lichess",
+    )
+    sync.add_argument(
+        "--from-pgn",
+        help="Import a Lichess multi-game PGN export (Chess.com / generic PGN is rejected)",
     )
     sync.add_argument(
         "--download-only",
@@ -115,8 +120,12 @@ def _open_repo(database: str) -> StatisticsRepository:
 
 
 def _games_for_sync(args: argparse.Namespace) -> object:
+    if args.from_ndjson and args.from_pgn:
+        raise SystemExit("Use only one of --from-ndjson or --from-pgn")
     if args.from_ndjson:
         return iter_ndjson_file(args.from_ndjson)
+    if args.from_pgn:
+        return iter_pgn_file(args.from_pgn)
     client = LichessClient()
     return iter_games_from_client(
         client,
@@ -156,6 +165,9 @@ def run(argv: list[str] | None = None) -> int:
             force_stockfish=args.force_stockfish,
             max_games=args.max_games,
             dry_run=args.dry_run,
+            since=args.since,
+            until=args.until,
+            perf_type=args.perf_type,
         )
         return 0
     if args.command == "analyze":

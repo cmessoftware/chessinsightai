@@ -67,9 +67,9 @@ class GameRow:
 
 
 def ranking_final(inicial: int | None, variacion: int | None) -> int | None:
-    if inicial is None:
+    if inicial is None or variacion is None:
         return None
-    return inicial + (0 if variacion is None else variacion)
+    return inicial + variacion
 
 
 def _player_name(player: dict[str, Any] | None) -> str | None:
@@ -181,7 +181,7 @@ def _resultado(user_side: str, winner: Any) -> str:
         return RESULT_WIN
     if str(winner).lower() in {"white", "black"}:
         return RESULT_LOSS
-    return RESULT_DRAW
+    raise GameMetadataError(f"Invalid winner {winner!r}")
 
 
 def game_row_from_ndjson(game: dict[str, Any], username: str) -> GameRow:

@@ -19,8 +19,9 @@ from lichess_statistics.evals import (
     persist_evals,
 )
 from lichess_statistics.export import ExcelStatisticsExporter, rows_from_repository
-from lichess_statistics.filters import filter_import_game
-from lichess_statistics.import_games import GameImportService
+from lichess_statistics.filters import filter_import_game, filter_sync_window
+from lichess_statistics.import_games import GameImportService, GameMetadataError
+from lichess_statistics.pgn_source import iter_pgn_file
 
 logger = logging.getLogger(__name__)
 
@@ -114,10 +115,20 @@ class GameStatisticsService:
         fallback_local: bool = True,
         max_games: int | None = None,
         dry_run: bool = False,
+        since: str | None = None,
+        until: str | None = None,
+        perf_type: str | None = None,
     ) -> RunReport:
         started = self._clock()
         report = RunReport()
         for game in games:
+            window = filter_sync_window(
+                game, since=since, until=until, perf_type=perf_type
+            )
+            if window is not None:
+                report.skipped += 1
+                logger.info("skipped id=%s reason=%s", game.get("id"), window.reason)
+                continue
             if max_games is not None and report.downloaded >= max_games:
                 break
             report.downloaded += 1
@@ -139,6 +150,10 @@ class GameStatisticsService:
                     stockfish_service=self._stockfish,
                     analyze=analyze,
                 )
+            except GameMetadataError:
+                report.skipped += 1
+                logger.info("skipped id=%s reason=user_not_in_game", game.get("id"))
+                continue
             except Exception:
                 report.errors += 1
                 logger.exception("Failed to import game id=%s", game.get("id"))

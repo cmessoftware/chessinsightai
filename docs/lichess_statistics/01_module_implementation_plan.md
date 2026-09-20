@@ -5,7 +5,7 @@
 Implement and validate progressively a **standalone Lichess statistics tool** (not ACC, not Module 07/08, not `ai_chess_coach_course`):
 
 ```text
-Lichess NDJSON (official API)
+Lichess NDJSON (official API) or multi-game PGN file
 → filter (no Lichess AI, ≥10 moves)
 → project game_id (SHA256 of PGN)
 → SQLite (tool-owned)
@@ -18,7 +18,7 @@ Lichess NDJSON (official API)
 
 Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_tool.md).
 
-**Last status update:** 2026-09-17 (LS01-014 done).
+**Last status update:** 2026-09-18 (`sync --from-pgn`).
 
 ### Current progress
 
@@ -36,7 +36,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | LS01.4 Phase classifier (LS01-010) | ✅ Done | `phases.py`: NDJSON `division` → Divider port → piece-count fallback. |
 | LS01.4 Judgments (LS01-011) | ✅ Done | Insight bands 10/20/30% winningChances; counts + mean eval-swing ACPL. |
 | LS01.5 Export XLSX/CSV (LS01-012) | ✅ Done | `export.py`: sheet `Jugar en Lichess`; UTF-8 CSV; no macros. |
-| LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
+| LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; `--from-pgn` **Lichess export only**; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
 | LS01.7 Aggregates (LS01-014) | ✅ Done | `aggregates.py`; means always carry `n` + period; CLI `stats`. |
 | UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Out of this epic. |
 
@@ -137,7 +137,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-013 | CLI commands | argv + `.env` | `sync`, `analyze --only-missing`, `export`; download-only; analyze-only; reprocess game/period; `--max-games`; `--perf-type`; `--force-stockfish` | Help + dry-run on fixture (no network) | P0 | ✅ Done | `cli.py` / `service.py`; `python -m lichess_statistics`. Token from `.env`, never logged. Tests: `tests/lichess_statistics/test_ls01_013_cli.py`. Branch `feature/ls01_013_cli`. |
+| LS01-013 | CLI commands | argv + `.env` | `sync`, `analyze --only-missing`, `export`; `--from-ndjson`; `--from-pgn`; download-only; `--max-games`; `--perf-type`; `--force-stockfish` | Help + dry-run on fixture (no network) | P0 | ✅ Done | `cli.py` / `service.py` / `pgn_source.py`. Token from `.env`, never logged. Tests: `test_ls01_013_cli.py`, `test_ls01_pgn_import.py`. |
 
 ### 01.7 — Aggregates
 
@@ -207,6 +207,7 @@ src/lichess_statistics/                 ← new package (not under course, not p
 ├── phases.py              # LS01-010
 ├── export.py              # LS01-012
 ├── cli.py                 # LS01-013
+├── pgn_source.py          # PGN → NDJSON-shaped games
 └── aggregates.py          # LS01-014
 
 tests/lichess_statistics/
