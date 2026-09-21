@@ -18,7 +18,7 @@ Lichess NDJSON (official API) or multi-game PGN file
 
 Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_tool.md).
 
-**Last status update:** 2026-09-18 (`sync --from-pgn`).
+**Last status update:** 2026-09-21 (P3 = portable training analyzer; UI/API P3 discarded).
 
 ### Current progress
 
@@ -38,7 +38,8 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | LS01.5 Export XLSX/CSV (LS01-012) | ✅ Done | `export.py`: sheet `Jugar en Lichess`; UTF-8 CSV; no macros. |
 | LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; `--from-pgn` **Lichess export only**; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
 | LS01.7 Aggregates (LS01-014) | ✅ Done | `aggregates.py`; means always carry `n` + period; CLI `stats`. |
-| UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Out of this epic. |
+| LS01.8 Training analyzer (LS01-017–021) | ⬜ Todo | P3 portable: training tracks, layer A/B/C, motifs + endgame signatures. |
+| UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Old P3; does not apply to the portable tool. |
 
 ## Principles
 
@@ -78,6 +79,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | 01.5 | Export | CSV + XLSX Excel/Sheets-safe |
 | 01.6 | CLI | sync / analyze / export / limit / force-local |
 | 01.7 | Aggregates | Rating, ACPL, precision, color, opening, month, last N |
+| 01.8 | Training analyzer (portable) | Rapid/classical/daily corpus; coach/player profile; exercise candidates |
 
 ## 2. Feature catalog
 
@@ -144,6 +146,18 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
 | LS01-014 | Aggregate queries | SQLite stats | Rating evolution; mean ACPL; mean accuracy; mean by phase; judgment counts; W/B; opening; month; period compare; last N | Fixture of ≥5 games; averages include **n** and period | P1 | ✅ Done | `AggregateQueryService`; nulls excluded from means (`n` vs `n_games`). CLI `stats`. Tests: `tests/lichess_statistics/test_ls01_014_aggregates.py`. Branch `feature/ls01_014_aggregates`. |
+
+### 01.8 — Training analyzer (portable P3)
+
+Corpus is **rapid + classical + daily/correspondence** only. Bullet and blitz are out of the training profile, Excel “Entrenamiento”, and ChessInsight candidate queue (they may remain in SQLite). One track at a time; do not mix 15+10 with daily. Engine eval is magnitude (`EVALUATION_DROP` 150 cp), not pedagogical labels. Do not import Module 07 / HITL / course packages. No UI.
+
+| ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
+|---|---|---|---|---|---|---|---|
+| LS01-017 | Training-track filter | Stored games (`perf` / time class / exact TC) | Keep rapid, classical, daily; drop bullet/blitz; each row labeled `track` | Rapid kept; 3+2 / bullet skipped; daily kept | P3 | ⬜ Todo | Applies to `stats`, training export, and profile — not a second ingest. Lichess: `rapid`/`classical`/`correspondence`. Chess.com: `rapid`/`daily`. Typical TC: `10+0`, `15+10`, `30+0`/`30+20`, daily. Rated; skip AI/BOT rivals in the training corpus. Branch `feature/ls01_017_training_track`. |
+| LS01-018 | Layer A track report | Filtered stats rows | Aggregates by track: color, phase, opening, month (existing metrics, scoped) | Same fixture: blitz rows absent; rapid means match n | P3 | ⬜ Todo | Player/coach numbers from layer A only. Precision/ACPL unused when evals missing (`n` vs `n_games`). Branch `feature/ls01_018_track_report`. |
+| LS01-019 | Layer B learning events | Stored `evals` + user moves | One event per significant user ply: FEN before, SAN, eval_loss, drop≥150 cp, judgment, phase, `game_id`, URL | Known blunder ply emits drop; quiet ply does not | P3 | ⬜ Todo | Candidates for coach session and later exercises. Position **before** the error. `only_move` if already computable from stored evals; otherwise omit. Branch `feature/ls01_019_learning_events`. |
+| LS01-020 | Layer C profile + Entrenamiento + JSON | Layer A + B | Excel sheet `Entrenamiento` (foci + ≤8 session positions) and versioned `player_training_profile` JSON | Golden: 3 foci + candidates with `allowed_uses` | P3 | ⬜ Todo | Consumers: player, human coach, future ChessInsight. Weaknesses scored by frequency × criticality × recency. JSON: `track`, `rating_series`, `weaknesses[]`, `candidate_positions[]`, `provenance` (`excluded_speeds`: blitz/bullet). Puzzle vs explain: no `puzzle` unless forcing. Branch `feature/ls01_020_training_profile`. |
+| LS01-021 | Tactical motifs + endgame signatures | Layer B positions | `motif_tactico` from board geometry; `firma_final` from material when `phase=endgame` | Fork/pin fixture tagged; KRPvsKR endgame signed | P3 | ⬜ Todo | Tactics from the board, not engine names. Strategic themes are **out** (HITL/books). Endgame drills filter on signature; do not call a 18-piece middlegame an endgame. Branch `feature/ls01_021_motifs_endgames`. |
 
 ## 3. Per-feature test format
 
@@ -341,8 +355,15 @@ P2
 15. Extra perf types / rated-only polish
 16. Richer comments column
 
-P3
-17. UI / API (explicitly out of this epic)
+P3 (portable training analyzer; one branch per id)
+17. LS01-017 Training-track filter (rapid / classical / daily; exclude blitz/bullet)
+18. LS01-018 Layer A report by track (color, phase, opening, month)
+19. LS01-019 Layer B learning events (drops ≥150 cp, judgments, phase, FEN)
+20. LS01-020 Layer C profile + Excel “Entrenamiento” + JSON for ChessInsight
+21. LS01-021 Board tactical motifs + endgame material signatures
+
+P3 discarded (does not apply to the portable tool)
+- UI / API / FastAPI / ACC
 ```
 
 ## 9. Decision on existing code
