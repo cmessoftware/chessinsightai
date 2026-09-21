@@ -241,6 +241,8 @@ class GameStatisticsService:
         until: str | None = None,
         ritmo: str | None = None,
         last_n: int | None = None,
+        track: str | None = None,
+        training_only: bool = False,
         dry_run: bool = False,
     ) -> RunReport:
         started = self._clock()
@@ -252,6 +254,8 @@ class GameStatisticsService:
             until=until,
             ritmo=ritmo,
             last_n=last_n,
+            track=track,
+            training_only=training_only,
         )
         report.downloaded = len(rows)
         if dry_run:
@@ -268,6 +272,8 @@ class GameStatisticsService:
             until=until,
             ritmo=ritmo,
             last_n=last_n,
+            track=track,
+            training_only=training_only,
         )
         report.csv_path = str(csv_out)
         report.xlsx_path = str(xlsx_out)

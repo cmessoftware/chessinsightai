@@ -476,6 +476,7 @@ class StatisticsRepository:
                 g.rival,
                 g.resultado,
                 g.ritmo,
+                g.perf,
                 g.duracion_segundos,
                 g.ranking_inicial,
                 g.ranking_final,

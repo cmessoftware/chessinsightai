@@ -38,7 +38,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | LS01.5 Export XLSX/CSV (LS01-012) | ✅ Done | `export.py`: sheet `Jugar en Lichess`; UTF-8 CSV; no macros. |
 | LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; `--from-pgn` **Lichess export only**; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
 | LS01.7 Aggregates (LS01-014) | ✅ Done | `aggregates.py`; means always carry `n` + period; CLI `stats`. |
-| LS01.8 Training analyzer (LS01-017–021) | ⬜ Todo | P3 portable: training tracks, layer A/B/C, motifs + endgame signatures. |
+| LS01.8 Training analyzer (LS01-017–021) | 🟡 In Progress | LS01-017 ✅; 018–021 still todo. |
 | UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Old P3; does not apply to the portable tool. |
 
 ## Principles
@@ -153,7 +153,7 @@ Corpus is **rapid + classical + daily/correspondence** only. Bullet and blitz ar
 
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| LS01-017 | Training-track filter | Stored games (`perf` / time class / exact TC) | Keep rapid, classical, daily; drop bullet/blitz; each row labeled `track` | Rapid kept; 3+2 / bullet skipped; daily kept | P3 | ⬜ Todo | Applies to `stats`, training export, and profile — not a second ingest. Lichess: `rapid`/`classical`/`correspondence`. Chess.com: `rapid`/`daily`. Typical TC: `10+0`, `15+10`, `30+0`/`30+20`, daily. Rated; skip AI/BOT rivals in the training corpus. Branch `feature/ls01_017_training_track`. |
+| LS01-017 | Training-track filter | Stored games (`perf` / time class / exact TC) | Keep rapid, classical, daily; drop bullet/blitz; each row labeled `track` | Rapid kept; 3+2 / bullet skipped; daily kept | P3 | ✅ Done | `training_track.py`; CLI `--track` / `--training` on `stats` and `export` (not ingest). Tests: `tests/chess_statistics/test_ls01_017_training_track.py`. Branch `feature/ls01_017_training_track`. |
 | LS01-018 | Layer A track report | Filtered stats rows | Aggregates by track: color, phase, opening, month (existing metrics, scoped) | Same fixture: blitz rows absent; rapid means match n | P3 | ⬜ Todo | Player/coach numbers from layer A only. Precision/ACPL unused when evals missing (`n` vs `n_games`). Branch `feature/ls01_018_track_report`. |
 | LS01-019 | Layer B learning events | Stored `evals` + user moves | One event per significant user ply: FEN before, SAN, eval_loss, drop≥150 cp, judgment, phase, `game_id`, URL | Known blunder ply emits drop; quiet ply does not | P3 | ⬜ Todo | Candidates for coach session and later exercises. Position **before** the error. `only_move` if already computable from stored evals; otherwise omit. Branch `feature/ls01_019_learning_events`. |
 | LS01-020 | Layer C profile + Entrenamiento + JSON | Layer A + B | Excel sheet `Entrenamiento` (foci + ≤8 session positions) and versioned `player_training_profile` JSON | Golden: 3 foci + candidates with `allowed_uses` | P3 | ⬜ Todo | Consumers: player, human coach, future ChessInsight. Weaknesses scored by frequency × criticality × recency. JSON: `track`, `rating_series`, `weaknesses[]`, `candidate_positions[]`, `provenance` (`excluded_speeds`: blitz/bullet). Puzzle vs explain: no `puzzle` unless forcing. Branch `feature/ls01_020_training_profile`. |

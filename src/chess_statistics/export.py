@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from chess_statistics.db import StatisticsRepository
+from chess_statistics.training_track import filter_training_rows
 
 SHEET_NAME = "Jugar en Lichess"
 LICHESS_GAME_URL = "https://lichess.org/{lichess_id}"
@@ -28,6 +29,7 @@ EXPORT_COLUMNS: tuple[str, ...] = (
     "Precisión mediojuego",
     "Precisión final",
     "Ranking final",
+    "Pista",
     "Comentarios",
 )
 
@@ -86,6 +88,7 @@ def export_row(record: dict[str, Any]) -> dict[str, Any]:
         "Precisión mediojuego": _as_number(record.get("precision_medio_juego")),
         "Precisión final": _as_number(record.get("precision_final")),
         "Ranking final": _as_number(record.get("ranking_final")),
+        "Pista": record.get("track") or "",
         "Comentarios": "",
     }
 
@@ -98,6 +101,8 @@ def rows_from_repository(
     until: str | None = None,
     ritmo: str | None = None,
     last_n: int | None = None,
+    track: str | None = None,
+    training_only: bool = False,
 ) -> list[dict[str, Any]]:
     records = repo.list_games_with_stats(
         usuario=usuario,
@@ -105,6 +110,7 @@ def rows_from_repository(
         until=until,
         ritmo=ritmo,
     )
+    records = filter_training_rows(records, track=track, training_only=training_only)
     if last_n is not None:
         if last_n < 1:
             raise ValueError("last_n must be >= 1")
@@ -180,6 +186,8 @@ class ExcelStatisticsExporter:
         until: str | None = None,
         ritmo: str | None = None,
         last_n: int | None = None,
+        track: str | None = None,
+        training_only: bool = False,
     ) -> tuple[Path, Path]:
         rows = rows_from_repository(
             repo,
@@ -188,5 +196,7 @@ class ExcelStatisticsExporter:
             until=until,
             ritmo=ritmo,
             last_n=last_n,
+            track=track,
+            training_only=training_only,
         )
         return write_csv(csv_path, rows), write_xlsx(xlsx_path, rows)

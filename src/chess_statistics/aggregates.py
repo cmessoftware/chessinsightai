@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import Any
 
 from chess_statistics.db import StatisticsRepository
+from chess_statistics.training_track import filter_training_rows
 
 RESULT_WIN = "G"
 RESULT_DRAW = "T"
@@ -83,6 +84,7 @@ def summarize_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "lichess_id": row.get("lichess_id"),
                 "ranking_inicial": row.get("ranking_inicial"),
                 "ranking_final": row.get("ranking_final"),
+                "track": row.get("track"),
             }
             for row in rows
         ],
@@ -123,6 +125,8 @@ class AggregateQueryService:
         until: str | None = None,
         ritmo: str | None = None,
         last_n: int | None = None,
+        track: str | None = None,
+        training_only: bool = False,
     ) -> list[dict[str, Any]]:
         rows = self._repo.list_games_with_stats(
             usuario=username,
@@ -130,6 +134,7 @@ class AggregateQueryService:
             until=until,
             ritmo=ritmo,
         )
+        rows = filter_training_rows(rows, track=track, training_only=training_only)
         if last_n is not None:
             if last_n < 1:
                 raise ValueError("last_n must be >= 1")
@@ -144,10 +149,23 @@ class AggregateQueryService:
         until: str | None = None,
         ritmo: str | None = None,
         last_n: int | None = None,
+        track: str | None = None,
+        training_only: bool = False,
     ) -> dict[str, Any]:
-        return summarize_rows(
-            self.rows(username, since=since, until=until, ritmo=ritmo, last_n=last_n)
+        payload = summarize_rows(
+            self.rows(
+                username,
+                since=since,
+                until=until,
+                ritmo=ritmo,
+                last_n=last_n,
+                track=track,
+                training_only=training_only,
+            )
         )
+        payload["track"] = track
+        payload["training_only"] = bool(training_only or track)
+        return payload
 
     def compare_periods(
         self,
@@ -156,10 +174,26 @@ class AggregateQueryService:
         period_a: tuple[str | None, str | None],
         period_b: tuple[str | None, str | None],
         ritmo: str | None = None,
+        track: str | None = None,
+        training_only: bool = False,
     ) -> dict[str, Any]:
         a_since, a_until = period_a
         b_since, b_until = period_b
         return {
-            "period_a": self.report(username, since=a_since, until=a_until, ritmo=ritmo),
-            "period_b": self.report(username, since=b_since, until=b_until, ritmo=ritmo),
+            "period_a": self.report(
+                username,
+                since=a_since,
+                until=a_until,
+                ritmo=ritmo,
+                track=track,
+                training_only=training_only,
+            ),
+            "period_b": self.report(
+                username,
+                since=b_since,
+                until=b_until,
+                ritmo=ritmo,
+                track=track,
+                training_only=training_only,
+            ),
         }

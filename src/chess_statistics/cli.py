@@ -21,6 +21,7 @@ from chess_statistics.service import (
     iter_pgn_file,
 )
 from chess_statistics.sources import SOURCE_CHESSCOM, SOURCE_LICHESS, SOURCE_PGN, SOURCES, uses_lichess_cloud
+from chess_statistics.training_track import TRAINING_TRACKS
 
 
 def _add_common(parser: argparse.ArgumentParser) -> None:
@@ -45,6 +46,19 @@ def _add_window(parser: argparse.ArgumentParser) -> None:
         help="Speed filter: Lichess rapid/blitz/bullet/classical; Chess.com rapid/blitz/bullet/daily",
     )
     parser.add_argument("--max-games", type=int, help="Limit games (sync: Lichess download; omit to fetch all matching games)")
+
+
+def _add_training_track(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--track",
+        choices=TRAINING_TRACKS,
+        help="Training track: rapid, classical, or daily (drops blitz/bullet)",
+    )
+    parser.add_argument(
+        "--training",
+        action="store_true",
+        help="Keep rapid+classical+daily only (drop blitz/bullet); implied by --track",
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -114,10 +128,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="XLSX path (CSV is written next to it with .csv)",
     )
     export.add_argument("--csv", dest="csv_path", help="Override CSV path")
+    _add_training_track(export)
 
     stats = sub.add_parser("stats", help="Print aggregate metrics (n + period; no engine)")
     _add_common(stats)
     _add_window(stats)
+    _add_training_track(stats)
     stats.add_argument("--last-n", type=int, dest="last_n", help="Only the last N games in the window")
     stats.add_argument("--compare-since", metavar="YYYY-MM-DD", help="Start of comparison period B")
     stats.add_argument("--compare-until", metavar="YYYY-MM-DD", help="End of comparison period B")
@@ -223,6 +239,8 @@ def run(argv: list[str] | None = None) -> int:
                 period_a=(args.since, args.until),
                 period_b=(args.compare_since, args.compare_until),
                 ritmo=args.perf_type,
+                track=args.track,
+                training_only=args.training,
             )
         else:
             payload = queries.report(
@@ -231,6 +249,8 @@ def run(argv: list[str] | None = None) -> int:
                 until=args.until,
                 ritmo=args.perf_type,
                 last_n=args.last_n,
+                track=args.track,
+                training_only=args.training,
             )
         print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
         return 0
@@ -248,6 +268,8 @@ def run(argv: list[str] | None = None) -> int:
         until=args.until,
         ritmo=args.perf_type,
         last_n=args.last_n or args.max_games,
+        track=getattr(args, "track", None),
+        training_only=bool(getattr(args, "training", False)),
         dry_run=args.dry_run,
     )
     return 0
