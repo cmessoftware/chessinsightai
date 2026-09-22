@@ -137,6 +137,11 @@ def build_parser() -> argparse.ArgumentParser:
     stats.add_argument("--last-n", type=int, dest="last_n", help="Only the last N games in the window")
     stats.add_argument("--compare-since", metavar="YYYY-MM-DD", help="Start of comparison period B")
     stats.add_argument("--compare-until", metavar="YYYY-MM-DD", help="End of comparison period B")
+    stats.add_argument(
+        "--profile-out",
+        metavar="PATH",
+        help="Write player_training_profile JSON (layer C; use with --training or --track)",
+    )
     return parser
 
 
@@ -253,6 +258,19 @@ def run(argv: list[str] | None = None) -> int:
                 training_only=args.training,
             )
         print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        profile_out = getattr(args, "profile_out", None)
+        if profile_out:
+            profile = payload.get("training_profile") if isinstance(payload, dict) else None
+            if not profile and isinstance(payload, dict) and "period_a" not in payload:
+                raise SystemExit("--profile-out requires --training or --track")
+            if isinstance(payload, dict) and "period_a" in payload:
+                raise SystemExit("--profile-out cannot be used with --compare-since/until")
+            out_path = Path(profile_out)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(
+                json.dumps(profile, ensure_ascii=False, indent=2, default=str),
+                encoding="utf-8",
+            )
         return 0
     output = Path(args.output)
     csv_path = Path(args.csv_path) if args.csv_path else output.with_suffix(".csv")

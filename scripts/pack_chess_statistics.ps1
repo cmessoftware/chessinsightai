@@ -40,6 +40,12 @@ $Args = @(
     "--hidden-import", "chess_statistics.client",
     "--hidden-import", "chess_statistics.pgn_source",
     "--hidden-import", "chess_statistics.chesscom_client",
+    "--hidden-import", "chess_statistics.aggregates",
+    "--hidden-import", "chess_statistics.learning_events",
+    "--hidden-import", "chess_statistics.training_profile",
+    "--hidden-import", "chess_statistics.motifs",
+    "--hidden-import", "chess_statistics.ratings",
+    "--hidden-import", "chess_statistics.training_track",
     "--hidden-import", "modules.pgn_utils",
     "--hidden-import", "dotenv",
     "--hidden-import", "requests",
@@ -89,8 +95,9 @@ No hace falta instalar Python. Copiá ESTA CARPETA completa a la otra PC.
    chess_statistics.exe sync --username TU_USER --source chess.com --since 2026-01-01 --perf-type rapid
    chess_statistics.exe sync --username TU_USER --source pgn --from-pgn partidas.pgn
    chess_statistics.exe analyze --username TU_USER --only-missing
-   chess_statistics.exe export --username TU_USER --last-n 20 --output chess_statistics.xlsx
-   chess_statistics.exe stats --username TU_USER --perf-type rapid --last-n 20
+   chess_statistics.exe export --username TU_USER --training --since 2026-07-01 --output chess_statistics.xlsx
+   chess_statistics.exe stats --username TU_USER --training --since 2026-07-01
+   chess_statistics.exe stats --username TU_USER --training --profile-out player_training_profile.json
 
 analyze --only-missing: completa indicadores (precisión, juicios) en partidas ya
 guardadas en SQLite que quedaron sin Stockfish (por ejemplo si se interrumpió un sync).

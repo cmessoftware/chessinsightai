@@ -7,9 +7,11 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from chess_statistics.db import StatisticsRepository
+from chess_statistics.ratings import infer_ranking_final_chain
 from chess_statistics.training_track import filter_training_rows
 
 SHEET_NAME = "Jugar en Lichess"
+TRAINING_SHEET_NAME = "Entrenamiento"
 LICHESS_GAME_URL = "https://lichess.org/{lichess_id}"
 
 EXPORT_COLUMNS: tuple[str, ...] = (
@@ -111,6 +113,7 @@ def rows_from_repository(
         ritmo=ritmo,
     )
     records = filter_training_rows(records, track=track, training_only=training_only)
+    records = infer_ranking_final_chain(records)
     if last_n is not None:
         if last_n < 1:
             raise ValueError("last_n must be >= 1")
@@ -150,8 +153,39 @@ def _set_cell(cell: Any, header: str, value: Any) -> None:
         cell.number_format = "0.00"
 
 
-def write_xlsx(path: str | Path, rows: Iterable[dict[str, Any]]) -> Path:
-    """Workbook with a single data sheet; no VBA / macros."""
+def _write_entrenamiento_sheet(sheet: Any, profile: dict[str, Any]) -> None:
+    from chess_statistics.training_profile import entrenamiento_sheet_tables
+
+    foci_headers, foci_rows, session_headers, session_rows = entrenamiento_sheet_tables(profile)
+    row = 1
+    sheet.cell(row, 1, "Focos de entrenamiento")
+    row += 1
+    for col, header in enumerate(foci_headers, start=1):
+        sheet.cell(row, col, header)
+    row += 1
+    for data in foci_rows:
+        for col, value in enumerate(data, start=1):
+            sheet.cell(row, col, value)
+        row += 1
+    row += 1
+    sheet.cell(row, 1, "Posiciones de sesión (≤8)")
+    row += 1
+    for col, header in enumerate(session_headers, start=1):
+        sheet.cell(row, col, header)
+    row += 1
+    for data in session_rows:
+        for col, value in enumerate(data, start=1):
+            sheet.cell(row, col, value)
+        row += 1
+
+
+def write_xlsx(
+    path: str | Path,
+    rows: Iterable[dict[str, Any]],
+    *,
+    training_profile: dict[str, Any] | None = None,
+) -> Path:
+    """Workbook with game sheet; optional Entrenamiento when profile is set. No VBA / macros."""
     from openpyxl import Workbook
     from openpyxl.utils import get_column_letter
 
@@ -167,6 +201,11 @@ def write_xlsx(path: str | Path, rows: Iterable[dict[str, Any]]) -> Path:
             _set_cell(sheet.cell(row_index, col_index), header, row.get(header))
     for index in range(1, len(EXPORT_COLUMNS) + 1):
         sheet.column_dimensions[get_column_letter(index)].width = 18
+    if training_profile is not None:
+        training_sheet = workbook.create_sheet(TRAINING_SHEET_NAME)
+        _write_entrenamiento_sheet(training_sheet, training_profile)
+        for index in range(1, 8):
+            training_sheet.column_dimensions[get_column_letter(index)].width = 22
     workbook.vba_archive = None
     workbook.save(out)
     return out
@@ -199,4 +238,22 @@ class ExcelStatisticsExporter:
             track=track,
             training_only=training_only,
         )
-        return write_csv(csv_path, rows), write_xlsx(xlsx_path, rows)
+        training_profile = None
+        if training_only or track:
+            from chess_statistics.aggregates import AggregateQueryService
+
+            report = AggregateQueryService(repo).report(
+                usuario or "",
+                since=since,
+                until=until,
+                ritmo=ritmo,
+                last_n=last_n,
+                track=track,
+                training_only=training_only,
+            )
+            training_profile = report.get("training_profile")
+        return write_csv(csv_path, rows), write_xlsx(
+            xlsx_path,
+            rows,
+            training_profile=training_profile,
+        )

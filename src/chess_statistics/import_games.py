@@ -265,6 +265,9 @@ class GameImportService:
                 result.game_id,
                 ritmo=row.ritmo,
                 perf=row.perf,
+                ranking_inicial=row.ranking_inicial,
+                ranking_final=row.ranking_final,
+                source_url=row.source_url,
             )
         if not analyze:
             return result

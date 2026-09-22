@@ -6,7 +6,10 @@ from collections import defaultdict
 from typing import Any
 
 from chess_statistics.db import StatisticsRepository
-from chess_statistics.training_track import filter_training_rows
+from chess_statistics.learning_events import collect_learning_events, summarize_learning_events
+from chess_statistics.ratings import infer_ranking_final_chain
+from chess_statistics.training_profile import build_training_profile
+from chess_statistics.training_track import TRAINING_TRACKS, filter_training_rows
 
 RESULT_WIN = "G"
 RESULT_DRAW = "T"
@@ -50,6 +53,37 @@ def _result_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     return counts
 
 
+def _metrics_block(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Game-level means; precision/ACPL ``n`` can be below ``n_games`` if evals are missing."""
+    return {
+        "n_games": len(rows),
+        "results": _result_counts(rows),
+        "precision_general": mean_with_n([g.get("precision_general") for g in rows]),
+        "perdida_promedio_cp": mean_with_n([g.get("perdida_promedio_cp") for g in rows]),
+        "precision_apertura": mean_with_n([g.get("precision_apertura") for g in rows]),
+        "precision_medio_juego": mean_with_n([g.get("precision_medio_juego") for g in rows]),
+        "precision_final": mean_with_n([g.get("precision_final") for g in rows]),
+    }
+
+
+def _by_phase(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Phase accuracies over the same game cohort (not a second engine)."""
+    return {
+        "opening": {
+            "n_games": len(rows),
+            "precision": mean_with_n([g.get("precision_apertura") for g in rows]),
+        },
+        "middlegame": {
+            "n_games": len(rows),
+            "precision": mean_with_n([g.get("precision_medio_juego") for g in rows]),
+        },
+        "endgame": {
+            "n_games": len(rows),
+            "precision": mean_with_n([g.get("precision_final") for g in rows]),
+        },
+    }
+
+
 def summarize_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Means skip nulls; ``n`` is the count used in that mean, plus period n_games."""
     period = _period(rows)
@@ -66,17 +100,11 @@ def summarize_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         by_month[month].append(row)
 
     def group_block(groups: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
-        return {
-            key: {
-                "n_games": len(group),
-                "results": _result_counts(group),
-                "precision_general": mean_with_n([g.get("precision_general") for g in group]),
-                "perdida_promedio_cp": mean_with_n([g.get("perdida_promedio_cp") for g in group]),
-            }
-            for key, group in sorted(groups.items())
-        }
+        return {key: _metrics_block(group) for key, group in sorted(groups.items())}
 
+    metrics = _metrics_block(rows)
     return {
+        "layer": "A",
         "period": period,
         "rating_evolution": [
             {
@@ -88,11 +116,12 @@ def summarize_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
             }
             for row in rows
         ],
-        "precision_general": mean_with_n([row.get("precision_general") for row in rows]),
-        "perdida_promedio_cp": mean_with_n([row.get("perdida_promedio_cp") for row in rows]),
-        "precision_apertura": mean_with_n([row.get("precision_apertura") for row in rows]),
-        "precision_medio_juego": mean_with_n([row.get("precision_medio_juego") for row in rows]),
-        "precision_final": mean_with_n([row.get("precision_final") for row in rows]),
+        "precision_general": metrics["precision_general"],
+        "perdida_promedio_cp": metrics["perdida_promedio_cp"],
+        "precision_apertura": metrics["precision_apertura"],
+        "precision_medio_juego": metrics["precision_medio_juego"],
+        "precision_final": metrics["precision_final"],
+        "by_phase": _by_phase(rows),
         "judgments": {
             "imprecisiones": mean_with_n([row.get("imprecisiones") for row in rows]),
             "errores": mean_with_n([row.get("errores") for row in rows]),
@@ -104,7 +133,7 @@ def summarize_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "n": len(_finite([row.get("imprecisiones") for row in rows])),
             },
         },
-        "results": _result_counts(rows),
+        "results": metrics["results"],
         "by_color": group_block(by_color),
         "by_opening": group_block(by_opening),
         "by_month": group_block(by_month),
@@ -139,6 +168,7 @@ class AggregateQueryService:
             if last_n < 1:
                 raise ValueError("last_n must be >= 1")
             rows = rows[-last_n:]
+        rows = infer_ranking_final_chain(rows)
         return rows
 
     def report(
@@ -152,19 +182,27 @@ class AggregateQueryService:
         track: str | None = None,
         training_only: bool = False,
     ) -> dict[str, Any]:
-        payload = summarize_rows(
-            self.rows(
-                username,
-                since=since,
-                until=until,
-                ritmo=ritmo,
-                last_n=last_n,
-                track=track,
-                training_only=training_only,
-            )
+        rows = self.rows(
+            username,
+            since=since,
+            until=until,
+            ritmo=ritmo,
+            last_n=last_n,
+            track=track,
+            training_only=training_only,
         )
+        payload = summarize_rows(rows)
         payload["track"] = track
         payload["training_only"] = bool(training_only or track)
+        payload["by_track"] = {
+            name: summarize_rows([row for row in rows if row.get("track") == name])
+            for name in TRAINING_TRACKS
+            if any(row.get("track") == name for row in rows)
+        }
+        events = collect_learning_events(self._repo, rows)
+        payload["learning_events"] = summarize_learning_events(events)
+        if training_only or track:
+            payload["training_profile"] = build_training_profile(username, payload)
         return payload
 
     def compare_periods(

@@ -21,6 +21,7 @@ from chess_statistics.evals import (
 from chess_statistics.export import ExcelStatisticsExporter, rows_from_repository
 from chess_statistics.filters import filter_import_game, filter_sync_window
 from chess_statistics.import_games import GameImportService, GameMetadataError
+from chess_statistics.ratings import backfill_ranking_final_in_db
 from chess_statistics.pgn_source import iter_pgn_file
 from chess_statistics.sources import SOURCE_LICHESS, uses_lichess_cloud
 
@@ -169,6 +170,10 @@ class GameStatisticsService:
             if analyze:
                 if result.inserted or force_stockfish:
                     _record_eval_result(report, self._repo, result.game_id)
+        if not dry_run and username:
+            filled = backfill_ranking_final_in_db(self._repo, username)
+            if filled:
+                logger.info("ranking_final backfill updated=%s user=%s", filled, username)
         report.elapsed_s = self._clock() - started
         for line in report.log_lines():
             logger.info("%s", line)
