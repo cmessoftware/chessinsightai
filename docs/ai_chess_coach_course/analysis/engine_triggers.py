@@ -10,11 +10,19 @@ import chess
 from analysis.engine_eval import EvaluationLoss, NormalizedPlyEval, ply_evaluation_loss
 from analysis.multipv import MultiPVResult, analyze_multipv
 
-EngineTriggerCode = Literal["EVALUATION_DROP", "ONLY_MOVE", "POSITION_TRANSFORMATION"]
+EngineTriggerCode = Literal[
+    "EVALUATION_DROP",
+    "ONLY_MOVE",
+    "POSITION_TRANSFORMATION",
+    "IMMEDIATE_THREAT",
+    "IRREVERSIBLE_DECISION",
+]
 
 EVALUATION_DROP: EngineTriggerCode = "EVALUATION_DROP"
 ONLY_MOVE: EngineTriggerCode = "ONLY_MOVE"
 POSITION_TRANSFORMATION: EngineTriggerCode = "POSITION_TRANSFORMATION"
+IMMEDIATE_THREAT: EngineTriggerCode = "IMMEDIATE_THREAT"
+IRREVERSIBLE_DECISION: EngineTriggerCode = "IRREVERSIBLE_DECISION"
 DEFAULT_EVALUATION_DROP_CP = 150
 DEFAULT_ONLY_MOVE_GAP_CP = 150
 ONLY_MOVE_SOLE_LEGAL_GAP = 100_000
@@ -126,7 +134,6 @@ def ply_only_move(
     return only_move_trigger(result, gap_cp=gap_cp, fen=fen)
 
 
-<<<<<<< Updated upstream
 def _pawn_attacks_enemy_pawns(board: chess.Board, square: int, color: chess.Color) -> set[int]:
     hits: set[int] = set()
     for target in board.attacks(square):
@@ -209,93 +216,10 @@ def position_transformation_tags(fen_before: str, move_uci: str) -> tuple[str, .
         tags.append("PAWN_BREAK")
     tags.extend(_king_exposure_tags(board, move, after))
     return tuple(tags)
-=======
-_CENTRAL_FILES = frozenset({chess.C, chess.D, chess.E, chess.F})
-
-
-def _player_color_from_ply(side_to_move: str | chess.Color) -> chess.Color:
-    if isinstance(side_to_move, chess.Color):
-        return side_to_move
-    return chess.WHITE if str(side_to_move).casefold() == "white" else chess.BLACK
-
-
-def position_transformation_evidence(
-    fen_before: str,
-    uci: str,
-    player_color: chess.Color | str,
-) -> tuple[str, ...]:
-    """Structural / king-character signals for F07-008 (board evidence only)."""
-    player = _player_color_from_ply(player_color)
-    board = chess.Board(fen_before)
-    if board.turn != player:
-        return ()
-    try:
-        move = chess.Move.from_uci(uci)
-    except ValueError:
-        return ()
-    if move not in board.legal_moves:
-        return ()
-
-    before_king_attacked = _king_attacked(board, player)
-    piece = board.piece_at(move.from_square)
-    if piece is None:
-        return ()
-    captured = board.piece_at(move.to_square)
-    after_board = board.copy()
-    after_board.push(move)
-    after_king_attacked = _king_attacked(after_board, player)
-
-    evidence: list[str] = []
-
-    if piece.piece_type == chess.PAWN:
-        if captured is not None and captured.piece_type == chess.PAWN:
-            evidence.append(
-                f"pawn exchange on {chess.square_name(move.to_square)}"
-            )
-        to_file = chess.square_file(move.to_square)
-        to_rank = chess.square_rank(move.to_square)
-        if to_file in _CENTRAL_FILES:
-            if player == chess.WHITE and to_rank >= chess.RANK_4:
-                evidence.append(f"central pawn advance to {chess.square_name(move.to_square)}")
-            if player == chess.BLACK and to_rank <= chess.RANK_5:
-                evidence.append(f"central pawn advance to {chess.square_name(move.to_square)}")
-
-    if piece.piece_type == chess.KING:
-        to_file = chess.square_file(move.to_square)
-        if to_file in (chess.D, chess.E):
-            evidence.append(
-                f"king moved to central square {chess.square_name(move.to_square)}"
-            )
-
-    if not before_king_attacked and after_king_attacked:
-        king_sq = after_board.king(player)
-        sq_name = chess.square_name(king_sq) if king_sq is not None else "?"
-        evidence.append(f"king on {sq_name} is newly attacked")
-
-    if piece.piece_type == chess.KING:
-        if (
-            board.has_kingside_castling_rights(player)
-            and not after_board.has_kingside_castling_rights(player)
-        ) or (
-            board.has_queenside_castling_rights(player)
-            and not after_board.has_queenside_castling_rights(player)
-        ):
-            evidence.append("castling rights lost on king move")
-
-    return tuple(dict.fromkeys(evidence))
-
-
-def _king_attacked(board: chess.Board, player: chess.Color) -> bool:
-    king_sq = board.king(player)
-    if king_sq is None:
-        return False
-    return board.is_attacked_by(not player, king_sq)
->>>>>>> Stashed changes
 
 
 def position_transformation_trigger(
     fen_before: str,
-<<<<<<< Updated upstream
     move_uci: str,
 ) -> EngineTrigger:
     """Fire ``POSITION_TRANSFORMATION`` on a pawn break or king exposure."""
@@ -307,29 +231,181 @@ def position_transformation_trigger(
         threshold_cp=1,
         detail=",".join(tags),
     )
-=======
-    uci: str,
+
+
+def _color_from_side(side_to_move: str | chess.Color) -> chess.Color:
+    if isinstance(side_to_move, chess.Color):
+        return side_to_move
+    return chess.WHITE if str(side_to_move).casefold() == "white" else chess.BLACK
+
+
+def _board_if_opponent_to_move(board: chess.Board) -> chess.Board:
+    parts = board.fen().split()
+    parts[1] = "b" if board.turn == chess.WHITE else "w"
+    return chess.Board(" ".join(parts))
+
+
+def _opponent_forcing_check_if_pass(board: chess.Board, player: chess.Color) -> bool:
+    """True if opponent could give check were it their turn (pass-move proxy)."""
+    if board.turn != player or board.is_check():
+        return False
+    opp_board = _board_if_opponent_to_move(board)
+    for move in opp_board.legal_moves:
+        opp_board.push(move)
+        if opp_board.is_check():
+            opp_board.pop()
+            return True
+        opp_board.pop()
+    return False
+
+
+def immediate_threat_tags(
+    fen: str,
     player_color: chess.Color | str,
+    *,
+    hanging_min_value: int = 3,
+    fullmove_number: int | None = None,
+    forcing_check_after_fullmove: int = 10,
+) -> tuple[str, ...]:
+    """Board threats the player must address before deciding (F07-009)."""
+    player = _color_from_side(player_color)
+    board = chess.Board(fen)
+    if board.turn != player:
+        return ()
+
+    tags: list[str] = []
+    if board.is_check():
+        tags.append("IN_CHECK")
+
+    from coaching.diagnosis.board_utils import attacked_undefended
+
+    hanging = attacked_undefended(board, player, min_value=hanging_min_value)
+    for square, piece in hanging[:3]:
+        name = chess.piece_name(piece.piece_type)
+        tags.append(f"HANGING_{name.upper()}_{chess.square_name(square)}")
+
+    if fullmove_number is None or fullmove_number > forcing_check_after_fullmove:
+        if _opponent_forcing_check_if_pass(board, player):
+            tags.append("FORCING_CHECK")
+
+    return tuple(tags)
+
+
+def immediate_threat_trigger(
+    fen: str,
+    player_color: chess.Color | str,
+    *,
+    hanging_min_value: int = 3,
+    fullmove_number: int | None = None,
 ) -> EngineTrigger:
-    """Fire ``POSITION_TRANSFORMATION`` when pawn break or king exposure signals exist."""
-    evidence = position_transformation_evidence(fen_before, uci, player_color)
-    fired = bool(evidence)
-    detail = "; ".join(evidence) if evidence else ""
+    """Fire ``IMMEDIATE_THREAT`` on check, hanging material, or forcing check."""
+    tags = immediate_threat_tags(
+        fen,
+        player_color,
+        hanging_min_value=hanging_min_value,
+        fullmove_number=fullmove_number,
+    )
     return EngineTrigger(
-        code=POSITION_TRANSFORMATION,
-        fired=fired,
-        eval_loss=len(evidence),
+        code=IMMEDIATE_THREAT,
+        fired=bool(tags),
+        eval_loss=len(tags),
         threshold_cp=1,
-        detail=detail,
+        detail=",".join(tags),
     )
 
 
-def ply_position_transformation(
+def ply_immediate_threat(
+    fen_before: str,
+    *,
+    player_color: chess.Color | str,
+    fullmove_number: int | None = None,
+) -> EngineTrigger:
+    """F07-009 at ``fen_before`` (player to move)."""
+    return immediate_threat_trigger(
+        fen_before, player_color, fullmove_number=fullmove_number
+    )
+
+
+def _captured_piece(board: chess.Board, move: chess.Move) -> chess.Piece | None:
+    if board.is_en_passant(move):
+        return chess.Piece(chess.PAWN, not board.turn)
+    return board.piece_at(move.to_square)
+
+
+def irreversible_decision_tags(
+    fen_before: str,
+    move_uci: str,
+    *,
+    fullmove_number: int | None = None,
+    opening_fullmove_cap: int = 10,
+) -> tuple[str, ...]:
+    """Commitment signals for the played move (F07-010)."""
+    board = chess.Board(fen_before)
+    move = chess.Move.from_uci(move_uci)
+    if move not in board.legal_moves:
+        raise ValueError(f"Illegal move {move_uci} in {fen_before}")
+
+    from coaching.diagnosis.board_utils import PIECE_VALUES
+
+    mover = board.piece_at(move.from_square)
+    if mover is None:
+        return ()
+
+    tags: list[str] = []
+    captured = _captured_piece(board, move)
+
+    if board.is_capture(move) and captured is not None:
+        cap_value = PIECE_VALUES.get(captured.piece_type, 0)
+        mover_value = PIECE_VALUES.get(mover.piece_type, 0)
+        if cap_value >= 5:
+            tags.append("MAJOR_CAPTURE")
+        if captured.piece_type == chess.QUEEN:
+            tags.append("QUEEN_EXCHANGE")
+        if mover_value >= 3 and cap_value <= 1:
+            tags.append("MATERIAL_SACRIFICE")
+
+    if mover.piece_type == chess.PAWN:
+        to_rank = chess.square_rank(move.to_square)
+        from_rank = chess.square_rank(move.from_square)
+        if move.promotion:
+            tags.append("PROMOTION")
+        elif abs(to_rank - from_rank) == 2:
+            if fullmove_number is None or fullmove_number > opening_fullmove_cap:
+                tags.append("PAWN_DOUBLE_STEP")
+        elif mover.color == chess.WHITE and to_rank >= 4:
+            tags.append("IRREVERSIBLE_PAWN")
+        elif mover.color == chess.BLACK and to_rank <= 3:
+            tags.append("IRREVERSIBLE_PAWN")
+
+    return tuple(dict.fromkeys(tags))
+
+
+def irreversible_decision_trigger(
+    fen_before: str,
+    move_uci: str,
+    *,
+    fullmove_number: int | None = None,
+) -> EngineTrigger:
+    """Fire ``IRREVERSIBLE_DECISION`` on sac, major exchange, or deep pawn push."""
+    tags = irreversible_decision_tags(
+        fen_before, move_uci, fullmove_number=fullmove_number
+    )
+    return EngineTrigger(
+        code=IRREVERSIBLE_DECISION,
+        fired=bool(tags),
+        eval_loss=len(tags),
+        threshold_cp=1,
+        detail=",".join(tags),
+    )
+
+
+def ply_irreversible_decision(
     fen_before: str,
     uci: str,
     *,
-    player_color: chess.Color | str,
+    fullmove_number: int | None = None,
 ) -> EngineTrigger:
-    """F07-008 on one player ply (``fen_before`` + played ``uci``)."""
-    return position_transformation_trigger(fen_before, uci, player_color)
->>>>>>> Stashed changes
+    """F07-010 for one player ply."""
+    return irreversible_decision_trigger(
+        fen_before, uci, fullmove_number=fullmove_number
+    )
