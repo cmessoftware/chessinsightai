@@ -84,6 +84,7 @@ def build_review_pack(
             "player_score": _player_score_json(played.player_score),
             "pv_san": list(played.pv_san),
             "purpose": comparison.played_purpose.value,
+            "purposes": [p.value for p in comparison.played_purposes],
             "candidate_type": comparison.played_candidate_type.value,
             "consequence": {
                 "tags": list(comparison.played_consequence.tags),
@@ -104,8 +105,10 @@ def build_review_pack(
                 "eval_gap_cp": row.eval_gap_cp,
                 "same_move": row.same_move,
                 "purpose": row.purpose.value,
+                "purposes": [p.value for p in row.purposes],
                 "candidate_type": row.candidate_type.value,
                 "purpose_differs": row.purpose_differs,
+                "purposes_differs": row.purposes_differs,
                 "type_differs": row.type_differs,
                 "consequence_tags": list(row.consequence.tags),
             }

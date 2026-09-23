@@ -112,13 +112,13 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | F07-015 | Played-move evaluation | Move and MultiPV | Rank or independent analysis | Test when the move is not in MultiPV | P0 | ✅ Done | `evaluate_played_move`; Scholar `Nf6` independent; `tests/docs_courses/test_f07_015_played_move.py` |
 | F07-016 | UCI/SAN conversion | Moves and board | Readable, legal notation | Validate all generated moves | P0 | ✅ Done | `uci_to_san` / `san_to_uci` / `pv_uci_to_san`; Scholar every ply; `tests/docs_courses/test_f07_016_notation.py` |
 | F07-017 | Candidate type | Position, move, and PV | Tactical, defensive, break, improvement, exchange, or prophylaxis | Manually review ten positions | P1 | ✅ Done | `candidate_type.py`, `comparison`, review pack |
-| F07-018 | Candidate purpose | Candidate and features | Structured chess objective | Compare with human annotation | P1 | ⬜ Todo | |
+| F07-018 | Candidate purpose | Candidate and features | Structured chess objective | Compare with human annotation | P1 | ✅ Done | `candidate_purpose.py` (07.1 §10.4); `purposes` in comparison + review pack |
 
 ### 07.3 — Decision evaluation
 
 | ID | Feature | Input | Verifiable output | Real-PGN test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| F07-019 | Played move vs candidates | Played move and candidates | Evaluation, purpose, and consequence diffs | Test known errors from own games | P0 | ✅ Done | `compare_played_to_candidates`; Scholar `Nf6` gap ≥150; purpose D1–D5 until F07-018; `tests/docs_courses/test_f07_019_played_vs_candidates.py` |
+| F07-019 | Played move vs candidates | Played move and candidates | Evaluation, purpose, and consequence diffs | Test known errors from own games | P0 | ✅ Done | `compare_played_to_candidates`; Scholar `Nf6` gap ≥150; D1–D5 + F07-017/018 fields; `tests/docs_courses/test_f07_019_played_vs_candidates.py` |
 | F07-020 | Decision type | Critical position | `TACTICAL`, `STRATEGIC`, `PROPHYLACTIC`, `DYNAMIC`, `STATIC`, `DEFENSIVE`, `TECHNICAL`, `PRACTICAL`, `OPENING`, `ENDGAME` | Manually label twenty positions | P1 | ⬜ Todo | Align with 07.1 §5.2 |
 | F07-021 | Structured position assessment | FEN and engine data | Ten MVP factors: `MATERIAL`, `KING_SAFETY`, `DEVELOPMENT`, `SPACE`, `CENTER_CONTROL`, `PAWN_STRUCTURE`, `PIECE_ACTIVITY`, `PIECE_COORDINATION`, `INITIATIVE`, `WORST_PIECE` | Compare assessment with human review on ten positions | P1 | ⬜ Todo | Replaces separate factor rows; see 07.1 §25 |
 | F07-022 | Opponent threat detection | FEN and variations | Identified threats to king, material, or structure | Test positions with hanging pieces or mate threats | P1 | ⬜ Todo | MVP item 3 in 07.1 §25 |

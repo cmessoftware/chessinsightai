@@ -13,6 +13,11 @@ from analysis.engine_eval import (
     ply_evaluation_loss,
 )
 from analysis.abstention import DiagnosisAbstention, assess_diagnosis_abstention
+from analysis.candidate_purpose import (
+    CandidatePurpose,
+    classify_candidate_purposes,
+    purposes_differ,
+)
 from analysis.candidate_type import CandidateType, classify_candidate_type
 from analysis.comparison import (
     CandidateDiff,
@@ -79,6 +84,9 @@ __all__ = [
     "analyze_multipv",
     "evaluate_played_move",
     "compare_played_to_candidates",
+    "CandidatePurpose",
+    "classify_candidate_purposes",
+    "purposes_differ",
     "CandidateType",
     "classify_candidate_type",
     "assess_diagnosis_abstention",

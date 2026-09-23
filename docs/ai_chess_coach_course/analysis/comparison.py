@@ -9,6 +9,11 @@ import chess
 
 from analysis.engine_eval import PlayerScore, open_stockfish
 from analysis.game_models import PlayerColor, parse_player_color
+from analysis.candidate_purpose import (
+    CandidatePurpose,
+    classify_candidate_purposes,
+    purposes_differ,
+)
 from analysis.candidate_type import CandidateType, classify_candidate_type
 from analysis.mental_model.candidate_taxonomy import classify_candidate_move
 from analysis.mental_model.models import CandidateCategory
@@ -51,8 +56,10 @@ class CandidateDiff:
     eval_gap_cp: int
     same_move: bool
     purpose: CandidateCategory
+    purposes: tuple[CandidatePurpose, ...]
     candidate_type: CandidateType
     purpose_differs: bool
+    purposes_differs: bool
     type_differs: bool
     consequence: MoveConsequence
     pv_san: tuple[str, ...]
@@ -66,6 +73,7 @@ class PlayedVsCandidates:
     player_color: PlayerColor
     played: PlayedMoveEval
     played_purpose: CandidateCategory
+    played_purposes: tuple[CandidatePurpose, ...]
     played_candidate_type: CandidateType
     played_consequence: MoveConsequence
     best: CandidateLine | None
@@ -143,7 +151,8 @@ def compare_played_to_candidates(
 ) -> PlayedVsCandidates:
     """Diff the played move against MultiPV lines (F07-019).
 
-    Purpose uses D1–D5 (mental model); F07-017 adds ``candidate_type`` per 07-base.
+    D1–D5 ``purpose`` is the mental-model proxy; F07-017 ``candidate_type`` and
+    F07-018 ``purposes`` are 07-base / 07.1 structured fields.
     """
     board = chess.Board(fen)
     stm: PlayerColor = "white" if board.turn == chess.WHITE else "black"
@@ -170,10 +179,16 @@ def compare_played_to_candidates(
         played_cons = describe_consequence(
             fen, played_eval.move_uci, color, played_eval.pv_san
         )
+        played_purposes = classify_candidate_purposes(
+            fen, move.uci(), pv_san=played_eval.pv_san
+        )
         diffs: list[CandidateDiff] = []
         for line in mpv.lines:
             cand_move = parse_legal_move(fen, line.move_uci)
             purpose = classify_candidate_move(board, cand_move)
+            cand_purposes = classify_candidate_purposes(
+                fen, line.move_uci, pv_san=line.pv_san
+            )
             cand_type = classify_candidate_type(fen, line.move_uci)
             diffs.append(
                 CandidateDiff(
@@ -181,8 +196,10 @@ def compare_played_to_candidates(
                     eval_gap_cp=_eval_gap(line.player_score, played_eval.player_score),
                     same_move=line.move_uci == played_eval.move_uci,
                     purpose=purpose,
+                    purposes=cand_purposes,
                     candidate_type=cand_type,
                     purpose_differs=purpose != played_purpose,
+                    purposes_differs=purposes_differ(played_purposes, cand_purposes),
                     type_differs=cand_type != played_type,
                     consequence=describe_consequence(
                         fen, line.move_uci, color, line.pv_san
@@ -197,6 +214,7 @@ def compare_played_to_candidates(
             player_color=color,
             played=played_eval,
             played_purpose=played_purpose,
+            played_purposes=played_purposes,
             played_candidate_type=played_type,
             played_consequence=played_cons,
             best=best,
