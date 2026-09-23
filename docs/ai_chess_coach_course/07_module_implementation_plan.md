@@ -39,6 +39,7 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | 07.3 Decision type (F07-020) | ✅ Done | `decision_type.py`; `position_decision` on comparison + review pack. |
 | 07.3 Position assessment (F07-021) | ✅ Done | `position_assessment.py`; ten MVP factors in review pack. |
 | 07.3 Opponent threats (F07-022) | ✅ Done | `opponent_threats.py`; king/material/structure + PV hint. |
+| 07.3 Static–dynamic (F07-023) | ✅ Done | `static_dynamic.py`; position character + urgency. |
 | 07.4 Abstention (F07-028) | ✅ Done | `UNKNOWN` / `NEEDS_REVIEW` / `NONE`; startpos vs Scholar `Nf6`. |
 | 07.7 Review pack (F07-035) | ✅ Done | JSON FEN/PGN/candidates/evidence; `PENDING_REVIEW` until HITL. |
 | 07.1 Only move (F07-007) | ✅ Done | `ONLY_MOVE` from sole legal move or MultiPV gap ≥150. |
@@ -125,7 +126,7 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | F07-020 | Decision type | Critical position | `TACTICAL`, `STRATEGIC`, `PROPHYLACTIC`, `DYNAMIC`, `STATIC`, `DEFENSIVE`, `TECHNICAL`, `PRACTICAL`, `OPENING`, `ENDGAME` | Manually label twenty positions | P1 | ✅ Done | `decision_type.py`; review pack `actual_result` |
 | F07-021 | Structured position assessment | FEN and engine data | Ten MVP factors: `MATERIAL`, `KING_SAFETY`, `DEVELOPMENT`, `SPACE`, `CENTER_CONTROL`, `PAWN_STRUCTURE`, `PIECE_ACTIVITY`, `PIECE_COORDINATION`, `INITIATIVE`, `WORST_PIECE` | Compare assessment with human review on ten positions | P1 | ✅ Done | `position_assessment.py`; review pack `position_assessment` |
 | F07-022 | Opponent threat detection | FEN and variations | Identified threats to king, material, or structure | Test positions with hanging pieces or mate threats | P1 | ✅ Done | `opponent_threats.py`; review pack `opponent_threats` |
-| F07-023 | Static–dynamic balance | Position and variations | Position character and required action | Compare a closed position with a dynamic attack | P1 | ⬜ Todo | Maps to `Static-Dynamic Evaluator` |
+| F07-023 | Static–dynamic balance | Position and variations | Position character and required action | Compare a closed position with a dynamic attack | P1 | ✅ Done | `static_dynamic.py`; review pack `static_dynamic` |
 
 ### 07.4 — Chess diagnosis
 
@@ -286,6 +287,7 @@ PGN
 - [x] F07-020 — Decision type
 - [x] F07-021 — Structured position assessment
 - [x] F07-022 — Opponent threat detection
+- [x] F07-023 — Static–dynamic balance
 - [x] F07-028 — Diagnostic abstention
 - [x] F07-035 — Review pack
 - [ ] F07-038 — Golden dataset

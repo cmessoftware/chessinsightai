@@ -89,6 +89,8 @@ def test_review_pack_has_fen_pgn_candidates_and_evidence():
     assert "MATERIAL" in pack["position_assessment"]["factors"]
     assert "opponent_threats" in pack
     assert "max_severity" in pack["opponent_threats"]
+    assert "static_dynamic" in pack
+    assert "position_character" in pack["static_dynamic"]
     json.dumps(pack)
 
 

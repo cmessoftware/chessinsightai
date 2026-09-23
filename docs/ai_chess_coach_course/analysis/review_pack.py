@@ -14,6 +14,7 @@ from analysis.engine_eval import EngineScore, EvaluationLoss, PlayerScore
 from analysis.game_models import NormalizedGame, PlayerSelection, PlyRecord
 from analysis.opponent_threats import detect_opponent_threats
 from analysis.position_assessment import assess_position
+from analysis.static_dynamic import evaluate_static_dynamic
 
 SCHEMA_VERSION = "chessinsight.review_pack.v1"
 FEATURE_ID = "F07-035"
@@ -81,6 +82,15 @@ def build_review_pack(
         player.color,
         opponent_pv_san=pv_for_threats,
         fullmove_number=ply.move_number,
+    )
+    static_dynamic = evaluate_static_dynamic(
+        ply.fen_before,
+        player.color,
+        comparison=comparison,
+        assessment=assessment,
+        opponent_threats=threats,
+        criticality=criticality,
+        engine_cp_player=engine_cp,
     )
     status = "PENDING_REVIEW" if gate.status == "NONE" else gate.status
     pack: dict[str, Any] = {
@@ -161,6 +171,7 @@ def build_review_pack(
         },
         "position_assessment": assessment.to_dict(),
         "opponent_threats": threats.to_dict(),
+        "static_dynamic": static_dynamic.to_dict(),
         "status": status,
         "notes": "",
     }

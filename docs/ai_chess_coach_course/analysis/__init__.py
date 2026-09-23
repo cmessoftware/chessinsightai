@@ -81,6 +81,11 @@ from analysis.opponent_threats import (
     ThreatCode,
     detect_opponent_threats,
 )
+from analysis.static_dynamic import (
+    PositionCharacter,
+    StaticDynamicEvaluation,
+    evaluate_static_dynamic,
+)
 from analysis.position_assessment import (
     AssessmentFactor,
     FactorReading,
@@ -163,6 +168,9 @@ __all__ = [
     "OpponentThreatReport",
     "ThreatCode",
     "detect_opponent_threats",
+    "PositionCharacter",
+    "StaticDynamicEvaluation",
+    "evaluate_static_dynamic",
     "AssessmentFactor",
     "FactorReading",
     "PositionAssessment",
