@@ -60,3 +60,35 @@ def test_scholar_nf6_is_not_a_transformation():
     nf6 = next(p for p in game.plies if p.san == "Nf6")
     trigger = position_transformation_trigger(nf6.fen_before, nf6.uci)
     assert trigger.fired is False
+
+
+def test_assess_ply_criticality_includes_transformation_trigger():
+    from analysis.criticality import assess_ply_criticality
+    from analysis.engine_triggers import EVALUATION_DROP
+
+    game = import_game_from_file(COURSE_ROOT / "data" / "games" / "sample_game4.pgn")
+    f5 = next(p for p in game.plies if p.san == "f5")
+    # Scripted flat eval so only transformation moves the score.
+    class FlatEngine:
+        id = {"name": "Flat"}
+
+        def analyse(self, board, limit):
+            from chess.engine import Cp, PovScore
+
+            return {"score": PovScore(Cp(0), chess.WHITE)}
+
+    from analysis.engine_eval import analyze_ply_for_player
+
+    record = f5
+    ply_eval = analyze_ply_for_player(
+        record.fen_before,
+        record.uci,
+        record.side_to_move,
+        engine=FlatEngine(),
+        depth=4,
+    )
+    crit = assess_ply_criticality(record, ply_eval)
+    codes = {t.code for t in crit.triggers if t.fired}
+    assert POSITION_TRANSFORMATION in codes
+    assert EVALUATION_DROP not in codes
+    assert crit.score >= RELEVANT_MIN

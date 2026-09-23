@@ -421,3 +421,9 @@ is considered a proof of concept.
 - Replace any implementation that hinders traceability.
 - Keep engine analysis separate from interpretation.
 - Accept a full rewrite if it simplifies the vertical flow.
+
+## 10. Product bridge (MVP UI)
+
+FastAPI, React + Vite, PostgreSQL persistence, longitudinal themes, puzzles, and reference corpus are **not** F07 catalog items. They are tracked in **[08_mvp_product_roadmap.md](./08_mvp_product_roadmap.md)** (modules M08, M09, M11; gates GATE-F07-PERSIST → GATE-MVP-1.0).
+
+F07 remains the per-position engine of record; module 08 stores and exposes F07 outputs without replacing `analysis/*` logic.

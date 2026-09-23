@@ -126,6 +126,7 @@ def ply_only_move(
     return only_move_trigger(result, gap_cp=gap_cp, fen=fen)
 
 
+<<<<<<< Updated upstream
 def _pawn_attacks_enemy_pawns(board: chess.Board, square: int, color: chess.Color) -> set[int]:
     hits: set[int] = set()
     for target in board.attacks(square):
@@ -208,10 +209,93 @@ def position_transformation_tags(fen_before: str, move_uci: str) -> tuple[str, .
         tags.append("PAWN_BREAK")
     tags.extend(_king_exposure_tags(board, move, after))
     return tuple(tags)
+=======
+_CENTRAL_FILES = frozenset({chess.C, chess.D, chess.E, chess.F})
+
+
+def _player_color_from_ply(side_to_move: str | chess.Color) -> chess.Color:
+    if isinstance(side_to_move, chess.Color):
+        return side_to_move
+    return chess.WHITE if str(side_to_move).casefold() == "white" else chess.BLACK
+
+
+def position_transformation_evidence(
+    fen_before: str,
+    uci: str,
+    player_color: chess.Color | str,
+) -> tuple[str, ...]:
+    """Structural / king-character signals for F07-008 (board evidence only)."""
+    player = _player_color_from_ply(player_color)
+    board = chess.Board(fen_before)
+    if board.turn != player:
+        return ()
+    try:
+        move = chess.Move.from_uci(uci)
+    except ValueError:
+        return ()
+    if move not in board.legal_moves:
+        return ()
+
+    before_king_attacked = _king_attacked(board, player)
+    piece = board.piece_at(move.from_square)
+    if piece is None:
+        return ()
+    captured = board.piece_at(move.to_square)
+    after_board = board.copy()
+    after_board.push(move)
+    after_king_attacked = _king_attacked(after_board, player)
+
+    evidence: list[str] = []
+
+    if piece.piece_type == chess.PAWN:
+        if captured is not None and captured.piece_type == chess.PAWN:
+            evidence.append(
+                f"pawn exchange on {chess.square_name(move.to_square)}"
+            )
+        to_file = chess.square_file(move.to_square)
+        to_rank = chess.square_rank(move.to_square)
+        if to_file in _CENTRAL_FILES:
+            if player == chess.WHITE and to_rank >= chess.RANK_4:
+                evidence.append(f"central pawn advance to {chess.square_name(move.to_square)}")
+            if player == chess.BLACK and to_rank <= chess.RANK_5:
+                evidence.append(f"central pawn advance to {chess.square_name(move.to_square)}")
+
+    if piece.piece_type == chess.KING:
+        to_file = chess.square_file(move.to_square)
+        if to_file in (chess.D, chess.E):
+            evidence.append(
+                f"king moved to central square {chess.square_name(move.to_square)}"
+            )
+
+    if not before_king_attacked and after_king_attacked:
+        king_sq = after_board.king(player)
+        sq_name = chess.square_name(king_sq) if king_sq is not None else "?"
+        evidence.append(f"king on {sq_name} is newly attacked")
+
+    if piece.piece_type == chess.KING:
+        if (
+            board.has_kingside_castling_rights(player)
+            and not after_board.has_kingside_castling_rights(player)
+        ) or (
+            board.has_queenside_castling_rights(player)
+            and not after_board.has_queenside_castling_rights(player)
+        ):
+            evidence.append("castling rights lost on king move")
+
+    return tuple(dict.fromkeys(evidence))
+
+
+def _king_attacked(board: chess.Board, player: chess.Color) -> bool:
+    king_sq = board.king(player)
+    if king_sq is None:
+        return False
+    return board.is_attacked_by(not player, king_sq)
+>>>>>>> Stashed changes
 
 
 def position_transformation_trigger(
     fen_before: str,
+<<<<<<< Updated upstream
     move_uci: str,
 ) -> EngineTrigger:
     """Fire ``POSITION_TRANSFORMATION`` on a pawn break or king exposure."""
@@ -223,3 +307,29 @@ def position_transformation_trigger(
         threshold_cp=1,
         detail=",".join(tags),
     )
+=======
+    uci: str,
+    player_color: chess.Color | str,
+) -> EngineTrigger:
+    """Fire ``POSITION_TRANSFORMATION`` when pawn break or king exposure signals exist."""
+    evidence = position_transformation_evidence(fen_before, uci, player_color)
+    fired = bool(evidence)
+    detail = "; ".join(evidence) if evidence else ""
+    return EngineTrigger(
+        code=POSITION_TRANSFORMATION,
+        fired=fired,
+        eval_loss=len(evidence),
+        threshold_cp=1,
+        detail=detail,
+    )
+
+
+def ply_position_transformation(
+    fen_before: str,
+    uci: str,
+    *,
+    player_color: chess.Color | str,
+) -> EngineTrigger:
+    """F07-008 on one player ply (``fen_before`` + played ``uci``)."""
+    return position_transformation_trigger(fen_before, uci, player_color)
+>>>>>>> Stashed changes

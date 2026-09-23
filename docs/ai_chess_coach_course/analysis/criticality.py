@@ -13,6 +13,7 @@ from analysis.engine_triggers import (
     ONLY_MOVE,
     EngineTrigger,
     ply_evaluation_drop,
+    position_transformation_trigger,
 )
 from analysis.game_models import PlayerSelection, PlyRecord
 
@@ -120,7 +121,10 @@ def assess_ply_criticality(
     *,
     threshold_cp: int = DEFAULT_EVALUATION_DROP_CP,
 ) -> PlyCriticality:
-    triggers = (ply_evaluation_drop(ply_eval, threshold_cp=threshold_cp),)
+    triggers = (
+        ply_evaluation_drop(ply_eval, threshold_cp=threshold_cp),
+        position_transformation_trigger(record.fen_before, record.uci),
+    )
     score, reasons = criticality_from_triggers(triggers)
     level = classify_criticality(score)
     return PlyCriticality(
