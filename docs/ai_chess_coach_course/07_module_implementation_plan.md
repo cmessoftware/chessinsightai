@@ -111,7 +111,7 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | F07-014 | Stockfish MultiPV | Critical FEN | Three candidates with PV and evaluation | Run on critical positions from a PGN | P0 | ✅ Done | `analyze_multipv` in `analysis/multipv.py`; Scholar FEN + startpos; `tests/docs_courses/test_f07_014_multipv.py` |
 | F07-015 | Played-move evaluation | Move and MultiPV | Rank or independent analysis | Test when the move is not in MultiPV | P0 | ✅ Done | `evaluate_played_move`; Scholar `Nf6` independent; `tests/docs_courses/test_f07_015_played_move.py` |
 | F07-016 | UCI/SAN conversion | Moves and board | Readable, legal notation | Validate all generated moves | P0 | ✅ Done | `uci_to_san` / `san_to_uci` / `pv_uci_to_san`; Scholar every ply; `tests/docs_courses/test_f07_016_notation.py` |
-| F07-017 | Candidate type | Position, move, and PV | Tactical, defensive, break, improvement, exchange, or prophylaxis | Manually review ten positions | P1 | ⬜ Todo | |
+| F07-017 | Candidate type | Position, move, and PV | Tactical, defensive, break, improvement, exchange, or prophylaxis | Manually review ten positions | P1 | ✅ Done | `candidate_type.py`, `comparison`, review pack |
 | F07-018 | Candidate purpose | Candidate and features | Structured chess objective | Compare with human annotation | P1 | ⬜ Todo | |
 
 ### 07.3 — Decision evaluation
