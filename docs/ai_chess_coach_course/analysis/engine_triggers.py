@@ -7,7 +7,12 @@ from typing import Literal
 
 import chess
 
-from analysis.engine_eval import EvaluationLoss, NormalizedPlyEval, ply_evaluation_loss
+from analysis.engine_eval import (
+    EvaluationLoss,
+    NormalizedPlyEval,
+    PlayerScore,
+    ply_evaluation_loss,
+)
 from analysis.multipv import MultiPVResult, analyze_multipv
 
 EngineTriggerCode = Literal[
@@ -16,6 +21,7 @@ EngineTriggerCode = Literal[
     "POSITION_TRANSFORMATION",
     "IMMEDIATE_THREAT",
     "IRREVERSIBLE_DECISION",
+    "COMPLEX_POSITION",
 ]
 
 EVALUATION_DROP: EngineTriggerCode = "EVALUATION_DROP"
@@ -23,9 +29,13 @@ ONLY_MOVE: EngineTriggerCode = "ONLY_MOVE"
 POSITION_TRANSFORMATION: EngineTriggerCode = "POSITION_TRANSFORMATION"
 IMMEDIATE_THREAT: EngineTriggerCode = "IMMEDIATE_THREAT"
 IRREVERSIBLE_DECISION: EngineTriggerCode = "IRREVERSIBLE_DECISION"
+COMPLEX_POSITION: EngineTriggerCode = "COMPLEX_POSITION"
 DEFAULT_EVALUATION_DROP_CP = 150
 DEFAULT_ONLY_MOVE_GAP_CP = 150
 ONLY_MOVE_SOLE_LEGAL_GAP = 100_000
+DEFAULT_COMPLEX_TIGHT_GAP_CP = 25
+DEFAULT_COMPLEX_CANDIDATE_SPREAD_CP = 80
+DEFAULT_COMPLEX_MIN_BRANCHING = 32
 
 
 @dataclass(frozen=True)
@@ -408,4 +418,91 @@ def ply_irreversible_decision(
     """F07-010 for one player ply."""
     return irreversible_decision_trigger(
         fen_before, uci, fullmove_number=fullmove_number
+    )
+
+
+def _cp_player(line_score: PlayerScore) -> int:
+    return int(line_score.as_cp_units())
+
+
+def complex_position_tags(
+    fen: str,
+    multipv_result: MultiPVResult | None = None,
+    *,
+    tight_gap_cp: int = DEFAULT_COMPLEX_TIGHT_GAP_CP,
+    candidate_spread_cp: int = DEFAULT_COMPLEX_CANDIDATE_SPREAD_CP,
+    min_branching: int = DEFAULT_COMPLEX_MIN_BRANCHING,
+) -> tuple[str, ...]:
+    """Branching + MultiPV spread signals for F07-011."""
+    board = chess.Board(fen)
+    tags: list[str] = []
+
+    legal = board.legal_moves.count()
+    if legal >= min_branching:
+        tags.append(f"HIGH_BRANCHING_{legal}")
+
+    if multipv_result is not None and len(multipv_result.lines) >= 2:
+        scores = [_cp_player(line.player_score) for line in multipv_result.lines]
+        gap12 = abs(scores[0] - scores[1])
+        if gap12 <= tight_gap_cp:
+            tags.append("MULTIPV_TIGHT")
+        if len(scores) >= 3:
+            spread13 = abs(scores[0] - scores[2])
+            if spread13 <= candidate_spread_cp:
+                tags.append("MULTI_CANDIDATE")
+
+    return tuple(tags)
+
+
+def complex_position_trigger(
+    fen: str,
+    multipv_result: MultiPVResult | None = None,
+    *,
+    tight_gap_cp: int = DEFAULT_COMPLEX_TIGHT_GAP_CP,
+    candidate_spread_cp: int = DEFAULT_COMPLEX_CANDIDATE_SPREAD_CP,
+    min_branching: int = DEFAULT_COMPLEX_MIN_BRANCHING,
+) -> EngineTrigger:
+    """Fire ``COMPLEX_POSITION`` when branching or candidate evals are tight."""
+    tags = complex_position_tags(
+        fen,
+        multipv_result,
+        tight_gap_cp=tight_gap_cp,
+        candidate_spread_cp=candidate_spread_cp,
+        min_branching=min_branching,
+    )
+    return EngineTrigger(
+        code=COMPLEX_POSITION,
+        fired=bool(tags),
+        eval_loss=len(tags),
+        threshold_cp=1,
+        detail=",".join(tags),
+    )
+
+
+def ply_complex_position(
+    fen: str,
+    *,
+    engine=None,
+    depth: int = 12,
+    multipv: int = 3,
+    player_color=None,
+    multipv_result: MultiPVResult | None = None,
+    tight_gap_cp: int = DEFAULT_COMPLEX_TIGHT_GAP_CP,
+    candidate_spread_cp: int = DEFAULT_COMPLEX_CANDIDATE_SPREAD_CP,
+    min_branching: int = DEFAULT_COMPLEX_MIN_BRANCHING,
+) -> EngineTrigger:
+    """F07-011 — runs MultiPV when ``multipv_result`` is not provided."""
+    result = multipv_result or analyze_multipv(
+        fen,
+        engine=engine,
+        depth=depth,
+        multipv=multipv,
+        player_color=player_color,
+    )
+    return complex_position_trigger(
+        fen,
+        result,
+        tight_gap_cp=tight_gap_cp,
+        candidate_spread_cp=candidate_spread_cp,
+        min_branching=min_branching,
     )

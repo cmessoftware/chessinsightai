@@ -12,6 +12,7 @@ from analysis.engine_triggers import (
     POSITION_TRANSFORMATION,
     IMMEDIATE_THREAT,
     IRREVERSIBLE_DECISION,
+    COMPLEX_POSITION,
     ONLY_MOVE,
     EngineTrigger,
     ply_evaluation_drop,
@@ -83,6 +84,8 @@ def _trigger_weight(trigger: EngineTrigger) -> float:
         return RELEVANT_MIN
     if trigger.code == IRREVERSIBLE_DECISION:
         return RELEVANT_MIN
+    if trigger.code == COMPLEX_POSITION:
+        return RELEVANT_MIN
     return 0.0
 
 
@@ -118,6 +121,12 @@ def _reason_for(trigger: EngineTrigger, weight: float) -> CriticalityReason | No
             type=IRREVERSIBLE_DECISION,
             weight=weight,
             description=trigger.detail or IRREVERSIBLE_DECISION,
+        )
+    if trigger.code == COMPLEX_POSITION:
+        return CriticalityReason(
+            type=COMPLEX_POSITION,
+            weight=weight,
+            description=trigger.detail or COMPLEX_POSITION,
         )
     return CriticalityReason(type=trigger.code, weight=weight, description=trigger.code)
 

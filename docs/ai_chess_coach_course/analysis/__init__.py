@@ -37,6 +37,7 @@ from analysis.engine_triggers import (
     POSITION_TRANSFORMATION,
     IMMEDIATE_THREAT,
     IRREVERSIBLE_DECISION,
+    COMPLEX_POSITION,
     EngineTrigger,
     evaluation_drop_trigger,
     immediate_threat_trigger,
@@ -46,6 +47,8 @@ from analysis.engine_triggers import (
     ply_immediate_threat,
     irreversible_decision_trigger,
     ply_irreversible_decision,
+    complex_position_trigger,
+    ply_complex_position,
     ply_only_move,
 )
 from analysis.interactive_board import show_interactive_board
@@ -106,6 +109,9 @@ __all__ = [
     "ply_immediate_threat",
     "irreversible_decision_trigger",
     "ply_irreversible_decision",
+    "complex_position_trigger",
+    "ply_complex_position",
+    "COMPLEX_POSITION",
     "EngineTrigger",
     "PlyCriticality",
     "RankedCriticality",

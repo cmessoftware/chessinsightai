@@ -42,6 +42,7 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | 07.1 Character change (F07-008) | ✅ Done | `POSITION_TRANSFORMATION`: pawn break / shield drop / opposite castling. |
 | 07.1 Immediate threat (F07-009) | ✅ Done | `IMMEDIATE_THREAT`: check, hanging material, forcing-check proxy. |
 | 07.1 Irreversible decision (F07-010) | ✅ Done | `IRREVERSIBLE_DECISION`: major capture, queen exchange, piece-for-pawn, deep pawn. |
+| 07.1 Complexity (F07-011) | ✅ Done | `COMPLEX_POSITION`: MultiPV tight spread + high branching (optional MultiPV). |
 | 07.1–07.8 | ⬜ Todo | Remaining 07.1+ features not started. |
 
 ## Principles
@@ -99,7 +100,7 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | F07-008 | Character change | Evaluations and features | Trigger `POSITION_TRANSFORMATION` | Detect a pawn break or king exposure | P1 | ✅ Done | `position_transformation_trigger`; `sample_game4` `f5` / `O-O-O`; startpos `e4` quiet; `tests/docs_courses/test_f07_008_position_transformation.py` |
 | F07-009 | Immediate threat | FEN and variations | Trigger `IMMEDIATE_THREAT` | Position before mate or material loss | P1 | ✅ Done | `immediate_threat_trigger` / `ply_immediate_threat`; tags IN_CHECK, HANGING_*, FORCING_CHECK; wired in `assess_ply_criticality`; `tests/docs_courses/test_f07_009_immediate_threat.py` |
 | F07-010 | Irreversible decision | Move and position | Trigger `IRREVERSIBLE_DECISION` | Structural change, sacrifice, or critical exchange | P1 | ✅ Done | `irreversible_decision_trigger`; tags MAJOR_CAPTURE, QUEEN_EXCHANGE, MATERIAL_SACRIFICE, IRREVERSIBLE_PAWN; `tests/docs_courses/test_f07_010_irreversible_decision.py` |
-| F07-011 | Complexity | MultiPV, branching, volatility | Trigger `COMPLEX_POSITION` | Compare a tactical and a quiet position | P2 | ⬜ Todo | |
+| F07-011 | Complexity | MultiPV, branching, volatility | Trigger `COMPLEX_POSITION` | Compare a tactical and a quiet position | P2 | ✅ Done | `complex_position_trigger` / `ply_complex_position`; tags MULTIPV_TIGHT, MULTI_CANDIDATE, HIGH_BRANCHING_*; not in default `assess_ply_criticality` (needs MultiPV); `tests/docs_courses/test_f07_011_complex_position.py` |
 | F07-012 | Criticality score | Active triggers | Score and criticality level | Score all positions in one game | P0 | ✅ Done | `criticality_from_triggers` / `score_player_game`; 07-base §7.4 bands; Scholar all Black plies; `tests/docs_courses/test_f07_012_criticality.py` |
 | F07-013 | Position ranking | Game results | Top N critical positions | Compare top 5 with human review | P0 | ✅ Done | `rank_critical_positions` / `rank_player_game`; Scholar `Nf6` #1; `tests/docs_courses/test_f07_013_ranking.py` |
 
