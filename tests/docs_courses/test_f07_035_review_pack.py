@@ -82,6 +82,7 @@ def test_review_pack_has_fen_pgn_candidates_and_evidence():
     assert pack["evidence"]["multipv"] == 3
     assert pack["evidence"]["inference_as_fact"] is False
     assert pack["actual_result"]["primary_error"] is None
+    assert pack["actual_result"]["decision_type"] == "TACTICAL"
     assert pack["human_label"]["confirmed"] is None
     assert pack["status"] == "PENDING_REVIEW"
     json.dumps(pack)
