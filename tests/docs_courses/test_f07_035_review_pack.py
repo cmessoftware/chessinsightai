@@ -85,6 +85,8 @@ def test_review_pack_has_fen_pgn_candidates_and_evidence():
     assert pack["actual_result"]["decision_type"] == "TACTICAL"
     assert pack["human_label"]["confirmed"] is None
     assert pack["status"] == "PENDING_REVIEW"
+    assert "position_assessment" in pack
+    assert "MATERIAL" in pack["position_assessment"]["factors"]
     json.dumps(pack)
 
 

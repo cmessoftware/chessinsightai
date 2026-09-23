@@ -12,6 +12,7 @@ from analysis.comparison import PlayedVsCandidates
 from analysis.criticality import PlyCriticality
 from analysis.engine_eval import EngineScore, EvaluationLoss, PlayerScore
 from analysis.game_models import NormalizedGame, PlayerSelection, PlyRecord
+from analysis.position_assessment import assess_position
 
 SCHEMA_VERSION = "chessinsight.review_pack.v1"
 FEATURE_ID = "F07-035"
@@ -61,6 +62,12 @@ def build_review_pack(
     gate = abstention or assess_diagnosis_abstention(comparison)
     played = comparison.played
     decision = comparison.position_decision
+    engine_cp = comparison.played.player_score.as_cp_units()
+    assessment = assess_position(
+        ply.fen_before,
+        player_color=player.color,
+        engine_cp_player=engine_cp,
+    )
     status = "PENDING_REVIEW" if gate.status == "NONE" else gate.status
     pack: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -138,6 +145,7 @@ def build_review_pack(
             "layer": "evidence",
             "inference_as_fact": False,
         },
+        "position_assessment": assessment.to_dict(),
         "status": status,
         "notes": "",
     }

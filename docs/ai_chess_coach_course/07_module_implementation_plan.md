@@ -17,7 +17,7 @@ PGN
 
 The current code in `analysis/mental_model/` is considered a disposable prototype. It may be modified or replaced entirely.
 
-**Last status update:** 2026-09-01.
+**Last status update:** 2026-09-23.
 
 ### Current progress
 
@@ -36,6 +36,8 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | 07.2 Played-move eval (F07-015) | ✅ Done | Rank in MultiPV or independent `root_moves` analysis. |
 | 07.2 UCI/SAN (F07-016) | ✅ Done | `analysis/notation.py`; Scholar all-plies roundtrip. |
 | 07.3 Played vs candidates (F07-019) | ✅ Done | Eval gap, D1–D5, F07-017/018 labels, F07-020 `position_decision`. |
+| 07.3 Decision type (F07-020) | ✅ Done | `decision_type.py`; `position_decision` on comparison + review pack. |
+| 07.3 Position assessment (F07-021) | ✅ Done | `position_assessment.py`; ten MVP factors in review pack. |
 | 07.4 Abstention (F07-028) | ✅ Done | `UNKNOWN` / `NEEDS_REVIEW` / `NONE`; startpos vs Scholar `Nf6`. |
 | 07.7 Review pack (F07-035) | ✅ Done | JSON FEN/PGN/candidates/evidence; `PENDING_REVIEW` until HITL. |
 | 07.1 Only move (F07-007) | ✅ Done | `ONLY_MOVE` from sole legal move or MultiPV gap ≥150. |
@@ -120,7 +122,7 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 |---|---|---|---|---|---|---|---|
 | F07-019 | Played move vs candidates | Played move and candidates | Evaluation, purpose, and consequence diffs | Test known errors from own games | P0 | ✅ Done | `compare_played_to_candidates`; Scholar `Nf6` gap ≥150; D1–D5 + F07-017/018 fields; `tests/docs_courses/test_f07_019_played_vs_candidates.py` |
 | F07-020 | Decision type | Critical position | `TACTICAL`, `STRATEGIC`, `PROPHYLACTIC`, `DYNAMIC`, `STATIC`, `DEFENSIVE`, `TECHNICAL`, `PRACTICAL`, `OPENING`, `ENDGAME` | Manually label twenty positions | P1 | ✅ Done | `decision_type.py`; review pack `actual_result` |
-| F07-021 | Structured position assessment | FEN and engine data | Ten MVP factors: `MATERIAL`, `KING_SAFETY`, `DEVELOPMENT`, `SPACE`, `CENTER_CONTROL`, `PAWN_STRUCTURE`, `PIECE_ACTIVITY`, `PIECE_COORDINATION`, `INITIATIVE`, `WORST_PIECE` | Compare assessment with human review on ten positions | P1 | ⬜ Todo | Replaces separate factor rows; see 07.1 §25 |
+| F07-021 | Structured position assessment | FEN and engine data | Ten MVP factors: `MATERIAL`, `KING_SAFETY`, `DEVELOPMENT`, `SPACE`, `CENTER_CONTROL`, `PAWN_STRUCTURE`, `PIECE_ACTIVITY`, `PIECE_COORDINATION`, `INITIATIVE`, `WORST_PIECE` | Compare assessment with human review on ten positions | P1 | ✅ Done | `position_assessment.py`; review pack `position_assessment` |
 | F07-022 | Opponent threat detection | FEN and variations | Identified threats to king, material, or structure | Test positions with hanging pieces or mate threats | P1 | ⬜ Todo | MVP item 3 in 07.1 §25 |
 | F07-023 | Static–dynamic balance | Position and variations | Position character and required action | Compare a closed position with a dynamic attack | P1 | ⬜ Todo | Maps to `Static-Dynamic Evaluator` |
 
@@ -280,6 +282,8 @@ PGN
 - [x] F07-015 — Played-move evaluation
 - [x] F07-016 — UCI/SAN conversion
 - [x] F07-019 — Played move vs candidates
+- [x] F07-020 — Decision type
+- [x] F07-021 — Structured position assessment
 - [x] F07-028 — Diagnostic abstention
 - [x] F07-035 — Review pack
 - [ ] F07-038 — Golden dataset

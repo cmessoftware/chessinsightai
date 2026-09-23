@@ -75,6 +75,13 @@ from analysis.review_pack import (
     default_review_pack_name,
     write_review_pack,
 )
+from analysis.position_assessment import (
+    AssessmentFactor,
+    FactorReading,
+    PositionAssessment,
+    WorstPiece,
+    assess_position,
+)
 from analysis.position_extractor import (
     import_game_from_file,
     import_game_from_pgn,
@@ -146,6 +153,11 @@ __all__ = [
     "NormalizedGame",
     "PlayerSelection",
     "PlyRecord",
+    "AssessmentFactor",
+    "FactorReading",
+    "PositionAssessment",
+    "WorstPiece",
+    "assess_position",
     "import_game_from_file",
     "import_game_from_pgn",
     "load_game_from_db",
