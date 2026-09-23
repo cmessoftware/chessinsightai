@@ -25,7 +25,8 @@ Deliver the **production MVP** defined in [6.6.7](./00-ai_enginner_course_roadma
 | M08 Training intelligence (F08-001+) | ⬜ Todo | This document |
 | M09 Reference corpus (F09-001+) | ⬜ Todo | Blocked on stable `theme_code` v1 |
 | M10 Knowledge RAG (legacy 7.2) | 🔒 Todo | After GATE-7.1; not merged with M09 |
-| M11 MVP shell pages | ⬜ Todo | After first M08 vertical slice |
+| M11 MVP shell pages | 🟡 In progress | **Priority:** Module 07 end-user slice (§13) before full M08 weakness UI |
+| F07 branches 017–023 | ✅ Done on branch stack | **Merge to `main`** before product implementation (locked) |
 
 ## Principles
 
@@ -47,6 +48,11 @@ Deliver the **production MVP** defined in [6.6.7](./00-ai_enginner_course_roadma
 | Model games | Module **M09** (F09-*), separate from **M10** textbook RAG (old 7.2) |
 | Branch naming | `feature/08_*` / `feature/09_*` from numeric id in this catalog |
 | LS01 | Optional export adapter (F08-018); never required for MVP gates |
+| Username | **Per game:** match importer handle to PGN `[White]` / `[Black]`; persist on each `module07_*` game row |
+| Persistence (interim) | PostgreSQL tables prefixed **`module07_*`**; unify with legacy `games` / F08 stores in a later migration |
+| F07 on `main` | **Merge** the stacked `feature/07_*` branches (through F07-023) before building the MVP UI |
+| Stockfish job defaults | **Depth 12**, **MultiPV 3**; both overridable per analysis job (env + job payload) |
+| Near-term product goal | **End-user MVP UI:** import PGN → analysis queue → decision review (board + review pack + mental model tabs) |
 
 ## 1. Module breakdown
 
@@ -233,12 +239,14 @@ flowchart TD
 | F11-003 | Analysis queue page | F08-002 jobs | Pending / running / failed games | P0 | ⬜ | `11_003_ui_analysis_queue` |
 | F11-004 | App shell + nav | Routes | Weaknesses, practice, model games (when ready) | P0 | ⬜ | `11_004_ui_app_shell` |
 | F11-005 | Auth boundary | JWT existing | User isolation on all F08/F09 endpoints | P0 | ⬜ | `11_005_auth_isolation_audit` |
+| F11-006 | Decision review page | F07 review pack + mental model JSON | Board at ply; Motor vs Mental 1600; candidate list; criticality | P0 | ⬜ | `11_006_ui_decision_review` |
 
 ## 7. Suggested sprint order
 
 | Sprint | Focus | Catalog ids |
 |---|---|---|
-| S1 | Persist F07 | F08-001, F08-002, F08-003 |
+| **S0** | **Module 07 end-user MVP** | Merge F07 → `main`; `module07_*` schema; ingest + jobs; F11-004, F11-002, F11-003, F11-006 |
+| S1 | Persist F07 (longitudinal) | F08-001, F08-002, F08-003 |
 | S2 | Themes MVP | F08-004, F08-005, F08-006, F08-007 |
 | S3 | Outcomes + score | F08-008, F08-009, F08-010, F08-012 |
 | S4 | API core | F08-020, F08-021 |
@@ -306,6 +314,8 @@ Out of scope for first increment:
 
 **Completion criterion (GATE-MVP-PRAGMATIC + partial GATE-M08-CORE):** imported games → job → API weakness list matches fixture expectations → React table renders → one puzzle generated from a known blunder ply.
 
+> **Note:** §11 remains the **training-intelligence** MVP (weaknesses + puzzle). The **first shippable UI for beta testers** is §13 (decision review only); S0 precedes S1.
+
 ## 12. Commands (when implemented)
 
 ```powershell
@@ -317,7 +327,65 @@ pytest tests/mvp/test_f09_*.py -q
 
 # F07 regression (stay green)
 pytest tests/docs_courses/test_f07_*.py -q
+
+# Module 07 product API smoke (when implemented)
+pytest tests/mvp/test_module07_*.py -q
 ```
+
+---
+
+## 13. Addendum — Module 07 end-user MVP (2026-09-23)
+
+**Objective:** A non-developer can **upload a multi-game PGN**, confirm **which side they played** (username matched per game from headers), **queue Stockfish analysis**, and **step through critical decision points** in the browser with the same evidence the lab produces (F07-017–023 fields, criticality, comparison, mental model).
+
+This slice **does not** require F08 theme detection, weakness scores, or M09 corpus. It **does** require F07 on `main` and PostgreSQL persistence under **`module07_*`** (unification with `games` / F08-001 later).
+
+### 13.1 User journey (acceptance)
+
+1. **Import** — Paste PGN or upload file; parse **all** games (product layer; F07 `import_game_from_file` today reads first game only).
+2. **Identify player** — For each game, set or confirm username (must match `[White]` or `[Black]`).
+3. **Analyze** — Submit batch; UI shows pending / running / failed (F11-003 pattern).
+4. **Review** — Open a game → list of critical plies (threshold from F07 criticality) → **F11-006** detail: `ChessinsightBoard`, played vs candidates, tabs **Motor** (engine/review pack) and **Mental 1600** (`assess_decision_point` output).
+
+**Done when:** one real PGN (e.g. mixed handles) completes end-to-end on staging/local without pytest or notebooks.
+
+### 13.2 Backend (minimal)
+
+| Piece | Responsibility |
+|---|---|
+| `module07_games` | `id`, user scope, PGN blob or hash, white/black headers, **player_username**, ingest metadata |
+| `module07_analysis_jobs` | Status, **depth** (default 12), **multipv** (default 3), error text, timestamps |
+| `module07_decision_points` | `game_id`, ply, fen, criticality, **review_pack JSON**, **mental_model JSON** |
+| Worker | Off request path: run F07 pipeline → `build_review_pack` + mental model per critical ply; persist rows |
+| FastAPI | `/api/v1/module07/ingest`, `.../jobs`, `.../games`, `.../games/{id}/decisions`, `.../decisions/{id}` |
+
+Reuse `docs/ai_chess_coach_course/analysis/*` and `mental_model/` — no duplicate eval logic in `src/`.
+
+### 13.3 Frontend (minimal)
+
+| Page | Catalog | Notes |
+|---|---|---|
+| App shell + nav | F11-004 | Import, Queue, (placeholder for later Weaknesses) |
+| Import | F11-002 | PGN text/file; username; triggers ingest |
+| Analysis queue | F11-003 | Poll job status |
+| Decision review | **F11-006** | Props per [ui/chessinsight_board/CONTRACT.md](./ui/chessinsight_board/CONTRACT.md) |
+
+Auth: reuse existing JWT; **F11-005** audit can trail S0 if single-user dev mode is gated.
+
+### 13.4 Engineering order
+
+1. Merge **`feature/07_*`** stack into **`main`** (through F07-023).
+2. Alembic migration for `module07_*`.
+3. Ingest + job enqueue + worker (defaults: depth 12, MultiPV 3).
+4. React pages F11-004 → F11-002 → F11-003 → F11-006.
+5. Smoke tests `tests/mvp/test_module07_*.py` + keep `test_f07_*` green.
+
+### 13.5 Explicitly out of scope (S0)
+
+- F08-004+ theme registry and weakness ranking UI (§11)
+- M09 model games
+- LS01 SQLite as source of truth
+- Stockfish on interactive GET requests
 
 ---
 
