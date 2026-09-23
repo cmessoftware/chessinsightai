@@ -12,6 +12,7 @@ from analysis.comparison import PlayedVsCandidates
 from analysis.criticality import PlyCriticality
 from analysis.engine_eval import EngineScore, EvaluationLoss, PlayerScore
 from analysis.game_models import NormalizedGame, PlayerSelection, PlyRecord
+from analysis.opponent_threats import detect_opponent_threats
 from analysis.position_assessment import assess_position
 
 SCHEMA_VERSION = "chessinsight.review_pack.v1"
@@ -67,6 +68,19 @@ def build_review_pack(
         ply.fen_before,
         player_color=player.color,
         engine_cp_player=engine_cp,
+    )
+    best_pv = comparison.best.pv_san if comparison.best else ()
+    opponent_reply = (
+        (comparison.played_consequence.opponent_pv_san,)
+        if comparison.played_consequence.opponent_pv_san
+        else ()
+    )
+    pv_for_threats = opponent_reply if opponent_reply else best_pv
+    threats = detect_opponent_threats(
+        ply.fen_before,
+        player.color,
+        opponent_pv_san=pv_for_threats,
+        fullmove_number=ply.move_number,
     )
     status = "PENDING_REVIEW" if gate.status == "NONE" else gate.status
     pack: dict[str, Any] = {
@@ -146,6 +160,7 @@ def build_review_pack(
             "inference_as_fact": False,
         },
         "position_assessment": assessment.to_dict(),
+        "opponent_threats": threats.to_dict(),
         "status": status,
         "notes": "",
     }

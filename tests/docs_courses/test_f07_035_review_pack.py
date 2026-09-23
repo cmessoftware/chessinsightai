@@ -87,6 +87,8 @@ def test_review_pack_has_fen_pgn_candidates_and_evidence():
     assert pack["status"] == "PENDING_REVIEW"
     assert "position_assessment" in pack
     assert "MATERIAL" in pack["position_assessment"]["factors"]
+    assert "opponent_threats" in pack
+    assert "max_severity" in pack["opponent_threats"]
     json.dumps(pack)
 
 

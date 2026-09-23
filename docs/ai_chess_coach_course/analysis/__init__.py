@@ -75,6 +75,12 @@ from analysis.review_pack import (
     default_review_pack_name,
     write_review_pack,
 )
+from analysis.opponent_threats import (
+    OpponentThreat,
+    OpponentThreatReport,
+    ThreatCode,
+    detect_opponent_threats,
+)
 from analysis.position_assessment import (
     AssessmentFactor,
     FactorReading,
@@ -153,6 +159,10 @@ __all__ = [
     "NormalizedGame",
     "PlayerSelection",
     "PlyRecord",
+    "OpponentThreat",
+    "OpponentThreatReport",
+    "ThreatCode",
+    "detect_opponent_threats",
     "AssessmentFactor",
     "FactorReading",
     "PositionAssessment",
