@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 import chess
@@ -14,6 +14,8 @@ from analysis.candidate_purpose import (
     classify_candidate_purposes,
     purposes_differ,
 )
+from analysis.criticality import PlyCriticality
+from analysis.decision_type import PositionDecisionType, classify_position_decision_type
 from analysis.candidate_type import CandidateType, classify_candidate_type
 from analysis.mental_model.candidate_taxonomy import classify_candidate_move
 from analysis.mental_model.models import CandidateCategory
@@ -67,7 +69,7 @@ class CandidateDiff:
 
 @dataclass(frozen=True)
 class PlayedVsCandidates:
-    """F07-019 — evaluation, purpose proxy, and consequence diffs."""
+    """F07-019 — eval, purpose/type diffs, consequence, and F07-020 decision type."""
 
     fen: str
     player_color: PlayerColor
@@ -76,6 +78,7 @@ class PlayedVsCandidates:
     played_purposes: tuple[CandidatePurpose, ...]
     played_candidate_type: CandidateType
     played_consequence: MoveConsequence
+    position_decision: PositionDecisionType
     best: CandidateLine | None
     eval_gap_vs_best_cp: int
     played_is_best: bool
@@ -148,11 +151,12 @@ def compare_played_to_candidates(
     player_color: PlayerColor | str | int | None = None,
     multipv_result: MultiPVResult | None = None,
     played: PlayedMoveEval | None = None,
+    move_number: int | None = None,
+    criticality: PlyCriticality | None = None,
 ) -> PlayedVsCandidates:
     """Diff the played move against MultiPV lines (F07-019).
 
-    D1–D5 ``purpose`` is the mental-model proxy; F07-017 ``candidate_type`` and
-    F07-018 ``purposes`` are 07-base / 07.1 structured fields.
+    Includes F07-017/018 candidate labels and F07-020 ``position_decision``.
     """
     board = chess.Board(fen)
     stm: PlayerColor = "white" if board.turn == chess.WHITE else "black"
@@ -209,7 +213,8 @@ def compare_played_to_candidates(
             )
         best = mpv.lines[0] if mpv.lines else None
         gap_best = _eval_gap(best.player_score, played_eval.player_score) if best else 0
-        return PlayedVsCandidates(
+        mn = move_number if move_number is not None else board.fullmove_number
+        result = PlayedVsCandidates(
             fen=board.fen(),
             player_color=color,
             played=played_eval,
@@ -217,12 +222,20 @@ def compare_played_to_candidates(
             played_purposes=played_purposes,
             played_candidate_type=played_type,
             played_consequence=played_cons,
+            position_decision=classify_position_decision_type(fen),
             best=best,
             eval_gap_vs_best_cp=gap_best,
             played_is_best=bool(best and best.move_uci == played_eval.move_uci),
             in_multipv=played_eval.in_multipv,
             diffs=tuple(diffs),
         )
+        decision = classify_position_decision_type(
+            fen,
+            comparison=result,
+            criticality=criticality,
+            move_number=mn,
+        )
+        return replace(result, position_decision=decision)
 
     if engine is not None:
         return _run(engine)

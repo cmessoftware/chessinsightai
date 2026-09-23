@@ -4,12 +4,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING
 
 import chess
 
 from analysis.candidate_purpose import CandidatePurpose
-from analysis.comparison import PlayedVsCandidates
 from analysis.criticality import PlyCriticality
+
+if TYPE_CHECKING:
+    from analysis.comparison import PlayedVsCandidates
 from analysis.engine_triggers import (
     COMPLEX_POSITION,
     IMMEDIATE_THREAT,

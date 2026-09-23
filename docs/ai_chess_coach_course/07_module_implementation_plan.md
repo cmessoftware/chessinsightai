@@ -35,7 +35,7 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | 07.2 MultiPV (F07-014) | ✅ Done | `analyze_multipv`; 3 lines + PV + player-POV eval. |
 | 07.2 Played-move eval (F07-015) | ✅ Done | Rank in MultiPV or independent `root_moves` analysis. |
 | 07.2 UCI/SAN (F07-016) | ✅ Done | `analysis/notation.py`; Scholar all-plies roundtrip. |
-| 07.3 Played vs candidates (F07-019) | ✅ Done | Eval gap, D1–D5 purpose proxy, one-ply consequence. |
+| 07.3 Played vs candidates (F07-019) | ✅ Done | Eval gap, D1–D5, F07-017/018 labels, F07-020 `position_decision`. |
 | 07.4 Abstention (F07-028) | ✅ Done | `UNKNOWN` / `NEEDS_REVIEW` / `NONE`; startpos vs Scholar `Nf6`. |
 | 07.7 Review pack (F07-035) | ✅ Done | JSON FEN/PGN/candidates/evidence; `PENDING_REVIEW` until HITL. |
 | 07.1 Only move (F07-007) | ✅ Done | `ONLY_MOVE` from sole legal move or MultiPV gap ≥150. |

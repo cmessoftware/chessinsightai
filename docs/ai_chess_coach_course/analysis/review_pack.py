@@ -10,7 +10,6 @@ from typing import Any
 from analysis.abstention import DiagnosisAbstention, assess_diagnosis_abstention
 from analysis.comparison import PlayedVsCandidates
 from analysis.criticality import PlyCriticality
-from analysis.decision_type import classify_position_decision_type
 from analysis.engine_eval import EngineScore, EvaluationLoss, PlayerScore
 from analysis.game_models import NormalizedGame, PlayerSelection, PlyRecord
 
@@ -61,12 +60,7 @@ def build_review_pack(
     """Assemble a JSON-serializable pack for one ply (F07-035)."""
     gate = abstention or assess_diagnosis_abstention(comparison)
     played = comparison.played
-    decision = classify_position_decision_type(
-        ply.fen_before,
-        comparison=comparison,
-        criticality=criticality,
-        move_number=ply.move_number,
-    )
+    decision = comparison.position_decision
     status = "PENDING_REVIEW" if gate.status == "NONE" else gate.status
     pack: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
