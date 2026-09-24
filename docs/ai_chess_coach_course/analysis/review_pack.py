@@ -12,6 +12,9 @@ from analysis.comparison import PlayedVsCandidates
 from analysis.criticality import PlyCriticality
 from analysis.engine_eval import EngineScore, EvaluationLoss, PlayerScore
 from analysis.game_models import NormalizedGame, PlayerSelection, PlyRecord
+from analysis.opponent_threats import detect_opponent_threats
+from analysis.position_assessment import assess_position
+from analysis.static_dynamic import evaluate_static_dynamic
 
 SCHEMA_VERSION = "chessinsight.review_pack.v1"
 FEATURE_ID = "F07-035"
@@ -60,6 +63,35 @@ def build_review_pack(
     """Assemble a JSON-serializable pack for one ply (F07-035)."""
     gate = abstention or assess_diagnosis_abstention(comparison)
     played = comparison.played
+    decision = comparison.position_decision
+    engine_cp = comparison.played.player_score.as_cp_units()
+    assessment = assess_position(
+        ply.fen_before,
+        player_color=player.color,
+        engine_cp_player=engine_cp,
+    )
+    best_pv = comparison.best.pv_san if comparison.best else ()
+    opponent_reply = (
+        (comparison.played_consequence.opponent_pv_san,)
+        if comparison.played_consequence.opponent_pv_san
+        else ()
+    )
+    pv_for_threats = opponent_reply if opponent_reply else best_pv
+    threats = detect_opponent_threats(
+        ply.fen_before,
+        player.color,
+        opponent_pv_san=pv_for_threats,
+        fullmove_number=ply.move_number,
+    )
+    static_dynamic = evaluate_static_dynamic(
+        ply.fen_before,
+        player.color,
+        comparison=comparison,
+        assessment=assessment,
+        opponent_threats=threats,
+        criticality=criticality,
+        engine_cp_player=engine_cp,
+    )
     status = "PENDING_REVIEW" if gate.status == "NONE" else gate.status
     pack: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -84,6 +116,8 @@ def build_review_pack(
             "player_score": _player_score_json(played.player_score),
             "pv_san": list(played.pv_san),
             "purpose": comparison.played_purpose.value,
+            "purposes": [p.value for p in comparison.played_purposes],
+            "candidate_type": comparison.played_candidate_type.value,
             "consequence": {
                 "tags": list(comparison.played_consequence.tags),
                 "gives_check": comparison.played_consequence.gives_check,
@@ -103,7 +137,11 @@ def build_review_pack(
                 "eval_gap_cp": row.eval_gap_cp,
                 "same_move": row.same_move,
                 "purpose": row.purpose.value,
+                "purposes": [p.value for p in row.purposes],
+                "candidate_type": row.candidate_type.value,
                 "purpose_differs": row.purpose_differs,
+                "purposes_differs": row.purposes_differs,
+                "type_differs": row.type_differs,
                 "consequence_tags": list(row.consequence.tags),
             }
             for row in comparison.diffs
@@ -112,6 +150,9 @@ def build_review_pack(
             "eval_gap_vs_best_cp": comparison.eval_gap_vs_best_cp,
             "played_is_best": comparison.played_is_best,
             "best_san": comparison.best.move_san if comparison.best else None,
+            "decision_type": decision.primary.value,
+            "secondary_decision_types": [s.value for s in decision.secondary],
+            "decision_type_confidence": decision.confidence,
             "abstention": {
                 "status": gate.status,
                 "reasons": list(gate.reasons),
@@ -128,6 +169,9 @@ def build_review_pack(
             "layer": "evidence",
             "inference_as_fact": False,
         },
+        "position_assessment": assessment.to_dict(),
+        "opponent_threats": threats.to_dict(),
+        "static_dynamic": static_dynamic.to_dict(),
         "status": status,
         "notes": "",
     }

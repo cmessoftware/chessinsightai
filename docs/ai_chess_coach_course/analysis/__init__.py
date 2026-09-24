@@ -13,6 +13,17 @@ from analysis.engine_eval import (
     ply_evaluation_loss,
 )
 from analysis.abstention import DiagnosisAbstention, assess_diagnosis_abstention
+from analysis.decision_type import (
+    DecisionType,
+    PositionDecisionType,
+    classify_position_decision_type,
+)
+from analysis.candidate_purpose import (
+    CandidatePurpose,
+    classify_candidate_purposes,
+    purposes_differ,
+)
+from analysis.candidate_type import CandidateType, classify_candidate_type
 from analysis.comparison import (
     CandidateDiff,
     MoveConsequence,
@@ -34,10 +45,21 @@ from analysis.criticality import (
 from analysis.engine_triggers import (
     EVALUATION_DROP,
     ONLY_MOVE,
+    POSITION_TRANSFORMATION,
+    IMMEDIATE_THREAT,
+    IRREVERSIBLE_DECISION,
+    COMPLEX_POSITION,
     EngineTrigger,
     evaluation_drop_trigger,
+    immediate_threat_trigger,
     only_move_trigger,
+    position_transformation_trigger,
     ply_evaluation_drop,
+    ply_immediate_threat,
+    irreversible_decision_trigger,
+    ply_irreversible_decision,
+    complex_position_trigger,
+    ply_complex_position,
     ply_only_move,
 )
 from analysis.interactive_board import show_interactive_board
@@ -53,6 +75,24 @@ from analysis.review_pack import (
     default_review_pack_name,
     write_review_pack,
 )
+from analysis.opponent_threats import (
+    OpponentThreat,
+    OpponentThreatReport,
+    ThreatCode,
+    detect_opponent_threats,
+)
+from analysis.static_dynamic import (
+    PositionCharacter,
+    StaticDynamicEvaluation,
+    evaluate_static_dynamic,
+)
+from analysis.position_assessment import (
+    AssessmentFactor,
+    FactorReading,
+    PositionAssessment,
+    WorstPiece,
+    assess_position,
+)
 from analysis.position_extractor import (
     import_game_from_file,
     import_game_from_pgn,
@@ -67,6 +107,14 @@ __all__ = [
     "analyze_multipv",
     "evaluate_played_move",
     "compare_played_to_candidates",
+    "DecisionType",
+    "PositionDecisionType",
+    "classify_position_decision_type",
+    "CandidatePurpose",
+    "classify_candidate_purposes",
+    "purposes_differ",
+    "CandidateType",
+    "classify_candidate_type",
     "assess_diagnosis_abstention",
     "DiagnosisAbstention",
     "describe_consequence",
@@ -85,11 +133,22 @@ __all__ = [
     "ply_evaluation_loss",
     "evaluation_drop_trigger",
     "only_move_trigger",
+    "position_transformation_trigger",
     "ply_evaluation_drop",
     "ply_only_move",
     "normalize_for_player",
     "EVALUATION_DROP",
     "ONLY_MOVE",
+    "POSITION_TRANSFORMATION",
+    "IMMEDIATE_THREAT",
+    "IRREVERSIBLE_DECISION",
+    "immediate_threat_trigger",
+    "ply_immediate_threat",
+    "irreversible_decision_trigger",
+    "ply_irreversible_decision",
+    "complex_position_trigger",
+    "ply_complex_position",
+    "COMPLEX_POSITION",
     "EngineTrigger",
     "PlyCriticality",
     "RankedCriticality",
@@ -105,6 +164,18 @@ __all__ = [
     "NormalizedGame",
     "PlayerSelection",
     "PlyRecord",
+    "OpponentThreat",
+    "OpponentThreatReport",
+    "ThreatCode",
+    "detect_opponent_threats",
+    "PositionCharacter",
+    "StaticDynamicEvaluation",
+    "evaluate_static_dynamic",
+    "AssessmentFactor",
+    "FactorReading",
+    "PositionAssessment",
+    "WorstPiece",
+    "assess_position",
     "import_game_from_file",
     "import_game_from_pgn",
     "load_game_from_db",
