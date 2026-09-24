@@ -17,7 +17,7 @@ PGN
 
 The current code in `analysis/mental_model/` is considered a disposable prototype. It may be modified or replaced entirely.
 
-**Last status update:** 2026-09-01.
+**Last status update:** 2026-09-23.
 
 ### Current progress
 
@@ -35,11 +35,18 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | 07.2 MultiPV (F07-014) | ✅ Done | `analyze_multipv`; 3 lines + PV + player-POV eval. |
 | 07.2 Played-move eval (F07-015) | ✅ Done | Rank in MultiPV or independent `root_moves` analysis. |
 | 07.2 UCI/SAN (F07-016) | ✅ Done | `analysis/notation.py`; Scholar all-plies roundtrip. |
-| 07.3 Played vs candidates (F07-019) | ✅ Done | Eval gap, D1–D5 purpose proxy, one-ply consequence. |
+| 07.3 Played vs candidates (F07-019) | ✅ Done | Eval gap, D1–D5, F07-017/018 labels, F07-020 `position_decision`. |
+| 07.3 Decision type (F07-020) | ✅ Done | `decision_type.py`; `position_decision` on comparison + review pack. |
+| 07.3 Position assessment (F07-021) | ✅ Done | `position_assessment.py`; ten MVP factors in review pack. |
+| 07.3 Opponent threats (F07-022) | ✅ Done | `opponent_threats.py`; king/material/structure + PV hint. |
+| 07.3 Static–dynamic (F07-023) | ✅ Done | `static_dynamic.py`; position character + urgency. |
 | 07.4 Abstention (F07-028) | ✅ Done | `UNKNOWN` / `NEEDS_REVIEW` / `NONE`; startpos vs Scholar `Nf6`. |
 | 07.7 Review pack (F07-035) | ✅ Done | JSON FEN/PGN/candidates/evidence; `PENDING_REVIEW` until HITL. |
 | 07.1 Only move (F07-007) | ✅ Done | `ONLY_MOVE` from sole legal move or MultiPV gap ≥150. |
-| 07.1 Character change (F07-008) | ⬜ Todo | Next P1 — branch `feature/07_008_position_transformation`. |
+| 07.1 Character change (F07-008) | ✅ Done | `POSITION_TRANSFORMATION`: pawn break / shield drop / opposite castling. |
+| 07.1 Immediate threat (F07-009) | ✅ Done | `IMMEDIATE_THREAT`: check, hanging material, forcing-check proxy. |
+| 07.1 Irreversible decision (F07-010) | ✅ Done | `IRREVERSIBLE_DECISION`: major capture, queen exchange, piece-for-pawn, deep pawn. |
+| 07.1 Complexity (F07-011) | ✅ Done | `COMPLEX_POSITION`: MultiPV tight spread + high branching (optional MultiPV). |
 | 07.1–07.8 | ⬜ Todo | Remaining 07.1+ features not started. |
 
 ## Principles
@@ -94,10 +101,10 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 |---|---|---|---|---|---|---|---|
 | F07-006 | Significant loss | `eval_loss` | Trigger `EVALUATION_DROP` | Compare an obvious blunder with a stable game | P0 | ✅ Done | `evaluation_drop_trigger` / `ply_evaluation_drop`; threshold 150 cp; Scholar `Nf6` vs Ruy `a6`; `tests/docs_courses/test_f07_006_evaluation_drop.py` |
 | F07-007 | Only move | MultiPV | Trigger `ONLY_MOVE` | Use a position with a single sufficient defense | P1 | ✅ Done | `only_move_trigger` / `ply_only_move`; back-rank `Rxd1`; opening does not fire; `tests/docs_courses/test_f07_007_only_move.py` |
-| F07-008 | Character change | Evaluations and features | Trigger `POSITION_TRANSFORMATION` | Detect a pawn break or king exposure | P1 | ⬜ Todo | |
-| F07-009 | Immediate threat | FEN and variations | Trigger `IMMEDIATE_THREAT` | Position before mate or material loss | P1 | ⬜ Todo | |
-| F07-010 | Irreversible decision | Move and position | Trigger `IRREVERSIBLE_DECISION` | Structural change, sacrifice, or critical exchange | P1 | ⬜ Todo | |
-| F07-011 | Complexity | MultiPV, branching, volatility | Trigger `COMPLEX_POSITION` | Compare a tactical and a quiet position | P2 | ⬜ Todo | |
+| F07-008 | Character change | Evaluations and features | Trigger `POSITION_TRANSFORMATION` | Detect a pawn break or king exposure | P1 | ✅ Done | `position_transformation_trigger`; `sample_game4` `f5` / `O-O-O`; startpos `e4` quiet; `tests/docs_courses/test_f07_008_position_transformation.py` |
+| F07-009 | Immediate threat | FEN and variations | Trigger `IMMEDIATE_THREAT` | Position before mate or material loss | P1 | ✅ Done | `immediate_threat_trigger` / `ply_immediate_threat`; tags IN_CHECK, HANGING_*, FORCING_CHECK; wired in `assess_ply_criticality`; `tests/docs_courses/test_f07_009_immediate_threat.py` |
+| F07-010 | Irreversible decision | Move and position | Trigger `IRREVERSIBLE_DECISION` | Structural change, sacrifice, or critical exchange | P1 | ✅ Done | `irreversible_decision_trigger`; tags MAJOR_CAPTURE, QUEEN_EXCHANGE, MATERIAL_SACRIFICE, IRREVERSIBLE_PAWN; `tests/docs_courses/test_f07_010_irreversible_decision.py` |
+| F07-011 | Complexity | MultiPV, branching, volatility | Trigger `COMPLEX_POSITION` | Compare a tactical and a quiet position | P2 | ✅ Done | `complex_position_trigger` / `ply_complex_position`; tags MULTIPV_TIGHT, MULTI_CANDIDATE, HIGH_BRANCHING_*; not in default `assess_ply_criticality` (needs MultiPV); `tests/docs_courses/test_f07_011_complex_position.py` |
 | F07-012 | Criticality score | Active triggers | Score and criticality level | Score all positions in one game | P0 | ✅ Done | `criticality_from_triggers` / `score_player_game`; 07-base §7.4 bands; Scholar all Black plies; `tests/docs_courses/test_f07_012_criticality.py` |
 | F07-013 | Position ranking | Game results | Top N critical positions | Compare top 5 with human review | P0 | ✅ Done | `rank_critical_positions` / `rank_player_game`; Scholar `Nf6` #1; `tests/docs_courses/test_f07_013_ranking.py` |
 
@@ -108,18 +115,18 @@ The current code in `analysis/mental_model/` is considered a disposable prototyp
 | F07-014 | Stockfish MultiPV | Critical FEN | Three candidates with PV and evaluation | Run on critical positions from a PGN | P0 | ✅ Done | `analyze_multipv` in `analysis/multipv.py`; Scholar FEN + startpos; `tests/docs_courses/test_f07_014_multipv.py` |
 | F07-015 | Played-move evaluation | Move and MultiPV | Rank or independent analysis | Test when the move is not in MultiPV | P0 | ✅ Done | `evaluate_played_move`; Scholar `Nf6` independent; `tests/docs_courses/test_f07_015_played_move.py` |
 | F07-016 | UCI/SAN conversion | Moves and board | Readable, legal notation | Validate all generated moves | P0 | ✅ Done | `uci_to_san` / `san_to_uci` / `pv_uci_to_san`; Scholar every ply; `tests/docs_courses/test_f07_016_notation.py` |
-| F07-017 | Candidate type | Position, move, and PV | Tactical, defensive, break, improvement, exchange, or prophylaxis | Manually review ten positions | P1 | ⬜ Todo | |
-| F07-018 | Candidate purpose | Candidate and features | Structured chess objective | Compare with human annotation | P1 | ⬜ Todo | |
+| F07-017 | Candidate type | Position, move, and PV | Tactical, defensive, break, improvement, exchange, or prophylaxis | Manually review ten positions | P1 | ✅ Done | `candidate_type.py`, `comparison`, review pack |
+| F07-018 | Candidate purpose | Candidate and features | Structured chess objective | Compare with human annotation | P1 | ✅ Done | `candidate_purpose.py` (07.1 §10.4); `purposes` in comparison + review pack |
 
 ### 07.3 — Decision evaluation
 
 | ID | Feature | Input | Verifiable output | Real-PGN test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
-| F07-019 | Played move vs candidates | Played move and candidates | Evaluation, purpose, and consequence diffs | Test known errors from own games | P0 | ✅ Done | `compare_played_to_candidates`; Scholar `Nf6` gap ≥150; purpose D1–D5 until F07-018; `tests/docs_courses/test_f07_019_played_vs_candidates.py` |
-| F07-020 | Decision type | Critical position | `TACTICAL`, `STRATEGIC`, `PROPHYLACTIC`, `DYNAMIC`, `STATIC`, `DEFENSIVE`, `TECHNICAL`, `PRACTICAL`, `OPENING`, `ENDGAME` | Manually label twenty positions | P1 | ⬜ Todo | Align with 07.1 §5.2 |
-| F07-021 | Structured position assessment | FEN and engine data | Ten MVP factors: `MATERIAL`, `KING_SAFETY`, `DEVELOPMENT`, `SPACE`, `CENTER_CONTROL`, `PAWN_STRUCTURE`, `PIECE_ACTIVITY`, `PIECE_COORDINATION`, `INITIATIVE`, `WORST_PIECE` | Compare assessment with human review on ten positions | P1 | ⬜ Todo | Replaces separate factor rows; see 07.1 §25 |
-| F07-022 | Opponent threat detection | FEN and variations | Identified threats to king, material, or structure | Test positions with hanging pieces or mate threats | P1 | ⬜ Todo | MVP item 3 in 07.1 §25 |
-| F07-023 | Static–dynamic balance | Position and variations | Position character and required action | Compare a closed position with a dynamic attack | P1 | ⬜ Todo | Maps to `Static-Dynamic Evaluator` |
+| F07-019 | Played move vs candidates | Played move and candidates | Evaluation, purpose, and consequence diffs | Test known errors from own games | P0 | ✅ Done | `compare_played_to_candidates`; Scholar `Nf6` gap ≥150; D1–D5 + F07-017/018 fields; `tests/docs_courses/test_f07_019_played_vs_candidates.py` |
+| F07-020 | Decision type | Critical position | `TACTICAL`, `STRATEGIC`, `PROPHYLACTIC`, `DYNAMIC`, `STATIC`, `DEFENSIVE`, `TECHNICAL`, `PRACTICAL`, `OPENING`, `ENDGAME` | Manually label twenty positions | P1 | ✅ Done | `decision_type.py`; review pack `actual_result` |
+| F07-021 | Structured position assessment | FEN and engine data | Ten MVP factors: `MATERIAL`, `KING_SAFETY`, `DEVELOPMENT`, `SPACE`, `CENTER_CONTROL`, `PAWN_STRUCTURE`, `PIECE_ACTIVITY`, `PIECE_COORDINATION`, `INITIATIVE`, `WORST_PIECE` | Compare assessment with human review on ten positions | P1 | ✅ Done | `position_assessment.py`; review pack `position_assessment` |
+| F07-022 | Opponent threat detection | FEN and variations | Identified threats to king, material, or structure | Test positions with hanging pieces or mate threats | P1 | ✅ Done | `opponent_threats.py`; review pack `opponent_threats` |
+| F07-023 | Static–dynamic balance | Position and variations | Position character and required action | Compare a closed position with a dynamic attack | P1 | ✅ Done | `static_dynamic.py`; review pack `static_dynamic` |
 
 ### 07.4 — Chess diagnosis
 
@@ -277,6 +284,10 @@ PGN
 - [x] F07-015 — Played-move evaluation
 - [x] F07-016 — UCI/SAN conversion
 - [x] F07-019 — Played move vs candidates
+- [x] F07-020 — Decision type
+- [x] F07-021 — Structured position assessment
+- [x] F07-022 — Opponent threat detection
+- [x] F07-023 — Static–dynamic balance
 - [x] F07-028 — Diagnostic abstention
 - [x] F07-035 — Review pack
 - [ ] F07-038 — Golden dataset
@@ -420,3 +431,9 @@ is considered a proof of concept.
 - Replace any implementation that hinders traceability.
 - Keep engine analysis separate from interpretation.
 - Accept a full rewrite if it simplifies the vertical flow.
+
+## 10. Product bridge (MVP UI)
+
+FastAPI, React + Vite, PostgreSQL persistence, longitudinal themes, puzzles, and reference corpus are **not** F07 catalog items. They are tracked in **[08_mvp_product_roadmap.md](./08_mvp_product_roadmap.md)** (modules M08, M09, M11; gates GATE-F07-PERSIST → GATE-MVP-1.0).
+
+F07 remains the per-position engine of record; module 08 stores and exposes F07 outputs without replacing `analysis/*` logic.

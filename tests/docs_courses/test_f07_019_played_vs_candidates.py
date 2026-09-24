@@ -13,6 +13,8 @@ COURSE_ROOT = Path(__file__).resolve().parents[2] / "docs" / "ai_chess_coach_cou
 if str(COURSE_ROOT) not in sys.path:
     sys.path.insert(0, str(COURSE_ROOT))
 
+from analysis.candidate_type import CandidateType
+from analysis.decision_type import DecisionType
 from analysis.comparison import compare_played_to_candidates, describe_consequence
 from analysis.engine_eval import stockfish_available
 from analysis.position_extractor import import_game_from_file
@@ -117,6 +119,18 @@ def test_sample_game4_white_ply_compares_without_crash():
     )
     assert result.played.move_san == "e4"
     assert len(result.diffs) == 3
+    assert result.played_candidate_type == CandidateType.IMPROVEMENT
+    assert result.position_decision.primary in (
+        DecisionType.OPENING,
+        DecisionType.PRACTICAL,
+    )
+
+
+def test_startpos_comparison_includes_position_decision():
+    result = compare_played_to_candidates(
+        chess.Board().fen(), "e2e4", engine=_opening_engine(), depth=6
+    )
+    assert result.position_decision.confidence > 0
 
 
 @pytest.mark.skipif(not stockfish_available(), reason="Stockfish binary not found")

@@ -9,9 +9,16 @@ from analysis.engine_eval import NormalizedPlyEval, analyze_ply_for_player, open
 from analysis.engine_triggers import (
     DEFAULT_EVALUATION_DROP_CP,
     EVALUATION_DROP,
+    POSITION_TRANSFORMATION,
+    IMMEDIATE_THREAT,
+    IRREVERSIBLE_DECISION,
+    COMPLEX_POSITION,
     ONLY_MOVE,
     EngineTrigger,
     ply_evaluation_drop,
+    ply_immediate_threat,
+    ply_irreversible_decision,
+    position_transformation_trigger,
 )
 from analysis.game_models import PlayerSelection, PlyRecord
 
@@ -71,6 +78,14 @@ def _trigger_weight(trigger: EngineTrigger) -> float:
         return _evaluation_drop_weight(trigger)
     if trigger.code == ONLY_MOVE:
         return RELEVANT_MIN
+    if trigger.code == POSITION_TRANSFORMATION:
+        return RELEVANT_MIN
+    if trigger.code == IMMEDIATE_THREAT:
+        return RELEVANT_MIN
+    if trigger.code == IRREVERSIBLE_DECISION:
+        return RELEVANT_MIN
+    if trigger.code == COMPLEX_POSITION:
+        return RELEVANT_MIN
     return 0.0
 
 
@@ -88,6 +103,30 @@ def _reason_for(trigger: EngineTrigger, weight: float) -> CriticalityReason | No
             type=ONLY_MOVE,
             weight=weight,
             description=f"only-move gap {trigger.eval_loss} cp ≥ {trigger.threshold_cp} cp",
+        )
+    if trigger.code == POSITION_TRANSFORMATION:
+        return CriticalityReason(
+            type=POSITION_TRANSFORMATION,
+            weight=weight,
+            description=trigger.detail or POSITION_TRANSFORMATION,
+        )
+    if trigger.code == IMMEDIATE_THREAT:
+        return CriticalityReason(
+            type=IMMEDIATE_THREAT,
+            weight=weight,
+            description=trigger.detail or IMMEDIATE_THREAT,
+        )
+    if trigger.code == IRREVERSIBLE_DECISION:
+        return CriticalityReason(
+            type=IRREVERSIBLE_DECISION,
+            weight=weight,
+            description=trigger.detail or IRREVERSIBLE_DECISION,
+        )
+    if trigger.code == COMPLEX_POSITION:
+        return CriticalityReason(
+            type=COMPLEX_POSITION,
+            weight=weight,
+            description=trigger.detail or COMPLEX_POSITION,
         )
     return CriticalityReason(type=trigger.code, weight=weight, description=trigger.code)
 
@@ -111,7 +150,20 @@ def assess_ply_criticality(
     *,
     threshold_cp: int = DEFAULT_EVALUATION_DROP_CP,
 ) -> PlyCriticality:
-    triggers = (ply_evaluation_drop(ply_eval, threshold_cp=threshold_cp),)
+    triggers = (
+        ply_evaluation_drop(ply_eval, threshold_cp=threshold_cp),
+        position_transformation_trigger(record.fen_before, record.uci),
+        ply_immediate_threat(
+            record.fen_before,
+            player_color=record.side_to_move,
+            fullmove_number=record.move_number,
+        ),
+        ply_irreversible_decision(
+            record.fen_before,
+            record.uci,
+            fullmove_number=record.move_number,
+        ),
+    )
     score, reasons = criticality_from_triggers(triggers)
     level = classify_criticality(score)
     return PlyCriticality(
