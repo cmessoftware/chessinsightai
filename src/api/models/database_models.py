@@ -110,3 +110,7 @@ class TacticalExercises(Base):
     uci = Column(String, nullable=False)
     tags = Column(String, nullable=False)
     source_game_id = Column(String)
+
+
+# Register Module 07 MVP tables on the same metadata (Alembic autogenerate / migrations).
+from models import module07_models as _module07_models  # noqa: E402, F401
