@@ -13,7 +13,7 @@ import {
     Tab,
     Chip
 } from '@mui/material'
-import { AccountCircle, ExitToApp, Home, Games, SportsEsports, CloudUpload, Assessment, SwapHoriz, Security } from '@mui/icons-material'
+import { AccountCircle, ExitToApp, Home, Games, SportsEsports, CloudUpload, Assessment, SwapHoriz, Security, Psychology } from '@mui/icons-material'
 import { useAuth } from '../../hooks/useAuth.js'
 import { logger } from '../../utils/helpers.js'
 import NotificationBell from './NotificationBell.jsx'
@@ -50,6 +50,7 @@ const Navigation = () => {
         if (path.startsWith('/chess-board')) return '/chess-board'
         if (path.startsWith('/import')) return '/import'
         if (path.startsWith('/reports')) return '/reports'
+        if (path.startsWith('/coach')) return '/coach/import'
         return false
     }
 
@@ -101,6 +102,13 @@ const Navigation = () => {
                                 label="Importar"
                                 value="/import"
                                 icon={<CloudUpload />}
+                                iconPosition="start"
+                                sx={{ minHeight: 48 }}
+                            />
+                            <Tab
+                                label="Coach"
+                                value="/coach/import"
+                                icon={<Psychology />}
                                 iconPosition="start"
                                 sx={{ minHeight: 48 }}
                             />

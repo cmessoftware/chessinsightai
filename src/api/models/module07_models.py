@@ -16,7 +16,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from src.api.models.database_models import Base
+from models.database_models import Base
 
 DEFAULT_STOCKFISH_DEPTH = 12
 DEFAULT_STOCKFISH_MULTIPV = 3

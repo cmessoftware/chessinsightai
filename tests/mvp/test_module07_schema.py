@@ -5,12 +5,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+API_DIR = Path(__file__).resolve().parents[2] / "src" / "api"
+SRC_DIR = API_DIR.parent
+for path in (str(SRC_DIR), str(API_DIR)):
+    if path not in sys.path:
+        sys.path.insert(0, path)
 
-from src.api.models.database_models import Base
-from src.api.models.module07_models import (
+from models.database_models import Base
+from models.module07_models import (
     DEFAULT_STOCKFISH_DEPTH,
     DEFAULT_STOCKFISH_MULTIPV,
     Module07AnalysisJob,
