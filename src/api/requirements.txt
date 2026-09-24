@@ -11,8 +11,8 @@ python-chess==1.999
 
 # Base de datos (psycopg compatible con Python 3.13)
 psycopg[binary,pool]==3.3.2
-sqlalchemy==2.0.23
-alembic==1.13.1
+sqlalchemy==2.0.35
+alembic==1.16.1
 
 # Utilidades
 python-dotenv==1.0.0
