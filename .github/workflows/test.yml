@@ -26,7 +26,7 @@ jobs:
     - name: Run tests
       run: pytest tests/
 
-  lichess_statistics:
+  chess_statistics:
     runs-on: ubuntu-latest
 
     steps:
@@ -42,5 +42,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Lichess statistics tests
-      run: pytest tests/lichess_statistics -q --tb=short
+    - name: Run chess statistics tests
+      run: pytest tests/chess_statistics -q --tb=short

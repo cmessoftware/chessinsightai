@@ -18,7 +18,7 @@ Lichess NDJSON (official API) or multi-game PGN file
 
 Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_tool.md).
 
-**Last status update:** 2026-09-18 (`sync --from-pgn`).
+**Last status update:** 2026-09-22 (P3 training analyzer done; LS01-022 queued for English JSON schema).
 
 ### Current progress
 
@@ -38,7 +38,9 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | LS01.5 Export XLSX/CSV (LS01-012) | ✅ Done | `export.py`: sheet `Jugar en Lichess`; UTF-8 CSV; no macros. |
 | LS01.6 CLI (LS01-013) | ✅ Done | `python -m lichess_statistics`; `--from-ndjson` cassette; `--from-pgn` **Lichess export only**; counters in logs. Token: `LICHESS_API_TOKEN` then `LICHESS_TOKEN`. |
 | LS01.7 Aggregates (LS01-014) | ✅ Done | `aggregates.py`; means always carry `n` + period; CLI `stats`. |
-| UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Out of this epic. |
+| LS01.8 Training analyzer (LS01-017–021) | ✅ Done | LS01-017–021 portable training analyzer complete. |
+| LS01.9 Report JSON i18n (LS01-022) | ⬜ Future | Layer A/B/C keys still mix Spanish (LS01-014) with English (LS01-019–021); see §01.9. |
+| UI / FastAPI / ACC / F07–F08 | ❌ Canceled | Old P3; does not apply to the portable tool. |
 
 ## Principles
 
@@ -78,6 +80,7 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | 01.5 | Export | CSV + XLSX Excel/Sheets-safe |
 | 01.6 | CLI | sync / analyze / export / limit / force-local |
 | 01.7 | Aggregates | Rating, ACPL, precision, color, opening, month, last N |
+| 01.8 | Training analyzer (portable) | Rapid/classical/daily corpus; coach/player profile; exercise candidates |
 
 ## 2. Feature catalog
 
@@ -144,6 +147,37 @@ Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_to
 | ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
 |---|---|---|---|---|---|---|---|
 | LS01-014 | Aggregate queries | SQLite stats | Rating evolution; mean ACPL; mean accuracy; mean by phase; judgment counts; W/B; opening; month; period compare; last N | Fixture of ≥5 games; averages include **n** and period | P1 | ✅ Done | `AggregateQueryService`; nulls excluded from means (`n` vs `n_games`). CLI `stats`. Tests: `tests/lichess_statistics/test_ls01_014_aggregates.py`. Branch `feature/ls01_014_aggregates`. |
+
+### 01.8 — Training analyzer (portable P3)
+
+Corpus is **rapid + classical + daily/correspondence** only. Bullet and blitz are out of the training profile, Excel “Entrenamiento”, and ChessInsight candidate queue (they may remain in SQLite). One track at a time; do not mix 15+10 with daily. Engine eval is magnitude (`EVALUATION_DROP` 150 cp), not pedagogical labels. Do not import Module 07 / HITL / course packages. No UI.
+
+| ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
+|---|---|---|---|---|---|---|---|
+| LS01-017 | Training-track filter | Stored games (`perf` / time class / exact TC) | Keep rapid, classical, daily; drop bullet/blitz; each row labeled `track` | Rapid kept; 3+2 / bullet skipped; daily kept | P3 | ✅ Done | `training_track.py`; CLI `--track` / `--training` on `stats` and `export` (not ingest). Tests: `tests/chess_statistics/test_ls01_017_training_track.py`. Branch `feature/ls01_017_training_track`. |
+| LS01-018 | Layer A track report | Filtered stats rows | Aggregates by track: color, phase, opening, month (existing metrics, scoped) | Same fixture: blitz rows absent; rapid means match n | P3 | ✅ Done | `summarize_rows` layer A + `by_phase` / `by_track`. CLI `stats --track` / `--training`. Tests: `tests/chess_statistics/test_ls01_018_track_report.py`. Branch `feature/ls01_018_track_report`. |
+| LS01-019 | Layer B learning events | Stored `evals` + user moves | One event per significant user ply: FEN before, SAN, eval_loss, drop≥150 cp, judgment, phase, `game_id`, URL | Known blunder ply emits drop; quiet ply does not | P3 | ✅ Done | `learning_events.py`; CLI `stats` adds `learning_events` (layer B). `only_move` omitted (no MultiPV in SQLite). Tests: `tests/chess_statistics/test_ls01_019_learning_events.py`. Branch `feature/ls01_019_learning_events`. |
+| LS01-020 | Layer C profile + Entrenamiento + JSON | Layer A + B | Excel sheet `Entrenamiento` (foci + ≤8 session positions) and versioned `player_training_profile` JSON | Golden: 3 foci + candidates with `allowed_uses` | P3 | ✅ Done | `training_profile.py`; `stats --training` → `training_profile`; `--profile-out`; XLSX sheet `Entrenamiento` with `--training`. Weaknesses: frequency × criticality × recency by phase. `allowed_uses`: `explain` only. Tests: `tests/chess_statistics/test_ls01_020_training_profile.py`. Branch `feature/ls01_020_training_profile`. |
+| LS01-021 | Tactical motifs + endgame signatures | Layer B positions | `tactical_motifs` from board geometry; `endgame_signature` from material when `phase=endgame` | Fork/pin fixture tagged; KRPvsKR endgame signed | P3 | ✅ Done | `motifs.py`; JSON keys in English on layer B + profile candidates. Tests: `tests/chess_statistics/test_ls01_021_motifs_endgames.py`. Branch `feature/ls01_021_motifs_endgames`. |
+
+### 01.9 — Future (report JSON, English-only consumers)
+
+Excel/CSV column headers stay **Spanish** for the player (`Jugar en Lichess`, `Entrenamiento`). Machine-readable **`stats` / `player_training_profile` JSON** should not mix Spanish field names with English (Spanglish). Layers B/C (LS01-019–021) already use English keys; **layer A (LS01-014)** still exposes Spanish names from the original spreadsheet contract.
+
+| ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
+|---|---|---|---|---|---|---|---|
+| LS01-022 | English report schema v2 | Layer A + B + C payloads | `schema_version: "2"` with English keys only (e.g. `opening_accuracy`, `mean_acpl_cp`, `inaccuracies`, `results.W/D/L` or documented codes); optional `--schema 1\|2` during transition | Golden: same fixture, v1 vs v2 field map documented; v2 has zero Spanish key names | P4 | ⬜ Future | Do **not** rename SQLite columns or XLSX headers in the same change. Either emit v2 alongside v1 keys for one release or bump profile `schema_version` only. Branch `feature/ls01_022_report_json_en`. |
+
+**Examples to migrate (v1 → v2, illustrative):**
+
+| v1 (current) | v2 (target) |
+|---|---|
+| `precision_apertura` | `opening_accuracy` |
+| `precision_medio_juego` | `middlegame_accuracy` |
+| `precision_final` | `endgame_accuracy` |
+| `perdida_promedio_cp` | `mean_acpl_cp` |
+| `imprecisiones` / `errores` / `errores_graves` | `inaccuracies` / `mistakes` / `blunders` |
+| `resultado` G/T/P in DB | JSON `result`: `win` / `draw` / `loss` (aggregates keep counts under English keys) |
 
 ## 3. Per-feature test format
 
@@ -341,8 +375,18 @@ P2
 15. Extra perf types / rated-only polish
 16. Richer comments column
 
-P3
-17. UI / API (explicitly out of this epic)
+P3 (portable training analyzer; one branch per id)
+17. ✅ LS01-017 Training-track filter (rapid / classical / daily; exclude blitz/bullet)
+18. ✅ LS01-018 Layer A report by track (color, phase, opening, month)
+19. ✅ LS01-019 Layer B learning events (drops ≥150 cp, judgments, phase, FEN)
+20. ✅ LS01-020 Layer C profile + Excel “Entrenamiento” + JSON for ChessInsight
+21. ✅ LS01-021 Board tactical motifs + endgame material signatures
+
+P4 (future — one branch per id)
+22. ⬜ LS01-022 English-only `stats` / training profile JSON (`schema_version` 2; layer A key map; optional dual emit during transition)
+
+P3 discarded (does not apply to the portable tool)
+- UI / API / FastAPI / ACC
 ```
 
 ## 9. Decision on existing code

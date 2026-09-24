@@ -1,6 +1,6 @@
-"""python -m lichess_statistics"""
+"""python -m lichess_statistics (deprecated). Use python -m chess_statistics."""
 
-from lichess_statistics.cli import main
+from chess_statistics.cli import main
 
 if __name__ == "__main__":
     main()
