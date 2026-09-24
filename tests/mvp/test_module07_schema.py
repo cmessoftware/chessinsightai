@@ -37,6 +37,12 @@ def test_stockfish_job_defaults():
     assert multipv_col.default.arg == 3
 
 
+def test_module07_game_corpus_and_speed_columns():
+    cols = Module07Game.__table__.c
+    assert "corpus_type" in cols
+    assert "speed_class" in cols
+
+
 def test_decision_point_unique_constraint_name():
     constraints = {
         c.name for c in Module07DecisionPoint.__table__.constraints if c.name

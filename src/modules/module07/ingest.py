@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 import chess.pgn
 
+from modules.game_import.metadata import infer_speed_class_from_headers
+
 
 @dataclass(frozen=True)
 class ParsedModule07Game:
@@ -18,6 +20,7 @@ class ParsedModule07Game:
     result: str
     player_username: str
     player_color: str
+    speed_class: str
 
 
 def _content_game_id(game: chess.pgn.Game) -> str:
@@ -77,6 +80,7 @@ def parse_games_from_pgn_text(
                 result=headers.get("Result", "*"),
                 player_username=player_username.strip(),
                 player_color=color,
+                speed_class=infer_speed_class_from_headers(dict(headers)),
             )
         )
 

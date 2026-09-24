@@ -19,7 +19,7 @@ import LogViewerPage from './pages/LogViewerPage.jsx'
 import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
 import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
 import AdminRolesPage from './pages/AdminRolesPage.jsx'
-import CoachImportPage from './pages/CoachImportPage.jsx'
+import UnifiedImportPage from './pages/UnifiedImportPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachReviewPage from './pages/CoachReviewPage.jsx'
 
@@ -106,6 +106,14 @@ function App() {
                 <Route
                   path="/import"
                   element={
+                    <ProtectedRoute>
+                      <UnifiedImportPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/import/legacy"
+                  element={
                     <ProtectedRoute customCheck="hasAccessToImport">
                       <ImportPage />
                     </ProtectedRoute>
@@ -115,7 +123,7 @@ function App() {
                   path="/coach/import"
                   element={
                     <ProtectedRoute>
-                      <CoachImportPage />
+                      <UnifiedImportPage />
                     </ProtectedRoute>
                   }
                 />

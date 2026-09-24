@@ -25,6 +25,8 @@ def create_games_from_ingest(
     *,
     owner_user_id: int,
     parsed_games: list[Any],
+    corpus_type: str = "personal",
+    source: str = "pgn",
 ) -> list[Module07Game]:
     rows: list[Module07Game] = []
     for item in parsed_games:
@@ -49,7 +51,9 @@ def create_games_from_ingest(
             player_username=item.player_username,
             player_color=item.player_color,
             result=item.result,
-            source="pgn",
+            source=source,
+            corpus_type=corpus_type,
+            speed_class=getattr(item, "speed_class", "unknown"),
         )
         db.add(row)
         rows.append(row)

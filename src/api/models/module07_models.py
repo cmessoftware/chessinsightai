@@ -72,6 +72,8 @@ class Module07Game(Base):
     player_color = Column(String(5), nullable=False)
     result = Column(String(16), nullable=True)
     source = Column(String(32), nullable=False, default="pgn")
+    corpus_type = Column(String(32), nullable=False, default="personal", index=True)
+    speed_class = Column(String(32), nullable=False, default="unknown", index=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     analysis_job = relationship("Module07AnalysisJob", back_populates="games")
