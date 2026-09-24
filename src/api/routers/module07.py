@@ -26,6 +26,7 @@ from modules.module07.repository import (
     list_jobs,
 )
 from modules.module07.worker import run_analysis_job
+from modules.game_import.metadata import resolve_corpus_type
 
 router = APIRouter(prefix="/api/v1/module07", tags=["module07"])
 
@@ -41,6 +42,8 @@ def _owner_id(request: Request) -> int:
 class IngestBody(BaseModel):
     pgn_text: str = Field(..., min_length=1)
     player_username: str = Field(..., min_length=1)
+    corpus_type: str = Field(default="personal")
+    source: str = Field(default="pgn_upload", max_length=32)
 
 
 class JobCreateBody(BaseModel):
@@ -58,9 +61,24 @@ def _game_json(row: Any) -> dict[str, Any]:
         "player_username": row.player_username,
         "player_color": row.player_color,
         "result": row.result,
+        "corpus_type": row.corpus_type,
+        "speed_class": row.speed_class,
+        "source": row.source,
         "analysis_job_id": row.analysis_job_id,
         "created_at": row.created_at.isoformat() if row.created_at else None,
     }
+
+
+def _user_roles(request: Request) -> list[str]:
+    user = getattr(request.state, "user", None) or {}
+    return list(user.get("roles") or [])
+
+
+def _resolved_corpus(request: Request, requested: str) -> str:
+    try:
+        return resolve_corpus_type(requested, _user_roles(request))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 def _job_json(row: Any) -> dict[str, Any]:
@@ -103,7 +121,14 @@ def ingest_pgn(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    rows = create_games_from_ingest(db, owner_user_id=owner, parsed_games=parsed)
+    corpus = _resolved_corpus(request, body.corpus_type)
+    rows = create_games_from_ingest(
+        db,
+        owner_user_id=owner,
+        parsed_games=parsed,
+        corpus_type=corpus,
+        source=(body.source or "pgn_upload")[:32],
+    )
     return {
         "games": [_game_json(r) for r in rows],
         "count": len(rows),
@@ -192,7 +217,14 @@ def ingest_and_analyze(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    rows = create_games_from_ingest(db, owner_user_id=owner, parsed_games=parsed)
+    corpus = _resolved_corpus(request, body.corpus_type)
+    rows = create_games_from_ingest(
+        db,
+        owner_user_id=owner,
+        parsed_games=parsed,
+        corpus_type=corpus,
+        source=(body.source or "pgn_upload")[:32],
+    )
     job = create_analysis_job(
         db,
         owner_user_id=owner,

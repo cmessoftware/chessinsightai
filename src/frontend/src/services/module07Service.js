@@ -1,9 +1,12 @@
 import api from './api.js'
 
-export async function ingestAndAnalyze(pgnText, playerUsername) {
+export async function ingestAndAnalyze(pgnText, playerUsername, options = {}) {
+    const { corpusType = 'personal', source = 'pgn_upload' } = options
     const { data } = await api.post('/api/v1/module07/ingest-and-analyze', {
         pgn_text: pgnText,
         player_username: playerUsername,
+        corpus_type: corpusType,
+        source,
     })
     return data
 }

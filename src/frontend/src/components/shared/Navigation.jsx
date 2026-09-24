@@ -50,7 +50,7 @@ const Navigation = () => {
         if (path.startsWith('/chess-board')) return '/chess-board'
         if (path.startsWith('/import')) return '/import'
         if (path.startsWith('/reports')) return '/reports'
-        if (path.startsWith('/coach')) return '/coach/import'
+        if (path.startsWith('/coach')) return '/coach/jobs'
         return false
     }
 
@@ -107,7 +107,7 @@ const Navigation = () => {
                             />
                             <Tab
                                 label="Coach"
-                                value="/coach/import"
+                                value="/coach/jobs"
                                 icon={<Psychology />}
                                 iconPosition="start"
                                 sx={{ minHeight: 48 }}
