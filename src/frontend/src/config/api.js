@@ -9,9 +9,9 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:80
 // Endpoints comunes
 export const API_ENDPOINTS = {
     // Auth
-    AUTH_LOGIN: `${API_BASE_URL}/auth/login`,
-    AUTH_VERIFY: `${API_BASE_URL}/auth/verify`,
-    AUTH_LOGOUT: `${API_BASE_URL}/auth/logout`,
+    AUTH_LOGIN: `${API_BASE_URL}/api/auth/login`,
+    AUTH_VERIFY: `${API_BASE_URL}/api/auth/verify`,
+    AUTH_LOGOUT: `${API_BASE_URL}/api/auth/logout`,
 
     // Chess
     CHESS_GAMES: `${API_BASE_URL}/chess/games`,

@@ -26,9 +26,14 @@ from datetime import datetime
 # Importar utilidades existentes
 import sys
 
-sys.path.append(str(Path(__file__).parent.parent.parent))
+_src_dir = Path(__file__).resolve().parent.parent.parent
+if str(_src_dir) not in sys.path:
+    sys.path.insert(0, str(_src_dir))
 
-from scripts.import_personal_pgn import import_personal_pgn
+try:
+    from scripts.import_personal_pgn import import_personal_pgn
+except ModuleNotFoundError:
+    import_personal_pgn = None
 from models.schemas import (
     PgnUploadResponse,
     PgnUploadJobStatus,
@@ -518,6 +523,12 @@ async def import_personal_pgn_endpoint(
 
         with open(temp_file, "wb") as f:
             f.write(content)
+
+        if import_personal_pgn is None:
+            raise HTTPException(
+                status_code=503,
+                detail="Importación personal legacy no disponible; usa /import (Coach).",
+            )
 
         # Importar usando el script
         result = import_personal_pgn(str(temp_file), username, source)
