@@ -24,7 +24,10 @@ from chess_statistics.service import GameStatisticsService  # noqa: E402
 from chess_statistics.sources import SOURCE_CHESSCOM  # noqa: E402
 
 USER = "alice"
-MOVES = "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 1-0"
+MOVES = (
+    "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 "
+    "8. c3 O-O 9. h3 Na5 10. Bc2 c5 1-0"
+)
 CHESSCOM_PGN = f"""[Event "Live Chess"]
 [Site "https://www.chess.com/game/live/42424242"]
 [Date "2026.03.01"]

@@ -30,7 +30,10 @@ from chess_statistics.service import GameStatisticsService  # noqa: E402
 
 FIXTURE_TWO = Path(__file__).resolve().parent / "fixtures" / "cmess4401_rapid_two_games.ndjson"
 USER = "cmess4401"
-MOVES = "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 1-0"
+MOVES = (
+    "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 "
+    "8. c3 O-O 9. h3 Na5 10. Bc2 c5 1-0"
+)
 
 CHESSCOM = f"""[Event "Live Chess"]
 [Site "https://www.chess.com/game/live/999001"]
@@ -89,7 +92,7 @@ def _lichess_pgn(*, game_id: str, result: str = "1-0", extra_comment: str = "", 
 [WhiteRatingDiff "+8"]
 [BlackElo "1480"]
 
-1. e4{comment} e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O {result}
+1. e4{comment} e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 {result}
 """
 
 
