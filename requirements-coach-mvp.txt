@@ -1,0 +1,18 @@
+# Minimal Python deps for Coach MVP (FastAPI + Module 07 + Alembic).
+# Does NOT install Streamlit, stchess, Flask legacy UI, or full ML stack.
+#
+# Install from repo root:
+#   pip install -r requirements-coach-mvp.txt
+#
+# Frontend: cd src/frontend && npm install && npm run dev
+# API: see README "Coach MVP (local)" or docs/ai_chess_coach_course/08_mvp_product_roadmap.md
+
+-r src/api/requirements.txt
+
+# Module 07 worker / F07 bridge (engine analysis)
+chess==1.11.2
+stockfish==3.28.0
+
+# Align with root migrations (src/api pins older alembic; repo alembic/ expects 1.16+)
+alembic==1.16.1
+SQLAlchemy==2.0.35

@@ -84,6 +84,23 @@ cd src/api
 python -m uvicorn main:app --reload --port 8000
 ```
 
+### Coach MVP (local, sin Streamlit)
+
+Para la UI **Coach** (import PGN → cola de análisis → revisión), no hace falta el `requirements.txt` completo (Streamlit, Flask legacy, etc.):
+
+```powershell
+pip install -r requirements-coach-mvp.txt
+docker compose up -d postgres   # o tu Postgres local
+# .env: CHESS_TRAINER_DB_URL=postgresql://...  (sin espacios alrededor del =)
+# .env: STOCKFISH_PATH=bin\stockfish.exe
+alembic upgrade 20260923_000001
+cd src\api
+$env:PYTHONPATH="..\..\src;."
+python -m uvicorn main:app --reload --port 8000
+```
+
+Frontend: `cd src/frontend`, `npm run dev` → pestaña **Coach**. Detalle en [08_mvp_product_roadmap.md](./docs/ai_chess_coach_course/08_mvp_product_roadmap.md).
+
 ## Testing
 
 ### CI baseline
