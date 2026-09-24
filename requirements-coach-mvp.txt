@@ -12,7 +12,3 @@
 # Module 07 worker / F07 bridge (engine analysis)
 chess==1.11.2
 stockfish==3.28.0
-
-# Align with root migrations (src/api pins older alembic; repo alembic/ expects 1.16+)
-alembic==1.16.1
-SQLAlchemy==2.0.35
