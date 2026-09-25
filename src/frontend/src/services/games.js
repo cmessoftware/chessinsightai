@@ -3,7 +3,7 @@ import { logger } from '../utils/helpers'
 
 class GamesService {
     constructor() {
-        this.baseUrl = '/chess/games'
+        this.baseUrl = '/api/chess/games'
     }
 
     /**
@@ -53,7 +53,7 @@ class GamesService {
         try {
             logger.info('gamesService', 'Obteniendo fuentes de partidas')
 
-            const sourcesUrl = `/chess/games/sources`
+            const sourcesUrl = `${this.baseUrl}/sources`
             console.log('🌐 URL de fuentes:', sourcesUrl)
 
             const response = await apiService.get(sourcesUrl)

@@ -14,8 +14,8 @@ export const API_ENDPOINTS = {
     AUTH_LOGOUT: `${API_BASE_URL}/api/auth/logout`,
 
     // Chess
-    CHESS_GAMES: `${API_BASE_URL}/chess/games`,
-    CHESS_SOURCES: `${API_BASE_URL}/chess/games/sources`,
+    CHESS_GAMES: `${API_BASE_URL}/api/chess/games`,
+    CHESS_SOURCES: `${API_BASE_URL}/api/chess/games/sources`,
 
     // Features
     FEATURES_PROGRESS: `${API_BASE_URL}/api/features/progress`,

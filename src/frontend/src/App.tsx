@@ -22,6 +22,7 @@ import AdminRolesPage from './pages/AdminRolesPage.jsx'
 import UnifiedImportPage from './pages/UnifiedImportPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachReviewPage from './pages/CoachReviewPage.jsx'
+import CoachGameAnalysisPage from './pages/CoachGameAnalysisPage.jsx'
 
 // Utilidades
 import { logger } from './utils/helpers.js'
@@ -132,6 +133,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <CoachJobsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/games/:gameId/analysis"
+                  element={
+                    <ProtectedRoute>
+                      <CoachGameAnalysisPage />
                     </ProtectedRoute>
                   }
                 />

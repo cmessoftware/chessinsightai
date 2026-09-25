@@ -1,0 +1,13 @@
+# CI and local “Coach MVP gate” (P0-1).
+# Replaces root requirements.txt for GitHub Actions — no Streamlit / full ML stack.
+#
+#   pip install -r requirements-ci.txt
+#   set PYTHONPATH=src;src/api   (Linux: src:src/api)
+#   pytest tests/mvp tests/docs_courses tests/chess_statistics -q
+
+-r requirements-coach-mvp.txt
+
+pytest>=8.4,<9
+requests>=2.32,<3
+pandas>=2.0,<3
+httpx>=0.27,<1
