@@ -102,7 +102,7 @@ En **UI-10x**, usar **🧪** en flujos Coach hasta HITL.
 
 | Id | Issue | Estado | Acción |
 |----|--------|--------|--------|
-| **P0-1** | CI / `requirements.txt` root | 🧪 | **`requirements-ci.txt`** + job `coach-mvp` en `.github/workflows/test.yml`; validar en GitHub |
+| **P0-1** | CI / `requirements.txt` root | ✅ | **`requirements-ci.txt`** + job `coach-mvp` (LFS PGN, deps curso/LS01); verde en [PR #154](https://github.com/cmessoftware/chessinsightai/pull/154) |
 | **P0-2** | psycopg3 vs psycopg2 | ⬜ | Un driver en path MVP |
 | **P0-3** | `npm run build` | ⬜ | TS/JSX; gate CI |
 | **P0-4** | Alembic en Postgres | 🧪 | upgrade/downgrade en CI |
@@ -145,7 +145,7 @@ En **UI-10x**, usar **🧪** en flujos Coach hasta HITL.
 | # | Entregable | Estado |
 |---|------------|--------|
 | 1 | P0-2 Driver DB | ⬜ |
-| 2 | P0-1 CI verde | 🧪 |
+| 2 | P0-1 CI verde | ✅ |
 | 3 | P0-3 React build | ⬜ |
 | 4 | P0-4 Alembic CI | 🧪 |
 | 5 | P0-5 E2E técnico | ⬜ |
