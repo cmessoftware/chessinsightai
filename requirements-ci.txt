@@ -7,6 +7,9 @@
 
 -r requirements-coach-mvp.txt
 
+# SQLAlchemy postgresql:// URLs in tests still resolve to psycopg2
+psycopg2-binary>=2.9,<3
+
 pytest>=8.4,<9
 requests>=2.32,<3
 pandas>=2.0,<3
