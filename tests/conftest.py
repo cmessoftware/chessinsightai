@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
-"""
-pytest configuration file for chess trainer tests.
+"""pytest configuration — portable paths (local + GitHub Actions)."""
 
-Defines custom markers and fixtures for the test suite.
-"""
+from __future__ import annotations
 
-import pytest
 import os
 import sys
+from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, '/app/src')
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SRC = REPO_ROOT / "src"
+API = SRC / "api"
+COURSE = REPO_ROOT / "docs" / "ai_chess_coach_course"
+
+for path in (SRC, API, COURSE):
+    text = str(path)
+    if text not in sys.path:
+        sys.path.insert(0, text)
 
 
 def pytest_configure(config):
-    """Configure pytest with custom markers."""
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
@@ -31,20 +37,21 @@ def pytest_configure(config):
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
-    """Set up test environment variables."""
-    # Set environment variables for testing
     test_env = {
-        "PYTHONPATH": "/app/src",
-        "CHESS_TRAINER_DB_URL": "postgresql://chess:chess_pass@postgres:5432/chess_trainer_db",
-        "STOCKFISH_PATH": "/usr/games/stockfish",
+        "PYTHONPATH": os.pathsep.join(str(p) for p in (SRC, API)),
+        "CHESS_TRAINER_DB_URL": os.environ.get(
+            "CHESS_TRAINER_DB_URL",
+            "postgresql://chess:chess_pass@localhost:5432/chess_trainer_db",
+        ),
+        "STOCKFISH_PATH": os.environ.get("STOCKFISH_PATH", ""),
         "MAX_WORKERS": "2",
         "FEATURES_PER_CHUNK": "10",
-        "PYTEST_CURRENT_TEST": "true"  # Signal that we're in test mode
+        "PYTEST_CURRENT_TEST": "true",
+        "LICHESS_API_TOKEN": "",
+        "LICHESS_TOKEN": "",
     }
 
     for key, value in test_env.items():
         os.environ[key] = value
 
     yield
-
-    # Cleanup is automatic since we're just setting environment variables

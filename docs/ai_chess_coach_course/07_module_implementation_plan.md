@@ -434,6 +434,6 @@ is considered a proof of concept.
 
 ## 10. Product bridge (MVP UI)
 
-FastAPI, React + Vite, PostgreSQL persistence, longitudinal themes, puzzles, and reference corpus are **not** F07 catalog items. They are tracked in **[08_mvp_product_roadmap.md](./08_mvp_product_roadmap.md)** (modules M08, M09, M11; gates GATE-F07-PERSIST → GATE-MVP-1.0).
+FastAPI, React + Vite, PostgreSQL persistence, longitudinal themes, puzzles, and reference corpus are **not** F07 catalog items. They are tracked in **[08_mvp_product_roadmap.md](./08_mvp_product_roadmap.md)** (modules M08, M09, M11; gates GATE-F07-PERSIST → GATE-MVP-1.0). **Hub global:** [00_roadmap_index.md](./00_roadmap_index.md).
 
 F07 remains the per-position engine of record; module 08 stores and exposes F07 outputs without replacing `analysis/*` logic.

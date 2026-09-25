@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 class AnalysisService {
     /**
@@ -9,7 +9,7 @@ class AnalysisService {
     async analyzePosition(fen, depth = 10) {
         try {
             const response = await axios.post(
-                `${API_BASE}/chess/position-analysis`,
+                `${API_BASE}/api/chess/position-analysis`,
                 {
                     fen: fen,
                     depth: depth
@@ -29,7 +29,7 @@ class AnalysisService {
     async validateMove(move) {
         try {
             const response = await axios.post(
-                `${API_BASE}/chess/validate-move`,
+                `${API_BASE}/api/chess/validate-move`,
                 {
                     move: move
                 }
@@ -48,7 +48,7 @@ class AnalysisService {
     async analyzeGame(gameId) {
         try {
             const response = await axios.post(
-                `${API_BASE}/chess/analyze-game`,
+                `${API_BASE}/api/chess/analyze-game`,
                 {
                     gameId: gameId
                 }
