@@ -79,7 +79,7 @@ def run_analysis_job(job_id: str, owner_user_id: int) -> None:
                         prev = ply_by_index.get(ply_record.ply - 1)
                         if prev:
                             prev_uci = prev.uci
-                    top_uci = [d.candidate.uci for d in comparison.diffs[:multipv]]
+                    top_uci = [d.candidate.move_uci for d in comparison.diffs[:multipv]]
                     mental = assess_decision_point(
                         fen=ply_record.fen_before,
                         last_move_uci=prev_uci,
@@ -95,13 +95,13 @@ def run_analysis_job(job_id: str, owner_user_id: int) -> None:
                         review_pack=pack,
                         mental_model=mental_model_to_json(mental),
                     )
-            except Exception:
+            except Exception as exc:
                 logger.exception("module07 failed game %s", game_row.id)
                 set_job_status(
                     db,
                     job,
                     "failed",
-                    error_message=f"Failed on game {game_row.id}",
+                    error_message=f"Failed on game {game_row.id}: {exc}",
                 )
                 return
 

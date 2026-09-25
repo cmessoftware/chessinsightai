@@ -7,6 +7,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session, joinedload
 
+from modules.module07.ingest import resolve_player_color
 from models.module07_models import (
     DEFAULT_STOCKFISH_DEPTH,
     DEFAULT_STOCKFISH_MULTIPV,
@@ -25,6 +26,8 @@ def create_games_from_ingest(
     *,
     owner_user_id: int,
     parsed_games: list[Any],
+    corpus_type: str = "personal",
+    source: str = "pgn",
 ) -> list[Module07Game]:
     rows: list[Module07Game] = []
     for item in parsed_games:
@@ -49,7 +52,9 @@ def create_games_from_ingest(
             player_username=item.player_username,
             player_color=item.player_color,
             result=item.result,
-            source="pgn",
+            source=source,
+            corpus_type=corpus_type,
+            speed_class=getattr(item, "speed_class", "unknown"),
         )
         db.add(row)
         rows.append(row)
@@ -64,6 +69,7 @@ def create_analysis_job(
     *,
     owner_user_id: int,
     game_ids: list[str],
+    player_username: str | None = None,
     depth: int = DEFAULT_STOCKFISH_DEPTH,
     multipv: int = DEFAULT_STOCKFISH_MULTIPV,
 ) -> Module07AnalysisJob:
@@ -87,6 +93,15 @@ def create_analysis_job(
         )
         if game is None:
             continue
+        pov = (player_username or game.player_username or "").strip()
+        if not pov:
+            raise ValueError(
+                "player_username is required to analyze: chess handle as in PGN White/Black"
+            )
+        game.player_username = pov
+        game.player_color = resolve_player_color(
+            game.white_player, game.black_player, pov
+        )
         game.analysis_job_id = job.id
     db.commit()
     db.refresh(job)
@@ -156,6 +171,7 @@ def get_job(db: Session, job_id: str, owner_user_id: int) -> Module07AnalysisJob
 def list_games(db: Session, owner_user_id: int) -> list[Module07Game]:
     return (
         db.query(Module07Game)
+        .options(joinedload(Module07Game.analysis_job))
         .filter(Module07Game.owner_user_id == owner_user_id)
         .order_by(Module07Game.created_at.desc())
         .all()

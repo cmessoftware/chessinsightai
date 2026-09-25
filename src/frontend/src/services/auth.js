@@ -12,7 +12,7 @@ export const authService = {
     // Login
     async login(username, password) {
         try {
-            const response = await api.post('/auth/login', { username, password })
+            const response = await api.post('/api/auth/login', { username, password })
             const { access_token, user } = response.data
 
             // Guardar token y usuario en localStorage

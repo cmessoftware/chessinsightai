@@ -68,6 +68,8 @@ class Games(Base):
     eco = Column(String)
     opening = Column(String)
     source = Column(String)
+    corpus_type = Column(String(32), nullable=False, default="personal", index=True)
+    speed_class = Column(String(32), nullable=False, default="unknown", index=True)
     imported_by = Column(String, index=True)  # Usuario que importó la partida
 
 

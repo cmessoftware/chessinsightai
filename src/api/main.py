@@ -1,9 +1,24 @@
+import os
+import sys
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+_api_dir = Path(__file__).resolve().parent
+_src_dir = _api_dir.parent
+for _p in (_src_dir, _api_dir):
+    _s = str(_p)
+    if _s not in sys.path:
+        sys.path.insert(0, _s)
+
+from dotenv import load_dotenv
+
+load_dotenv(_src_dir.parent / ".env")
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
-import os
-from contextlib import asynccontextmanager
 
 # Importar routers
 from routers import (
@@ -64,6 +79,7 @@ jwt_middleware = JWTMiddleware(
         "/openapi.json",
         "/favicon.ico",
         "/api/auth/login",
+        "/api/auth/verify",
         # Rutas temporales para testing sin auth (si son necesarias)
         "/api/chess/test/games/1",
         "/api/chess/test/games/2",
