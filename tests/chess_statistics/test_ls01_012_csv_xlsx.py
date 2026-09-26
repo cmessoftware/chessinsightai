@@ -60,8 +60,9 @@ def test_csv_and_xlsx_headers_and_one_data_row(tmp_path: Path):
     assert data[5] == "G"
     precision = float(data[11])
     assert 0 <= precision <= 100
-    assert data[16] == "rapid"
-    assert data[17] == ""
+    assert data[16] in ("lichess", "stockfish_local", "")
+    assert data[19] == "rapid"
+    assert data[20] == ""
 
     workbook = load_workbook(xlsx_path)
     assert workbook.sheetnames == [SHEET_NAME]
@@ -70,8 +71,8 @@ def test_csv_and_xlsx_headers_and_one_data_row(tmp_path: Path):
     assert sheet["B2"].value == "https://lichess.org/tOsxrK57"
     assert isinstance(sheet["L2"].value, (int, float))
     assert 0 <= float(sheet["L2"].value) <= 100
-    assert sheet["Q2"].value == "rapid"
-    assert sheet["R2"].value in ("", None)
+    assert sheet["T2"].value == "rapid"
+    assert sheet["U2"].value in ("", None)
     names = ZipFile(xlsx_path).namelist()
     assert "xl/vbaProject.bin" not in names
     assert not any(name.startswith("xl/macrosheets") for name in names)
