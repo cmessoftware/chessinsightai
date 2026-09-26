@@ -76,6 +76,7 @@ def test_help_lists_sync_analyze_export():
     assert "--max-games" in sync_text
     assert "--perf-type" in sync_text
     assert "--force-stockfish" in sync_text
+    assert "--use-lichess-cloud" in sync_text
     assert "--download-only" in sync_text
     assert "--from-ndjson" in sync_text
     assert "--from-pgn" in sync_text
@@ -124,6 +125,7 @@ def test_sync_fixture_is_incremental(tmp_path: Path):
         "2",
         "--perf-type",
         "rapid",
+        "--use-lichess-cloud",
     ]
     assert run(args) == 0
     repo = StatisticsRepository(connect(db))
@@ -184,6 +186,7 @@ def test_export_cli_writes_sheet(tmp_path: Path):
                 str(db),
                 "--max-games",
                 "1",
+                "--use-lichess-cloud",
             ]
         )
         == 0
@@ -219,6 +222,7 @@ def test_export_cli_last_n(tmp_path: Path):
                 str(FIXTURE_TWO),
                 "--database",
                 str(db),
+                "--use-lichess-cloud",
             ]
         )
         == 0
