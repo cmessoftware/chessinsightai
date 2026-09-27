@@ -33,7 +33,7 @@ No hace falta instalar Python. Copiá ESTA CARPETA completa a la otra PC.
    - Lichess: pegá el token de https://lichess.org/account/oauth/token
    - Chess.com y PGN local: el token de Lichess no hace falta
 2. Poné stockfish.exe en esta carpeta y dejá STOCKFISH_PATH=stockfish.exe
-   (obligatorio para --source chess.com y --source pgn; en Lichess solo si no hay evals de nube)
+   (obligatorio: todas las fuentes usan Stockfish local por defecto desde LS01-023)
 3. Abrí cmd o PowerShell en esta carpeta:
 
    chess_statistics.exe --help
@@ -54,8 +54,10 @@ SQLite y Excel se crean en la carpeta desde la que ejecutás el comando
 (data\\chess_statistics.sqlite por defecto). Cerrá el .xlsx antes de export.
 
 Se ignoran partidas contra motores (AI Lichess) y de menos de 10 jugadas.
---source lichess usa evals de nube de Lichess. chess.com y pgn usan Stockfish local
-(mismos indicadores de precisión; no mezclar nube Lichess con SF local en el mismo recorte).
+Por defecto todas las fuentes (Lichess, Chess.com, PGN) analizan con Stockfish local
+(misma profundidad/config → métricas comparables entre sitios). Opcional:
+sync --use-lichess-cloud para usar evals NDJSON de Lichess (no mezclar con SF en agregados).
+El export incluye columnas Fuente eval / Profundidad motor / Versión motor.
 
 Solo Windows x64. El antivirus a veces bloquea el .exe de PyInstaller a la primera.
 """

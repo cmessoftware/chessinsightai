@@ -23,7 +23,7 @@ from chess_statistics.filters import filter_import_game, filter_sync_window
 from chess_statistics.import_games import GameImportService, GameMetadataError
 from chess_statistics.ratings import backfill_ranking_final_in_db
 from chess_statistics.pgn_source import iter_pgn_file
-from chess_statistics.sources import SOURCE_LICHESS, uses_lichess_cloud
+from chess_statistics.sources import SOURCE_LICHESS
 
 logger = logging.getLogger(__name__)
 
@@ -217,8 +217,7 @@ class GameStatisticsService:
                     self._repo,
                     payload,
                     game_id=row["game_id"],
-                    force_stockfish=force_stockfish
-                    or not uses_lichess_cloud(str(row.get("source_platform") or SOURCE_LICHESS)),
+                    force_stockfish=force_stockfish,
                     fallback_local=fallback_local,
                     stockfish_service=self._stockfish,
                     user_color=row.get("color"),

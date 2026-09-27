@@ -20,7 +20,8 @@ from chess_statistics.service import (
     iter_ndjson_file,
     iter_pgn_file,
 )
-from chess_statistics.sources import SOURCE_CHESSCOM, SOURCE_LICHESS, SOURCE_PGN, SOURCES, uses_lichess_cloud
+from chess_statistics.eval_policy import analyze_force_stockfish, sync_force_stockfish
+from chess_statistics.sources import SOURCE_CHESSCOM, SOURCE_LICHESS, SOURCE_PGN, SOURCES
 from chess_statistics.training_track import TRAINING_TRACKS
 
 
@@ -64,7 +65,8 @@ def _add_training_track(parser: argparse.ArgumentParser) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m chess_statistics",
-        description="Chess statistics (LS01). Lichess cloud evals when --source lichess; local Stockfish for chess.com and PGN. Does not log LICHESS_API_TOKEN / LICHESS_TOKEN.",
+        description="Chess statistics (LS01). Default: local Stockfish (comparable across Lichess, Chess.com, PGN). "
+        "Optional --use-lichess-cloud on sync for Lichess NDJSON evals. Does not log LICHESS_API_TOKEN / LICHESS_TOKEN.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -91,9 +93,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Persist metadata only; skip evals and accuracy",
     )
     sync.add_argument(
+        "--use-lichess-cloud",
+        action="store_true",
+        help="On Lichess sync only: use complete NDJSON cloud evals when present (default: always local Stockfish)",
+    )
+    sync.add_argument(
         "--force-stockfish",
         action="store_true",
-        help="Ignore complete cloud evals and run local Stockfish",
+        help="Deprecated alias for default behavior; kept for scripts",
     )
 
     analyze = sub.add_parser("analyze", help="Analyze games already in SQLite")
@@ -111,7 +118,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     analyze.add_argument("--lichess-id", help="Single Lichess game id")
     analyze.add_argument("--game-id", help="Single project SHA256 game_id")
-    analyze.add_argument("--force-stockfish", action="store_true")
+    analyze.add_argument(
+        "--force-stockfish",
+        action="store_true",
+        help="Default: local Stockfish from stored PGN (Lichess cloud not available on analyze)",
+    )
+    analyze.add_argument(
+        "--use-lichess-cloud",
+        action="store_true",
+        help="No-op for analyze (PGN-only replay); use sync --use-lichess-cloud instead",
+    )
 
     export = sub.add_parser("export", help="Write CSV + XLSX from SQLite (no HTTP)")
     _add_common(export)
@@ -209,11 +225,16 @@ def run(argv: list[str] | None = None) -> int:
     repo = _open_repo(args.database)
     service = GameStatisticsService(repo)
     if args.command == "sync":
+        if args.force_stockfish and args.use_lichess_cloud:
+            raise SystemExit("Use only one of --force-stockfish and --use-lichess-cloud")
         service.sync(
             _games_for_sync(args),
             args.username,
             analyze=not args.download_only,
-            force_stockfish=args.force_stockfish or not uses_lichess_cloud(args.source),
+            force_stockfish=sync_force_stockfish(
+                source=args.source,
+                use_lichess_cloud=bool(args.use_lichess_cloud),
+            ),
             max_games=args.max_games,
             dry_run=args.dry_run,
             since=args.since,
@@ -226,7 +247,9 @@ def run(argv: list[str] | None = None) -> int:
         service.analyze(
             args.username,
             only_missing=only_missing,
-            force_stockfish=args.force_stockfish,
+            force_stockfish=analyze_force_stockfish(
+                use_lichess_cloud=bool(getattr(args, "use_lichess_cloud", False)),
+            ),
             since=args.since,
             until=args.until,
             ritmo=args.perf_type,

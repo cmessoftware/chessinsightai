@@ -31,6 +31,9 @@ EXPORT_COLUMNS: tuple[str, ...] = (
     "Precisión mediojuego",
     "Precisión final",
     "Ranking final",
+    "Fuente eval",
+    "Profundidad motor",
+    "Versión motor",
     "Pista",
     "Comentarios",
 )
@@ -90,6 +93,9 @@ def export_row(record: dict[str, Any]) -> dict[str, Any]:
         "Precisión mediojuego": _as_number(record.get("precision_medio_juego")),
         "Precisión final": _as_number(record.get("precision_final")),
         "Ranking final": _as_number(record.get("ranking_final")),
+        "Fuente eval": record.get("fuente_evaluacion") or "",
+        "Profundidad motor": _as_number(record.get("profundidad_stockfish")),
+        "Versión motor": record.get("version_stockfish") or "",
         "Pista": record.get("track") or "",
         "Comentarios": "",
     }

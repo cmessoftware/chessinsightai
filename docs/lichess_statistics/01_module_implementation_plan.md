@@ -18,7 +18,7 @@ Lichess NDJSON (official API) or multi-game PGN file
 
 Source requirement: [`docs/lichess_statistics_tool.md`](../lichess_statistics_tool.md).
 
-**Last status update:** 2026-09-22 (P3 training analyzer done; LS01-022 queued for English JSON schema).
+**Last status update:** 2026-09-26 (LS01-023 Stockfish-first default + export eval metadata).
 
 ### Current progress
 
@@ -159,6 +159,12 @@ Corpus is **rapid + classical + daily/correspondence** only. Bullet and blitz ar
 | LS01-019 | Layer B learning events | Stored `evals` + user moves | One event per significant user ply: FEN before, SAN, eval_loss, drop≥150 cp, judgment, phase, `game_id`, URL | Known blunder ply emits drop; quiet ply does not | P3 | ✅ Done | `learning_events.py`; CLI `stats` adds `learning_events` (layer B). `only_move` omitted (no MultiPV in SQLite). Tests: `tests/chess_statistics/test_ls01_019_learning_events.py`. Branch `feature/ls01_019_learning_events`. |
 | LS01-020 | Layer C profile + Entrenamiento + JSON | Layer A + B | Excel sheet `Entrenamiento` (foci + ≤8 session positions) and versioned `player_training_profile` JSON | Golden: 3 foci + candidates with `allowed_uses` | P3 | ✅ Done | `training_profile.py`; `stats --training` → `training_profile`; `--profile-out`; XLSX sheet `Entrenamiento` with `--training`. Weaknesses: frequency × criticality × recency by phase. `allowed_uses`: `explain` only. Tests: `tests/chess_statistics/test_ls01_020_training_profile.py`. Branch `feature/ls01_020_training_profile`. |
 | LS01-021 | Tactical motifs + endgame signatures | Layer B positions | `tactical_motifs` from board geometry; `endgame_signature` from material when `phase=endgame` | Fork/pin fixture tagged; KRPvsKR endgame signed | P3 | ✅ Done | `motifs.py`; JSON keys in English on layer B + profile candidates. Tests: `tests/chess_statistics/test_ls01_021_motifs_endgames.py`. Branch `feature/ls01_021_motifs_endgames`. |
+
+### 01.8b — Cross-source eval policy
+
+| ID | Feature | Input | Verifiable output | Real-game test | Priority | Status | Comments |
+|---|---|---|---|---|---|---|---|
+| LS01-023 | Stockfish-first policy | sync/analyze argv | Default `force_stockfish` on all sources; `--use-lichess-cloud` opt-in on Lichess sync; export columns **Fuente eval**, **Profundidad motor**, **Versión motor** | CLI sync fixture → `stockfish_local` without flag; `--use-lichess-cloud` → `lichess` when complete | P1 | ✅ Done | `eval_policy.py`; not comparable to Lichess UI by design. Reprocess old DB with `sync --reprocess` + SF or filter export by fuente. Branch `feature/ls01_023_unified_stockfish_policy`. |
 
 ### 01.9 — Future (report JSON, English-only consumers)
 
