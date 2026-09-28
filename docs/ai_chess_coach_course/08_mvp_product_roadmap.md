@@ -1,5 +1,7 @@
 # Module 08+ MVP Product Roadmap — ChessInsight (React + Vite + FastAPI)
 
+> **Punto de entrada global (estado + mapa de todos los roadmaps):** [00_roadmap_index.md](./00_roadmap_index.md)
+
 ## Objective
 
 Deliver the **production MVP** defined in [6.6.7](./00-ai_enginner_course_roadmap.md) (longitudinal player diagnosis + actionable training), operationalized by:
@@ -282,6 +284,7 @@ Reuse PGN/FEN fixtures from `docs/ai_chess_coach_course/data/games/` and F07 gol
 
 | Document | Relationship |
 |---|---|
+| **[00_roadmap_index.md](./00_roadmap_index.md)** | **Hub:** estado P0/P1, leyenda In Testing, mapa “qué doc abrir” |
 | [07_module_implementation_plan.md](./07_module_implementation_plan.md) | Upstream per-position engine (F07) |
 | [06x_07x_roadmap_modules_and_tasks.md](./06x_07x_roadmap_modules_and_tasks.md) | 6.6 gates, 7.1 diagnosis, **7.2 RAG → M10** (not M09) |
 | [00-ai_enginner_course_roadmap.md](./00-ai_enginner_course_roadmap.md) | Modules 12–13 superseded by **M11** React-first |

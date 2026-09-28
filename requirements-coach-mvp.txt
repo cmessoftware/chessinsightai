@@ -3,6 +3,8 @@
 #
 # Install from repo root:
 #   pip install -r requirements-coach-mvp.txt
+# CI / pytest gate:
+#   pip install -r requirements-ci.txt
 #
 # Frontend: cd src/frontend && npm install && npm run dev
 # API: see README "Coach MVP (local)" or docs/ai_chess_coach_course/08_mvp_product_roadmap.md

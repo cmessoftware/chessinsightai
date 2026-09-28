@@ -19,9 +19,10 @@ import LogViewerPage from './pages/LogViewerPage.jsx'
 import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
 import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
 import AdminRolesPage from './pages/AdminRolesPage.jsx'
-import CoachImportPage from './pages/CoachImportPage.jsx'
+import UnifiedImportPage from './pages/UnifiedImportPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachReviewPage from './pages/CoachReviewPage.jsx'
+import CoachGameAnalysisPage from './pages/CoachGameAnalysisPage.jsx'
 
 // Utilidades
 import { logger } from './utils/helpers.js'
@@ -106,6 +107,14 @@ function App() {
                 <Route
                   path="/import"
                   element={
+                    <ProtectedRoute>
+                      <UnifiedImportPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/import/legacy"
+                  element={
                     <ProtectedRoute customCheck="hasAccessToImport">
                       <ImportPage />
                     </ProtectedRoute>
@@ -115,7 +124,7 @@ function App() {
                   path="/coach/import"
                   element={
                     <ProtectedRoute>
-                      <CoachImportPage />
+                      <UnifiedImportPage />
                     </ProtectedRoute>
                   }
                 />
@@ -124,6 +133,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <CoachJobsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/games/:gameId/analysis"
+                  element={
+                    <ProtectedRoute>
+                      <CoachGameAnalysisPage />
                     </ProtectedRoute>
                   }
                 />
