@@ -1,6 +1,6 @@
 # Phase 10 · playstyles
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 10-FEAT-1 | Proposal | Pending | Definir taxonomia de estilos |
 | 10-FEAT-2 | Proposal | Pending | Extraer señales para perfilado |

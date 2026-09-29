@@ -1,6 +1,6 @@
 # Phase 9 · critical-blunder-sequence
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 09-FEAT-1 | Proposal | Pending | Definir secuencias criticas objetivo |
 | 09-FEAT-2 | Proposal | Pending | Implementar detector temporal |

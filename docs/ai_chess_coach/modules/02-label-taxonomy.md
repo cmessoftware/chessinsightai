@@ -1,4 +1,4 @@
-# Label Taxonomy for Gitea
+# Label Taxonomy (GitHub Issues)
 
 ## Domain Labels
 

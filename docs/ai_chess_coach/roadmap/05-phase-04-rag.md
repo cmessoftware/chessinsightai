@@ -1,6 +1,6 @@
 # Phase 4 · rag
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 04-FEAT-1 | Proposal | Pending | Normalizar fuentes y chunks chess |
 | 04-FEAT-2 | Proposal | Pending | Indexar embeddings en vector store |

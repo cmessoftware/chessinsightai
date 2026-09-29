@@ -1,6 +1,6 @@
 # Phase 5 · llm-grounding
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 05-FEAT-1 | Proposal | Pending | Definir facts pack para grounding |
 | 05-FEAT-2 | Proposal | Pending | Integrar reglas anti alucinacion |

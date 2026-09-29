@@ -1,6 +1,6 @@
 # Phase 8 · advanced ml
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 08-FEAT-1 | Proposal | Pending | Agregar explainability al pipeline |
 | 08-FEAT-2 | Proposal | Pending | Explorar clustering de patrones |
