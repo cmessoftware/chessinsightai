@@ -1,6 +1,12 @@
-# ChessInsight — índice de roadmaps y estado (punto de entrada)
+# ChessInsight — índice de roadmaps (ARCHIVO — curso suspendido)
 
-**Empezá acá** para ver visión global, qué documento abrir según la tarea, y el **estado vivo** (P0/P1, In Testing vs Accepted).
+> **Suspendido 2026-09-29.** El hub operativo del producto está en **[`docs/ai_chess_coach/roadmap/00-roadmap-index.md`](../ai_chess_coach/roadmap/00-roadmap-index.md)**. Detalle: [SUSPENDED.md](./SUSPENDED.md).
+
+---
+
+## Snapshot congelado (no actualizar)
+
+**Empezá acá** ~~para estado vivo~~ solo como referencia histórica del curso / laboratorio F07–F11.
 
 **Regla de oro:** **Done / ✅ aceptado** solo con gates técnicos **y** validación ajedrecística (corpus experto + HITL). Código en dev o mergeado **no** es Done del producto Coach.
 

@@ -1,6 +1,14 @@
 # Phase Roadmap
 
-## Planned Phases
+## Active work
+
+| Phase | Scope | Key deliverable | Tasks |
+| --- | --- | --- | --- |
+| **0** | **Coach MVP vertical slice** | Module 07 + React: import → queue → analysis | **[00-roadmap-index.md](./00-roadmap-index.md)** · **[02-phase-00-coach-mvp-module07-ui.md](./02-phase-00-coach-mvp-module07-ui.md)** |
+
+Phase 0 es el plan operativo actual (ex `ai_chess_coach_course` hub). Fases 1–10 siguen siendo el horizonte core/orquestación.
+
+## Planned Phases (long horizon)
 
 | Phase | Scope | Key Deliverable | Tasks |
 | --- | --- | --- | --- |
@@ -21,3 +29,5 @@
 - Automated tests green for impacted domains.
 - Observability metrics emitted and validated.
 - Rollback path documented and tested.
+
+Phase 0 añade: validación UI MVP manual + gates P0/P1 del [roadmap index](./00-roadmap-index.md).

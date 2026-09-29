@@ -1,5 +1,7 @@
 # Phase 1 · core-engine + minimal api
 
+> **Nota (2026-09-29):** el trabajo activo del producto está en **Phase 0** ([02-phase-00-coach-mvp-module07-ui.md](./02-phase-00-coach-mvp-module07-ui.md)). Phase 1 sigue siendo el baseline core/API de largo plazo; no duplicar esfuerzo MVP en esta tabla sin OpenSpec.
+
 OpenSpec change de seguimiento:
 - `phase-01-core-engine-minimal-api-baseline`
 
