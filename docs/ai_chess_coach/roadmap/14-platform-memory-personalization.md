@@ -1,4 +1,4 @@
-# Phase 7 · memory + personalization
+# Platform Phase 13 · memory + personalization
 
 | id | status | issue | descripcion |
 | --- | --- | --- | --- |

@@ -22,7 +22,7 @@
 | LLMX | llm-explanation-generation |
 | APIV | api-versioning |
 | OBIN | inference-monitoring |
-| MVPC | coach-mvp-phase-0 |
+| MVPC | coach-web-phase-1 |
 | MOD7 | module-07-product |
 | COUI | coach-ui-react |
 

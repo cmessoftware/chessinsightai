@@ -1,4 +1,4 @@
-# Phase 2 · ml-error-classification
+# Platform Phase 8 · ml-error-classification
 
 | id | status | issue | descripcion |
 | --- | --- | --- | --- |

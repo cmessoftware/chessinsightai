@@ -53,9 +53,9 @@ Definition of Done for requirement changes:
 3. [`modules/01-module-taxonomy.md`](modules/01-module-taxonomy.md) — core and extension module taxonomy
 
 ### Planning and Delivery
-1. [`roadmap/00-roadmap-index.md`](roadmap/00-roadmap-index.md) — **living hub** (Phase 0 MVP, P0/P1, mapa de docs)
-2. [`roadmap/02-phase-00-coach-mvp-module07-ui.md`](roadmap/02-phase-00-coach-mvp-module07-ui.md) — Module 07 + Coach UI (validación MVP)
-3. [`roadmap/01-phase-roadmap.md`](roadmap/01-phase-roadmap.md) — phased roadmap (Phase 0 active + phases 1–10)
+1. [`roadmap/00-roadmap-index.md`](roadmap/00-roadmap-index.md) — **living hub** (Phase 1 activa, P0/P1)
+2. [`roadmap/01-phase-roadmap.md`](roadmap/01-phase-roadmap.md) — secuencia web phases **1–6** + plataforma **7–16**
+3. [`roadmap/02-phase-01-coach-web-slice.md`](roadmap/02-phase-01-coach-web-slice.md) — slice Coach (import → cola → análisis)
 4. [`testing/01-testing-strategy.md`](testing/01-testing-strategy.md) — test pyramid, mandatory gates, and release gates
 5. [`devops/01-delivery-rules.md`](devops/01-delivery-rules.md) — deployment, rollback, and CI/CD requirements
 

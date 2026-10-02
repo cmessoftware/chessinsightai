@@ -1,4 +1,4 @@
-# Phase 6 · advanced critic
+# Platform Phase 12 · advanced critic
 
 | id | status | issue | descripcion |
 | --- | --- | --- | --- |
