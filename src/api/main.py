@@ -185,17 +185,35 @@ async def health_check():
     )
 
 
+def _cors_headers_for_request(request: Request) -> dict[str, str]:
+    """Ensure error JSON responses still carry CORS (browser hides 500 body otherwise)."""
+    origin = request.headers.get("origin", "")
+    allowed = {
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:3000",
+    }
+    if origin in allowed:
+        return {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+        }
+    return {}
+
+
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
+async def http_exception_handler(request: Request, exc: HTTPException):
     """Manejador global de excepciones HTTP"""
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": True, "message": exc.detail, "status_code": exc.status_code},
+        headers=_cors_headers_for_request(request),
     )
 
 
 @app.exception_handler(Exception)
-async def general_exception_handler(request, exc):
+async def general_exception_handler(request: Request, exc: Exception):
     """Manejador global de excepciones generales"""
     import traceback
 
@@ -212,6 +230,7 @@ async def general_exception_handler(request, exc):
             "detail": error_detail,
             "status_code": 500,
         },
+        headers=_cors_headers_for_request(request),
     )
 
 

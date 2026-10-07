@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy.orm import Session, joinedload
@@ -28,8 +29,10 @@ def create_games_from_ingest(
     parsed_games: list[Any],
     corpus_type: str = "personal",
     source: str = "pgn",
-) -> list[Module07Game]:
+) -> tuple[list[Module07Game], list[bool]]:
     rows: list[Module07Game] = []
+    is_new_flags: list[bool] = []
+    now = datetime.now(timezone.utc)
     for item in parsed_games:
         existing = (
             db.query(Module07Game)
@@ -40,7 +43,13 @@ def create_games_from_ingest(
             .first()
         )
         if existing:
+            existing.last_imported_at = now
+            existing.white_player = item.white_player
+            existing.black_player = item.black_player
+            existing.result = item.result
+            existing.speed_class = getattr(item, "speed_class", existing.speed_class)
             rows.append(existing)
+            is_new_flags.append(False)
             continue
         row = Module07Game(
             id=_new_id(),
@@ -55,13 +64,15 @@ def create_games_from_ingest(
             source=source,
             corpus_type=corpus_type,
             speed_class=getattr(item, "speed_class", "unknown"),
+            last_imported_at=now,
         )
         db.add(row)
         rows.append(row)
+        is_new_flags.append(True)
     db.commit()
     for row in rows:
         db.refresh(row)
-    return rows
+    return rows, is_new_flags
 
 
 def create_analysis_job(
@@ -173,7 +184,7 @@ def list_games(db: Session, owner_user_id: int) -> list[Module07Game]:
         db.query(Module07Game)
         .options(joinedload(Module07Game.analysis_job))
         .filter(Module07Game.owner_user_id == owner_user_id)
-        .order_by(Module07Game.created_at.desc())
+        .order_by(Module07Game.last_imported_at.desc(), Module07Game.created_at.desc())
         .all()
     )
 

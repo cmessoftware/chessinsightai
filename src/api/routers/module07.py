@@ -77,8 +77,13 @@ class JobCreateBody(BaseModel):
         return stripped
 
 
-def _game_json(row: Any) -> dict[str, Any]:
-    return {
+def _game_json(
+    row: Any,
+    *,
+    is_new: bool | None = None,
+    include_pgn: bool = False,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
         "id": row.id,
         "content_game_id": row.content_game_id,
         "white_player": row.white_player,
@@ -94,7 +99,17 @@ def _game_json(row: Any) -> dict[str, Any]:
             row.analysis_job.status if getattr(row, "analysis_job", None) else None
         ),
         "created_at": row.created_at.isoformat() if row.created_at else None,
+        "last_imported_at": (
+            row.last_imported_at.isoformat()
+            if getattr(row, "last_imported_at", None)
+            else None
+        ),
     }
+    if is_new is not None:
+        payload["is_new"] = is_new
+    if include_pgn:
+        payload["pgn"] = row.pgn
+    return payload
 
 
 def _user_roles(request: Request) -> list[str]:
@@ -150,7 +165,7 @@ def ingest_pgn(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     corpus = _resolved_corpus(request, body.corpus_type)
-    rows = create_games_from_ingest(
+    rows, is_new_flags = create_games_from_ingest(
         db,
         owner_user_id=owner,
         parsed_games=parsed,
@@ -158,8 +173,11 @@ def ingest_pgn(
         source=(body.source or "pgn_upload")[:32],
     )
     return {
-        "games": [_game_json(r) for r in rows],
+        "games": [
+            _game_json(r, is_new=flag) for r, flag in zip(rows, is_new_flags, strict=True)
+        ],
         "count": len(rows),
+        "new_count": sum(1 for f in is_new_flags if f),
     }
 
 
@@ -167,6 +185,17 @@ def ingest_pgn(
 def get_games(request: Request, db: Session = Depends(get_db)):
     owner = _owner_id(request)
     return {"games": [_game_json(r) for r in list_games(db, owner)]}
+
+
+@router.get("/games/{game_id}")
+def get_game_by_id(
+    game_id: str, request: Request, db: Session = Depends(get_db)
+):
+    owner = _owner_id(request)
+    row = get_game(db, game_id, owner)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return _game_json(row, include_pgn=True)
 
 
 @router.get("/games/{game_id}/decisions")
@@ -255,7 +284,7 @@ def ingest_and_analyze(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     corpus = _resolved_corpus(request, body.corpus_type)
-    rows = create_games_from_ingest(
+    rows, _is_new = create_games_from_ingest(
         db,
         owner_user_id=owner,
         parsed_games=parsed,

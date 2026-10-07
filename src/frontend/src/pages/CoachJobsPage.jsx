@@ -75,6 +75,11 @@ function canOpenReview(game, jobStatusById) {
     return jobStatusForGame(game, jobStatusById) === 'completed'
 }
 
+function formatResult(result) {
+    if (!result || result === '*') return 'Sin resultado'
+    return result
+}
+
 export default function CoachJobsPage() {
     const location = useLocation()
     const navigate = useNavigate()
@@ -97,6 +102,19 @@ export default function CoachJobsPage() {
         () => games.filter((g) => canQueueAnalysis(g, jobStatusById)),
         [games, jobStatusById]
     )
+
+    const highlightGameIds = useMemo(
+        () => new Set(location.state?.highlightGameIds || []),
+        [location.state?.highlightGameIds]
+    )
+
+    const importedMetaById = useMemo(() => {
+        const m = new Map()
+        for (const g of location.state?.importedGames || []) {
+            m.set(g.id, g.is_new)
+        }
+        return m
+    }, [location.state?.importedGames])
     const failedJobCount = useMemo(
         () => jobs.filter((j) => j.status === 'failed').length,
         [jobs]
@@ -140,8 +158,14 @@ export default function CoachJobsPage() {
     }, [refresh])
 
     useEffect(() => {
+        const fromImport = location.state?.highlightGameIds
+        if (fromImport?.length) {
+            const queueable = new Set(queueableGames.map((g) => g.id))
+            setSelectedIds(new Set(fromImport.filter((id) => queueable.has(id))))
+            return
+        }
         setSelectedIds(new Set(queueableGames.map((g) => g.id)))
-    }, [queueableGames])
+    }, [queueableGames, location.state?.highlightGameIds])
 
     const toggleGame = (id) => {
         setSelectedIds((prev) => {
@@ -346,8 +370,17 @@ export default function CoachJobsPage() {
                             const status =
                                 jobStatusForGame(g, jobStatusById) ||
                                 (g.analysis_job_id ? '—' : 'sin job')
+                            const importTag = importedMetaById.get(g.id)
                             return (
-                                <TableRow key={g.id}>
+                                <TableRow
+                                    key={g.id}
+                                    selected={highlightGameIds.has(g.id)}
+                                    sx={
+                                        highlightGameIds.has(g.id)
+                                            ? { bgcolor: 'action.hover' }
+                                            : undefined
+                                    }
+                                >
                                     <TableCell padding="checkbox">
                                         <Checkbox
                                             checked={selectedIds.has(g.id)}
@@ -355,7 +388,18 @@ export default function CoachJobsPage() {
                                             onChange={() => toggleGame(g.id)}
                                         />
                                     </TableCell>
-                                    <TableCell>{g.white_player}</TableCell>
+                                    <TableCell>
+                                        {g.white_player}
+                                        {importTag !== undefined && (
+                                            <Chip
+                                                size="small"
+                                                label={importTag ? 'Nueva' : 'Ya existía'}
+                                                color={importTag ? 'success' : 'default'}
+                                                variant="outlined"
+                                                sx={{ ml: 1 }}
+                                            />
+                                        )}
+                                    </TableCell>
                                     <TableCell>{g.black_player}</TableCell>
                                     <TableCell>
                                         {g.player_username
@@ -370,15 +414,14 @@ export default function CoachJobsPage() {
                                             variant={status === 'sin job' ? 'outlined' : 'filled'}
                                         />
                                     </TableCell>
-                                    <TableCell>{g.result || '—'}</TableCell>
+                                    <TableCell>{formatResult(g.result)}</TableCell>
                                     <TableCell>
                                         <Button
                                             size="small"
                                             component={RouterLink}
                                             to={`/coach/games/${g.id}/analysis`}
-                                            disabled={!canOpenReview(g, jobStatusById)}
                                         >
-                                            Análisis
+                                            {canOpenReview(g, jobStatusById) ? 'Análisis' : 'Ver partida'}
                                         </Button>
                                         {queueable && (
                                             <Button

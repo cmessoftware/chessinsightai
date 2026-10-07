@@ -35,3 +35,10 @@ def test_parse_pgn_with_optional_player():
     games = parse_games_from_pgn_text(SAMPLE, player_username="Bob")
     assert games[0].player_username == "Bob"
     assert games[0].player_color == "black"
+
+
+def test_parse_pgn_without_headers_uses_side_labels():
+    bare = "1. e4 e5 2. Nf3 Nc6 1-0\n"
+    games = parse_games_from_pgn_text(bare)
+    assert games[0].white_player == "Blancas"
+    assert games[0].black_player == "Negras"

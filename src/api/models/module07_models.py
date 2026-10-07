@@ -75,6 +75,7 @@ class Module07Game(Base):
     corpus_type = Column(String(32), nullable=False, default="personal", index=True)
     speed_class = Column(String(32), nullable=False, default="unknown", index=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
+    last_imported_at = Column(DateTime, nullable=False, server_default=func.now())
 
     analysis_job = relationship("Module07AnalysisJob", back_populates="games")
     decision_points = relationship(
