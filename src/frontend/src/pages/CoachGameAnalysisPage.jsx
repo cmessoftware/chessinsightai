@@ -20,6 +20,8 @@ import { Link as RouterLink, useLocation, useParams } from 'react-router-dom'
 import ChessinsightBoard from '../components/chess/ChessinsightBoard.jsx'
 import CoachPgnMoveList from '../components/coach/CoachPgnMoveList.jsx'
 import EngineMultipvPanel from '../components/coach/EngineMultipvPanel.jsx'
+import LiveEnginePanel from '../components/coach/LiveEnginePanel.jsx'
+import { useLiveStockfishAnalysis } from '../hooks/useLiveStockfishAnalysis.js'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
 
 function MentalPanel({ mental }) {
@@ -174,10 +176,11 @@ export default function CoachGameAnalysisPage() {
     }, [selectedId])
 
     const pack = detail?.review_pack
-    const orientation =
+    const playerColor =
         (pack?.player_color || gameMeta?.player_color || 'white').toLowerCase() === 'black'
             ? 'black'
             : 'white'
+    const orientation = playerColor
 
     const criticalMode = Boolean(detail?.fen_before)
     const boardFen = criticalMode ? detail.fen_before : replay.fens[replayPly] || replay.fens[0]
@@ -197,6 +200,15 @@ export default function CoachGameAnalysisPage() {
         setDetail(null)
         setReplayPly(Math.max(0, Math.min(ply, replay.fens.length - 1)))
     }
+
+    const liveDepth = 14
+    const liveMultipv = 2
+    const liveEngine = useLiveStockfishAnalysis(boardFen, {
+        enabled: tab === 0 && Boolean(boardFen),
+        depth: liveDepth,
+        multipv: liveMultipv,
+        playerColor,
+    })
 
     const pgnResultLabel = useMemo(() => {
         if (!gameMeta?.result) return null
@@ -350,11 +362,30 @@ export default function CoachGameAnalysisPage() {
                         <Tab label="Mental 1600" />
                     </Tabs>
                     {tab === 0 && (
-                        <EngineMultipvPanel
-                            pack={pack}
-                            depth={gameMeta?.stockfish_depth}
-                            multipv={gameMeta?.stockfish_multipv}
-                        />
+                        <>
+                            <LiveEnginePanel
+                                liveState={liveEngine}
+                                targetDepth={liveDepth}
+                                multipv={liveMultipv}
+                            />
+                            {pack && criticalMode && (
+                                <>
+                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                        Análisis Coach (job)
+                                    </Typography>
+                                    <EngineMultipvPanel
+                                        pack={pack}
+                                        depth={gameMeta?.stockfish_depth}
+                                        multipv={gameMeta?.stockfish_multipv}
+                                    />
+                                </>
+                            )}
+                            {pack && !criticalMode && (
+                                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                    Elegí una jugada crítica para ver el review pack del job.
+                                </Typography>
+                            )}
+                        </>
                     )}
                     {tab === 1 && (
                         <Paper variant="outlined" sx={{ p: 2 }}>
