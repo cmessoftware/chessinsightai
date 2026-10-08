@@ -156,6 +156,9 @@ Al seleccionar fila PGN: tablero + CA-4 sincronizados; MultiPV del ply en CA-4 (
 
 ## 9. Próximo paso de implementación
 
-Rama sugerida **`feature/11_118_hitl_classification`** (CA-8):
+**Rama activa (persistencia):** **`feature/11_120_ply_classification_persist`** — SV-2 / GATE-F07-PERSIST (tabla + API; contrato JSON versionado v1).
 
-1. **CA-8** — cerrar HITL con [checklist](./coach-classification-hitl-checklist.md).
+**Parked WIP:** FEAT-07 Mental 1600 en **`feature/11_117_mental_1600_wip`** (M-11 HITL pendiente).
+
+1. **SV-2** — `module07_ply_annotation` (o extensión de `module07_decision_points`) + `GET .../annotations`.
+2. **CA-8** — HITL clasificación en paralelo cuando haya revisor ([checklist](./coach-classification-hitl-checklist.md)).
