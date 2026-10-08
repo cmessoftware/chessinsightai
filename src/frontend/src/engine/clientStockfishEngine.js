@@ -1,3 +1,4 @@
+import { scoreFromEngineLine } from '../utils/coachEngineLabels.js'
 import { parseMultipvFromInfoLines, uciPvToSan } from '../utils/uciStockfish.js'
 
 class CancelledError extends Error {
@@ -13,6 +14,9 @@ class StockfishBrowserEngine {
         this.waiters = []
         this.generation = 0
         this.configured = false
+        /** @type {{ params: object, priority: 'live' | 'normal', resolve: Function, reject: Function }[]} */
+        this.pendingJobs = []
+        this.runningJob = false
         worker.onmessage = (event) => {
             const line = typeof event.data === 'string' ? event.data : event.data?.data
             if (typeof line !== 'string') return
@@ -60,7 +64,38 @@ class StockfishBrowserEngine {
         this.send('stop')
     }
 
-    async analyze({ fen, depth = 14, multipv = 2 }) {
+    /**
+     * One Stockfish WASM worker — serialize jobs so PV lines match the requested FEN.
+     * @param {{ fen: string, depth?: number, multipv?: number }} params
+     * @param {{ priority?: 'live' | 'normal' }} [options]
+     */
+    analyze(params, { priority = 'normal' } = {}) {
+        return new Promise((resolve, reject) => {
+            const job = { params, priority, resolve, reject }
+            if (priority === 'live') {
+                this.pendingJobs = this.pendingJobs.filter((j) => j.priority !== 'live')
+                this.pendingJobs.unshift(job)
+            } else {
+                this.pendingJobs.push(job)
+            }
+            this.drainQueue()
+        })
+    }
+
+    drainQueue() {
+        if (this.runningJob || this.pendingJobs.length === 0) return
+        const job = this.pendingJobs.shift()
+        this.runningJob = true
+        this.runAnalyzeJob(job.params)
+            .then(job.resolve)
+            .catch(job.reject)
+            .finally(() => {
+                this.runningJob = false
+                this.drainQueue()
+            })
+    }
+
+    async runAnalyzeJob({ fen, depth = 14, multipv = 2 }) {
         await this.ensureReady()
         const gen = ++this.generation
         this.send('stop')
@@ -107,30 +142,24 @@ export function getStockfishBrowserEngine() {
 }
 
 export function mapLiveLinesToDisplay(rawLines, fen, playerColor) {
-    const playerIsWhite = (playerColor || 'white').toLowerCase() !== 'black'
-    const stm = fen.split(/\s+/)[1] || 'w'
-
     return rawLines.map((line) => {
-        let cp = line.cp
-        let mate = line.mate
-        if (cp != null || mate != null) {
-            const flip = stm === 'b'
-            if (cp != null) cp = flip ? -cp : cp
-            if (mate != null) mate = flip ? -mate : mate
-            if (!playerIsWhite) {
-                if (cp != null) cp = -cp
-                if (mate != null) mate = -mate
-            }
-        }
+        const player_score = scoreFromEngineLine({
+            cp: line.cp,
+            mate: line.mate,
+            fen,
+            playerColor,
+        })
         const pvSan = uciPvToSan(fen, line.pvUci)
-        const headSan = pvSan[0] || line.pvUci[0] || ''
+        const headUci = line.pvUci?.[0] || ''
+        const headSan = pvSan[0] || (headUci.length >= 4 ? `${headUci.slice(0, 2)}-${headUci.slice(2, 4)}` : headUci)
         return {
             rank: line.rank,
             depth: line.depth,
-            player_score:
-                mate != null
-                    ? { kind: 'mate', mate, cp: null }
-                    : { kind: 'cp', cp, mate: null },
+            player_score: {
+                kind: player_score.kind,
+                cp: player_score.cp,
+                mate: player_score.mate,
+            },
             san: headSan,
             pv_san: pvSan,
         }

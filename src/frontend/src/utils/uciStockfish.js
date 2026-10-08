@@ -30,13 +30,17 @@ export function uciPvToSan(fen, pvUci) {
     const out = []
     for (const uci of pvUci) {
         if (uci.length < 4) break
-        const move = chess.move({
-            from: uci.slice(0, 2),
-            to: uci.slice(2, 4),
-            promotion: uci.length > 4 ? uci[4] : undefined,
-        })
-        if (!move) break
-        out.push(move.san)
+        try {
+            const move = chess.move({
+                from: uci.slice(0, 2),
+                to: uci.slice(2, 4),
+                promotion: uci.length > 4 ? uci[4] : undefined,
+            })
+            if (!move) break
+            out.push(move.san)
+        } catch {
+            break
+        }
     }
     return out
 }

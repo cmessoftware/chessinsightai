@@ -20,6 +20,7 @@
 | **Orden de entrega web (1–6)** | [01-phase-roadmap.md](./01-phase-roadmap.md) | phases 1–6 |
 | **Seguimiento vivo (Phase 1)** | [02-phase-01-coach-web-slice.md](./02-phase-01-coach-web-slice.md) | P0, UI-10x slice, M07 mínimo |
 | **Diseño análisis Coach (borrador)** | [designs/coach-game-analysis-layout-pgn.md](./designs/coach-game-analysis-layout-pgn.md) | UI-110 |
+| **Clasificación jugadas + pedagogía (mini-plan)** | [designs/coach-move-classification-pedagogy-mini-plan.md](./designs/coach-move-classification-pedagogy-mini-plan.md) | PC-1…PC-9 |
 | **F07 en producto** | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) | F07-*, gates |
 | **M08 entrenamiento** | [04-phase-03-training-diagnosis.md](./04-phase-03-training-diagnosis.md) | F08-* |
 | **M09 corpus** | [05-phase-04-reference-corpus.md](./05-phase-04-reference-corpus.md) | F09-* |

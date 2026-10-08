@@ -1,0 +1,35 @@
+{
+  "version": "v1",
+  "basicFallbackBand": "1600-1999",
+  "eloBands": [
+    { "id": "lt1200", "maxElo": 1199, "label": "<1200" },
+    { "id": "1200-1599", "maxElo": 1599, "label": "1200–1599" },
+    { "id": "1600-1999", "maxElo": 1999, "label": "1600–1999" },
+    { "id": "2000-2399", "maxElo": 2399, "label": "2000–2399" },
+    { "id": "gte2400", "maxElo": null, "label": "≥2400" }
+  ],
+  "byEngineLabel": {
+    "inaccuracy": {
+      "lt1200": "Antes de mover, revisa qué amenaza tu rival y si tus piezas quedan defendidas.",
+      "1200-1599": "Compara dos candidatas y revisa si alguna mejora la actividad de tus piezas sin conceder amenazas.",
+      "1600-1999": "Compara las candidatas por actividad, estructura y contrajuego concedido. Identifica qué ventaja conserva cada una.",
+      "2000-2399": "Revisa el orden de jugadas y compara las concesiones concretas de las candidatas principales.",
+      "gte2400": "Contrastá las candidatas principales y precisa la concesión que explica la pérdida de evaluación."
+    },
+    "mistake": {
+      "lt1200": "Compara tu jugada con una alternativa que mantenga tus piezas seguras. Revisa la respuesta inmediata del rival.",
+      "1200-1599": "Calcula la respuesta más fuerte del rival a tu candidata y comprueba cómo continuarías.",
+      "1600-1999": "Contrasta tu candidata con la mejor defensa rival y evalua la posición al terminar la secuencia.",
+      "2000-2399": "Localiza el punto donde cambia la evaluación y verificá si omitiste una defensa o evaluaste mal la posición resultante.",
+      "gte2400": "Revisá el recurso crítico y la evaluación de la posición final de la variante."
+    },
+    "blunder": {
+      "lt1200": "Detenerse en esta posición y comprueba jaques, capturas y amenazas de ambos jugadores antes de elegir.",
+      "1200-1599": "Revisa primero las variantes forzadas: jaques, capturas y amenazas. No cierres el cálculo antes de comprobar la respuesta rival.",
+      "1600-1999": "Busca la refutación de tu candidata. Verifica movimientos intermedios y recursos defensivos antes de dar la variante por válida.",
+      "2000-2399": "Reconstruye la variante crítica con la mejor respuesta rival y verifica el recurso que invalida tu elección.",
+      "gte2400": "Verificá la refutación concreta y el orden exacto de la secuencia forzada."
+    }
+  },
+  "basicNoElo": "Compara tu jugada con la línea del motor y revisa jaques, capturas y amenazas antes de continuar."
+}

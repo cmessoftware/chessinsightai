@@ -33,7 +33,7 @@ export function useLiveStockfishAnalysis(
             try {
                 const engine = await getStockfishBrowserEngine()
                 engineRef = engine
-                const raw = await engine.analyze({ fen, depth, multipv })
+                const raw = await engine.analyze({ fen, depth, multipv }, { priority: 'live' })
                 if (cancelled) return
                 const lines = mapLiveLinesToDisplay(raw, fen, playerColor)
                 const depthReached = raw.reduce((max, l) => Math.max(max, l.depth || 0), 0)
