@@ -144,5 +144,5 @@ Write-Host @"
   API:  http://127.0.0.1:$ApiPort/docs
   UI:   http://localhost:5173  → login admin / admin123 → Coach
 
-  Migraciones (si hace falta): alembic upgrade 20260923_000001
+  Migraciones (si hace falta): alembic upgrade 20261004_000001
 "@ -ForegroundColor Gray

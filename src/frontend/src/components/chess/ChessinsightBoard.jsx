@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+import { Box } from '@mui/material'
 import { Chessboard } from 'react-chessboard'
 
 /**
@@ -12,28 +14,44 @@ export default function ChessinsightBoard({
     onMove,
     boardWidth = 420,
 }) {
-    const lastMoveStyles = squaresFromUci(lastMove)
+    const squareStyles = useMemo(() => squaresFromUci(lastMove), [lastMove])
 
-    const handleDrop = (sourceSquare, targetSquare) => {
-        if (viewOnly) {
-            return false
-        }
-        if (onMove) {
-            onMove({ from: sourceSquare, to: targetSquare, fen })
-        }
-        return true
-    }
+    const options = useMemo(
+        () => ({
+            id: 'chessinsight-board',
+            position: fen,
+            boardOrientation: orientation === 'black' ? 'black' : 'white',
+            allowDragging: !viewOnly,
+            animationDurationInMs: 200,
+            squareStyles,
+            boardStyle: {
+                width: `${boardWidth}px`,
+                maxWidth: '100%',
+                aspectRatio: '1 / 1',
+            },
+            onPieceDrop: ({ sourceSquare, targetSquare }) => {
+                if (viewOnly) {
+                    return false
+                }
+                if (onMove) {
+                    onMove({ from: sourceSquare, to: targetSquare, fen })
+                }
+                return true
+            },
+        }),
+        [fen, orientation, viewOnly, squareStyles, boardWidth, onMove],
+    )
 
     return (
-        <Chessboard
-            position={fen}
-            boardWidth={boardWidth}
-            boardOrientation={orientation === 'black' ? 'black' : 'white'}
-            arePiecesDraggable={!viewOnly}
-            onPieceDrop={handleDrop}
-            customSquareStyles={lastMoveStyles}
-            animationDuration={200}
-        />
+        <Box
+            sx={{
+                width: boardWidth,
+                maxWidth: '100%',
+                flexShrink: 0,
+            }}
+        >
+            <Chessboard options={options} />
+        </Box>
     )
 }
 

@@ -1,6 +1,6 @@
-# Phase 2 · ml-error-classification
+# Platform Phase 8 · ml-error-classification
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 02-FEAT-1 | Proposal | Pending | Definir dataset de errores etiquetados |
 | 02-FEAT-2 | Proposal | Pending | Entrenar clasificador baseline |

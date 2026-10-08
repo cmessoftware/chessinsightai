@@ -1,6 +1,6 @@
-# Phase 6 · advanced critic
+# Platform Phase 12 · advanced critic
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 06-FEAT-1 | Proposal | Pending | Ampliar reglas tacticas y semanticas |
 | 06-FEAT-2 | Proposal | Pending | Detectar contradicciones del reporte |

@@ -1,4 +1,4 @@
-# CHESS TRAINER - Versión: v0.1.364-2b733fe
+# CHESS TRAINER - Versión: v0.1.383-285b819
 
 # chessinsightai
 
@@ -99,7 +99,7 @@ $env:PYTHONPATH="..\..\src;."
 python -m uvicorn main:app --reload --port 8000
 ```
 
-Frontend: `cd src/frontend`, `npm run dev` → pestaña **Coach**. Roadmaps y estado: [00_roadmap_index.md](./docs/ai_chess_coach_course/00_roadmap_index.md) · catálogo MVP: [08_mvp_product_roadmap.md](./docs/ai_chess_coach_course/08_mvp_product_roadmap.md).
+Frontend: `cd src/frontend`, `npm run dev` → pestaña **Coach**. Roadmap: [00-roadmap-index.md](./docs/ai_chess_coach/roadmap/00-roadmap-index.md) · Phase 1 web slice: [02-phase-01-coach-web-slice.md](./docs/ai_chess_coach/roadmap/02-phase-01-coach-web-slice.md) · catálogo (ref. curso): [08_mvp_product_roadmap.md](./docs/ai_chess_coach_course/08_mvp_product_roadmap.md).
 
 **CI / tests (Coach MVP, P0-1):** `pip install -r requirements-ci.txt` then `pytest tests/mvp tests/docs_courses tests/chess_statistics -q` (set `PYTHONPATH=src:src/api` on Linux/macOS).
 

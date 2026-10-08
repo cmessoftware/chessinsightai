@@ -22,6 +22,9 @@
 | LLMX | llm-explanation-generation |
 | APIV | api-versioning |
 | OBIN | inference-monitoring |
+| MVPC | coach-web-phase-1 |
+| MOD7 | module-07-product |
+| COUI | coach-ui-react |
 
 ## Mandatory Fields in Issues
 

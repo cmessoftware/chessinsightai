@@ -34,6 +34,21 @@ def _export_game_pgn(game: chess.pgn.Game) -> str:
     return game.accept(exporter)
 
 
+def normalize_header_player(value: str | None, *, side_label: str) -> str:
+    """PGN headers often use ``?`` when missing; use stable side labels for UI and queue."""
+    name = (value or "").strip()
+    if not name or name == "?":
+        return side_label
+    return name
+
+
+def normalize_result(value: str | None) -> str:
+    r = (value or "").strip()
+    if not r or r == "*":
+        return "*"
+    return r
+
+
 def resolve_player_color(white: str, black: str, username: str) -> str:
     """Return ``white`` or ``black`` when username matches a PGN header (case-insensitive)."""
     name = (username or "").strip()
@@ -68,8 +83,8 @@ def parse_games_from_pgn_text(
         if game is None:
             break
         headers = game.headers
-        white = headers.get("White", "?")
-        black = headers.get("Black", "?")
+        white = normalize_header_player(headers.get("White"), side_label="Blancas")
+        black = normalize_header_player(headers.get("Black"), side_label="Negras")
         pov_name = (player_username or "").strip() or None
         if pov_name:
             color = resolve_player_color(white, black, pov_name)
@@ -83,7 +98,7 @@ def parse_games_from_pgn_text(
                 pgn=pgn,
                 white_player=white,
                 black_player=black,
-                result=headers.get("Result", "*"),
+                result=normalize_result(headers.get("Result")),
                 player_username=pov_name,
                 player_color=pov_color,
                 speed_class=infer_speed_class_from_headers(dict(headers)),

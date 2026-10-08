@@ -1,6 +1,6 @@
-# Phase 3 · orchestration
+# Platform Phase 9 · orchestration
 
-| id | status | issue gitea | descripcion |
+| id | status | issue | descripcion |
 | --- | --- | --- | --- |
 | 03-FEAT-1 | Proposal | Pending | Diseñar planner executor critic |
 | 03-FEAT-2 | Proposal | Pending | Definir contratos entre agentes |

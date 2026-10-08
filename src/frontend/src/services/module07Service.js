@@ -79,6 +79,11 @@ export async function listGames() {
     return data.games || []
 }
 
+export async function getGame(gameId) {
+    const { data } = await api.get(`/api/v1/module07/games/${gameId}`)
+    return data
+}
+
 export async function listDecisions(gameId) {
     const { data } = await api.get(`/api/v1/module07/games/${gameId}/decisions`)
     return data.decisions || []
