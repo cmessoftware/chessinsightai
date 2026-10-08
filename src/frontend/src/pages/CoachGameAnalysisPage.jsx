@@ -44,11 +44,13 @@ import EngineMultipvPanel from '../components/coach/EngineMultipvPanel.jsx'
 
 import AdvancedMoveAnalysisPanel from '../components/coach/AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from '../components/coach/LiveEnginePanel.jsx'
+import Mental1600Panel from '../components/coach/Mental1600Panel.jsx'
 
 import { useLiveStockfishAnalysis } from '../hooks/useLiveStockfishAnalysis.js'
 import { usePgnEvalCache } from '../hooks/usePgnEvalCache.js'
 import { usePgnMoveClassification } from '../hooks/usePgnMoveClassification.js'
 import { parseMoverEloFromGame } from '../utils/coachPlayerElo.js'
+import { useMental1600Assessment } from '../hooks/useMental1600Assessment.js'
 
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
 
@@ -77,46 +79,6 @@ import {
     pathToBranchEnd,
 
 } from '../utils/coachVariationTree.js'
-
-
-
-function MentalPanel({ mental }) {
-
-    if (!mental) return null
-
-    return (
-
-        <Box>
-
-            <Typography variant="subtitle2">
-
-                Modo: {mental.mode} — pausa sugerida: {mental.pause_seconds}s
-
-            </Typography>
-
-            <List dense>
-
-                {(mental.thinking_plan || []).map((step, i) => (
-
-                    <ListItemText
-
-                        key={i}
-
-                        primary={`${step.node_id}: ${step.prompt_es}`}
-
-                        secondary={step.phase}
-
-                    />
-
-                ))}
-
-            </List>
-
-        </Box>
-
-    )
-
-}
 
 
 
@@ -541,6 +503,17 @@ export default function CoachGameAnalysisPage() {
         },
     )
 
+    const mental1600View = useMental1600Assessment({
+        treeRoot,
+        cursorPath,
+        playerColor,
+        classificationByPathKey,
+        gameMeta,
+        cursorMoverElo,
+        criticalMode,
+        serverMentalModel: detail?.mental_model,
+    })
+
     const liveDepth = 14
 
     const liveMultipv = 2
@@ -902,7 +875,11 @@ export default function CoachGameAnalysisPage() {
 
                         <Paper variant="outlined" sx={{ p: 2 }}>
 
-                            <MentalPanel mental={detail?.mental_model} />
+                            <Mental1600Panel
+                                assessment={mental1600View.assessment}
+                                emptyMessage={mental1600View.emptyMessage}
+                                source={mental1600View.source}
+                            />
 
                         </Paper>
 

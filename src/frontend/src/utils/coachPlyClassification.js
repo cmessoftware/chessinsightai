@@ -160,6 +160,10 @@ export async function classifyPlyWithEngine(
     }
 
     const bestPvSan = uciPvToSan(job.fenBefore, raw[0].pvUci || [])
+    const multipvMovesUci = raw
+        .map((line) => line.pvUci?.[0])
+        .filter(Boolean)
+        .slice(0, multipv)
     const result = classifyMoveFromEvals({ bestScore, playedScore })
     return {
         ...result,
@@ -170,6 +174,7 @@ export async function classifyPlyWithEngine(
         bestScore,
         playedScore,
         bestMoveUci: raw[0].pvUci?.[0] || null,
+        multipvMovesUci,
         bestPvSan,
         playedInMultipv: Boolean(matched),
     }
