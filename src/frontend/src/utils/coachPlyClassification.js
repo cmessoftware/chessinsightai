@@ -190,6 +190,10 @@ export async function classifyPlyWithEngine(
     }
 
     const bestPvSan = uciPvToSan(job.fenBefore, raw[0].pvUci || [])
+    const multipvMovesUci = raw
+        .map((line) => line.pvUci?.[0])
+        .filter(Boolean)
+        .slice(0, multipv)
     const result = classifyMoveFromEvals({ bestScore, playedScore })
     const engineDepthReached = raw.reduce(
         (max, line) => Math.max(max, line.depth || 0),
@@ -204,6 +208,7 @@ export async function classifyPlyWithEngine(
         bestScore,
         playedScore,
         bestMoveUci: raw[0].pvUci?.[0] || null,
+        multipvMovesUci,
         bestPvSan,
         playedInMultipv: Boolean(matched),
         engineDepthReached: engineDepthReached || null,

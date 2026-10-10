@@ -159,10 +159,10 @@ Al seleccionar fila PGN: tablero + CA-4 sincronizados; MultiPV del ply en CA-4 (
 
 ## 9. Próximo paso de implementación
 
-**Rama activa (persistencia):** **`feature/11_120_ply_classification_persist`** — SV-2 / GATE-F07-PERSIST (tabla + API; contrato JSON versionado v1).
+**Rama MVP (merge a `main`):** **`feature/11_120_ply_classification_persist`** — SV-2 persistencia + GC-1…GC-3 catálogo + UX Coach.
 
-**Parked WIP:** FEAT-07 Mental 1600 en **`feature/11_117_mental_1600_wip`** (M-11 HITL pendiente).
+**Mental 1600 (main, #157):** integrado en `main`; tab Mental en workspace — wiring WASM cliente M-11 HITL sigue en backlog.
 
-1. **SV-2** — `module07_ply_annotations` + `GET/PUT .../games/{id}/annotations` (`rules_version` 1, `source` `client_wasm`); sync cliente en `usePlyAnnotationsHydration` / `usePlyAnnotationsPersist`.
-2. **CA-8** — HITL clasificación en paralelo cuando haya revisor ([checklist](./coach-classification-hitl-checklist.md)).
-3. **CA-9** — Maia en Análisis avanzado ([mini-plan Maia](./coach-maia-advanced-analysis-mini-plan.md)); rama `feature/11_121_maia_wasm_advanced` cuando toque.
+1. **SV-2** — `module07_ply_annotations` + `GET/PUT …/annotations`; sync `useSyncPlyClassificationPersistence`.
+2. **CA-8** — HITL clasificación ([checklist](./coach-classification-hitl-checklist.md)).
+3. **CA-9** — Maia en Análisis avanzado ([mini-plan Maia](./coach-maia-advanced-analysis-mini-plan.md)).
