@@ -21,6 +21,7 @@
 | **HITL** | CA-8, P1-3, P1-2 | Checklist clasificación; expert_gold → 30 |
 | **Servidor MVP (AS-A)** | AS-1…AS-6, SV-1, SV-2, SV-3 | Full-line worker, annotations, cliente lee DB |
 | **Servidor robusto (AS-B)** | AS-7…AS-11 | Redis cache FEN, ARQ, multi-motor |
+| **Lc0 kibitzer (backlog)** | LZ-1…LZ-8 | Segunda opinión Lc0 solo en plies críticas — [mini-plan](./designs/coach-lc0-strategic-kibitzer-mini-plan.md) |
 | **Gates** | GATE-F07-PERSIST, GATE-MVP-PRAGMATIC, M07-META, P1-4 | DoD producto M07 |
 
 ---

@@ -66,22 +66,40 @@ def resolve_player_color(white: str, black: str, username: str) -> str:
     )
 
 
+@dataclass(frozen=True)
+class PgnParseResult:
+    games: tuple[ParsedModule07Game, ...]
+    total_games_in_pgn: int
+
+
 def parse_games_from_pgn_text(
     pgn_text: str,
     *,
     player_username: str | None = None,
-) -> list[ParsedModule07Game]:
-    """Parse every game in a PGN blob. Player POV is optional until analysis is queued."""
+    max_games: int | None = None,
+) -> PgnParseResult:
+    """
+    Parse games from a PGN blob. Player POV is optional until analysis is queued.
+
+    When ``max_games`` is set (e.g. 1 for Coach import), only that many games are
+    returned; ``total_games_in_pgn`` still reflects the full file.
+    """
     text = (pgn_text or "").strip()
     if not text:
         raise ValueError("PGN text is empty")
+    if max_games is not None and max_games < 1:
+        raise ValueError("max_games must be at least 1")
 
     stream = io.StringIO(text)
     parsed: list[ParsedModule07Game] = []
+    total_in_pgn = 0
     while True:
         game = chess.pgn.read_game(stream)
         if game is None:
             break
+        total_in_pgn += 1
+        if max_games is not None and len(parsed) >= max_games:
+            continue
         headers = game.headers
         white = normalize_header_player(headers.get("White"), side_label="Blancas")
         black = normalize_header_player(headers.get("Black"), side_label="Negras")
@@ -105,6 +123,8 @@ def parse_games_from_pgn_text(
             )
         )
 
+    if total_in_pgn == 0:
+        raise ValueError("Could not parse any game from PGN")
     if not parsed:
         raise ValueError("Could not parse any game from PGN")
-    return parsed
+    return PgnParseResult(games=tuple(parsed), total_games_in_pgn=total_in_pgn)

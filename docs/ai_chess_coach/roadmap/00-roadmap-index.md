@@ -25,6 +25,7 @@
 | **F07 en producto / análisis servidor** | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) | AS-A/B, SV-*, gates |
 | **Arquitectura análisis async** | [arquitectura_candidata_servicios_analisis.md](../arquitectura_candidata_servicios_analisis.md) | Redis, ARQ, motores |
 | **Mini-plan servidor MVP** | [designs/coach-async-analysis-server-mini-plan.md](./designs/coach-async-analysis-server-mini-plan.md) | AS-1…AS-11 |
+| **Lc0 kibitzer estratégico (críticas, solo server)** | [designs/coach-lc0-strategic-kibitzer-mini-plan.md](./designs/coach-lc0-strategic-kibitzer-mini-plan.md) | LZ-1…LZ-8 |
 | **Entrada posición (FEN / imagen / editor)** | [designs/coach-position-analysis-entry-mini-plan.md](./designs/coach-position-analysis-entry-mini-plan.md) | POS-1…POS-3 |
 | **Catálogo maestro `games` + Coach + navegador** | [designs/coach-games-catalog-unify-mini-plan.md](./designs/coach-games-catalog-unify-mini-plan.md) | GC-1…GC-5, UI-G1…UI-G3 |
 | **M08 entrenamiento** | [04-phase-03-training-diagnosis.md](./04-phase-03-training-diagnosis.md) | F08-* |
@@ -134,6 +135,7 @@
 3. **AS-A:** merge **SV-2**, worker **full line** (SV-1), cliente **SV-3** (sin CA-2 background en main line).  
 4. **CA-8** HITL + borrador **expert_gold** (10 → 30).  
 5. Piloto **AS-B** (Redis/ARQ/multi-motor) solo tras AS-A aceptado; **POS-2/3** imagen y editor tablero cuando UI-110 avance.  
+5b. **Backlog:** Lc0 kibitzer en críticas (LZ-1…LZ-8) — [mini-plan](./designs/coach-lc0-strategic-kibitzer-mini-plan.md); después de AS-A + CA-8.  
 6. No abrir UI M08 hasta **GATE-MVP-PRAGMATIC**.  
 7. PRs: estado **🧪** + enlace a mini-plans POS / AS.
 

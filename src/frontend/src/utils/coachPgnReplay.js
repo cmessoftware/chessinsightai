@@ -1,10 +1,36 @@
 import { Chess } from 'chess.js'
 
+/** chess.js only accepts a single game; multi-game exports fail parse. */
+export function extractFirstGamePgnText(pgnText) {
+    const text = (pgnText || '').trim()
+    if (!text) return text
+    const probe = new Chess()
+    try {
+        probe.loadPgn(text)
+        return text
+    } catch {
+        /* fall through */
+    }
+    const chunks = text.split(/\n\n(?=\[)/)
+    for (let end = 1; end <= chunks.length; end += 1) {
+        const candidate = chunks.slice(0, end).join('\n\n')
+        const chess = new Chess()
+        try {
+            chess.loadPgn(candidate)
+            return candidate
+        } catch {
+            /* try longer slice */
+        }
+    }
+    return chunks[0] || text
+}
+
 /** Replay main line from PGN for Coach study tree. */
 export function buildReplayFromPgn(pgnText) {
+    const singleGamePgn = extractFirstGamePgnText(pgnText)
     const chess = new Chess()
     try {
-        chess.loadPgn(pgnText)
+        chess.loadPgn(singleGamePgn)
     } catch {
         return { fens: [new Chess().fen()], ucis: [], moves: [], moveCount: 0 }
     }

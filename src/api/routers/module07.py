@@ -58,6 +58,11 @@ class IngestBody(BaseModel):
     )
     corpus_type: str = Field(default="personal")
     source: str = Field(default="pgn_upload", max_length=32)
+    max_games: Optional[int] = Field(
+        default=1,
+        ge=1,
+        description="Cap games imported from a multi-game PGN (Coach default: first game only).",
+    )
 
     @field_validator("player_username")
     @classmethod
@@ -244,11 +249,14 @@ def ingest_pgn(
     user = getattr(request.state, "user", {}) or {}
     imported_by = (user.get("username") or "").strip() or str(owner)
     try:
-        parsed = parse_games_from_pgn_text(
-            body.pgn_text, player_username=body.player_username
+        parse_result = parse_games_from_pgn_text(
+            body.pgn_text,
+            player_username=body.player_username,
+            max_games=body.max_games,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    parsed = list(parse_result.games)
     corpus = _resolved_corpus(request, body.corpus_type)
     rows, is_new_flags = create_games_from_ingest(
         db,
@@ -258,12 +266,16 @@ def ingest_pgn(
         source=(body.source or "pgn_upload")[:32],
         imported_by=imported_by,
     )
+    total_in_pgn = parse_result.total_games_in_pgn
+    imported_count = len(rows)
     return {
         "games": [
             _game_json(r, is_new=flag) for r, flag in zip(rows, is_new_flags, strict=True)
         ],
-        "count": len(rows),
+        "count": imported_count,
         "new_count": sum(1 for f in is_new_flags if f),
+        "pgn_total_games": total_in_pgn,
+        "pgn_games_ignored": max(0, total_in_pgn - imported_count),
     }
 
 
@@ -429,11 +441,14 @@ def ingest_and_analyze(
             detail="player_username is required for ingest-and-analyze",
         )
     try:
-        parsed = parse_games_from_pgn_text(
-            body.pgn_text, player_username=body.player_username
+        parse_result = parse_games_from_pgn_text(
+            body.pgn_text,
+            player_username=body.player_username,
+            max_games=body.max_games,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    parsed = list(parse_result.games)
     corpus = _resolved_corpus(request, body.corpus_type)
     rows, _is_new = create_games_from_ingest(
         db,
@@ -454,7 +469,11 @@ def ingest_and_analyze(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     background_tasks.add_task(run_analysis_job, job.id, owner)
+    total_in_pgn = parse_result.total_games_in_pgn
+    imported_count = len(rows)
     return {
         "games": [_game_json(r) for r in rows],
         "job": _job_json(job),
+        "pgn_total_games": total_in_pgn,
+        "pgn_games_ignored": max(0, total_in_pgn - imported_count),
     }

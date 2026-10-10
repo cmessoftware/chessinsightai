@@ -37,6 +37,7 @@ Ramas sugeridas: `feature/07_130_server_full_line_analysis`, `feature/11_130_cli
 | **AS-9** | API FEN on-demand | `POST/GET .../analysis/fen` para tab live opcional sin WASM |
 | **AS-10** | Motor Maia | Lc0 + weights; perfil `human_1500`; solo críticas o CA-9 server |
 | **AS-11** | Lc0 + Alexander | Segundo/tercer perfil UCI; OpenSpec licencias y paths |
+| *(detalle Lc0 críticas)* | [coach-lc0-strategic-kibitzer-mini-plan.md](./coach-lc0-strategic-kibitzer-mini-plan.md) | LZ-1…LZ-8 kibitzer estratégico (complemento SF, no sustituto) |
 
 ---
 

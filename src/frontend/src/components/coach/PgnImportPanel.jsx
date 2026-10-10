@@ -17,6 +17,7 @@ import { CloudUpload } from '@mui/icons-material'
 import { useDropzone } from 'react-dropzone'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { ingestPgn } from '../../services/module07Service.js'
+import { pgnMultiGameImportNotice } from '../../utils/coachPgnImport.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 
 async function readFileAsText(file) {
@@ -66,6 +67,7 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
             const count = result.count ?? imported.length
             const newCount = result.new_count ?? imported.filter((g) => g.is_new).length
             const dupCount = count - newCount
+            const multiNote = pgnMultiGameImportNotice(result)
             setPgnPaste('')
             setPgnFile(null)
 
@@ -79,12 +81,13 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
 
             if (count === 1 && imported[0]?.id) {
                 const g = imported[0]
+                const baseMessage = g.is_new
+                    ? 'Partida importada. Podés encolar Stockfish en Partidas.'
+                    : 'Partida actualizada en la biblioteca.'
                 navigate(`/coach/games/${g.id}/analysis`, {
                     state: {
                         returnTo: COACH_RETURN_PARTIDAS,
-                        message: g.is_new
-                            ? 'Partida importada. Podés encolar Stockfish en Partidas.'
-                            : 'Partida actualizada en la biblioteca.',
+                        message: multiNote ? `${multiNote} ${baseMessage}` : baseMessage,
                     },
                 })
                 return
@@ -93,9 +96,10 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
             if (goToPartidasAfter) {
                 const dupNote =
                     dupCount > 0 ? ` ${dupCount} ya existían (resaltadas).` : ''
+                const multiPrefix = multiNote ? `${multiNote} ` : ''
                 navigate(COACH_RETURN_PARTIDAS, {
                     state: {
-                        message: `${newCount} nueva(s), ${count} en total.${dupNote} Elegí jugador y encolá análisis.`,
+                        message: `${multiPrefix}${newCount} nueva(s), ${count} en total.${dupNote} Elegí jugador y encolá análisis.`,
                         ...partidasState,
                     },
                 })
@@ -196,7 +200,7 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                 helperText={
                     pgnFile
                         ? 'Hay un archivo seleccionado: se importará el archivo (no el texto del cuadro).'
-                        : 'Podés pegar varias partidas en un solo PGN.'
+                        : 'Si el archivo tiene varias partidas, se importa solo la primera.'
                 }
                 sx={{ mb: 2, '& .MuiInputBase-input': { fontFamily: 'monospace', fontSize: 14 } }}
             />

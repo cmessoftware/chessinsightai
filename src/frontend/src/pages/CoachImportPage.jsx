@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { ingestPgn } from '../services/module07Service.js'
+import { pgnMultiGameImportNotice } from '../utils/coachPgnImport.js'
 
 export default function CoachImportPage() {
     const navigate = useNavigate()
@@ -22,9 +23,11 @@ export default function CoachImportPage() {
         setLoading(true)
         try {
             const result = await ingestPgn(pgn)
+            const multiNote = pgnMultiGameImportNotice(result)
+            const countMsg = `Importadas ${result.count ?? 0} partida(s). Configurá el análisis en la cola.`
             navigate('/coach/partidas', {
                 state: {
-                    message: `Importadas ${result.count ?? 0} partida(s). Configurá el análisis en la cola.`,
+                    message: multiNote ? `${multiNote} ${countMsg}` : countMsg,
                 },
             })
         } catch (err) {
@@ -50,7 +53,7 @@ export default function CoachImportPage() {
             <Box component="form" onSubmit={handleSubmit}>
                 <TextField
                     fullWidth
-                    label="PGN (texto o varias partidas)"
+                    label="PGN (solo se importa la primera partida si hay varias)"
                     value={pgn}
                     onChange={(e) => setPgn(e.target.value)}
                     required
