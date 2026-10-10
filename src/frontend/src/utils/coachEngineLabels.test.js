@@ -9,6 +9,7 @@ import {
     deriveMateStatus,
     evalGapCpVsBest,
     formatClassificationProgressLabel,
+    formatStockfishWasmCaption,
     normalizeFromWhitePov,
     scoreFromEngineLine,
 } from './coachEngineLabels.js'
@@ -154,5 +155,19 @@ describe('incomplete scores', () => {
         })
         expect(r.engineLabel).toBe('pending')
         expect(r.reason).toBe('incomplete_score')
+    })
+})
+
+describe('formatStockfishWasmCaption', () => {
+    it('matches live panel format', () => {
+        expect(
+            formatStockfishWasmCaption({ targetDepth: 14, multipv: 2, depthReached: 14 }),
+        ).toBe('Stockfish lite WASM · objetivo depth 14 · MultiPV 2 · alcanzado 14')
+    })
+
+    it('omits alcanzado when depth unknown', () => {
+        expect(formatStockfishWasmCaption({ targetDepth: 12, multipv: 3 })).toBe(
+            'Stockfish lite WASM · objetivo depth 12 · MultiPV 3',
+        )
     })
 })

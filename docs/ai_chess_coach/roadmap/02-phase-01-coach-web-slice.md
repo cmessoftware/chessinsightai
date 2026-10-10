@@ -63,6 +63,9 @@ Metadatos motor y review pack completo → [Phase 2](./03-phase-02-analysis-in-p
 | UI-ANALYSIS | 🧪 | `/coach/games/:id/analysis` | Tablero + MultiPV |
 | UI-REVIEW | 🧪 | `/coach/games/:id/review` | Review pack (parcial) |
 | UI-110 | 📋 Planned | `/coach/games/:id/analysis` + tablero global | Layout responsive, PGN, candidatas verdes, **Chessground único** (sin react-chessboard) — [mini-plan](./designs/coach-game-analysis-layout-pgn.md) |
+| CA-9 | ⬜ Planned | `/coach/games/:id/analysis` · tab **Análisis avanzado** | Maia WASM (ONNX cliente); Elo **1100–1900** step **200**; no Motor live ni clasificación Stockfish — [mini-plan](./designs/coach-maia-advanced-analysis-mini-plan.md) · rama `feature/11_121_maia_wasm_advanced` |
+| POS-1 | 🧪 | `/coach/position` | Pegar **FEN** → tablero + Motor live WASM; sin PGN/job — [mini-plan](./designs/coach-position-analysis-entry-mini-plan.md) · rama `feature/11_122_position_fen_entry` |
+| POS-2 / POS-3 | 📋 Planned | POS-1 + tablero | Imagen → FEN; editor drag & drop — mismo mini-plan, post-MVP |
 
 Sync sitios, OAuth y pulido → [Phase 5](./06-phase-05-coach-ui-complete.md). Legacy: `/import/legacy`.
 

@@ -1,7 +1,7 @@
 # Roadmap index — AI Chess Coach (punto de entrada)
 
 **Documentación activa:** `docs/ai_chess_coach/`.  
-**Curso (`docs/ai_chess_coach_course/`):** congelado — [SUSPENDED.md](../../ai_chess_coach_course/SUSPENDED.md).
+**Curso (`docs/ai_chess_coach_course/`):** **suspendido** — notebooks, scripts y gates del curso **no** son entrega Phase 2; solo referencia specs. [SUSPENDED.md](../../ai_chess_coach_course/SUSPENDED.md). Código producto: `src/analysis/` + `module07`.
 
 **Secuencia web:** phases **1 → 6** en [01-phase-roadmap.md](./01-phase-roadmap.md). **Trabajo activo:** Phase **1** ([02-phase-01-coach-web-slice.md](./02-phase-01-coach-web-slice.md)).
 
@@ -20,8 +20,13 @@
 | **Orden de entrega web (1–6)** | [01-phase-roadmap.md](./01-phase-roadmap.md) | phases 1–6 |
 | **Seguimiento vivo (Phase 1)** | [02-phase-01-coach-web-slice.md](./02-phase-01-coach-web-slice.md) | P0, UI-10x slice, M07 mínimo |
 | **Diseño análisis Coach (borrador)** | [designs/coach-game-analysis-layout-pgn.md](./designs/coach-game-analysis-layout-pgn.md) | UI-110 |
-| **Clasificación jugadas + pedagogía (mini-plan)** | [designs/coach-move-classification-pedagogy-mini-plan.md](./designs/coach-move-classification-pedagogy-mini-plan.md) | PC-1…PC-9 |
-| **F07 en producto** | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) | F07-*, gates |
+| **Clasificación jugadas + pedagogía (mini-plan)** | [designs/coach-move-classification-pedagogy-mini-plan.md](./designs/coach-move-classification-pedagogy-mini-plan.md) | CA-1…CA-9, SV-* |
+| **Maia WASM · Análisis avanzado** | [designs/coach-maia-advanced-analysis-mini-plan.md](./designs/coach-maia-advanced-analysis-mini-plan.md) | CA-9, MA-1…MA-5 |
+| **F07 en producto / análisis servidor** | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) | AS-A/B, SV-*, gates |
+| **Arquitectura análisis async** | [arquitectura_candidata_servicios_analisis.md](../arquitectura_candidata_servicios_analisis.md) | Redis, ARQ, motores |
+| **Mini-plan servidor MVP** | [designs/coach-async-analysis-server-mini-plan.md](./designs/coach-async-analysis-server-mini-plan.md) | AS-1…AS-11 |
+| **Entrada posición (FEN / imagen / editor)** | [designs/coach-position-analysis-entry-mini-plan.md](./designs/coach-position-analysis-entry-mini-plan.md) | POS-1…POS-3 |
+| **Catálogo maestro `games` + Coach + navegador** | [designs/coach-games-catalog-unify-mini-plan.md](./designs/coach-games-catalog-unify-mini-plan.md) | GC-1…GC-5, UI-G1…UI-G3 |
 | **M08 entrenamiento** | [04-phase-03-training-diagnosis.md](./04-phase-03-training-diagnosis.md) | F08-* |
 | **M09 corpus** | [05-phase-04-reference-corpus.md](./05-phase-04-reference-corpus.md) | F09-* |
 | **UI restante** | [06-phase-05-coach-ui-complete.md](./06-phase-05-coach-ui-complete.md) | UI-105+ |
@@ -122,13 +127,15 @@
 
 ---
 
-## Prioridad inmediata (7–14 días)
+## Prioridad inmediata (Phase 2 — infra + HITL + servidor)
 
 1. Cerrar **P0-2 → P0-5**.  
-2. **Validación UI** Phase 1 antes de ampliar F07 en producto (Phase 2).  
-3. Borrador **expert_gold** (10 partidas).  
-4. No abrir UI M08 hasta **GATE-MVP-PRAGMATIC** (Phase 2/3).  
-5. PRs: estado **🧪** + enlace a este índice.
+2. **POS-1:** FEN texto → `/coach/position` (tablero + WASM live).  
+3. **AS-A:** merge **SV-2**, worker **full line** (SV-1), cliente **SV-3** (sin CA-2 background en main line).  
+4. **CA-8** HITL + borrador **expert_gold** (10 → 30).  
+5. Piloto **AS-B** (Redis/ARQ/multi-motor) solo tras AS-A aceptado; **POS-2/3** imagen y editor tablero cuando UI-110 avance.  
+6. No abrir UI M08 hasta **GATE-MVP-PRAGMATIC**.  
+7. PRs: estado **🧪** + enlace a mini-plans POS / AS.
 
 ---
 

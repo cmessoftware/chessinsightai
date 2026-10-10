@@ -4,6 +4,7 @@ import {
     collectMainLinePlies,
     collectMainLinePlayerPlies,
     pathKeyFromPath,
+    scorePositionAfterMove,
 } from './coachPlyClassification.js'
 
 function buildMiniTree(moves) {
@@ -54,5 +55,24 @@ describe('collectMainLinePlayerPlies', () => {
         const root = buildMiniTree(['e4', 'e5', 'Nf3'])
         expect(collectMainLinePlies(root)).toHaveLength(3)
         expect(collectMainLinePlies(root)[1].moverColor).toBe('black')
+    })
+})
+
+describe('scorePositionAfterMove', () => {
+    it('returns coach POV eval at fen_after (side to move flipped)', () => {
+        const jobs = collectMainLinePlies(buildMiniTree(['e4', 'e5']))
+        const afterE5 = jobs[1].fenAfter
+        const whitePov = scorePositionAfterMove(
+            { cp: 30, mate: null },
+            afterE5,
+            'white',
+        )
+        expect(whitePov?.cp).toBe(30)
+        const blackPov = scorePositionAfterMove(
+            { cp: 30, mate: null },
+            afterE5,
+            'black',
+        )
+        expect(blackPov?.cp).toBe(-30)
     })
 })

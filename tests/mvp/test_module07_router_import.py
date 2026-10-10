@@ -17,3 +17,4 @@ def test_module07_router_has_ingest_route():
 
     paths = [getattr(r, "path", None) for r in module07.router.routes]
     assert "/api/v1/module07/ingest-and-analyze" in paths
+    assert "/api/v1/module07/games/{game_id}/annotations" in paths

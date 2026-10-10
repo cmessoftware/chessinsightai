@@ -7,7 +7,8 @@
 
 | id | status | descripción |
 | --- | --- | --- |
-| UI-104 | 🧪 / ⬜ | Filtros Games (speed class en `games`) |
+| **GC-1…GC-5, UI-G1…UI-G3** | ⬜ | Catálogo maestro, fuente `ANALYSIS`, rename Coach, borrado y filtros — [mini-plan](./designs/coach-games-catalog-unify-mini-plan.md) |
+| UI-104 | 🧪 / ⬜ | Filtros Games (speed class en `games`) — superseded en parte por **UI-G2** |
 | UI-105 | ⬜ | Chess.com sync job |
 | UI-106 | ⬜ | Lichess sync job |
 | UI-108 | ⬜ | OAuth Google (P2) |

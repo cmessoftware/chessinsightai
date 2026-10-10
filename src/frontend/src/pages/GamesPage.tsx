@@ -15,6 +15,7 @@ import {
     TablePagination,
     Chip,
     Alert,
+    Link,
     CircularProgress,
     InputAdornment,
     FormControl,
@@ -27,7 +28,7 @@ import {
     Visibility,
     FilterList
 } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { gamesService } from '../services/games'
 import { useAuth } from '../hooks/useAuth.js'
 
@@ -155,7 +156,30 @@ const GamesPage = () => {
             {/* Alerta para usuarios con permiso limitado */}
             {hasPermission('view_own_games') && !hasPermission('view_all_games') && (
                 <Alert severity="info" sx={{ mb: 3 }}>
-                    📋 Mostrando solo tus propias partidas. Como usuario, solo puedes ver las partidas donde has jugado.
+                    Fuente <strong>ANALYSIS</strong> lista solo partidas de tu biblioteca Coach
+                    (import PGN), no todo el corpus legacy. También en{' '}
+                    <Link component={RouterLink} to="/coach/partidas">
+                        Coach → Partidas
+                    </Link>
+                    .
+                </Alert>
+            )}
+
+            {!loading && !error && totalCount === 0 && (
+                <Alert severity="warning" sx={{ mb: 3 }}>
+                    No hay partidas en este catálogo. Si importaste por{' '}
+                    <Link component={RouterLink} to="/coach/importar">
+                        Coach → Importar PGN
+                    </Link>
+                    , abrí{' '}
+                    <Link component={RouterLink} to="/coach/partidas">
+                        Coach → Partidas
+                    </Link>
+                    . Para cargar aquí, usá el menú Importar o importación legacy (
+                    <Link component={RouterLink} to="/import/legacy">
+                        /import/legacy
+                    </Link>
+                    ).
                 </Alert>
             )}
 

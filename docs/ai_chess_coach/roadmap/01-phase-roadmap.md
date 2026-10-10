@@ -11,7 +11,7 @@ Secuencia **única** para implementar la app (React + FastAPI + Postgres). Los n
 | Phase | Nombre | Entregable clave | Tareas |
 | --- | --- | --- | --- |
 | **1** | Coach web slice | Import → cola → análisis MultiPV en UI | [02-phase-01-coach-web-slice.md](./02-phase-01-coach-web-slice.md) |
-| **2** | Análisis en producto | F07 persistido, review pack, gates M07 | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) |
+| **2** | Análisis en producto | Análisis profundo **servidor**, ply persistido, infra + HITL; WASM = live | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) |
 | **3** | Entrenamiento y diagnóstico | Debilidades, puzzles, M08A/M08B | [04-phase-03-training-diagnosis.md](./04-phase-03-training-diagnosis.md) |
 | **4** | Corpus de referencia | M09, partidas modelo indexadas | [05-phase-04-reference-corpus.md](./05-phase-04-reference-corpus.md) |
 | **5** | Coach UI completa | Sync Chess.com/Lichess, filtros, OAuth | [06-phase-05-coach-ui-complete.md](./06-phase-05-coach-ui-complete.md) |
@@ -22,7 +22,7 @@ Secuencia **única** para implementar la app (React + FastAPI + Postgres). Los n
 ```text
 Phase 1  slice UI + module07 mínimo
    ↓
-Phase 2  evidencia F07 + validación ajedrez
+Phase 2  análisis async servidor + HITL + gates M07
    ↓
 Phase 3  M08 entrenamiento / diagnóstico
    ↓

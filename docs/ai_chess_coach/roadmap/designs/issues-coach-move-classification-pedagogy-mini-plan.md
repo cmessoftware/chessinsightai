@@ -28,6 +28,10 @@ Ramas sugeridas: `feature/11_11x_*` (solo frontend + utils JS). Un ítem por ram
 | FEAT-11 | FEAT-08 | Acomodar font de letras de mensaje tooltip, mismo font que las movidad del pgn                                                                                                                                                                                                        | ✅ Done | `pgnMoveTextSx` (body2+mono) tooltip, menú contextual y botones SAN  |
 | BUG-12  |         | Analizar jugadas marcadas como blunder cuando no lo son, logica de perdida de cp entando ganado, con ventaja, igual o con desventaja o perdido. Los criterio son diferentes, ver spec                                                                                                 | 🔄 WIP | Tooltip impacto v1 + umbrales por Elo (`coachPedagogicalImpact.js`); etiqueta cp sin cambio |
 | BUG-013| |en partida actual aparece el tab "Analisis Avanzando" pero  cuando cargo otro pgn desaparece |✅ Done|Tabs arriba + sticky; reset al cambiar `gameId` |
+| FEAT-14 | CA-4 | Maia WASM solo en **Análisis avanzado**; selector Elo **1100–1900** cada **200**; top moves humanos vs jugada hecha; Stockfish sigue en PGN/Motor live | ⬜ Planned | [coach-maia-advanced-analysis-mini-plan.md](./coach-maia-advanced-analysis-mini-plan.md) · `feature/11_121_maia_wasm_advanced` |
+| FEAT-15 | — | **POS-1** Análisis desde **FEN** (texto): `/coach/position`, tablero + motor live; sin PGN | ⬜ Planned | [coach-position-analysis-entry-mini-plan.md](./coach-position-analysis-entry-mini-plan.md) · `feature/11_122_position_fen_entry` |
+| FEAT-16 | POS-1 | **POS-2** Imagen tablero → FEN (revisión manual) | 📋 Planned | Mismo mini-plan · post-MVP |
+| FEAT-17 | POS-1 | **POS-3** Armar posición en tablero (D&D) → FEN | 📋 Planned | Tras UI-110 · post-MVP |
 
 
 ⬜ Todo

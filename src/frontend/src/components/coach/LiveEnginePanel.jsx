@@ -1,5 +1,6 @@
 import React from 'react'
 import { Box, CircularProgress, Paper, Typography } from '@mui/material'
+import { formatStockfishWasmCaption } from '../../utils/coachEngineLabels.js'
 import { formatPlayerEval, formatPvOneLine } from '../../utils/engineEval.js'
 
 function LineRow({ rank, evalText, lineSan }) {
@@ -60,9 +61,7 @@ export default function LiveEnginePanel({ liveState, targetDepth, multipv }) {
                 {status === 'loading' && <CircularProgress size={16} />}
             </Box>
             <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-                Stockfish lite WASM · objetivo depth {targetDepth}
-                {multipv ? ` · MultiPV ${multipv}` : ''}
-                {depthReached ? ` · alcanzado ${depthReached}` : ''}
+                {formatStockfishWasmCaption({ targetDepth, multipv, depthReached })}
             </Typography>
             {error && (
                 <Typography variant="body2" color="error" sx={{ mb: 1 }}>

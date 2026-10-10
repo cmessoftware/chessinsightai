@@ -22,7 +22,7 @@ export default function CoachImportPage() {
         setLoading(true)
         try {
             const result = await ingestPgn(pgn)
-            navigate('/coach/jobs', {
+            navigate('/coach/partidas', {
                 state: {
                     message: `Importadas ${result.count ?? 0} partida(s). Configurá el análisis en la cola.`,
                 },

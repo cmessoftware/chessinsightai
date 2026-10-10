@@ -3,7 +3,7 @@
 **Estado:** Borrador de implementación  
 **Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)
 
-**Estrategia acordada:** primero **MVP en el navegador** (Stockfish WASM + UI de análisis avanzada). **No** persistir clasificación en PostgreSQL ni duplicar la cola module07 hasta cerrar **validación con humanos** (umbrales, copy, UX). Después se **congela el contrato** y se mueve a servicios F07 + modelos en DB (Phase 2).
+**Estrategia acordada (actualizada Phase 2):** el **MVP cliente WASM** (CA-1…CA-7) validó UX y contrato v1. La **siguiente fase** mueve el **análisis profundo al servidor** (SV-1/SV-3, [mini-plan async](./coach-async-analysis-server-mini-plan.md)); WASM queda para **Motor live**. Persistencia SV-2 + HITL CA-8 en paralelo con infra P0.
 
 **Código cliente ya existente (base):** `clientStockfishEngine.js`, `useLiveStockfishAnalysis.js`, `usePgnEvalCache.js`, `engineEval.js`, `CoachGameAnalysisPage.jsx`, `CoachPgnMoveList.jsx`, `LiveEnginePanel.jsx`.
 
@@ -77,6 +77,7 @@ Ramas sugeridas: `feature/11_11x_*` (solo frontend + utils JS). Un ítem por ram
 | **CA-6** | Recomendaciones estáticas | `public/config/recommendation_templates.v1.json` + bandas Elo desde tags PGN; modo `basic` si falta Elo §10. | `utils/coachRecommendations.js`, panel CA-4 | ✅ Done |
 | **CA-7** | Caché sesión | Map `gameId + pathKey` (línea principal); `sessionStorage`; re-analizar solo plies nuevos o firma main line distinta. | `coachClassificationSessionCache.js`, `usePgnMoveClassification.js` | ✅ Done |
 | **CA-8** | Validación humana (manual) | 3–5 partidas anotadas a mano vs UI; ajustar umbrales/copy; registrar en checklist §8 del spec. | [coach-classification-hitl-checklist.md](./coach-classification-hitl-checklist.md) | 🔄 WIP (doc listo; revisión pendiente) |
+| **CA-9** | Maia WASM (solo Análisis avanzado) | Motor humano adicional: ONNX en cliente; Elo usuario **1100–1900** (step **200**); top moves vs jugada hecha; **no** reemplaza Stockfish en PGN/CA-2/Motor live. | [coach-maia-advanced-analysis-mini-plan.md](./coach-maia-advanced-analysis-mini-plan.md) | ⬜ Planned |
 
 **Dependencia mínima del servidor:** solo PGN + `analyzed_player` (White/Black) desde API o import; **no** hace falta nuevo endpoint para CA-1…CA-7.
 
@@ -138,6 +139,7 @@ Al seleccionar fila PGN: tablero + CA-4 sincronizados; MultiPV del ply en CA-4 (
 
 - Crear issues GitHub como plan de trabajo obligatorio (opcional para tracking).
 - Persistir clasificación en DB en el MVP cliente.
+- Maia en tab Motor live, prefetch PGN (CA-2) o clasificación cp_loss (**CA-9** = solo Análisis avanzado).
 - Reporte NL multi-partida (M08).
 - Admin de umbrales en producción (JSON versionado basta hasta SV-*).
 
@@ -150,6 +152,7 @@ Al seleccionar fila PGN: tablero + CA-4 sincronizados; MultiPV del ply en CA-4 (
 | [02-phase-01-coach-web-slice.md](../02-phase-01-coach-web-slice.md) | Slice import → análisis; WASM en Phase 1 |
 | [coach-game-analysis-layout-pgn.md](./coach-game-analysis-layout-pgn.md) | Layout tablero + PGN |
 | [03-phase-02-analysis-in-product.md](../03-phase-02-analysis-in-product.md) | Después de HITL |
+| [coach-maia-advanced-analysis-mini-plan.md](./coach-maia-advanced-analysis-mini-plan.md) | CA-9 Maia WASM (Análisis avanzado, Elo ≤1900) |
 | Spec pedagógica §8 | Gate humano antes de SV-* |
 
 ---
@@ -160,5 +163,6 @@ Al seleccionar fila PGN: tablero + CA-4 sincronizados; MultiPV del ply en CA-4 (
 
 **Parked WIP:** FEAT-07 Mental 1600 en **`feature/11_117_mental_1600_wip`** (M-11 HITL pendiente).
 
-1. **SV-2** — `module07_ply_annotation` (o extensión de `module07_decision_points`) + `GET .../annotations`.
+1. **SV-2** — `module07_ply_annotations` + `GET/PUT .../games/{id}/annotations` (`rules_version` 1, `source` `client_wasm`); sync cliente en `usePlyAnnotationsHydration` / `usePlyAnnotationsPersist`.
 2. **CA-8** — HITL clasificación en paralelo cuando haya revisor ([checklist](./coach-classification-hitl-checklist.md)).
+3. **CA-9** — Maia en Análisis avanzado ([mini-plan Maia](./coach-maia-advanced-analysis-mini-plan.md)); rama `feature/11_121_maia_wasm_advanced` cuando toque.

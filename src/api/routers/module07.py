@@ -12,6 +12,8 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models.module07_models import (
+    CLIENT_CLASSIFICATION_RULES_VERSION,
+    CLIENT_CLASSIFICATION_SOURCE,
     DEFAULT_STOCKFISH_DEPTH,
     DEFAULT_STOCKFISH_MULTIPV,
 )
@@ -25,8 +27,16 @@ from modules.module07.repository import (
     list_decisions_for_game,
     list_games,
     list_jobs,
+    list_ply_annotations_for_game,
+    replace_ply_annotations_for_game,
 )
 from modules.module07.worker import run_analysis_job
+from modules.game_import.coach_catalog import (
+    coach_catalog_health,
+    remove_coach_games_with_missing_master,
+    sync_coach_library_to_master_games,
+)
+from modules.game_import.master_games import master_game_id_from_pgn
 from modules.game_import.metadata import resolve_corpus_type
 
 router = APIRouter(prefix="/api/v1/module07", tags=["module07"])
@@ -104,6 +114,25 @@ def _game_json(
             if getattr(row, "last_imported_at", None)
             else None
         ),
+        "client_analyzed_at": (
+            row.client_analyzed_at.isoformat()
+            if getattr(row, "client_analyzed_at", None)
+            else None
+        ),
+        "client_analysis_ply_count": int(
+            getattr(row, "client_analysis_ply_count", 0) or 0
+        ),
+        "client_main_line_signature": getattr(
+            row, "client_main_line_signature", None
+        ),
+        "client_analyzed": bool(
+            getattr(row, "client_analysis_ply_count", 0)
+            and getattr(row, "client_analyzed_at", None)
+        ),
+        "master_game_id": getattr(row, "master_game_id", None)
+        or (
+            master_game_id_from_pgn(row.pgn) if getattr(row, "pgn", None) else None
+        ),
     }
     if is_new is not None:
         payload["is_new"] = is_new
@@ -138,6 +167,60 @@ def _job_json(row: Any) -> dict[str, Any]:
     }
 
 
+PLY_ANNOTATION_PAYLOAD_SCHEMA_VERSION = 1
+
+
+class PlyAnnotationItemBody(BaseModel):
+    path_key: str = Field(..., min_length=1, max_length=64)
+    ply: int = Field(..., ge=0)
+    fen_before: str = Field(..., min_length=1, max_length=120)
+    played_uci: Optional[str] = Field(default=None, max_length=12)
+    payload: dict[str, Any] = Field(...)
+
+
+class PlyAnnotationsPutBody(BaseModel):
+    main_line_signature: str = Field(..., min_length=1, max_length=512)
+    rules_version: int = Field(default=CLIENT_CLASSIFICATION_RULES_VERSION, ge=1)
+    stockfish_depth: int = Field(default=DEFAULT_STOCKFISH_DEPTH, ge=1, le=40)
+    stockfish_multipv: int = Field(default=DEFAULT_STOCKFISH_MULTIPV, ge=1, le=10)
+    source: str = Field(default=CLIENT_CLASSIFICATION_SOURCE, max_length=32)
+    items: list[PlyAnnotationItemBody] = Field(default_factory=list)
+
+
+def _annotation_json(row: Any) -> dict[str, Any]:
+    return {
+        "path_key": row.path_key,
+        "ply": row.ply,
+        "fen_before": row.fen_before,
+        "played_uci": row.played_uci,
+        "payload": row.payload,
+        "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+def _annotations_response(rows: list[Any]) -> dict[str, Any]:
+    if not rows:
+        return {
+            "schema_version": PLY_ANNOTATION_PAYLOAD_SCHEMA_VERSION,
+            "main_line_signature": None,
+            "rules_version": CLIENT_CLASSIFICATION_RULES_VERSION,
+            "stockfish_depth": DEFAULT_STOCKFISH_DEPTH,
+            "stockfish_multipv": DEFAULT_STOCKFISH_MULTIPV,
+            "source": CLIENT_CLASSIFICATION_SOURCE,
+            "annotations": [],
+        }
+    head = rows[0]
+    return {
+        "schema_version": PLY_ANNOTATION_PAYLOAD_SCHEMA_VERSION,
+        "main_line_signature": head.main_line_signature,
+        "rules_version": head.rules_version,
+        "stockfish_depth": head.stockfish_depth,
+        "stockfish_multipv": head.stockfish_multipv,
+        "source": head.source,
+        "annotations": [_annotation_json(r) for r in rows],
+    }
+
+
 def _decision_json(row: Any) -> dict[str, Any]:
     return {
         "id": row.id,
@@ -158,6 +241,8 @@ def ingest_pgn(
     db: Session = Depends(get_db),
 ):
     owner = _owner_id(request)
+    user = getattr(request.state, "user", {}) or {}
+    imported_by = (user.get("username") or "").strip() or str(owner)
     try:
         parsed = parse_games_from_pgn_text(
             body.pgn_text, player_username=body.player_username
@@ -171,6 +256,7 @@ def ingest_pgn(
         parsed_games=parsed,
         corpus_type=corpus,
         source=(body.source or "pgn_upload")[:32],
+        imported_by=imported_by,
     )
     return {
         "games": [
@@ -178,6 +264,30 @@ def ingest_pgn(
         ],
         "count": len(rows),
         "new_count": sum(1 for f in is_new_flags if f),
+    }
+
+
+@router.get("/coach-catalog/health")
+def get_coach_catalog_health(request: Request, db: Session = Depends(get_db)):
+    """GC-3: integridad ``coach_games`` ↔ ``games`` (huérfanos / PGN vacío)."""
+    owner = _owner_id(request)
+    return coach_catalog_health(db, owner_user_id=owner)
+
+
+@router.post("/coach-catalog/repair")
+def repair_coach_catalog(request: Request, db: Session = Depends(get_db)):
+    """
+    GC-3: elimina filas Coach sin maestro y re-sincroniza metadata en ``games``.
+    Partidas con PGN vacío en maestro: re-importar PGN en Coach.
+    """
+    owner = _owner_id(request)
+    removed = remove_coach_games_with_missing_master(db, owner_user_id=owner)
+    synced = sync_coach_library_to_master_games(db, owner_user_id=owner)
+    health = coach_catalog_health(db, owner_user_id=owner)
+    return {
+        "removed_orphan_coach_rows": removed,
+        "master_rows_synced": synced,
+        "health": health,
     }
 
 
@@ -207,6 +317,47 @@ def get_game_decisions(
         raise HTTPException(status_code=404, detail="Game not found")
     rows = list_decisions_for_game(db, game_id, owner)
     return {"decisions": [_decision_json(r) for r in rows]}
+
+
+@router.get("/games/{game_id}/annotations")
+def get_game_annotations(
+    game_id: str, request: Request, db: Session = Depends(get_db)
+):
+    owner = _owner_id(request)
+    if get_game(db, game_id, owner) is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    rows = list_ply_annotations_for_game(db, game_id, owner)
+    return _annotations_response(rows)
+
+
+@router.put("/games/{game_id}/annotations")
+def put_game_annotations(
+    game_id: str,
+    body: PlyAnnotationsPutBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    owner = _owner_id(request)
+    if body.rules_version != CLIENT_CLASSIFICATION_RULES_VERSION:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported rules_version (supported: {CLIENT_CLASSIFICATION_RULES_VERSION})",
+        )
+    try:
+        rows = replace_ply_annotations_for_game(
+            db,
+            game_id=game_id,
+            owner_user_id=owner,
+            main_line_signature=body.main_line_signature.strip(),
+            rules_version=body.rules_version,
+            stockfish_depth=body.stockfish_depth,
+            stockfish_multipv=body.stockfish_multipv,
+            source=(body.source or CLIENT_CLASSIFICATION_SOURCE)[:32],
+            items=[item.model_dump() for item in body.items],
+        )
+    except LookupError:
+        raise HTTPException(status_code=404, detail="Game not found") from None
+    return _annotations_response(rows)
 
 
 @router.get("/decisions/{decision_id}")

@@ -93,3 +93,13 @@ export async function getDecision(decisionId) {
     const { data } = await api.get(`/api/v1/module07/decisions/${decisionId}`)
     return data
 }
+
+export async function getGameAnnotations(gameId) {
+    const { data } = await api.get(`/api/v1/module07/games/${gameId}/annotations`)
+    return data
+}
+
+export async function putGameAnnotations(gameId, body) {
+    const { data } = await api.put(`/api/v1/module07/games/${gameId}/annotations`, body)
+    return data
+}

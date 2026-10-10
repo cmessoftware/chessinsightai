@@ -72,6 +72,12 @@ function rawLineToPlayerScore(line, fenAtAnalysis, playerColor) {
     })
 }
 
+/** Eval estable de la posición en `fenAfter` (side to move = rival del POV pedido). */
+export function scorePositionAfterMove(rawLine, fenAfter, playerColor) {
+    if (!rawLine || !fenAfter) return null
+    return rawLineToPlayerScore(rawLine, fenAfter, playerColor)
+}
+
 /**
  * @param {import('../engine/clientStockfishEngine.js').StockfishBrowserEngine} engine
  * @param {PlayerPlyJob} job
@@ -80,9 +86,16 @@ function rawLineToPlayerScore(line, fenAtAnalysis, playerColor) {
 export async function classifyPlyWithEngine(
     engine,
     job,
-    { depth = 12, multipv = 3, priority = 'normal', playerColor = 'white' } = {},
+    {
+        depth = 12,
+        multipv = 3,
+        priority = 'normal',
+        playerColor = 'white',
+        coachPlayerColor = playerColor,
+    } = {},
 ) {
     const pov = parsePlayerColor(job.moverColor ?? playerColor)
+    const coachPov = parsePlayerColor(coachPlayerColor)
     const playedNorm = normalizeUci(job.playedUci)
 
     const raw = await engine.analyze(
@@ -108,6 +121,10 @@ export async function classifyPlyWithEngine(
     const matched = raw.find((line) => normalizeUci(line.pvUci?.[0]) === playedNorm)
     /** @type {PlayerScore} */
     let playedScore
+    /** @type {import('./coachEngineLabels.js').PlayerScore | null} */
+    let positionAfterScore = null
+    /** @type {import('./coachEngineLabels.js').PlayerScore | null} */
+    let positionAfterScoreMover = null
     if (matched) {
         playedScore = rawLineToPlayerScore(matched, job.fenBefore, pov)
     } else {
@@ -157,10 +174,27 @@ export async function classifyPlyWithEngine(
             }
         }
         playedScore = rawLineToPlayerScore(afterRaw[0], job.fenAfter, pov)
+        positionAfterScore = scorePositionAfterMove(afterRaw[0], job.fenAfter, coachPov)
+        positionAfterScoreMover = scorePositionAfterMove(afterRaw[0], job.fenAfter, pov)
+    }
+
+    if (positionAfterScore == null) {
+        const afterRaw = await engine.analyze(
+            { fen: job.fenAfter, depth, multipv: 1 },
+            { priority },
+        )
+        if (afterRaw?.length) {
+            positionAfterScore = scorePositionAfterMove(afterRaw[0], job.fenAfter, coachPov)
+            positionAfterScoreMover = scorePositionAfterMove(afterRaw[0], job.fenAfter, pov)
+        }
     }
 
     const bestPvSan = uciPvToSan(job.fenBefore, raw[0].pvUci || [])
     const result = classifyMoveFromEvals({ bestScore, playedScore })
+    const engineDepthReached = raw.reduce(
+        (max, line) => Math.max(max, line.depth || 0),
+        0,
+    )
     return {
         ...result,
         pathKey: job.pathKey,
@@ -172,5 +206,9 @@ export async function classifyPlyWithEngine(
         bestMoveUci: raw[0].pvUci?.[0] || null,
         bestPvSan,
         playedInMultipv: Boolean(matched),
+        engineDepthReached: engineDepthReached || null,
+        positionAfterScore,
+        positionAfterScoreMover,
+        fenAfter: job.fenAfter,
     }
 }

@@ -327,3 +327,11 @@ export function formatClassificationProgressLabel(progress) {
     }
     return null
 }
+
+/** Caption compartido Motor live + Análisis avanzado (Stockfish lite WASM). */
+export function formatStockfishWasmCaption({ targetDepth, multipv, depthReached } = {}) {
+    let line = `Stockfish lite WASM · objetivo depth ${targetDepth ?? '—'}`
+    if (multipv) line += ` · MultiPV ${multipv}`
+    if (depthReached != null && depthReached > 0) line += ` · alcanzado ${depthReached}`
+    return line
+}
