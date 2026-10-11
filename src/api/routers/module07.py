@@ -12,6 +12,8 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models.module07_models import (
+    CLIENT_CLASSIFICATION_RULES_VERSION,
+    CLIENT_CLASSIFICATION_SOURCE,
     DEFAULT_STOCKFISH_DEPTH,
     DEFAULT_STOCKFISH_MULTIPV,
 )
@@ -25,6 +27,8 @@ from modules.module07.repository import (
     list_decisions_for_game,
     list_games,
     list_jobs,
+    list_ply_annotations_for_game,
+    replace_ply_annotations_for_game,
 )
 from modules.module07.worker import run_analysis_job
 from modules.game_import.metadata import resolve_corpus_type
@@ -104,6 +108,21 @@ def _game_json(
             if getattr(row, "last_imported_at", None)
             else None
         ),
+        "client_analyzed_at": (
+            row.client_analyzed_at.isoformat()
+            if getattr(row, "client_analyzed_at", None)
+            else None
+        ),
+        "client_analysis_ply_count": int(
+            getattr(row, "client_analysis_ply_count", 0) or 0
+        ),
+        "client_main_line_signature": getattr(
+            row, "client_main_line_signature", None
+        ),
+        "client_analyzed": bool(
+            getattr(row, "client_analysis_ply_count", 0)
+            and getattr(row, "client_analyzed_at", None)
+        ),
     }
     if is_new is not None:
         payload["is_new"] = is_new
@@ -135,6 +154,60 @@ def _job_json(row: Any) -> dict[str, Any]:
         "started_at": row.started_at.isoformat() if row.started_at else None,
         "finished_at": row.finished_at.isoformat() if row.finished_at else None,
         "game_ids": [g.id for g in row.games],
+    }
+
+
+PLY_ANNOTATION_PAYLOAD_SCHEMA_VERSION = 1
+
+
+class PlyAnnotationItemBody(BaseModel):
+    path_key: str = Field(..., min_length=1, max_length=64)
+    ply: int = Field(..., ge=0)
+    fen_before: str = Field(..., min_length=1, max_length=120)
+    played_uci: Optional[str] = Field(default=None, max_length=12)
+    payload: dict[str, Any] = Field(...)
+
+
+class PlyAnnotationsPutBody(BaseModel):
+    main_line_signature: str = Field(..., min_length=1, max_length=512)
+    rules_version: int = Field(default=CLIENT_CLASSIFICATION_RULES_VERSION, ge=1)
+    stockfish_depth: int = Field(default=DEFAULT_STOCKFISH_DEPTH, ge=1, le=40)
+    stockfish_multipv: int = Field(default=DEFAULT_STOCKFISH_MULTIPV, ge=1, le=10)
+    source: str = Field(default=CLIENT_CLASSIFICATION_SOURCE, max_length=32)
+    items: list[PlyAnnotationItemBody] = Field(default_factory=list)
+
+
+def _annotation_json(row: Any) -> dict[str, Any]:
+    return {
+        "path_key": row.path_key,
+        "ply": row.ply,
+        "fen_before": row.fen_before,
+        "played_uci": row.played_uci,
+        "payload": row.payload,
+        "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+def _annotations_response(rows: list[Any]) -> dict[str, Any]:
+    if not rows:
+        return {
+            "schema_version": PLY_ANNOTATION_PAYLOAD_SCHEMA_VERSION,
+            "main_line_signature": None,
+            "rules_version": CLIENT_CLASSIFICATION_RULES_VERSION,
+            "stockfish_depth": DEFAULT_STOCKFISH_DEPTH,
+            "stockfish_multipv": DEFAULT_STOCKFISH_MULTIPV,
+            "source": CLIENT_CLASSIFICATION_SOURCE,
+            "annotations": [],
+        }
+    head = rows[0]
+    return {
+        "schema_version": PLY_ANNOTATION_PAYLOAD_SCHEMA_VERSION,
+        "main_line_signature": head.main_line_signature,
+        "rules_version": head.rules_version,
+        "stockfish_depth": head.stockfish_depth,
+        "stockfish_multipv": head.stockfish_multipv,
+        "source": head.source,
+        "annotations": [_annotation_json(r) for r in rows],
     }
 
 
@@ -207,6 +280,50 @@ def get_game_decisions(
         raise HTTPException(status_code=404, detail="Game not found")
     rows = list_decisions_for_game(db, game_id, owner)
     return {"decisions": [_decision_json(r) for r in rows]}
+
+
+@router.get("/games/{game_id}/annotations")
+def get_game_annotations(
+    game_id: str, request: Request, db: Session = Depends(get_db)
+):
+    owner = _owner_id(request)
+    if get_game(db, game_id, owner) is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    rows = list_ply_annotations_for_game(db, game_id, owner)
+    return _annotations_response(rows)
+
+
+@router.put("/games/{game_id}/annotations")
+def put_game_annotations(
+    game_id: str,
+    body: PlyAnnotationsPutBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    owner = _owner_id(request)
+    if body.rules_version != CLIENT_CLASSIFICATION_RULES_VERSION:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Unsupported rules_version "
+                f"(supported: {CLIENT_CLASSIFICATION_RULES_VERSION})"
+            ),
+        )
+    try:
+        rows = replace_ply_annotations_for_game(
+            db,
+            game_id=game_id,
+            owner_user_id=owner,
+            main_line_signature=body.main_line_signature.strip(),
+            rules_version=body.rules_version,
+            stockfish_depth=body.stockfish_depth,
+            stockfish_multipv=body.stockfish_multipv,
+            source=(body.source or CLIENT_CLASSIFICATION_SOURCE)[:32],
+            items=[item.model_dump() for item in body.items],
+        )
+    except LookupError:
+        raise HTTPException(status_code=404, detail="Game not found") from None
+    return _annotations_response(rows)
 
 
 @router.get("/decisions/{decision_id}")

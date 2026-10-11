@@ -1,0 +1,348 @@
+# PR #158 — riesgos y propuesta de separación
+
+## Resumen
+
+La PR #158 incorpora avances necesarios para el MVP de ChessInsight:
+
+- Persistencia de las clasificaciones calculadas con Stockfish WASM.
+- Unificación del catálogo de partidas.
+- Migración de `module07_games` hacia `games` + `coach_games`.
+- Nuevos endpoints de integridad y reparación.
+- Refactor del workspace de análisis.
+- Navegación Coach reorganizada.
+- Análisis directo desde FEN.
+- Documentación futura para Stockfish, Lc0 y Maia.
+
+El problema no es la dirección técnica, sino el alcance: **71 archivos modificados, 5.279 líneas agregadas y 1.740 eliminadas**. La PR mezcla persistencia, migración destructiva, API, lógica de catálogo, refactor del frontend, nuevas pantallas y documentación arquitectónica.
+
+Esto dificulta:
+
+- Revisar correctamente cada cambio.
+- Detectar regresiones.
+- Aislar fallos.
+- Revertir una funcionalidad sin afectar las demás.
+- Determinar qué parte fue realmente probada.
+- Validar la migración de datos independientemente de la UI.
+
+
+
+## Riesgos detectados
+
+
+| Prioridad | Riesgo                                                             | Consecuencia                                                               |
+| --------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| P0        | Migración GC-2 elimina `module07_games`                            | Una falla durante la migración puede dificultar la recuperación            |
+| P0        | La migración importa código mutable de aplicación                  | Cambios futuros en `master_games.py` pueden romper una migración histórica |
+| P0        | Frontend fuera del CI                                              | `npm test` y `npm run build` pueden fallar sin bloquear el merge           |
+| P0        | Refactor del workspace mezclado con persistencia                   | Una regresión visual puede ocultar un problema de backend o viceversa      |
+| P0        | Mental 1600 todavía no está reconectado completamente al workspace | Puede perderse una función recién integrada                                |
+| P1        | El payload persistido acepta un diccionario genérico               | Pueden almacenarse datos incompletos o incompatibles                       |
+| P1        | PUT reemplaza el snapshot completo de anotaciones                  | Dos sesiones pueden sobrescribir resultados                                |
+| P1        | Los errores de hidratación se silencian                            | La UI puede continuar sin informar que falló la recuperación               |
+| P1        | El hash incluye encabezados PGN                                    | La misma partida importada desde fuentes diferentes puede no deduplicarse  |
+| P1        | Endpoint de reparación elimina filas                               | Falta `dry_run`, auditoría y confirmación explícita                        |
+| P1        | CI verde solamente para Python                                     | No valida WASM, React, migraciones reales ni recorrido end-to-end          |
+| P2        | Documentación de Lc0/Maia mezclada con el MVP                      | Aumenta el ruido de revisión sin aportar implementación ejecutable         |
+
+
+
+
+## Propuesta de separación
+
+
+
+### PR A — Persistencia de clasificación por ply
+
+**Objetivo:** conservar las clasificaciones generadas por Stockfish WASM.
+
+**Incluir:**
+
+- Migraciones:
+  - `module07_ply_annotations`.
+  - Resumen de análisis cliente.
+- Modelos SQLAlchemy.prueba
+- Repositorio de anotaciones.
+- Endpoints:
+  - `GET /games/{game_id}/annotations`.
+  - `PUT /games/{game_id}/annotations`.
+- Hook `useSyncPlyClassificationPersistence`.
+- Tests Python y Vitest correspondientes.
+
+**No incluir:**
+
+- Migración `coach_games`.
+- Refactor del workspace.
+- Nuevas páginas.
+- Documentación Lc0/Maia.
+
+**Criterios de aceptación:**
+
+- La clasificación se guarda y recupera después de recargar la página.
+- Se validan explícitamente los campos del payload.
+- Se persisten versión de reglas, profundidad, MultiPV y versión del motor.
+- Una firma de línea diferente invalida las anotaciones anteriores.
+- Se prueba aislamiento entre dos usuarios.
+- `pytest`, `npm test` y `npm run build` quedan verdes.
+
+---
+
+
+
+### PR B — Catálogo maestro y migración `coach_games`
+
+**Objetivo:** establecer una única identidad de partida y separar los datos del Coach.
+
+**Incluir:**
+
+- `master_games.py`.
+- `coach_catalog.py`.
+- Tabla `coach_games`.
+- FK hacia `games`.
+- Migración de datos desde `module07_games`.
+- Tests GC-1, GC-2 y GC-3.
+- Endpoint de salud del catálogo.
+
+**Cambios requeridos antes del merge:**
+
+- Copiar la lógica imprescindible dentro del archivo Alembic.
+- No importar módulos mutables de la aplicación desde la migración.
+- Evitar commits internos que puedan romper la atomicidad.
+- Agregar modo `dry_run` a la reparación.
+- Registrar los IDs afectados antes de eliminar datos.
+- Mantener backup previo a eliminar `module07_games`.
+
+**Criterios de aceptación:**
+
+- Upgrade desde una base vacía.
+- Upgrade desde una base con datos reales.
+- Downgrade y nuevo upgrade.
+- Cero partidas perdidas.
+- Cero decisiones o anotaciones huérfanas.
+- Reimportación idempotente.
+- Aislamiento correcto por usuario.
+
+---
+
+
+
+### PR C — Workspace compartido de análisis
+
+**Objetivo:** reducir duplicación entre análisis de partidas y posiciones.
+
+**Incluir:**
+
+- `CoachStudyWorkspace`.
+- Adaptación de `CoachGameAnalysisPage`.
+- Adaptación de páginas que consumen el workspace.
+- Componentes compartidos del tablero y PGN.
+- Tests de componentes y navegación.
+
+**No incluir:**
+
+- Migraciones.
+- Persistencia nueva.
+- Catálogo maestro.
+- Entrada FEN si requiere lógica adicional.
+
+**Criterios de aceptación:**
+
+- Navegación por todo el PGN.
+- Stockfish WASM sigue funcionando.
+- Panel avanzado sigue funcionando.
+- Mental 1600 sigue conectado.
+- No se pierde la selección del ply.
+- Build React limpio.
+- Pruebas visuales sobre al menos una partida completa.
+
+---
+
+
+
+### PR D — Navegación Coach y entrada FEN
+
+**Objetivo:** mejorar la experiencia de uso sin modificar el dominio.
+
+**Incluir:**
+
+- `CoachHomePage`.
+- `CoachSubNav`.
+- `CoachPartidasPage`.
+- `CoachImportarPage`.
+- `CoachPositionPage`.
+- Parseo y validación de FEN.
+- Recuperación de la última partida.
+
+**Criterios de aceptación:**
+
+- Inicio sin partidas muestra posición inicial.
+- Inicio con historial recupera la última partida.
+- FEN válido abre el workspace.
+- FEN inválido muestra un error claro.
+- Navegación atrás no pierde el estado inesperadamente.
+- El filtro `ANALYSIS` muestra solo la biblioteca Coach del usuario.
+
+---
+
+
+
+### PR E — Documentación de motores y arquitectura futura
+
+**Objetivo:** registrar decisiones sin mezclarlas con código operativo.
+
+**Incluir:**
+
+- Arquitectura de servicios de análisis.
+- Mini-plan Stockfish servidor.
+- Mini-plan Lc0.
+- Mini-plan Maia.
+- Política de análisis liviano y profundo.
+- Roadmap de análisis asíncrono.
+
+**Criterios de aceptación:**
+
+- Responsabilidad de cada motor explícita.
+- Stockfish servidor definido como evaluación autoritativa.
+- Stockfish WASM definido como evaluación provisional.
+- Lc0 limitado a casos estratégicos ambiguos.
+- Maia limitado a plausibilidad humana por banda Elo.
+- Sin dependencia de esta documentación para cerrar las PR anteriores.
+
+
+
+## Orden de integración recomendado
+
+
+| Orden | PR                          | Dependencia                              |
+| ----- | --------------------------- | ---------------------------------------- |
+| 1     | PR A — Persistencia por ply | Estado actual de `main`                  |
+| 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas |
+| 3     | PR C — Workspace compartido | Contratos de API estabilizados           |
+| 4     | PR D — Navegación y FEN     | Workspace compartido integrado           |
+| 5     | PR E — Documentación        | Independiente                            |
+
+
+
+
+## Cambios obligatorios para la rama original
+
+Antes de dividir la PR:
+
+1. Crear una etiqueta o tag de respaldo para el estado actual de la rama.
+2. Identificar los commits correspondientes a cada responsabilidad.
+3. Crear nuevas ramas desde `main`, no desde la PR completa.
+4. Aplicar los commits mediante `cherry-pick` selectivo.
+5. Resolver dependencias entre migraciones explícitamente.
+6. Cerrar la PR #158 cuando las PR separadas estén creadas.
+7. Referenciar la PR #158 desde cada nueva PR para mantener trazabilidad.
+
+
+
+## Política de CI requerida
+
+Cada PR funcional debe ejecutar:
+
+```text
+pytest tests/mvp tests/docs_courses tests/chess_statistics
+npm ci
+npm test
+npm run build
+```
+
+---
+
+## Prueba local por PR (un solo stack)
+
+No hace falta otro “ambiente” (máquina, deploy, dominio). Usás **Postgres + API + Vite** una vez; por cada PR cambiás **rama Git**, **revisión Alembic** y corrés **pytest / npm** acotados + checklist manual (HITL).
+
+### Stack base (Windows / PowerShell)
+
+```powershell
+# Repo root
+docker compose up -d postgres
+# .env: CHESS_TRAINER_DB_URL=postgresql://chess:chess_pass@localhost:5432/chess_trainer_db
+pip install -r requirements-ci.txt
+
+# Migraciones: siempre desde la raíz del repo
+alembic current
+alembic upgrade <revision>   # ver tabla por PR abajo
+
+cd src\api
+$env:PYTHONPATH="..\..\src;..\..\src\api"
+python -m uvicorn main:app --reload --port 8000
+
+# Otra terminal
+cd src\frontend
+npm ci
+npm run dev
+```
+
+Referencia Coach MVP: [README.md](../../README.md) (sección “Coach MVP”).
+
+### Cadena Alembic relevante
+
+| Revision ID | Archivo | PR |
+|---|---|---|
+| `20261005_000001` | merge heads module07 | **Baseline `main`** (antes de SV-2 / GC-2 en split) |
+| `20261009_000001` | `module07_ply_annotations` | **A** |
+| `20261009_000002` | `module07_client_analyzed_summary` | **A** (head de A) |
+| `20261010_000001` | `gc2_coach_games` | **B** (head de B) |
+
+PR **C** y **D** no agregan migraciones; usan el head de **B** (`20261010_000001` o `alembic upgrade head` en esa rama).
+
+```powershell
+alembic history -r-5:
+alembic upgrade 20261009_000002    # solo hasta fin de PR A
+alembic upgrade 20261010_000001    # incluye PR B
+alembic upgrade head               # último revision de la rama actual
+```
+
+### Postgres desechable (solo PR B — migración GC-2)
+
+Para no arriesgar el volumen Docker habitual (`chess_pgdata` en 5432):
+
+```powershell
+docker run -d --name chess_pg_test `
+  -e POSTGRES_USER=chess -e POSTGRES_PASSWORD=chess_pass `
+  -e POSTGRES_DB=chess_trainer_db -p 5433:5432 postgres:13
+# CHESS_TRAINER_DB_URL=postgresql://chess:chess_pass@localhost:5433/chess_trainer_db
+alembic upgrade 20261010_000001
+pytest tests/mvp/test_gc1_master_games.py tests/mvp/test_gc2_coach_games.py tests/mvp/test_gc3_coach_slim.py -q
+```
+
+Opcional: `pg_dump` de 5432 antes de probar GC-2 en la DB principal; restore si algo falla.
+
+### Paralelo de ramas (opcional)
+
+```powershell
+git worktree add ..\chessinsightai-pr-a main
+# en el worktree: checkout rama PR A; Vite en otro puerto: npm run dev -- --port 5174
+```
+
+### Tabla: qué probar en cada fase
+
+| PR | Rama (sugerida) | `alembic upgrade` | Automatizado | HITL (navegador) |
+|---|---|---|---|---|
+| **A** | `feature/11_120_ply_classification_persist` (recortada) | `20261009_000002` | `pytest tests/mvp/test_module07_schema.py` (+ tests anotaciones); `cd src/frontend && npm test && npm run build` | Import PGN → análisis → WASM → **F5** → mismas etiquetas |
+| **B** | `feature/11_130_coach_games_catalog` | `20261010_000001` (DB **5433** recomendada) | `pytest tests/mvp/test_gc1_master_games.py test_gc2_coach_games.py test_gc3_coach_slim.py test_module07_ingest.py -q` | Partidas Coach; filtro **ANALYSIS**; `GET .../coach-catalog/health`; reimport idempotente |
+| **C** | `feature/11_131_coach_study_workspace` | `head` (post B) | CI Python + `npm test` / `npm run build` | PGN completo; WASM; panel avanzado; **Mental 1600**; ply estable |
+| **D** | `feature/11_132_coach_nav_fen` | `head` | `npm test` (FEN, PGN replay) + build | Inicio; FEN válido/inválido; multi-PGN → primera partida + aviso |
+| **E** | docs only | — | — | Revisión en GitHub |
+
+### Checklist antes de merge a `main`
+
+1. `pytest tests/mvp tests/docs_courses tests/chess_statistics -q`
+2. `cd src/frontend && npm ci && npm test && npm run build`
+3. HITL de la fila de la PR
+4. Tras merge **B** en staging/prod: backup DB + `alembic upgrade head` desde **raíz del repo**
+
+### Trazabilidad con #158
+
+Tag de respaldo: `backup/pr-158-<fecha>` en el tip de `feature/11_120_ply_classification_persist` antes del split. Cada PR nueva enlaza a #158 en la descripción.
+
+### Estado split (implementación)
+
+| PR | Rama | Notas |
+|---|---|---|
+| **A** | `feature/11_120_sv2_ply_persist` (desde `main`) | SV-2: migraciones `20261009_*`, API GET/PUT annotations, hook + wiring en `CoachGameAnalysisPage` (sin GC-2 ni workspace) |
+| B–E | pendiente | — |
+

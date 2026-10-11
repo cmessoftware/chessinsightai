@@ -49,6 +49,10 @@ import Mental1600Panel from '../components/coach/Mental1600Panel.jsx'
 import { useLiveStockfishAnalysis } from '../hooks/useLiveStockfishAnalysis.js'
 import { usePgnEvalCache } from '../hooks/usePgnEvalCache.js'
 import { usePgnMoveClassification } from '../hooks/usePgnMoveClassification.js'
+import {
+    usePlyAnnotationsHydration,
+    usePlyAnnotationsPersist,
+} from '../hooks/useSyncPlyClassificationPersistence.js'
 import { parseMoverEloFromGame } from '../utils/coachPlayerElo.js'
 import { useMental1600Assessment } from '../hooks/useMental1600Assessment.js'
 
@@ -489,19 +493,49 @@ export default function CoachGameAnalysisPage() {
         prefetchEnabled: tab === 0,
     })
 
+    const classificationDepth = 12
+    const classificationMultipv = 3
+    const classificationEloKey = useMemo(
+        () => `${gameMeta?.white_elo ?? ''}|${gameMeta?.black_elo ?? ''}`,
+        [gameMeta?.white_elo, gameMeta?.black_elo],
+    )
+    const classificationLineReady = Boolean(
+        treeRoot?.fen && countMainLinePlies(treeRoot) > 0,
+    )
+
+    const { hydrateReady: classificationHydrateReady } = usePlyAnnotationsHydration(
+        treeRoot,
+        {
+            gameId,
+            depth: classificationDepth,
+            multipv: classificationMultipv,
+            eloKey: classificationEloKey,
+            enabled: Boolean(gameId && treeRoot?.fen),
+        },
+    )
+
     const { classificationByPathKey, progress: classificationProgress } = usePgnMoveClassification(
         treeRoot,
         playerColor,
         {
-            enabled: Boolean(treeRoot?.fen && countMainLinePlies(treeRoot) > 0),
-            depth: 12,
-            multipv: 3,
+            enabled: classificationHydrateReady && classificationLineReady,
+            depth: classificationDepth,
+            multipv: classificationMultipv,
             cursorPath,
             gameMeta,
             gameId,
-            persistSessionCache: true,
+            persistSessionCache: Boolean(gameId),
         },
     )
+
+    usePlyAnnotationsPersist(treeRoot, {
+        gameId,
+        depth: classificationDepth,
+        multipv: classificationMultipv,
+        byPathKey: classificationByPathKey,
+        progress: classificationProgress,
+        enabled: Boolean(gameId && treeRoot?.fen),
+    })
 
     const mental1600View = useMental1600Assessment({
         treeRoot,

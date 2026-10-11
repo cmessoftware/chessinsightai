@@ -21,6 +21,9 @@ from .database_models import Base
 DEFAULT_STOCKFISH_DEPTH = 12
 DEFAULT_STOCKFISH_MULTIPV = 3
 
+CLIENT_CLASSIFICATION_SOURCE = "client_wasm"
+CLIENT_CLASSIFICATION_RULES_VERSION = 1
+
 
 class Module07AnalysisJob(Base):
     __tablename__ = "module07_analysis_jobs"
@@ -76,10 +79,18 @@ class Module07Game(Base):
     speed_class = Column(String(32), nullable=False, default="unknown", index=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     last_imported_at = Column(DateTime, nullable=False, server_default=func.now())
+    client_analyzed_at = Column(DateTime, nullable=True)
+    client_analysis_ply_count = Column(Integer, nullable=False, default=0)
+    client_main_line_signature = Column(String(512), nullable=True)
 
     analysis_job = relationship("Module07AnalysisJob", back_populates="games")
     decision_points = relationship(
         "Module07DecisionPoint",
+        back_populates="game",
+        cascade="all, delete-orphan",
+    )
+    ply_annotations = relationship(
+        "Module07PlyAnnotation",
         back_populates="game",
         cascade="all, delete-orphan",
     )
@@ -106,3 +117,37 @@ class Module07DecisionPoint(Base):
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     game = relationship("Module07Game", back_populates="decision_points")
+
+
+class Module07PlyAnnotation(Base):
+    __tablename__ = "module07_ply_annotations"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_id", "path_key", name="uq_module07_ply_ann_game_path"
+        ),
+    )
+
+    id = Column(String(36), primary_key=True)
+    game_id = Column(
+        String(36),
+        ForeignKey("module07_games.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    path_key = Column(String(64), nullable=False)
+    ply = Column(Integer, nullable=False)
+    fen_before = Column(String(120), nullable=False)
+    played_uci = Column(String(12), nullable=True)
+    main_line_signature = Column(String(512), nullable=False)
+    rules_version = Column(
+        Integer, nullable=False, default=CLIENT_CLASSIFICATION_RULES_VERSION
+    )
+    stockfish_depth = Column(Integer, nullable=False, default=DEFAULT_STOCKFISH_DEPTH)
+    stockfish_multipv = Column(Integer, nullable=False, default=DEFAULT_STOCKFISH_MULTIPV)
+    source = Column(String(32), nullable=False, default=CLIENT_CLASSIFICATION_SOURCE)
+    payload = Column(JSON, nullable=False)
+    updated_at = Column(
+        DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+
+    game = relationship("Module07Game", back_populates="ply_annotations")

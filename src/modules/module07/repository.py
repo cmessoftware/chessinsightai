@@ -15,11 +15,21 @@ from models.module07_models import (
     Module07AnalysisJob,
     Module07DecisionPoint,
     Module07Game,
+    Module07PlyAnnotation,
 )
 
 
 def _new_id() -> str:
     return str(uuid.uuid4())
+
+
+def _clear_client_analysis(db: Session, game: Module07Game) -> None:
+    db.query(Module07PlyAnnotation).filter(
+        Module07PlyAnnotation.game_id == game.id
+    ).delete(synchronize_session=False)
+    game.client_analyzed_at = None
+    game.client_analysis_ply_count = 0
+    game.client_main_line_signature = None
 
 
 def create_games_from_ingest(
@@ -43,11 +53,15 @@ def create_games_from_ingest(
             .first()
         )
         if existing:
+            pgn_changed = existing.pgn != item.pgn
             existing.last_imported_at = now
+            existing.pgn = item.pgn
             existing.white_player = item.white_player
             existing.black_player = item.black_player
             existing.result = item.result
             existing.speed_class = getattr(item, "speed_class", existing.speed_class)
+            if pgn_changed:
+                _clear_client_analysis(db, existing)
             rows.append(existing)
             is_new_flags.append(False)
             continue
@@ -224,3 +238,73 @@ def get_decision(
     if game is None:
         return None
     return row
+
+
+def list_ply_annotations_for_game(
+    db: Session, game_id: str, owner_user_id: int
+) -> list[Module07PlyAnnotation]:
+    if get_game(db, game_id, owner_user_id) is None:
+        return []
+    return (
+        db.query(Module07PlyAnnotation)
+        .filter(Module07PlyAnnotation.game_id == game_id)
+        .order_by(Module07PlyAnnotation.ply.asc())
+        .all()
+    )
+
+
+def replace_ply_annotations_for_game(
+    db: Session,
+    *,
+    game_id: str,
+    owner_user_id: int,
+    main_line_signature: str,
+    rules_version: int,
+    stockfish_depth: int,
+    stockfish_multipv: int,
+    source: str,
+    items: list[dict[str, Any]],
+) -> list[Module07PlyAnnotation]:
+    game = get_game(db, game_id, owner_user_id)
+    if game is None:
+        raise LookupError("game_not_found")
+
+    db.query(Module07PlyAnnotation).filter(
+        Module07PlyAnnotation.game_id == game_id
+    ).delete(synchronize_session=False)
+
+    now = datetime.now(timezone.utc)
+    rows: list[Module07PlyAnnotation] = []
+    for item in items:
+        row = Module07PlyAnnotation(
+            id=_new_id(),
+            game_id=game_id,
+            path_key=item["path_key"],
+            ply=int(item["ply"]),
+            fen_before=item["fen_before"],
+            played_uci=item.get("played_uci"),
+            main_line_signature=main_line_signature,
+            rules_version=rules_version,
+            stockfish_depth=stockfish_depth,
+            stockfish_multipv=stockfish_multipv,
+            source=source,
+            payload=item["payload"],
+            updated_at=now,
+        )
+        db.add(row)
+        rows.append(row)
+
+    if items:
+        game.client_analyzed_at = now
+        game.client_analysis_ply_count = len(rows)
+        game.client_main_line_signature = main_line_signature
+    else:
+        game.client_analyzed_at = None
+        game.client_analysis_ply_count = 0
+        game.client_main_line_signature = None
+
+    db.commit()
+    for row in rows:
+        db.refresh(row)
+    db.refresh(game)
+    return rows
