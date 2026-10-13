@@ -56,6 +56,12 @@ export function mainLinePathForPly(ply) {
     return Array(Math.max(0, ply)).fill(0)
 }
 
+/** Número de movimiento PGN (1…N) a partir de plies jugados desde la posición inicial. */
+export function moveNumberFromPlyCount(plyCount) {
+    if (!plyCount) return 0
+    return Math.floor((plyCount - 1) / 2) + 1
+}
+
 export function isMainLinePath(path) {
     return path.every((idx) => idx === 0)
 }

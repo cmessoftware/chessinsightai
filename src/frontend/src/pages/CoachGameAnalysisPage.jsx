@@ -30,7 +30,7 @@ import {
 
 } from '@mui/material'
 
-import { FirstPage, LastPage, NavigateBefore, NavigateNext } from '@mui/icons-material'
+import { FirstPage, FlipCameraAndroid, LastPage, NavigateBefore, NavigateNext } from '@mui/icons-material'
 
 import { Chess } from 'chess.js'
 
@@ -67,6 +67,8 @@ import {
     countMainLinePlies,
 
     createEmptyRoot,
+
+    moveNumberFromPlyCount,
 
     deleteVariationAtPath,
     getNodeAtPath,
@@ -346,9 +348,19 @@ export default function CoachGameAnalysisPage() {
 
             : 'white'
 
-    const orientation = playerColor
+    const [boardOrientationOverride, setBoardOrientationOverride] = useState(null)
+    const orientation = boardOrientationOverride ?? playerColor
 
+    useEffect(() => {
+        setBoardOrientationOverride(null)
+    }, [selectedId, playerColor])
 
+    const flipBoard = useCallback(() => {
+        setBoardOrientationOverride((prev) => {
+            const current = prev ?? playerColor
+            return current === 'white' ? 'black' : 'white'
+        })
+    }, [playerColor])
 
     const criticalMode = Boolean(detail?.fen_before)
 
@@ -385,7 +397,9 @@ export default function CoachGameAnalysisPage() {
 
         if (criticalMode) return null
 
-        return `Jugada ${cursorPath.length} / ${mainLinePlies}`
+        const current = moveNumberFromPlyCount(cursorPath.length)
+        const total = moveNumberFromPlyCount(mainLinePlies)
+        return `Jugada ${current} / ${total}`
 
     }, [criticalMode, cursorPath.length, mainLinePlies])
 
@@ -712,6 +726,25 @@ export default function CoachGameAnalysisPage() {
 
                         />
 
+                        <Box
+                            sx={{
+                                width: boardWidth,
+                                maxWidth: '100%',
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                mt: 0.5,
+                            }}
+                        >
+                            <IconButton
+                                size="small"
+                                onClick={flipBoard}
+                                aria-label="Girar tablero"
+                                title="Girar tablero"
+                            >
+                                <FlipCameraAndroid fontSize="small" />
+                            </IconButton>
+                        </Box>
+
                         {!criticalMode && (
 
                             <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
@@ -748,7 +781,16 @@ export default function CoachGameAnalysisPage() {
 
                                 </IconButton>
 
-                                <Typography variant="body2" sx={{ mx: 1, minWidth: 100, textAlign: 'center' }}>
+                                <Typography
+                                    variant="body2"
+                                    component="span"
+                                    sx={{
+                                        mx: 1,
+                                        minWidth: 100,
+                                        textAlign: 'center',
+                                        userSelect: 'none',
+                                    }}
+                                >
 
                                     {moveLabel}
 
