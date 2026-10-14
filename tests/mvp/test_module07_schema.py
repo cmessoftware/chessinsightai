@@ -15,18 +15,18 @@ from models.database_models import Base
 from models.module07_models import (
     CLIENT_CLASSIFICATION_RULES_VERSION,
     CLIENT_CLASSIFICATION_SOURCE,
+    CoachGame,
     DEFAULT_STOCKFISH_DEPTH,
     DEFAULT_STOCKFISH_MULTIPV,
     Module07AnalysisJob,
     Module07DecisionPoint,
-    Module07Game,
     Module07PlyAnnotation,
 )
 
 
 def test_module07_tables_registered_on_metadata():
     names = set(Base.metadata.tables.keys())
-    assert "module07_games" in names
+    assert "coach_games" in names
     assert "module07_analysis_jobs" in names
     assert "module07_decision_points" in names
     assert "module07_ply_annotations" in names
@@ -42,7 +42,7 @@ def test_stockfish_job_defaults():
 
 
 def test_module07_game_corpus_and_speed_columns():
-    cols = Module07Game.__table__.c
+    cols = CoachGame.__table__.c
     assert "corpus_type" in cols
     assert "speed_class" in cols
     assert "client_analyzed_at" in cols

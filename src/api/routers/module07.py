@@ -31,6 +31,12 @@ from modules.module07.repository import (
     replace_ply_annotations_for_game,
 )
 from modules.module07.worker import run_analysis_job
+from modules.game_import.coach_catalog import (
+    coach_catalog_health,
+    remove_coach_games_with_missing_master,
+    sync_coach_library_to_master_games,
+)
+from modules.game_import.master_games import master_game_id_from_pgn
 from modules.game_import.metadata import resolve_corpus_type
 
 router = APIRouter(prefix="/api/v1/module07", tags=["module07"])
@@ -52,6 +58,11 @@ class IngestBody(BaseModel):
     )
     corpus_type: str = Field(default="personal")
     source: str = Field(default="pgn_upload", max_length=32)
+    max_games: Optional[int] = Field(
+        default=1,
+        ge=1,
+        description="Cap games imported from a multi-game PGN (Coach default: first game only).",
+    )
 
     @field_validator("player_username")
     @classmethod
@@ -122,6 +133,10 @@ def _game_json(
         "client_analyzed": bool(
             getattr(row, "client_analysis_ply_count", 0)
             and getattr(row, "client_analyzed_at", None)
+        ),
+        "master_game_id": getattr(row, "master_game_id", None)
+        or (
+            master_game_id_from_pgn(row.pgn) if getattr(row, "pgn", None) else None
         ),
     }
     if is_new is not None:
@@ -231,12 +246,17 @@ def ingest_pgn(
     db: Session = Depends(get_db),
 ):
     owner = _owner_id(request)
+    user = getattr(request.state, "user", {}) or {}
+    imported_by = (user.get("username") or "").strip() or str(owner)
     try:
-        parsed = parse_games_from_pgn_text(
-            body.pgn_text, player_username=body.player_username
+        parse_result = parse_games_from_pgn_text(
+            body.pgn_text,
+            player_username=body.player_username,
+            max_games=body.max_games,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    parsed = list(parse_result.games)
     corpus = _resolved_corpus(request, body.corpus_type)
     rows, is_new_flags = create_games_from_ingest(
         db,
@@ -244,13 +264,42 @@ def ingest_pgn(
         parsed_games=parsed,
         corpus_type=corpus,
         source=(body.source or "pgn_upload")[:32],
+        imported_by=imported_by,
     )
+    total_in_pgn = parse_result.total_games_in_pgn
+    imported_count = len(rows)
     return {
         "games": [
             _game_json(r, is_new=flag) for r, flag in zip(rows, is_new_flags, strict=True)
         ],
-        "count": len(rows),
+        "count": imported_count,
         "new_count": sum(1 for f in is_new_flags if f),
+        "pgn_total_games": total_in_pgn,
+        "pgn_games_ignored": max(0, total_in_pgn - imported_count),
+    }
+
+
+@router.get("/coach-catalog/health")
+def get_coach_catalog_health(request: Request, db: Session = Depends(get_db)):
+    """GC-3: integridad ``coach_games`` ↔ ``games`` (huérfanos / PGN vacío)."""
+    owner = _owner_id(request)
+    return coach_catalog_health(db, owner_user_id=owner)
+
+
+@router.post("/coach-catalog/repair")
+def repair_coach_catalog(request: Request, db: Session = Depends(get_db)):
+    """
+    GC-3: elimina filas Coach sin maestro y re-sincroniza metadata en ``games``.
+    Partidas con PGN vacío en maestro: re-importar PGN en Coach.
+    """
+    owner = _owner_id(request)
+    removed = remove_coach_games_with_missing_master(db, owner_user_id=owner)
+    synced = sync_coach_library_to_master_games(db, owner_user_id=owner)
+    health = coach_catalog_health(db, owner_user_id=owner)
+    return {
+        "removed_orphan_coach_rows": removed,
+        "master_rows_synced": synced,
+        "health": health,
     }
 
 
@@ -304,10 +353,7 @@ def put_game_annotations(
     if body.rules_version != CLIENT_CLASSIFICATION_RULES_VERSION:
         raise HTTPException(
             status_code=400,
-            detail=(
-                "Unsupported rules_version "
-                f"(supported: {CLIENT_CLASSIFICATION_RULES_VERSION})"
-            ),
+            detail=f"Unsupported rules_version (supported: {CLIENT_CLASSIFICATION_RULES_VERSION})",
         )
     try:
         rows = replace_ply_annotations_for_game(
@@ -395,11 +441,14 @@ def ingest_and_analyze(
             detail="player_username is required for ingest-and-analyze",
         )
     try:
-        parsed = parse_games_from_pgn_text(
-            body.pgn_text, player_username=body.player_username
+        parse_result = parse_games_from_pgn_text(
+            body.pgn_text,
+            player_username=body.player_username,
+            max_games=body.max_games,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    parsed = list(parse_result.games)
     corpus = _resolved_corpus(request, body.corpus_type)
     rows, _is_new = create_games_from_ingest(
         db,
@@ -420,7 +469,11 @@ def ingest_and_analyze(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     background_tasks.add_task(run_analysis_job, job.id, owner)
+    total_in_pgn = parse_result.total_games_in_pgn
+    imported_count = len(rows)
     return {
         "games": [_game_json(r) for r in rows],
         "job": _job_json(job),
+        "pgn_total_games": total_in_pgn,
+        "pgn_games_ignored": max(0, total_in_pgn - imported_count),
     }

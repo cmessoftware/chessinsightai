@@ -19,19 +19,15 @@ class ChessService:
 
     def __init__(self):
         self.engine_path = None  # TODO: Configurar ruta a Stockfish
-        self.db_config = {
-            "host": "localhost",
-            "port": 5432,
-            "database": "chess_trainer_db",
-            "user": "chess",
-            "password": "chess_pass",
-        }
+        self.database_url = os.environ.get(
+            "CHESS_TRAINER_DB_URL",
+            "postgresql://chess:chess_pass@localhost:5432/chess_trainer_db",
+        )
 
     def _get_db_connection(self):
         """Crear conexión a PostgreSQL"""
         try:
-            conn = psycopg2.connect(**self.db_config)
-            return conn
+            return psycopg2.connect(self.database_url)
         except Exception as e:
             logging.error(f"Error conectando a la base de datos: {e}")
             return None
@@ -95,6 +91,7 @@ class ChessService:
         source: Optional[str] = None,
         search: Optional[str] = None,
         user_filter: Optional[str] = None,
+        restrict_game_ids: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Obtener lista de partidas con paginación y búsqueda
@@ -102,7 +99,7 @@ class ChessService:
         """
         conn = self._get_db_connection()
         if not conn:
-            return {"games": [], "total": 0, "limit": limit, "offset": offset}
+            raise RuntimeError("No se pudo conectar a la base de datos")
 
         try:
             with conn.cursor() as cursor:
@@ -110,7 +107,17 @@ class ChessService:
                 where_conditions = []
                 params = []
 
-                if source:
+                if restrict_game_ids is not None:
+                    if not restrict_game_ids:
+                        return {
+                            "games": [],
+                            "total": 0,
+                            "limit": limit,
+                            "offset": offset,
+                        }
+                    where_conditions.append("game_id = ANY(%s)")
+                    params.append(restrict_game_ids)
+                elif source:
                     where_conditions.append("source = %s")
                     params.append(source)
 
@@ -121,10 +128,12 @@ class ChessService:
                     search_pattern = f"%{search}%"
                     params.extend([search_pattern, search_pattern])
 
-                # Filtro de usuario: solo partidas importadas por el usuario
+                # Filtro de usuario: importó la partida o figura como White/Black en el PGN
                 if user_filter:
-                    where_conditions.append("imported_by = %s")
-                    params.append(user_filter)
+                    where_conditions.append(
+                        "(imported_by = %s OR white_player ILIKE %s OR black_player ILIKE %s)"
+                    )
+                    params.extend([user_filter, user_filter, user_filter])
 
                 where_clause = ""
                 if where_conditions:
