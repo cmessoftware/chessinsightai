@@ -8,22 +8,25 @@ from typing import Any
 
 from sqlalchemy.orm import Session, joinedload
 
+from modules.game_import.master_games import upsert_master_game_from_coach_item
 from modules.module07.ingest import resolve_player_color
+from models.database_models import Games
 from models.module07_models import (
+    CoachGame,
     DEFAULT_STOCKFISH_DEPTH,
     DEFAULT_STOCKFISH_MULTIPV,
     Module07AnalysisJob,
     Module07DecisionPoint,
-    Module07Game,
     Module07PlyAnnotation,
 )
+from modules.game_import.master_games import master_game_id_from_pgn
 
 
 def _new_id() -> str:
     return str(uuid.uuid4())
 
 
-def _clear_client_analysis(db: Session, game: Module07Game) -> None:
+def _clear_client_analysis(db: Session, game: CoachGame) -> None:
     db.query(Module07PlyAnnotation).filter(
         Module07PlyAnnotation.game_id == game.id
     ).delete(synchronize_session=False)
@@ -39,42 +42,49 @@ def create_games_from_ingest(
     parsed_games: list[Any],
     corpus_type: str = "personal",
     source: str = "pgn",
-) -> tuple[list[Module07Game], list[bool]]:
-    rows: list[Module07Game] = []
+    imported_by: str | None = None,
+) -> tuple[list[CoachGame], list[bool]]:
+    rows: list[CoachGame] = []
     is_new_flags: list[bool] = []
     now = datetime.now(timezone.utc)
+    catalog_user = (imported_by or "").strip() or str(owner_user_id)
     for item in parsed_games:
+        master_id = master_game_id_from_pgn(item.pgn)
+        prior_master = (
+            db.query(Games).filter(Games.game_id == master_id).first()
+        )
+        prior_pgn = prior_master.pgn if prior_master else None
+        upsert_master_game_from_coach_item(
+            db,
+            item,
+            imported_by=catalog_user,
+            corpus_type=corpus_type,
+        )
+        pgn_changed = prior_pgn is not None and prior_pgn != item.pgn
         existing = (
-            db.query(Module07Game)
+            db.query(CoachGame)
             .filter(
-                Module07Game.owner_user_id == owner_user_id,
-                Module07Game.content_game_id == item.content_game_id,
+                CoachGame.owner_user_id == owner_user_id,
+                CoachGame.content_game_id == item.content_game_id,
             )
             .first()
         )
         if existing:
-            pgn_changed = existing.pgn != item.pgn
+            existing.master_game_id = master_id
             existing.last_imported_at = now
-            existing.pgn = item.pgn
-            existing.white_player = item.white_player
-            existing.black_player = item.black_player
-            existing.result = item.result
             existing.speed_class = getattr(item, "speed_class", existing.speed_class)
             if pgn_changed:
                 _clear_client_analysis(db, existing)
             rows.append(existing)
             is_new_flags.append(False)
             continue
-        row = Module07Game(
+        row = CoachGame(
             id=_new_id(),
+            master_game_id=master_id,
             owner_user_id=owner_user_id,
             content_game_id=item.content_game_id,
-            pgn=item.pgn,
-            white_player=item.white_player,
-            black_player=item.black_player,
             player_username=item.player_username,
             player_color=item.player_color,
-            result=item.result,
             source=source,
             corpus_type=corpus_type,
             speed_class=getattr(item, "speed_class", "unknown"),
@@ -109,10 +119,10 @@ def create_analysis_job(
     db.flush()
     for gid in game_ids:
         game = (
-            db.query(Module07Game)
+            db.query(CoachGame)
             .filter(
-                Module07Game.id == gid,
-                Module07Game.owner_user_id == owner_user_id,
+                CoachGame.id == gid,
+                CoachGame.owner_user_id == owner_user_id,
             )
             .first()
         )
@@ -193,22 +203,22 @@ def get_job(db: Session, job_id: str, owner_user_id: int) -> Module07AnalysisJob
     )
 
 
-def list_games(db: Session, owner_user_id: int) -> list[Module07Game]:
+def list_games(db: Session, owner_user_id: int) -> list[CoachGame]:
     return (
-        db.query(Module07Game)
-        .options(joinedload(Module07Game.analysis_job))
-        .filter(Module07Game.owner_user_id == owner_user_id)
-        .order_by(Module07Game.last_imported_at.desc(), Module07Game.created_at.desc())
+        db.query(CoachGame)
+        .options(joinedload(CoachGame.analysis_job))
+        .filter(CoachGame.owner_user_id == owner_user_id)
+        .order_by(CoachGame.last_imported_at.desc(), CoachGame.created_at.desc())
         .all()
     )
 
 
-def get_game(db: Session, game_id: str, owner_user_id: int) -> Module07Game | None:
+def get_game(db: Session, game_id: str, owner_user_id: int) -> CoachGame | None:
     return (
-        db.query(Module07Game)
+        db.query(CoachGame)
         .filter(
-            Module07Game.id == game_id,
-            Module07Game.owner_user_id == owner_user_id,
+            CoachGame.id == game_id,
+            CoachGame.owner_user_id == owner_user_id,
         )
         .first()
     )

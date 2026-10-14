@@ -1,4 +1,12 @@
-from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi import APIRouter, HTTPException, Request, Query, Depends
+from sqlalchemy.orm import Session
+from database import get_db
+from modules.game_import.coach_catalog import sync_coach_library_to_master_games
+from modules.game_import.master_games import (
+    SOURCE_ANALYSIS,
+    coach_master_game_ids_for_catalog,
+    repair_gc1_md5_analysis_duplicates,
+)
 from models.schemas import (
     GameResponse,
     GamesListResponse,
@@ -20,6 +28,7 @@ chess_service = ChessService()
 @router.get("/games", response_model=GamesListResponse)
 async def get_games_list(
     request: Request,
+    db: Session = Depends(get_db),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     source: Optional[str] = Query(None),
@@ -27,7 +36,7 @@ async def get_games_list(
 ):
     """
     Obtener lista de partidas con paginación y filtros
-    Usuarios no-admin solo ven partidas donde son jugadores
+    Usuarios no-admin solo ven partidas propias (importadas o donde figuran en el PGN)
     """
     # Obtener usuario desde request.state (viene del middleware JWT)
     user = getattr(request.state, "user", {})
@@ -52,12 +61,29 @@ async def get_games_list(
         logging.info(f"Usuario {username} puede ver TODAS las partidas (admin/analyst)")
 
     try:
+        repair_gc1_md5_analysis_duplicates(db)
+
+        owner_id = user.get("user_id")
+        if owner_id is not None:
+            sync_coach_library_to_master_games(db, owner_user_id=int(owner_id))
+
+        restrict_game_ids = None
+        if source == SOURCE_ANALYSIS:
+            coach_owner = None
+            if not is_admin_or_analyst and owner_id is not None:
+                coach_owner = int(owner_id)
+            restrict_game_ids = coach_master_game_ids_for_catalog(
+                db, owner_user_id=coach_owner
+            )
+            source = None
+
         games_data = await chess_service.get_games_list(
             limit=limit,
             offset=offset,
             source=source,
             search=search,
             user_filter=user_filter,
+            restrict_game_ids=restrict_game_ids,
         )
         return GamesListResponse(**games_data)
     except Exception as e:

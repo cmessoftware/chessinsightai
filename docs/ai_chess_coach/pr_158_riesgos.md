@@ -215,7 +215,7 @@ Esto dificulta:
 | Orden | PR                          | Dependencia                              | Estado | PR / rama | Pendiente para cerrar esta fase |
 | ----- | --------------------------- | ---------------------------------------- | ------ | --------- | -------------------------------- |
 | 1     | PR A — Persistencia por ply | Estado actual de `main`                  | ✅ **Mergeado** | [#159](https://github.com/cmessoftware/chessinsightai/pull/159) · `feature/11_120_sv2_ply_persist` | `alembic upgrade 20261009_000002` en entornos que aún no migraron |
-| 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | ⬜ **No iniciado (split)** | Código en [#158](https://github.com/cmessoftware/chessinsightai/pull/158); rama `feature/11_130_coach_games_catalog` **sin push** | Cherry-pick GC-1…GC-3; GC-2 sin import app; backup + DB **5433**; PR + tests; merge tras **A** en `main` |
+| 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | 🔄 **En review** | [#161](https://github.com/cmessoftware/chessinsightai/pull/161) · `feature/11_130_coach_games_catalog` | HITL GC-2; backup + DB **5433**; migración aún importa `master_games` (P0 doc) |
 | 3     | PR C — Workspace compartido | Contratos de API estabilizados           | ⬜ **No iniciado (split)** | En monolito #158 · `feature/11_131_coach_study_workspace` (plan) | Extraer workspace; **Mental 1600** reconectado; npm test/build + HITL ply estable |
 | 4     | PR D — Navegación y FEN     | Workspace compartido integrado           | ⬜ **No iniciado (split)** | En monolito #158 · `feature/11_132_coach_nav_fen` (plan) | CoachHome/Partidas/Importar/Position; FEN; multi-PGN aviso; HITL navegación |
 | 5     | PR E — Documentación        | Independiente                            | ⬜ **No iniciado (split)** | Docs Lc0/Maia/Stockfish en #158 | PR solo docs; sin bloquear A–D |
@@ -312,10 +312,14 @@ alembic upgrade head               # último revision de la rama actual
 Para no arriesgar el volumen Docker habitual (`chess_pgdata` en 5432):
 
 ```powershell
+docker rm -f chess_pg_test 2>$null
 docker run -d --name chess_pg_test `
   -e POSTGRES_USER=chess -e POSTGRES_PASSWORD=chess_pass `
   -e POSTGRES_DB=chess_trainer_db -p 5433:5432 postgres:13
-# CHESS_TRAINER_DB_URL=postgresql://chess:chess_pass@localhost:5433/chess_trainer_db
+# Esperar a Postgres (no correr alembic en el mismo breath que docker run)
+docker exec chess_pg_test pg_isready -U chess -d chess_trainer_db
+$env:CHESS_TRAINER_DB_URL="postgresql://chess:chess_pass@127.0.0.1:5433/chess_trainer_db"
+$env:PYTHONIOENCODING="utf-8"
 alembic upgrade 20261010_000001
 pytest tests/mvp/test_gc1_master_games.py tests/mvp/test_gc2_coach_games.py tests/mvp/test_gc3_coach_slim.py -q
 ```
@@ -358,7 +362,7 @@ git worktree add ..\chessinsightai-pr-a main
 | PR | Rama | Estado | Notas |
 |---|---|---|---|
 | **A** | `feature/11_120_sv2_ply_persist` | ✅ **#159 MERGED** | SV-2: `20261009_*`, GET/PUT annotations, hook en `CoachGameAnalysisPage`; + FEAT-014 / BUG-015 UI |
-| **B** | `feature/11_130_coach_games_catalog` (plan) | ⬜ | Solo en #158 monolito |
+| **B** | `feature/11_130_coach_games_catalog` | 🔄 | Extraído de #158; GC-1–GC-3 backend + filtro ANALYSIS |
 | **C** | `feature/11_131_coach_study_workspace` (plan) | ⬜ | Solo en #158 monolito |
 | **D** | `feature/11_132_coach_nav_fen` (plan) | ⬜ | Solo en #158 monolito |
 | **E** | docs | ⬜ | Extraer de #158 |
