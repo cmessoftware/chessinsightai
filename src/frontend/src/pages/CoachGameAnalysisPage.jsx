@@ -1,241 +1,53 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-
+import React, { useCallback, useEffect, useState } from 'react'
 import {
-
     Alert,
-
-    Box,
-
     Button,
-
     CircularProgress,
-
-    Grid,
-
-    IconButton,
-
     List,
-
     ListItemButton,
-
     ListItemText,
-
     Paper,
-
-    Tab,
-
-    Tabs,
-
     Typography,
-
 } from '@mui/material'
-
-import { FirstPage, FlipCameraAndroid, LastPage, NavigateBefore, NavigateNext } from '@mui/icons-material'
-
-import { Chess } from 'chess.js'
-
 import { Link as RouterLink, useLocation, useParams } from 'react-router-dom'
-
-import ChessinsightBoard from '../components/chess/ChessinsightBoard.jsx'
-
-import CoachPgnMoveList from '../components/coach/CoachPgnMoveList.jsx'
-
-import EngineMultipvPanel from '../components/coach/EngineMultipvPanel.jsx'
-
-import AdvancedMoveAnalysisPanel from '../components/coach/AdvancedMoveAnalysisPanel.jsx'
-import LiveEnginePanel from '../components/coach/LiveEnginePanel.jsx'
-import Mental1600Panel from '../components/coach/Mental1600Panel.jsx'
-
-import { useLiveStockfishAnalysis } from '../hooks/useLiveStockfishAnalysis.js'
-import { usePgnEvalCache } from '../hooks/usePgnEvalCache.js'
-import { usePgnMoveClassification } from '../hooks/usePgnMoveClassification.js'
-import {
-    usePlyAnnotationsHydration,
-    usePlyAnnotationsPersist,
-} from '../hooks/useSyncPlyClassificationPersistence.js'
-import { parseMoverEloFromGame } from '../utils/coachPlayerElo.js'
-import { useMental1600Assessment } from '../hooks/useMental1600Assessment.js'
-
+import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
+const COACH_RETURN_JOBS = '/coach/jobs'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
-
+import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
+import { saveCoachLastGameId } from '../utils/coachLastGameSession.js'
 import {
-
-    applyMoveAtPath,
-
     buildTreeFromMainLine,
-
-    countMainLinePlies,
-
     createEmptyRoot,
-
-    moveNumberFromPlyCount,
-
-    deleteVariationAtPath,
-    getNodeAtPath,
-    truncateLineForward,
-    truncateTouchesImportedMoves,
-    lastUciForPath,
-
     mainLineEndPath,
-
-    pathStepBack,
-
-    pathStepForward,
-
-    pathToBranchEnd,
-
 } from '../utils/coachVariationTree.js'
 
-
-
-function buildReplayFromPgn(pgnText) {
-
-    const chess = new Chess()
-
-    try {
-
-        chess.loadPgn(pgnText)
-
-    } catch {
-
-        return { fens: [new Chess().fen()], ucis: [], moves: [], moveCount: 0 }
-
-    }
-
-    const verbose = chess.history({ verbose: true })
-
-    const walker = new Chess()
-
-    const fens = [walker.fen()]
-
-    const ucis = []
-
-    const moves = []
-
-    for (let i = 0; i < verbose.length; i += 1) {
-
-        const m = verbose[i]
-
-        const played = walker.move(m)
-
-        if (!played) break
-
-        ucis.push(played.from + played.to + (played.promotion || ''))
-
-        fens.push(walker.fen())
-
-        moves.push({
-
-            ply: i + 1,
-
-            san: played.san,
-
-            color: played.color,
-
-            moveNumber: Math.floor(i / 2) + 1,
-
-        })
-
-    }
-
-    return { fens, ucis, moves, moveCount: verbose.length }
-
-}
-
-
-
 /** Análisis de una sola partida: tablero + MultiPV por punto crítico. */
-
 export default function CoachGameAnalysisPage() {
-
     const { gameId } = useParams()
-
     const location = useLocation()
+    const returnTo = location.state?.returnTo || COACH_RETURN_JOBS
 
     const [gameMeta, setGameMeta] = useState(null)
-
     const [treeRoot, setTreeRoot] = useState(() => createEmptyRoot())
-
     const [cursorPath, setCursorPath] = useState([])
-
     const [decisions, setDecisions] = useState([])
-
     const [selectedId, setSelectedId] = useState(null)
-
     const [detail, setDetail] = useState(null)
-
-    const [tab, setTab] = useState(0)
-
     const [error, setError] = useState(null)
-
     const [loading, setLoading] = useState(true)
-
     const [importBanner] = useState(() => location.state?.message || null)
 
-    const boardColumnRef = useRef(null)
-
-    const [boardWidth, setBoardWidth] = useState(420)
-
-
-
-    useEffect(() => {
-
-        const el = boardColumnRef.current
-
-        if (!el || typeof ResizeObserver === 'undefined') {
-
-            return undefined
-
-        }
-
-        const measure = () => {
-
-            const columnW = el.clientWidth
-
-            const vhCap =
-
-                typeof window !== 'undefined' ? Math.floor(window.innerHeight * 0.52) : 480
-
-            const w = Math.min(480, columnW - 16, vhCap)
-
-            setBoardWidth(Math.max(280, w))
-
-        }
-
-        measure()
-
-        const observer = new ResizeObserver(measure)
-
-        observer.observe(el)
-
-        window.addEventListener('resize', measure)
-
-        return () => {
-
-            observer.disconnect()
-
-            window.removeEventListener('resize', measure)
-
-        }
-
-    }, [])
-
-
-
     const loadDecisions = useCallback(async () => {
-
         const rows = await listDecisions(gameId)
-
         setDecisions(rows)
-
         return rows
-
     }, [gameId])
 
-
+    useEffect(() => {
+        if (gameId) saveCoachLastGameId(gameId)
+    }, [gameId])
 
     useEffect(() => {
-        setTab(0)
         setSelectedId(null)
         setDetail(null)
         setTreeRoot(createEmptyRoot())
@@ -256,819 +68,148 @@ export default function CoachGameAnalysisPage() {
             })
     }, [gameId])
 
-
-
     useEffect(() => {
-
         let cancelled = false
-
         let timer
 
-
-
         const poll = async () => {
-
             try {
-
                 const rows = await loadDecisions()
-
                 if (cancelled) return
-
                 setError(null)
-
                 setSelectedId((prev) => prev ?? rows[0]?.id ?? null)
-
                 setLoading(false)
-
                 if (!rows.length) {
-
                     timer = setTimeout(poll, 4000)
-
                 }
-
             } catch (err) {
-
                 if (!cancelled) {
-
                     setError(err.message)
-
                     setLoading(false)
-
                 }
-
             }
-
         }
-
-
 
         setLoading(true)
-
         poll()
-
         return () => {
-
             cancelled = true
-
             if (timer) clearTimeout(timer)
-
         }
-
     }, [gameId, loadDecisions])
 
-
-
     useEffect(() => {
-
         if (!selectedId) {
-
             setDetail(null)
-
             return
-
         }
-
         getDecision(selectedId)
-
             .then(setDetail)
-
             .catch((err) => setError(err.message))
-
     }, [selectedId])
 
-
-
     const pack = detail?.review_pack
-
     const playerColor =
-
         (pack?.player_color || gameMeta?.player_color || 'white').toLowerCase() === 'black'
-
             ? 'black'
-
             : 'white'
 
-    const [boardOrientationOverride, setBoardOrientationOverride] = useState(null)
-    const orientation = boardOrientationOverride ?? playerColor
-
-    useEffect(() => {
-        setBoardOrientationOverride(null)
-    }, [selectedId, playerColor])
-
-    const flipBoard = useCallback(() => {
-        setBoardOrientationOverride((prev) => {
-            const current = prev ?? playerColor
-            return current === 'white' ? 'black' : 'white'
-        })
-    }, [playerColor])
-
-    const criticalMode = Boolean(detail?.fen_before)
-
-    const cursorNode = getNodeAtPath(treeRoot, cursorPath)
-
-    const cursorSan = cursorPath?.length ? cursorNode?.san : null
-
-    const cursorMoverElo = useMemo(() => {
-        if (!cursorPath?.length) return null
-        const parentPath = cursorPath.slice(0, -1)
-        const parent = getNodeAtPath(treeRoot, parentPath)
-        const stm = (parent?.fen?.split(/\s+/)[1] || 'w').toLowerCase()
-        const mover = stm === 'b' ? 'black' : 'white'
-        return parseMoverEloFromGame(gameMeta, mover)
-    }, [cursorPath, treeRoot, gameMeta])
-
-    const boardFen = criticalMode ? detail.fen_before : cursorNode.fen
-
-    const lastMove = criticalMode
-
-        ? pack?.played_move?.uci
-
-        : lastUciForPath(treeRoot, cursorPath)
-
-
-
-    const mainLinePlies = countMainLinePlies(treeRoot)
-
-    const canStepForward = getNodeAtPath(treeRoot, cursorPath).children?.length > 0
-
-
-
-    const moveLabel = useMemo(() => {
-
-        if (criticalMode) return null
-
-        const current = moveNumberFromPlyCount(cursorPath.length)
-        const total = moveNumberFromPlyCount(mainLinePlies)
-        return `Jugada ${current} / ${total}`
-
-    }, [criticalMode, cursorPath.length, mainLinePlies])
-
-
-
-    const exitCritical = useCallback(() => {
-
-        setSelectedId(null)
-
-        setDetail(null)
-
-    }, [])
-
-
-
-    const goToPath = useCallback(
-
-        (path) => {
-
-            exitCritical()
-
-            setCursorPath(path)
-
-        },
-
-        [exitCritical],
-
+    const topAlerts = (
+        <>
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {String(error)}
+                </Alert>
+            )}
+            {loading && !decisions.length && (
+                <Alert severity="info" icon={<CircularProgress size={18} />} sx={{ mb: 2 }}>
+                    {gameMeta?.analysis_job_id
+                        ? 'Esperando decisiones del job (Stockfish)…'
+                        : 'Partida importada. Revisá jugadas abajo o encolá Stockfish desde la cola de análisis.'}
+                </Alert>
+            )}
+        </>
     )
 
-
-
-    const handleBoardMove = useCallback(
-
-        ({ from, to }) => {
-
-            if (criticalMode) return false
-
-            const result = applyMoveAtPath(treeRoot, cursorPath, { from, to })
-
-            if (!result) {
-                alert('Jugada ilegal o límite de subvariantes (máx. 2 niveles).')
-                return false
-            }
-
-            exitCritical()
-
-            setTreeRoot(result.tree)
-
-            setCursorPath(result.path)
-
-            return true
-
-        },
-
-        [treeRoot, cursorPath, criticalMode, exitCritical],
-
+    const decisionsPanel = (
+        <>
+            <Typography variant="subtitle2" gutterBottom sx={{ mt: 0.5 }}>
+                Jugadas críticas
+            </Typography>
+            <Paper sx={{ maxHeight: 180, overflow: 'auto', mb: 2 }}>
+                <List dense>
+                    {decisions.map((d) => (
+                        <ListItemButton
+                            key={d.id}
+                            selected={d.id === selectedId}
+                            onClick={() => setSelectedId(d.id)}
+                        >
+                            <ListItemText
+                                primary={`${d.review_pack?.move_number ?? '?'}. ${d.review_pack?.played_move?.san ?? `ply ${d.ply}`}`}
+                                secondary={`crit ${d.criticality?.toFixed?.(1) ?? d.criticality}`}
+                            />
+                        </ListItemButton>
+                    ))}
+                    {!decisions.length && !loading && (
+                        <ListItemText
+                            sx={{ p: 2 }}
+                            primary="Sin análisis Stockfish aún."
+                            secondary={
+                                <Button
+                                    size="small"
+                                    component={RouterLink}
+                                    to={COACH_RETURN_JOBS}
+                                    sx={{ mt: 1, p: 0 }}
+                                >
+                                    Ir a cola de análisis
+                                </Button>
+                            }
+                        />
+                    )}
+                </List>
+            </Paper>
+        </>
     )
-
-
-
-    const handleDeleteVariation = useCallback(
-        (path) => {
-            if (
-                !window.confirm(
-                    '¿Quitar esta variante (rama completa)?',
-                )
-            ) {
-                return
-            }
-            const result = deleteVariationAtPath(treeRoot, path)
-            if (!result) return
-            setTreeRoot(result.tree)
-            setCursorPath(result.path)
-        },
-        [treeRoot],
-    )
-
-    const pathHasContinuations = useCallback(
-        (path) => {
-            if (!path?.length) return false
-            const node = getNodeAtPath(treeRoot, path)
-            return Boolean(node?.children?.length)
-        },
-        [treeRoot],
-    )
-
-    const handleTruncateForward = useCallback(
-        (path) => {
-            if (!path?.length || !pathHasContinuations(path)) return
-            const touchesImport = truncateTouchesImportedMoves(treeRoot, path)
-            const message = touchesImport
-                ? '¿Borrar todas las jugadas desde aquí en adelante? Se eliminará parte de la partida importada y sus variantes.'
-                : '¿Borrar todas las jugadas y subvariantes desde esta posición en adelante?'
-            if (!window.confirm(message)) return
-            const result = truncateLineForward(treeRoot, path)
-            if (!result) return
-            setTreeRoot(result.tree)
-            setCursorPath(result.path)
-        },
-        [treeRoot, pathHasContinuations],
-    )
-
-    const { evalByFen, setEvalForFen } = usePgnEvalCache(treeRoot, playerColor, {
-        prefetchDepth: 10,
-        prefetchEnabled: tab === 0,
-    })
-
-    const classificationDepth = 12
-    const classificationMultipv = 3
-    const classificationEloKey = useMemo(
-        () => `${gameMeta?.white_elo ?? ''}|${gameMeta?.black_elo ?? ''}`,
-        [gameMeta?.white_elo, gameMeta?.black_elo],
-    )
-    const classificationLineReady = Boolean(
-        treeRoot?.fen && countMainLinePlies(treeRoot) > 0,
-    )
-
-    const { hydrateReady: classificationHydrateReady } = usePlyAnnotationsHydration(
-        treeRoot,
-        {
-            gameId,
-            depth: classificationDepth,
-            multipv: classificationMultipv,
-            eloKey: classificationEloKey,
-            enabled: Boolean(gameId && treeRoot?.fen),
-        },
-    )
-
-    const { classificationByPathKey, progress: classificationProgress } = usePgnMoveClassification(
-        treeRoot,
-        playerColor,
-        {
-            enabled: classificationHydrateReady && classificationLineReady,
-            depth: classificationDepth,
-            multipv: classificationMultipv,
-            cursorPath,
-            gameMeta,
-            gameId,
-            persistSessionCache: Boolean(gameId),
-        },
-    )
-
-    usePlyAnnotationsPersist(treeRoot, {
-        gameId,
-        depth: classificationDepth,
-        multipv: classificationMultipv,
-        byPathKey: classificationByPathKey,
-        progress: classificationProgress,
-        enabled: Boolean(gameId && treeRoot?.fen),
-    })
-
-    const mental1600View = useMental1600Assessment({
-        treeRoot,
-        cursorPath,
-        playerColor,
-        classificationByPathKey,
-        gameMeta,
-        cursorMoverElo,
-        criticalMode,
-        serverMentalModel: detail?.mental_model,
-    })
-
-    const liveDepth = 14
-
-    const liveMultipv = 2
-
-    const liveEngine = useLiveStockfishAnalysis(boardFen, {
-
-        enabled: tab === 0 && Boolean(boardFen),
-
-        depth: liveDepth,
-
-        multipv: liveMultipv,
-
-        playerColor,
-
-    })
-
-    useEffect(() => {
-        if (liveEngine.status === 'ready' && liveEngine.lines?.[0]?.player_score && boardFen) {
-            setEvalForFen(boardFen, liveEngine.lines[0].player_score)
-        }
-    }, [liveEngine.status, liveEngine.lines, boardFen, setEvalForFen])
-
-    const pgnResultLabel = useMemo(() => {
-
-        if (!gameMeta?.result) return null
-
-        const r = String(gameMeta.result).trim()
-
-        if (r === '1-0') return '1-0 (blancas)'
-
-        if (r === '0-1') return '0-1 (negras)'
-
-        if (r === '1/2-1/2') return 'Tablas'
-
-        if (r === '*') return 'En curso / sin resultado'
-
-        return r
-
-    }, [gameMeta?.result])
-
-
 
     return (
-
-        <Box>
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-
-                <Box>
-
-                    <Typography variant="h5">Coach — Análisis de partida</Typography>
-
-                    {gameMeta && (
-
-                        <Typography variant="body2" color="text.secondary">
-
-                            {gameMeta.white_player} vs {gameMeta.black_player}
-
-                            {gameMeta.player_username
-
-                                ? ` · POV ${gameMeta.player_username}`
-
-                                : ''}
-
-                        </Typography>
-
-                    )}
-
-                </Box>
-
-                <Button component={RouterLink} to="/coach/jobs" variant="outlined" size="small">
-
-                    Cola (análisis masivo)
-
-                </Button>
-
-            </Box>
-
-            {importBanner && (
-
-                <Alert severity="success" sx={{ mb: 2 }}>
-
-                    {importBanner}
-
-                </Alert>
-
-            )}
-
-            {error && (
-
-                <Alert severity="error" sx={{ mb: 2 }}>
-
-                    {String(error)}
-
-                </Alert>
-
-            )}
-
-            {loading && !decisions.length && (
-
-                <Alert severity="info" icon={<CircularProgress size={18} />} sx={{ mb: 2 }}>
-
-                    {gameMeta?.analysis_job_id
-
-                        ? 'Esperando decisiones del job (Stockfish)…'
-
-                        : 'Partida importada. Revisá jugadas abajo o encolá Stockfish en la Cola.'}
-
-                </Alert>
-
-            )}
-
-            <Grid
-                container
-                spacing={2}
-                alignItems="flex-start"
-                sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' } }}
-            >
-
-                <Grid
-                    item
-                    xs={12}
-                    sm={7}
-                    md={7}
-                    order={{ xs: 1, sm: 1 }}
-                    sx={{ minWidth: 0, flex: { sm: '1 1 0' } }}
-                >
-
-                    <Paper
-
-                        ref={boardColumnRef}
-
-                        sx={{
-
-                            p: 2,
-
-                            display: 'flex',
-
-                            flexDirection: 'column',
-
-                            alignItems: 'center',
-
-                            justifyContent: 'flex-start',
-
-                        }}
-
-                    >
-
-                        <ChessinsightBoard
-
-                            fen={boardFen}
-
-                            orientation={orientation}
-
-                            lastMove={lastMove}
-
-                            viewOnly={criticalMode}
-
-                            onMove={handleBoardMove}
-
-                            boardWidth={boardWidth}
-
-                        />
-
-                        <Box
-                            sx={{
-                                width: boardWidth,
-                                maxWidth: '100%',
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                                mt: 0.5,
-                            }}
-                        >
-                            <IconButton
-                                size="small"
-                                onClick={flipBoard}
-                                aria-label="Girar tablero"
-                                title="Girar tablero"
-                            >
-                                <FlipCameraAndroid fontSize="small" />
-                            </IconButton>
-                        </Box>
-
-                        {!criticalMode && (
-
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
-
-                                Arrastrá piezas para probar variantes (solo esta sesión). Coronar: dama.
-
-                            </Typography>
-
-                        )}
-
-                        {!criticalMode && (
-
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 2 }}>
-
-                                <IconButton size="small" onClick={() => goToPath([])} aria-label="Inicio">
-
-                                    <FirstPage />
-
-                                </IconButton>
-
-                                <IconButton
-
-                                    size="small"
-
-                                    onClick={() => goToPath(pathStepBack(cursorPath))}
-
-                                    disabled={cursorPath.length <= 0}
-
-                                    aria-label="Anterior"
-
-                                >
-
-                                    <NavigateBefore />
-
-                                </IconButton>
-
-                                <Typography
-                                    variant="body2"
-                                    component="span"
-                                    sx={{
-                                        mx: 1,
-                                        minWidth: 100,
-                                        textAlign: 'center',
-                                        userSelect: 'none',
-                                    }}
-                                >
-
-                                    {moveLabel}
-
-                                </Typography>
-
-                                <IconButton
-
-                                    size="small"
-
-                                    onClick={() => goToPath(pathStepForward(treeRoot, cursorPath))}
-
-                                    disabled={!canStepForward}
-
-                                    aria-label="Siguiente"
-
-                                >
-
-                                    <NavigateNext />
-
-                                </IconButton>
-
-                                <IconButton
-
-                                    size="small"
-
-                                    onClick={() => goToPath(pathToBranchEnd(treeRoot, cursorPath))}
-
-                                    aria-label="Final"
-
-                                >
-
-                                    <LastPage />
-
-                                </IconButton>
-
-                            </Box>
-
-                        )}
-
-                        {criticalMode && (
-
-                            <Button size="small" sx={{ mt: 2 }} onClick={exitCritical}>
-
-                                Volver al recorrido PGN
-
-                            </Button>
-
-                        )}
-
-                    </Paper>
-
-                </Grid>
-
-                <Grid
-                    item
-                    xs={12}
-                    sm={5}
-                    md={5}
-                    order={{ xs: 2, sm: 2 }}
-                    sx={{
-                        minWidth: 0,
-                        flex: { sm: '0 0 auto' },
-                        width: { sm: '41.666667%' },
-                        maxWidth: '100%',
-                    }}
-                >
-
-                    <Tabs
-                        value={tab}
-                        onChange={(_, v) => setTab(v)}
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        allowScrollButtonsMobile
-                        sx={{
-                            mb: 1,
-                            position: 'sticky',
-                            top: 0,
-                            zIndex: 2,
-                            bgcolor: 'background.paper',
-                            borderBottom: 1,
-                            borderColor: 'divider',
-                        }}
-                    >
-
-                        <Tab label="Motor" />
-
-                        <Tab label="Análisis avanzado" />
-
-                        <Tab label="Mental 1600" />
-
-                    </Tabs>
-
-                    <Box sx={{ mb: 2, minHeight: 120 }}>
-
-                    {tab === 0 && (
-
-                        <>
-
-                            <LiveEnginePanel
-
-                                liveState={liveEngine}
-
-                                targetDepth={liveDepth}
-
-                                multipv={liveMultipv}
-
-                            />
-
-                            {pack && criticalMode && (
-
-                                <>
-
-                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-
-                                        Análisis Coach (job)
-
-                                    </Typography>
-
-                                    <EngineMultipvPanel
-
-                                        pack={pack}
-
-                                        depth={gameMeta?.stockfish_depth}
-
-                                        multipv={gameMeta?.stockfish_multipv}
-
-                                    />
-
-                                </>
-
-                            )}
-
-                            {pack && !criticalMode && (
-
-                                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-
-                                    Elegí una jugada crítica para ver el review pack del job.
-
-                                </Typography>
-
-                            )}
-
-                        </>
-
-                    )}
-
-                    {tab === 1 && (
-                        <AdvancedMoveAnalysisPanel
-                            cursorPath={cursorPath}
-                            cursorSan={cursorSan}
-                            classificationByPathKey={classificationByPathKey}
-                            classificationProgress={classificationProgress}
-                            moverElo={cursorMoverElo}
-                        />
-                    )}
-
-                    {tab === 2 && (
-
-                        <Paper variant="outlined" sx={{ p: 2 }}>
-
-                            <Mental1600Panel
-                                assessment={mental1600View.assessment}
-                                emptyMessage={mental1600View.emptyMessage}
-                                source={mental1600View.source}
-                            />
-
-                        </Paper>
-
-                    )}
-
-                    </Box>
-
-                    <CoachPgnMoveList
-
-                        treeRoot={treeRoot}
-
-                        cursorPath={cursorPath}
-
-                        onSelectPath={goToPath}
-
-                        onDeleteVariation={handleDeleteVariation}
-
-                        onTruncateForward={handleTruncateForward}
-
-                        pathHasContinuations={pathHasContinuations}
-
-                        evalByFen={evalByFen}
-
-                        classificationByPathKey={classificationByPathKey}
-
-                        classificationProgress={classificationProgress}
-
-                        playerColor={playerColor}
-
-                        resultLabel={pgnResultLabel}
-
-                        maxHeight={320}
-
-                    />
-
-                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 0.5 }}>
-
-                        Jugadas críticas
-
+        <CoachStudyWorkspace
+            title="Coach — Análisis de partida"
+            subtitle={
+                gameMeta ? (
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        {gameMeta.white_player} vs {gameMeta.black_player}
+                        {gameMeta.player_username ? ` · POV ${gameMeta.player_username}` : ''}
                     </Typography>
-
-                    <Paper sx={{ maxHeight: 180, overflow: 'auto', mb: 2 }}>
-
-                        <List dense>
-
-                            {decisions.map((d) => (
-
-                                <ListItemButton
-
-                                    key={d.id}
-
-                                    selected={d.id === selectedId}
-
-                                    onClick={() => setSelectedId(d.id)}
-
-                                >
-
-                                    <ListItemText
-
-                                        primary={`${d.review_pack?.move_number ?? '?'}. ${d.review_pack?.played_move?.san ?? `ply ${d.ply}`}`}
-
-                                        secondary={`crit ${d.criticality?.toFixed?.(1) ?? d.criticality}`}
-
-                                    />
-
-                                </ListItemButton>
-
-                            ))}
-
-                            {!decisions.length && !loading && (
-
-                                <ListItemText
-
-                                    sx={{ p: 2 }}
-
-                                    primary="Sin análisis Stockfish aún."
-
-                                    secondary={
-
-                                        <Button
-
-                                            size="small"
-
-                                            component={RouterLink}
-
-                                            to="/coach/jobs"
-
-                                            sx={{ mt: 1, p: 0 }}
-
-                                        >
-
-                                            Encolar en Cola
-
-                                        </Button>
-
-                                    }
-
-                                />
-
-                            )}
-
-                        </List>
-
-                    </Paper>
-
-                </Grid>
-
-            </Grid>
-
-        </Box>
-
+                ) : null
+            }
+            treeRoot={treeRoot}
+            setTreeRoot={setTreeRoot}
+            cursorPath={cursorPath}
+            setCursorPath={setCursorPath}
+            playerColor={playerColor}
+            gameMeta={gameMeta}
+            gameId={gameId}
+            returnTo={returnTo}
+            backLabel="← Volver a Cola de análisis"
+            importBanner={importBanner}
+            showCoachSubNav={false}
+            showMentalTab
+            reviewCritical={
+                detail
+                    ? {
+                          detail,
+                          pack,
+                          onExit: () => {
+                              setSelectedId(null)
+                              setDetail(null)
+                          },
+                          stockfishDepth: gameMeta?.stockfish_depth,
+                          stockfishMultipv: gameMeta?.stockfish_multipv,
+                      }
+                    : null
+            }
+            topAlerts={topAlerts}
+            decisionsPanel={decisionsPanel}
+        />
     )
-
 }
-
-
