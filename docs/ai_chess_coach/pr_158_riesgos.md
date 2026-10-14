@@ -29,20 +29,20 @@ Esto dificulta:
 ## Riesgos detectados
 
 
-| Prioridad | Riesgo                                                             | Consecuencia                                                               |
-| --------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| P0        | Migración GC-2 elimina `module07_games`                            | Una falla durante la migración puede dificultar la recuperación            |
-| P0        | La migración importa código mutable de aplicación                  | Cambios futuros en `master_games.py` pueden romper una migración histórica |
-| P0        | Frontend fuera del CI                                              | `npm test` y `npm run build` pueden fallar sin bloquear el merge           |
-| P0        | Refactor del workspace mezclado con persistencia                   | Una regresión visual puede ocultar un problema de backend o viceversa      |
-| P0        | Mental 1600 todavía no está reconectado completamente al workspace | Puede perderse una función recién integrada                                |
-| P1        | El payload persistido acepta un diccionario genérico               | Pueden almacenarse datos incompletos o incompatibles                       |
-| P1        | PUT reemplaza el snapshot completo de anotaciones                  | Dos sesiones pueden sobrescribir resultados                                |
-| P1        | Los errores de hidratación se silencian                            | La UI puede continuar sin informar que falló la recuperación               |
-| P1        | El hash incluye encabezados PGN                                    | La misma partida importada desde fuentes diferentes puede no deduplicarse  |
-| P1        | Endpoint de reparación elimina filas                               | Falta `dry_run`, auditoría y confirmación explícita                        |
-| P1        | CI verde solamente para Python                                     | No valida WASM, React, migraciones reales ni recorrido end-to-end          |
-| P2        | Documentación de Lc0/Maia mezclada con el MVP                      | Aumenta el ruido de revisión sin aportar implementación ejecutable         |
+| Prioridad | Riesgo                                                             | Consecuencia                                                               | Estado |
+| --------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------- | ------ |
+| P0        | Migración GC-2 elimina `module07_games`                            | Una falla durante la migración puede dificultar la recuperación            | ⬜ **Abierto** — solo en monolito #158; PR **B** no split ni merge |
+| P0        | La migración importa código mutable de aplicación                  | Cambios futuros en `master_games.py` pueden romper una migración histórica | ⬜ **Abierto** — endurecer Alembic GC-2 antes de merge **B** |
+| P0        | Frontend fuera del CI                                              | `npm test` y `npm run build` pueden fallar sin bloquear el merge           | 🟡 **Parcial** — job **Coach MVP (P0-1)** en #159 verde (pytest + npm); legacy sigue informativo |
+| P0        | Refactor del workspace mezclado con persistencia                   | Una regresión visual puede ocultar un problema de backend o viceversa      | 🟡 **Mitigado en A** — #159 sin workspace; ⬜ persiste hasta **PR C** aislado |
+| P0        | Mental 1600 todavía no está reconectado completamente al workspace | Puede perderse una función recién integrada                                | ⬜ **Abierto** — hoy en `CoachGameAnalysisPage`; **PR C** debe reconectar en workspace |
+| P1        | El payload persistido acepta un diccionario genérico               | Pueden almacenarse datos incompletos o incompatibles                       | ⬜ **Abierto** en **PR A** (#159) — sin schema estricto en PUT |
+| P1        | PUT reemplaza el snapshot completo de anotaciones                  | Dos sesiones pueden sobrescribir resultados                                | ⬜ **Abierto** — diseño actual SV-2; documentar o versionar en fase 2 |
+| P1        | Los errores de hidratación se silencian                            | La UI puede continuar sin informar que falló la recuperación               | ⬜ **Abierto** — revisar UX en **PR A** o follow-up |
+| P1        | El hash incluye encabezados PGN                                    | La misma partida importada desde fuentes diferentes puede no deduplicarse  | ⬜ **Abierto** — sin cambio en split actual |
+| P1        | Endpoint de reparación elimina filas                               | Falta `dry_run`, auditoría y confirmación explícita                        | ⬜ **Abierto** — entra con catálogo **PR B** |
+| P1        | CI verde solamente para Python                                     | No valida WASM, React, migraciones reales ni recorrido end-to-end          | 🟡 **Parcial** — P0-1 cubre frontend en PR funcionales; sin HITL automatizado ni GC-2 en CI |
+| P2        | Documentación de Lc0/Maia mezclada con el MVP                      | Aumenta el ruido de revisión sin aportar implementación ejecutable         | ⬜ **Abierto** — mover a **PR E** al hacer split docs |
 
 
 
@@ -212,13 +212,24 @@ Esto dificulta:
 ## Orden de integración recomendado
 
 
-| Orden | PR                          | Dependencia                              |
-| ----- | --------------------------- | ---------------------------------------- |
-| 1     | PR A — Persistencia por ply | Estado actual de `main`                  |
-| 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas |
-| 3     | PR C — Workspace compartido | Contratos de API estabilizados           |
-| 4     | PR D — Navegación y FEN     | Workspace compartido integrado           |
-| 5     | PR E — Documentación        | Independiente                            |
+| Orden | PR                          | Dependencia                              | Estado | PR / rama | Pendiente para cerrar esta fase |
+| ----- | --------------------------- | ---------------------------------------- | ------ | --------- | -------------------------------- |
+| 1     | PR A — Persistencia por ply | Estado actual de `main`                  | ✅ **Mergeado** | [#159](https://github.com/cmessoftware/chessinsightai/pull/159) · `feature/11_120_sv2_ply_persist` | `alembic upgrade 20261009_000002` en entornos que aún no migraron |
+| 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | ⬜ **No iniciado (split)** | Código en [#158](https://github.com/cmessoftware/chessinsightai/pull/158); rama `feature/11_130_coach_games_catalog` **sin push** | Cherry-pick GC-1…GC-3; GC-2 sin import app; backup + DB **5433**; PR + tests; merge tras **A** en `main` |
+| 3     | PR C — Workspace compartido | Contratos de API estabilizados           | ⬜ **No iniciado (split)** | En monolito #158 · `feature/11_131_coach_study_workspace` (plan) | Extraer workspace; **Mental 1600** reconectado; npm test/build + HITL ply estable |
+| 4     | PR D — Navegación y FEN     | Workspace compartido integrado           | ⬜ **No iniciado (split)** | En monolito #158 · `feature/11_132_coach_nav_fen` (plan) | CoachHome/Partidas/Importar/Position; FEN; multi-PGN aviso; HITL navegación |
+| 5     | PR E — Documentación        | Independiente                            | ⬜ **No iniciado (split)** | Docs Lc0/Maia/Stockfish en #158 | PR solo docs; sin bloquear A–D |
+
+### Qué falta para cerrar la integración del split #158
+
+1. ~~**Cerrar PR A:** merge #159 → `main`.~~ **Hecho.** Migraciones `20261009_*` en prod/staging según checklist.
+2. **Publicar PR B–E:** ramas desde `main` post-A (no desde el monolito mezclado); cherry-pick selectivo desde `feature/11_120_ply_classification_persist` / #158.
+3. **Integrar B → C → D** en ese orden (`alembic upgrade head` tras **B** con backup).
+4. **PR E** en paralelo cuando convenga.
+5. **#158 aparte:** permanece **abierta sin merge**; descripción con tabla de PRs hijas (#159 ✅). Al abrir B–E: línea **«Extraído de #158»** + actualizar tabla en #158. Cerrar #158 cuando B–E estén en `main` (opcional).
+6. **Opcional recomendado:** tag `backup/pr-158-<fecha>` en el tip del monolito antes de dejar de usarlo como fuente.
+
+**Fuera del split pero ya en rama A:** FEAT-014 (girar tablero) y BUG-015 (numeración PGN en nav) en `feature/11_120_sv2_ply_persist` — van con el merge de #159, no requieren PR aparte.
 
 
 
@@ -337,12 +348,19 @@ git worktree add ..\chessinsightai-pr-a main
 
 ### Trazabilidad con #158
 
-Tag de respaldo: `backup/pr-158-<fecha>` en el tip de `feature/11_120_ply_classification_persist` antes del split. Cada PR nueva enlaza a #158 en la descripción.
+- **#158:** descripción con tabla PR A–E; #159 enlazado como mergeado; placeholders `#XXX` para B–E.
+- **PRs hijas:** primera línea **`Extraído de #158`**; plantilla: [templates/pr-split-from-158-body.md](templates/pr-split-from-158-body.md).
+- **#159:** descripción actualizada con «Extraído de #158» (mergeado).
+- Tag de respaldo (opcional): `backup/pr-158-<fecha>` en el tip de `feature/11_120_ply_classification_persist`.
 
 ### Estado split (implementación)
 
-| PR | Rama | Notas |
-|---|---|---|
-| **A** | `feature/11_120_sv2_ply_persist` (desde `main`) | SV-2: migraciones `20261009_*`, API GET/PUT annotations, hook + wiring en `CoachGameAnalysisPage` (sin GC-2 ni workspace) |
-| B–E | pendiente | — |
+| PR | Rama | Estado | Notas |
+|---|---|---|---|
+| **A** | `feature/11_120_sv2_ply_persist` | ✅ **#159 MERGED** | SV-2: `20261009_*`, GET/PUT annotations, hook en `CoachGameAnalysisPage`; + FEAT-014 / BUG-015 UI |
+| **B** | `feature/11_130_coach_games_catalog` (plan) | ⬜ | Solo en #158 monolito |
+| **C** | `feature/11_131_coach_study_workspace` (plan) | ⬜ | Solo en #158 monolito |
+| **D** | `feature/11_132_coach_nav_fen` (plan) | ⬜ | Solo en #158 monolito |
+| **E** | docs | ⬜ | Extraer de #158 |
+| **Monolito** | `feature/11_120_ply_classification_persist` | 📌 **#158 OPEN** — aparte, sin merge | Cherry-pick fuente; tabla de hijas en descripción de #158 |
 
