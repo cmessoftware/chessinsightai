@@ -57,20 +57,22 @@ class Games(Base):
 
     game_id = Column(String, primary_key=True)
     pgn = Column(Text)
-    site = Column(String)
-    event = Column(String)
-    date = Column(String)
+    source = Column(String)
     white_player = Column(String)
-    white_elo = Column(String)
     black_player = Column(String)
+    white_elo = Column(String)
     black_elo = Column(String)
     result = Column(String)
-    eco = Column(String)
+    time_control = Column(String)
     opening = Column(String)
-    source = Column(String)
+    eco = Column(String)
+    date_played = Column(String)
+    created_at = Column(String)
+    import_batch_id = Column(String)
+    source_filename = Column(String)
+    imported_by = Column(String, index=True)
     corpus_type = Column(String(32), nullable=False, default="personal", index=True)
     speed_class = Column(String(32), nullable=False, default="unknown", index=True)
-    imported_by = Column(String, index=True)  # Usuario que importó la partida
 
 
 class Features(Base):
