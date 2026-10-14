@@ -3,6 +3,7 @@ import { Chess } from 'chess.js'
 import {
     canAddVariationSibling,
     createEmptyRoot,
+    moveNumberFromPlyCount,
     truncateLineForward,
     truncateTouchesImportedMoves,
     variationNestDepth,
@@ -34,6 +35,16 @@ function buildSimpleMainLine(sans) {
     }
     return root
 }
+
+describe('moveNumberFromPlyCount', () => {
+    it('maps plies to PGN move numbers', () => {
+        expect(moveNumberFromPlyCount(0)).toBe(0)
+        expect(moveNumberFromPlyCount(1)).toBe(1)
+        expect(moveNumberFromPlyCount(2)).toBe(1)
+        expect(moveNumberFromPlyCount(3)).toBe(2)
+        expect(moveNumberFromPlyCount(48)).toBe(24)
+    })
+})
 
 describe('variationNestDepth', () => {
     it('counts non-zero path indices', () => {
