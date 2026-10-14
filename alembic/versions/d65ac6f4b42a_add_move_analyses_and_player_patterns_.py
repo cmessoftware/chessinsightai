@@ -34,7 +34,7 @@ def upgrade() -> None:
         sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
         
         # Referencias
-        sa.Column('game_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('game_id', sa.String(), nullable=False),
         sa.Column('player_id', sa.Integer(), nullable=False),
         sa.Column('ply', sa.Integer(), nullable=False),
         sa.Column('move_san', sa.String(10), nullable=False),
@@ -81,7 +81,7 @@ def upgrade() -> None:
         sa.Column('version', sa.String(20), server_default='v2.0'),
         
         # ===== Foreign Keys =====
-        sa.ForeignKeyConstraint(['game_id'], ['games.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['game_id'], ['games.game_id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['player_id'], ['users.id']),
         
         # ===== Constraints =====

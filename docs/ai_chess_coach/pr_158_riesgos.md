@@ -312,10 +312,14 @@ alembic upgrade head               # último revision de la rama actual
 Para no arriesgar el volumen Docker habitual (`chess_pgdata` en 5432):
 
 ```powershell
+docker rm -f chess_pg_test 2>$null
 docker run -d --name chess_pg_test `
   -e POSTGRES_USER=chess -e POSTGRES_PASSWORD=chess_pass `
   -e POSTGRES_DB=chess_trainer_db -p 5433:5432 postgres:13
-# CHESS_TRAINER_DB_URL=postgresql://chess:chess_pass@localhost:5433/chess_trainer_db
+# Esperar a Postgres (no correr alembic en el mismo breath que docker run)
+docker exec chess_pg_test pg_isready -U chess -d chess_trainer_db
+$env:CHESS_TRAINER_DB_URL="postgresql://chess:chess_pass@127.0.0.1:5433/chess_trainer_db"
+$env:PYTHONIOENCODING="utf-8"
 alembic upgrade 20261010_000001
 pytest tests/mvp/test_gc1_master_games.py tests/mvp/test_gc2_coach_games.py tests/mvp/test_gc3_coach_slim.py -q
 ```
