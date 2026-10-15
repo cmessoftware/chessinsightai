@@ -218,7 +218,7 @@ Esto dificulta:
 | 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | ✅ **Mergeado** | [#161](https://github.com/cmessoftware/chessinsightai/pull/161) · `feature/11_130_coach_games_catalog` | `alembic upgrade 20261010_000001` en staging/prod (backup); migración aún importa `master_games` (P0 doc) |
 | 3     | PR C — Workspace compartido | B en `main`                                | ✅ **Mergeado** | [#162](https://github.com/cmessoftware/chessinsightai/pull/162) · `feature/11_131_coach_study_workspace` | — |
 | 4     | PR D — Navegación y FEN     | C en `main`                                | ✅ **Mergeado** | [#163](https://github.com/cmessoftware/chessinsightai/pull/163) · `feature/11_132_coach_nav_fen` | — |
-| 5     | PR E — Documentación        | Independiente                            | 🔄 **En rama** | `feature/11_133_coach_engine_docs` (PR pendiente) | Arquitectura async + mini-plans SF/Maia/Lc0; Phase 2 index |
+| 5     | PR E — Documentación        | Independiente                            | 🔄 **#164 OPEN** | [#164](https://github.com/cmessoftware/chessinsightai/pull/164) · `feature/11_133_coach_engine_docs` | Solo docs; cierra split funcional #158 tras merge |
 
 ### Qué falta para cerrar la integración del split #158
 
@@ -365,6 +365,6 @@ git worktree add ..\chessinsightai-pr-a main
 | **B** | `feature/11_130_coach_games_catalog` | ✅ **#161 MERGED** | GC-1–GC-3; HITL local; `alembic upgrade 20261010_000001` en cada entorno |
 | **C** | `feature/11_131_coach_study_workspace` | ✅ **#162 MERGED** | CoachStudyWorkspace + CoachGameAnalysisPage |
 | **D** | `feature/11_132_coach_nav_fen` | ✅ **#163 MERGED** | SubNav, Inicio, Partidas, FEN, PgnImportPanel compartido |
-| **E** | `feature/11_133_coach_engine_docs` | 🔄 | Arquitectura + AS/LZ/MA mini-plans; roadmap Phase 2 |
+| **E** | `feature/11_133_coach_engine_docs` | 🔄 **#164** | Arquitectura + AS/LZ/MA mini-plans; roadmap Phase 2 |
 | **Monolito** | `feature/11_120_ply_classification_persist` | 📌 **#158 OPEN** — aparte, sin merge | Cherry-pick fuente; tabla de hijas en descripción de #158 |
 
