@@ -214,7 +214,7 @@ export default function CoachStudyWorkspace({
 
     const { evalByFen, setEvalForFen } = usePgnEvalCache(treeRoot, playerColor, {
         prefetchDepth: 10,
-        prefetchEnabled: tab === 0,
+        prefetchEnabled: tab === 0 && lightClassificationOn,
     })
 
     const classificationDepth = 12
@@ -262,7 +262,7 @@ export default function CoachStudyWorkspace({
     const liveMultipv = 2
 
     const liveEngine = useLiveStockfishAnalysis(boardFen, {
-        enabled: tab === 0 && Boolean(boardFen),
+        enabled: tab === 0 && Boolean(boardFen) && lightClassificationOn,
         depth: liveDepth,
         multipv: liveMultipv,
         playerColor,
@@ -473,11 +473,6 @@ export default function CoachStudyWorkspace({
                     <Box sx={{ mb: 2, minHeight: 120 }}>
                         {tab === 0 && (
                             <>
-                                <LiveEnginePanel
-                                    liveState={liveEngine}
-                                    targetDepth={liveDepth}
-                                    multipv={liveMultipv}
-                                />
                                 <Button
                                     variant={lightClassificationOn ? 'contained' : 'outlined'}
                                     size="small"
@@ -485,15 +480,21 @@ export default function CoachStudyWorkspace({
                                     sx={{ mb: 2 }}
                                 >
                                     {lightClassificationOn
-                                        ? 'Desactivar análisis liviano (línea principal)'
+                                        ? 'Desactivar análisis liviano (Stockfish WASM)'
                                         : 'Activar análisis liviano (Stockfish WASM)'}
                                 </Button>
                                 {!lightClassificationOn && (
                                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                        Por defecto el motor solo analiza la posición actual. Activá el
-                                        análisis liviano para clasificar jugadas en el PGN y en Análisis
-                                        avanzado.
+                                        Stockfish en el navegador está apagado hasta que lo actives: no
+                                        corre análisis rápido ni clasificación del PGN.
                                     </Typography>
+                                )}
+                                {lightClassificationOn && (
+                                    <LiveEnginePanel
+                                        liveState={liveEngine}
+                                        targetDepth={liveDepth}
+                                        multipv={liveMultipv}
+                                    />
                                 )}
                                 {pack && criticalMode && (
                                     <>

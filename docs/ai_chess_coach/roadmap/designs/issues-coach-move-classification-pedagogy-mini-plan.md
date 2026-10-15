@@ -37,7 +37,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 | BUG-015 | | Numeración por movimiento PGN (no ply) | ✅ Done | #159 — `moveNumberFromPlyCount` |
 | BUG-016 | | Tras importar y analizar hasta ply X, reabrir desde Partidas: tablero vs **Análisis avanzado** desincronizados ([captura](../../img/BUG-016.png)) | ✅ Done | [#165](https://github.com/cmessoftware/chessinsightai/pull/165) — `coachLastGameSession` cursor + sin auto-select 1ª decisión servidor |
 | FEAT-017 | | Eliminar partidas desde Acciones (cola / biblioteca) | ⬜ Todo | |
-| FEAT-018 | | Análisis liviano **off** por defecto; botón en tab **Motor** para activarlo | 🔄 WIP | [#166](https://github.com/cmessoftware/chessinsightai/pull/166) — `lightClassificationOn` en `CoachStudyWorkspace` |
+| FEAT-018 | | Análisis liviano **off** por defecto; botón en tab **Motor** para activarlo (sin WASM al entrar: ni live ni prefetch ni CA-2) | 🔄 WIP | [#166](https://github.com/cmessoftware/chessinsightai/pull/166) — `lightClassificationOn` apaga `useLiveStockfishAnalysis`, prefetch PGN y clasificación |
 | FEAT-019 | | Flechas ←/→ con foco en tablero (atrás/adelante en línea) | ⬜ Todo | |
 | FEAT-20 | | Menú contextual PGN: copiar variante principal | ⬜ Todo | |
 | FEAT-21 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | ⬜ Todo | |
