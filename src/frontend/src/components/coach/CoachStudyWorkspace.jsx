@@ -619,6 +619,7 @@ export default function CoachStudyWorkspace({
                         classificationProgress={classificationProgress}
                         playerColor={playerColor}
                         resultLabel={pgnResultLabel}
+                        mainLineResult={gameMeta?.result ?? null}
                         maxHeight={320}
                         rootPositionLabel={rootPositionLabel}
                     />
