@@ -8,9 +8,17 @@ import {
     Paper,
     Tab,
     Tabs,
+    Tooltip,
     Typography,
 } from '@mui/material'
-import { FirstPage, FlipCameraAndroid, LastPage, NavigateBefore, NavigateNext } from '@mui/icons-material'
+import {
+    FirstPage,
+    FlipCameraAndroid,
+    LastPage,
+    NavigateBefore,
+    NavigateNext,
+    PowerSettingsNew,
+} from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachPgnMoveList from './CoachPgnMoveList.jsx'
@@ -72,6 +80,7 @@ export default function CoachStudyWorkspace({
     const [boardOrientationOverride, setBoardOrientationOverride] = useState(null)
     const orientation = boardOrientationOverride ?? boardOrientation ?? playerColor
     const [tab, setTab] = useState(0)
+    const [lightClassificationOn, setLightClassificationOn] = useState(false)
     const boardColumnRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(420)
 
@@ -85,6 +94,10 @@ export default function CoachStudyWorkspace({
     useEffect(() => {
         if (gameId) saveCoachAnalysisCursor(gameId, cursorPath)
     }, [gameId, cursorPath])
+
+    useEffect(() => {
+        setLightClassificationOn(false)
+    }, [gameId])
 
     const flipBoard = useCallback(() => {
         setBoardOrientationOverride((prev) => {
@@ -209,7 +222,7 @@ export default function CoachStudyWorkspace({
 
     const { evalByFen, setEvalForFen } = usePgnEvalCache(treeRoot, playerColor, {
         prefetchDepth: 10,
-        prefetchEnabled: tab === 0,
+        prefetchEnabled: tab === 0 && lightClassificationOn,
     })
 
     const classificationDepth = 12
@@ -234,7 +247,7 @@ export default function CoachStudyWorkspace({
         treeRoot,
         playerColor,
         {
-            enabled: classificationHydrateReady && classificationEnabled,
+            enabled: classificationHydrateReady && classificationEnabled && lightClassificationOn,
             depth: classificationDepth,
             multipv: classificationMultipv,
             cursorPath,
@@ -250,14 +263,14 @@ export default function CoachStudyWorkspace({
         multipv: classificationMultipv,
         byPathKey: classificationByPathKey,
         progress: classificationProgress,
-        enabled: Boolean(gameId && treeRoot?.fen),
+        enabled: Boolean(gameId && treeRoot?.fen && lightClassificationOn),
     })
 
     const liveDepth = 14
     const liveMultipv = 2
 
     const liveEngine = useLiveStockfishAnalysis(boardFen, {
-        enabled: tab === 0 && Boolean(boardFen),
+        enabled: tab === 0 && Boolean(boardFen) && lightClassificationOn,
         depth: liveDepth,
         multipv: liveMultipv,
         playerColor,
@@ -468,11 +481,36 @@ export default function CoachStudyWorkspace({
                     <Box sx={{ mb: 2, minHeight: 120 }}>
                         {tab === 0 && (
                             <>
-                                <LiveEnginePanel
-                                    liveState={liveEngine}
-                                    targetDepth={liveDepth}
-                                    multipv={liveMultipv}
-                                />
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                    <Tooltip
+                                        title={
+                                            lightClassificationOn
+                                                ? 'Desactivar análisis liviano (Stockfish WASM)'
+                                                : 'Activar análisis liviano (Stockfish WASM)'
+                                        }
+                                    >
+                                        <IconButton
+                                            onClick={() => setLightClassificationOn((on) => !on)}
+                                            color={lightClassificationOn ? 'primary' : 'default'}
+                                            aria-pressed={lightClassificationOn}
+                                            aria-label={
+                                                lightClassificationOn
+                                                    ? 'Desactivar análisis liviano'
+                                                    : 'Activar análisis liviano'
+                                            }
+                                            size="small"
+                                        >
+                                            <PowerSettingsNew />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
+                                {lightClassificationOn && (
+                                    <LiveEnginePanel
+                                        liveState={liveEngine}
+                                        targetDepth={liveDepth}
+                                        multipv={liveMultipv}
+                                    />
+                                )}
                                 {pack && criticalMode && (
                                     <>
                                         <Typography variant="subtitle2" sx={{ mb: 1 }}>
