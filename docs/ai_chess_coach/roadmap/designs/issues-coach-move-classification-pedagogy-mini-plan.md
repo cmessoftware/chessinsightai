@@ -36,21 +36,23 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 | FEAT-014 | | Botón girar tablero | ✅ Done | #159 — `FlipCameraAndroid` |
 | BUG-015 | | Numeración por movimiento PGN (no ply) | ✅ Done | #159 — `moveNumberFromPlyCount` |
 | BUG-016 | | Tras importar y analizar hasta ply X, reabrir desde Partidas: tablero vs **Análisis avanzado** desincronizados ([captura](../../img/BUG-016.png)) | ✅ Done | [#165](https://github.com/cmessoftware/chessinsightai/pull/165) — `coachLastGameSession` cursor + sin auto-select 1ª decisión servidor |
-| FEAT-017 | | Eliminar partidas desde Acciones (cola / biblioteca) | 🔄 WIP | `feature/11_136_feat_017_delete_coach_games` — DELETE + bulk-delete; UI Partidas |
+| FEAT-017 | | Eliminar partidas desde Acciones (cola / biblioteca) | ✅ Done | [#167](https://github.com/cmessoftware/chessinsightai/pull/167) — DELETE + bulk-delete; badges de estado en Partidas |
 | FEAT-018 | | Análisis liviano **off** por defecto; icono power en **Motor** (sin WASM al entrar) | ✅ Done | [#166](https://github.com/cmessoftware/chessinsightai/pull/166) merged |
 | FEAT-019 | | Flechas ←/→ con foco en tablero (atrás/adelante en línea) | ⬜ Todo | |
-| FEAT-20 | | Menú contextual PGN: copiar variante principal | ⬜ Todo | |
-| FEAT-21 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | ⬜ Todo | |
-| FEAT-22 | | Mostrar FEN de la jugada actual bajo el tablero | ⬜ Todo | |
-| FEAT-23 | FEAT-22 | Botón copiar FEN al portapapeles | ⬜ Todo | |
-| FEAT-24 | FEAT-22 | Link FEN → `/coach/position` con posición cargada | ⬜ Todo | |
+| FEAT-020 | | Menú contextual PGN: copiar variante principal | ⬜ Todo | |
+| FEAT-021 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | ⬜ Todo | |
+| FEAT-022 | | Mostrar FEN de la jugada actual bajo el tablero | ⬜ Todo | |
+| FEAT-023 | FEAT-22 | Botón copiar FEN al portapapeles | ⬜ Todo | |
+| FEAT-024 | FEAT-22 | Link FEN → `/coach/position` con posición cargada | ⬜ Todo | |
+| FEAT-025 | |Cambio de spec: En Impotar Partidas, cambiar a Importar Partidas, permitiendo importación masiva de partidas desde pgn en texto o dede archivo (limitar a 100 por importación configuable en un futuro modulo de admin - hacodeado por ahora) -> si es solo una continuar redirigiendo directamente al módulo de analisis, si es > 1 mostrar solapa partidas de Coach para que el usuario elija que partida comenzar a analizar.| ⬜ Todo | |
+| FEAT-026 || Cambio de iconos [VER](./../../img/ver.png) / [ANALIZAR](./../../img/analizar.png)/ [ELIMINAR](./../../img/eliminar.png) 
 
 ### Resumen backlog
 
 | Estado | IDs |
 | ------ | --- |
-| ✅ Done | FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014 |
-| 🔄 WIP | BUG-12, FEAT-07, FEAT-017 |
-| ⬜ Todo | FEAT-019, FEAT-20…24 |
+| ✅ Done | FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017/018 |
+| 🔄 WIP | BUG-12, FEAT-07 |
+| ⬜ Todo | FEAT-019, FEAT-20…24, FEAT-025…026 |
 
-**Siguiente sugerido (orden):** FEAT-018 merge → FEAT-019 (teclado) → FEAT-22…24 (FEN bajo tablero) → FEAT-017 (eliminar en cola).
+**Siguiente sugerido (orden):** FEAT-019 (teclado) → FEAT-22…24 (FEN bajo tablero) → FEAT-020/021 (copiar PGN).

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-    Alert,
     Box,
     Button,
     Checkbox,
@@ -27,6 +26,7 @@ import {
     parseApiDetail,
 } from '../../services/module07Service.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
+import { CoachStatusBadge, CoachStatusBadgeRow } from './coachPanelStatus.jsx'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -286,34 +286,54 @@ export default function CoachGamesPanel() {
 
     return (
         <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: 1,
+                    flexWrap: 'wrap',
+                    mb: 2,
+                }}
+            >
+                <CoachStatusBadgeRow
+                    badges={[
+                        failedJobCount > 0 ? (
+                            <CoachStatusBadge key="failed-jobs" severity="warning">
+                                Jobs en <strong>failed</strong> son historial; usá{' '}
+                                <strong>Reintentar</strong> (jugador = nombre del PGN).
+                            </CoachStatusBadge>
+                        ) : null,
+                        info ? (
+                            <CoachStatusBadge
+                                key="info"
+                                severity="success"
+                                onDismiss={() => setInfo(null)}
+                            >
+                                {info}
+                            </CoachStatusBadge>
+                        ) : null,
+                        error ? (
+                            <CoachStatusBadge
+                                key="error"
+                                severity="error"
+                                onDismiss={() => setError(null)}
+                            >
+                                {String(error)}
+                            </CoachStatusBadge>
+                        ) : null,
+                        !games.length ? (
+                            <CoachStatusBadge key="empty-library" severity="info">
+                                Importá un PGN en <strong>Importar PGN</strong> o analizá con{' '}
+                                <strong>Posición (FEN)</strong>.
+                            </CoachStatusBadge>
+                        ) : null,
+                    ]}
+                />
                 <Button variant="outlined" size="small" onClick={refresh} disabled={refreshing}>
                     {refreshing ? 'Actualizando…' : 'Actualizar'}
                 </Button>
             </Box>
-            {failedJobCount > 0 && (
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                    Jobs en <strong>failed</strong> son historial; usá <strong>Reintentar</strong>{' '}
-                    (jugador = nombre del PGN).
-                </Alert>
-            )}
-            {info && (
-                <Alert severity="success" sx={{ mb: 2 }} onClose={() => setInfo(null)}>
-                    {info}
-                </Alert>
-            )}
-            {error && (
-                <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-                    {String(error)}
-                </Alert>
-            )}
-            {!games.length && (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                    Importá un PGN en la pestaña{' '}
-                    <strong>Importar PGN</strong> o analizá una posición con{' '}
-                    <strong>Posición (FEN)</strong>.
-                </Alert>
-            )}
             <Paper sx={{ mb: 3 }}>
                 <Table size="small">
                     <TableHead>
@@ -381,9 +401,11 @@ export default function CoachGamesPanel() {
                         </Select>
                     </FormControl>
                 ) : (
-                    <Alert severity="info" sx={{ mb: 2 }}>
-                        No hay partidas pendientes o con job fallido para analizar.
-                    </Alert>
+                    <Box sx={{ mb: 2 }}>
+                        <CoachStatusBadge severity="info">
+                            No hay partidas pendientes o con job fallido para analizar.
+                        </CoachStatusBadge>
+                    </Box>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                     <Button
