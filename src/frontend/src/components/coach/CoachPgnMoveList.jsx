@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, IconButton, Menu, MenuItem, Paper, Tooltip, Typography } from '@mui/material'
+import ContentCopy from '@mui/icons-material/ContentCopy'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import {
+    copyTextToClipboard,
+    formatMainLinePgnMovetext,
+    formatTreePgnMovetext,
+} from '../../utils/coachPgnExport.js'
 import { formatClassificationProgressLabel } from '../../utils/coachEngineLabels.js'
 import {
     buildLabelTooltip,
@@ -415,6 +421,7 @@ export default function CoachPgnMoveList({
     playerColor = 'white',
     classificationProgress = null,
     resultLabel = null,
+    mainLineResult = null,
     maxHeight = 520,
     onTruncateForward = null,
     pathHasContinuations = null,
@@ -428,40 +435,73 @@ export default function CoachPgnMoveList({
         activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
     }, [cursorPath])
 
+    const openPgnContextMenu = useCallback((event, half = null, contextMeta = {}) => {
+        event.preventDefault()
+        event.stopPropagation()
+        const isBranchHead = Boolean(contextMeta.isBranchHead)
+        const path = half?.path
+        const canTruncate =
+            path?.length && pathHasContinuations?.(path) && onTruncateForward
+        const canDeleteBranch =
+            isBranchHead && half && !half.fromGame && onDeleteVariation
+        setMoveMenu({
+            mouseX: event.clientX,
+            mouseY: event.clientY,
+            half,
+            isBranchHead,
+            canTruncate,
+            canDeleteBranch,
+        })
+    }, [onTruncateForward, onDeleteVariation, pathHasContinuations])
+
     const handleMoveContextMenu = useCallback(
         (event, half, contextMeta = {}) => {
-            if (!half?.path?.length) return
-            const isBranchHead = Boolean(contextMeta.isBranchHead)
-            const canTruncate =
-                pathHasContinuations?.(half.path) && onTruncateForward
-            const canDeleteBranch =
-                isBranchHead && !half.fromGame && onDeleteVariation
-            if (!canTruncate && !canDeleteBranch) return
-            event.preventDefault()
-            event.stopPropagation()
-            setMoveMenu({
-                mouseX: event.clientX,
-                mouseY: event.clientY,
-                half,
-                isBranchHead,
-            })
+            openPgnContextMenu(event, half, contextMeta)
         },
-        [onTruncateForward, onDeleteVariation, pathHasContinuations],
+        [openPgnContextMenu],
+    )
+
+    const handlePanelContextMenu = useCallback(
+        (event) => {
+            openPgnContextMenu(event, null, {})
+        },
+        [openPgnContextMenu],
     )
 
     const closeMoveMenu = () => setMoveMenu(null)
 
-    const menuCanTruncate =
-        moveMenu &&
-        moveMenu.half?.path?.length &&
-        pathHasContinuations?.(moveMenu.half.path) &&
-        onTruncateForward
+    const handleCopyMainLine = useCallback(async () => {
+        const text = formatMainLinePgnMovetext(treeRoot, { result: mainLineResult })
+        if (!text) {
+            closeMoveMenu()
+            return
+        }
+        try {
+            await copyTextToClipboard(text)
+        } catch {
+            /* clipboard denied — silent */
+        }
+        closeMoveMenu()
+    }, [treeRoot, mainLineResult])
 
-    const menuCanDeleteBranch =
-        moveMenu &&
-        moveMenu.isBranchHead &&
-        !moveMenu.half?.fromGame &&
-        onDeleteVariation
+    const handleCopyWithVariations = useCallback(async () => {
+        const text = formatTreePgnMovetext(treeRoot, { result: mainLineResult })
+        if (!text) {
+            closeMoveMenu()
+            return
+        }
+        try {
+            await copyTextToClipboard(text)
+        } catch {
+            /* clipboard denied */
+        }
+        closeMoveMenu()
+    }, [treeRoot, mainLineResult])
+
+    const menuCanTruncate = moveMenu?.canTruncate
+    const menuCanDeleteBranch = moveMenu?.canDeleteBranch
+    const canCopyMainLine = Boolean(formatMainLinePgnMovetext(treeRoot))
+    const canCopyWithVariations = Boolean(formatTreePgnMovetext(treeRoot))
 
     const atStart = cursorPath.length === 0
     const showLegend = Boolean(classificationByPathKey)
@@ -496,6 +536,7 @@ export default function CoachPgnMoveList({
                 {showLegend && <PgnLegend />}
             </Box>
             <Box
+                onContextMenu={handlePanelContextMenu}
                 sx={(theme) => ({
                     overflowY: 'auto',
                     overflowX: 'hidden',
@@ -641,6 +682,28 @@ export default function CoachPgnMoveList({
                     },
                 }}
             >
+                {canCopyMainLine && (
+                    <MenuItem
+                        sx={(theme) => pgnMoveTextSx(theme)}
+                        onClick={() => {
+                            void handleCopyMainLine()
+                        }}
+                    >
+                        <ContentCopy fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />
+                        Copiar variante principal
+                    </MenuItem>
+                )}
+                {canCopyWithVariations && (
+                    <MenuItem
+                        sx={(theme) => pgnMoveTextSx(theme)}
+                        onClick={() => {
+                            void handleCopyWithVariations()
+                        }}
+                    >
+                        <ContentCopy fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />
+                        Copiar PGN con variantes
+                    </MenuItem>
+                )}
                 {menuCanTruncate && (
                     <MenuItem
                         sx={(theme) => pgnMoveTextSx(theme)}
