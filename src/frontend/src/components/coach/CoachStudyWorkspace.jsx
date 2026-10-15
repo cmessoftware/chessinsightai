@@ -28,6 +28,7 @@ import {
 } from '../../hooks/useSyncPlyClassificationPersistence.js'
 import { useMental1600Assessment } from '../../hooks/useMental1600Assessment.js'
 import { parseMoverEloFromGame } from '../../utils/coachPlayerElo.js'
+import { saveCoachAnalysisCursor } from '../../utils/coachLastGameSession.js'
 import {
     applyMoveAtPath,
     countMainLinePlies,
@@ -80,6 +81,10 @@ export default function CoachStudyWorkspace({
     useEffect(() => {
         setBoardOrientationOverride(null)
     }, [gameId, playerColor])
+
+    useEffect(() => {
+        if (gameId) saveCoachAnalysisCursor(gameId, cursorPath)
+    }, [gameId, cursorPath])
 
     const flipBoard = useCallback(() => {
         setBoardOrientationOverride((prev) => {

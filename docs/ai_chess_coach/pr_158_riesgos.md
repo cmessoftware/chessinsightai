@@ -218,16 +218,16 @@ Esto dificulta:
 | 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | ✅ **Mergeado** | [#161](https://github.com/cmessoftware/chessinsightai/pull/161) · `feature/11_130_coach_games_catalog` | `alembic upgrade 20261010_000001` en staging/prod (backup); migración aún importa `master_games` (P0 doc) |
 | 3     | PR C — Workspace compartido | B en `main`                                | ✅ **Mergeado** | [#162](https://github.com/cmessoftware/chessinsightai/pull/162) · `feature/11_131_coach_study_workspace` | — |
 | 4     | PR D — Navegación y FEN     | C en `main`                                | ✅ **Mergeado** | [#163](https://github.com/cmessoftware/chessinsightai/pull/163) · `feature/11_132_coach_nav_fen` | — |
-| 5     | PR E — Documentación        | Independiente                            | 🔄 **#164 OPEN** | [#164](https://github.com/cmessoftware/chessinsightai/pull/164) · `feature/11_133_coach_engine_docs` | Solo docs; cierra split funcional #158 tras merge |
+| 5     | PR E — Documentación        | Independiente                            | ✅ **Mergeado** | [#164](https://github.com/cmessoftware/chessinsightai/pull/164) · `feature/11_133_coach_engine_docs` | — |
 
-### Qué falta para cerrar la integración del split #158
+### Integración split #158 — **cerrada** (2026-10-15)
 
-1. ~~**Cerrar PR A:** merge #159 → `main`.~~ **Hecho.** Migraciones `20261009_*` en prod/staging según checklist.
-2. **Publicar PR B–E:** ramas desde `main` post-A (no desde el monolito mezclado); cherry-pick selectivo desde `feature/11_120_ply_classification_persist` / #158.
-3. ~~**Integrar B → C → D** en ese orden~~ **Hecho** (`alembic upgrade head` tras **B** con backup en cada entorno).
-4. **PR E** — docs motores (rama `feature/11_133_coach_engine_docs`); merge sin código producto.
-5. **#158 aparte:** cerrar cuando **E** esté en `main` (opcional tag `backup/pr-158-*` en monolito).
-6. **Opcional recomendado:** tag `backup/pr-158-<fecha>` en el tip del monolito antes de dejar de usarlo como fuente.
+Todas las hijas **A–E** están en `main` (#159–#164). El monolito [#158](https://github.com/cmessoftware/chessinsightai/pull/158) queda **cerrado sin merge** (referencia histórica).
+
+1. ~~PR A → E en `main`.~~ **Hecho.**
+2. Entornos: `alembic upgrade head` (`20261009_*` + `20261010_000001`) con backup donde aplique.
+3. Opcional: tag `backup/pr-158-20261015` en el tip de `feature/11_120_ply_classification_persist`.
+4. Diff residual monolito vs `main` en `src/`: sobre todo `CoachJobsPage` legacy (reemplazado por Partidas + `CoachGamesPanel`); no requiere cherry-pick.
 
 **Fuera del split pero ya en rama A:** FEAT-014 (girar tablero) y BUG-015 (numeración PGN en nav) en `feature/11_120_sv2_ply_persist` — van con el merge de #159, no requieren PR aparte.
 
@@ -365,6 +365,6 @@ git worktree add ..\chessinsightai-pr-a main
 | **B** | `feature/11_130_coach_games_catalog` | ✅ **#161 MERGED** | GC-1–GC-3; HITL local; `alembic upgrade 20261010_000001` en cada entorno |
 | **C** | `feature/11_131_coach_study_workspace` | ✅ **#162 MERGED** | CoachStudyWorkspace + CoachGameAnalysisPage |
 | **D** | `feature/11_132_coach_nav_fen` | ✅ **#163 MERGED** | SubNav, Inicio, Partidas, FEN, PgnImportPanel compartido |
-| **E** | `feature/11_133_coach_engine_docs` | 🔄 **#164** | Arquitectura + AS/LZ/MA mini-plans; roadmap Phase 2 |
-| **Monolito** | `feature/11_120_ply_classification_persist` | 📌 **#158 OPEN** — aparte, sin merge | Cherry-pick fuente; tabla de hijas en descripción de #158 |
+| **E** | `feature/11_133_coach_engine_docs` | ✅ **#164 MERGED** | Arquitectura + AS/LZ/MA mini-plans; roadmap Phase 2 |
+| **Monolito** | `feature/11_120_ply_classification_persist` | 🔒 **#158 CLOSED** (sin merge) | Split completo; usar `main` como fuente |
 

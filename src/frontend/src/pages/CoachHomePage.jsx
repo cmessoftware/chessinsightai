@@ -4,12 +4,13 @@ import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import CoachSubNav from '../components/coach/CoachSubNav.jsx'
 import { getGame, listGames } from '../services/module07Service.js'
 import { createStudyRootFromFen } from '../utils/coachStudyFromFen.js'
-import { loadCoachLastGameId } from '../utils/coachLastGameSession.js'
+import { loadCoachAnalysisCursor, loadCoachLastGameId } from '../utils/coachLastGameSession.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
 import { STARTING_FEN } from '../utils/parseFenInput.js'
 import {
     buildTreeFromMainLine,
     createEmptyRoot,
+    getNodeAtPath,
     mainLineEndPath,
 } from '../utils/coachVariationTree.js'
 
@@ -39,7 +40,9 @@ export default function CoachHomePage() {
                         const built = buildReplayFromPgn(detail.pgn)
                         const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
                         setTreeRoot(tree)
-                        setCursorPath(mainLineEndPath(tree))
+                        const saved = loadCoachAnalysisCursor(detail.id)
+                        const fallback = mainLineEndPath(tree)
+                        setCursorPath(saved && getNodeAtPath(tree, saved) ? saved : fallback)
                     }
                 } else if (!cancelled) {
                     setGameMeta(null)
