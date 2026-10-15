@@ -35,6 +35,7 @@ import {
     usePlyAnnotationsPersist,
 } from '../../hooks/useSyncPlyClassificationPersistence.js'
 import { useMental1600Assessment } from '../../hooks/useMental1600Assessment.js'
+import { usePgnKeyboardNav } from '../../hooks/usePgnKeyboardNav.js'
 import { parseMoverEloFromGame } from '../../utils/coachPlayerElo.js'
 import { saveCoachAnalysisCursor } from '../../utils/coachLastGameSession.js'
 import {
@@ -82,6 +83,7 @@ export default function CoachStudyWorkspace({
     const [tab, setTab] = useState(0)
     const [lightClassificationOn, setLightClassificationOn] = useState(false)
     const boardColumnRef = useRef(null)
+    const boardKeyboardRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(420)
 
     const pack = reviewCritical?.pack
@@ -166,6 +168,37 @@ export default function CoachStudyWorkspace({
         },
         [exitCritical, setCursorPath],
     )
+
+    const stepBack = useCallback(() => {
+        if (cursorPath.length <= 0) return
+        goToPath(pathStepBack(cursorPath))
+    }, [cursorPath, goToPath])
+
+    const stepForward = useCallback(() => {
+        if (!canStepForward) return
+        goToPath(pathStepForward(treeRoot, cursorPath))
+    }, [canStepForward, cursorPath, goToPath, treeRoot])
+
+    const stepFirst = useCallback(() => {
+        goToPath([])
+    }, [goToPath])
+
+    const stepLast = useCallback(() => {
+        goToPath(pathToBranchEnd(treeRoot, cursorPath))
+    }, [cursorPath, goToPath, treeRoot])
+
+    usePgnKeyboardNav({
+        enabled: !criticalMode,
+        targetRef: boardKeyboardRef,
+        onPrev: stepBack,
+        onNext: stepForward,
+        onFirst: stepFirst,
+        onLast: stepLast,
+    })
+
+    const focusBoardRegion = useCallback(() => {
+        boardKeyboardRef.current?.focus({ preventScroll: true })
+    }, [])
 
     const handleBoardMove = useCallback(
         ({ from, to }) => {
@@ -359,6 +392,24 @@ export default function CoachStudyWorkspace({
                             justifyContent: 'flex-start',
                         }}
                     >
+                        <Box
+                            ref={boardKeyboardRef}
+                            tabIndex={criticalMode ? -1 : 0}
+                            role="group"
+                            aria-label="Tablero. Flechas izquierda y derecha para retroceder o avanzar en la línea."
+                            onPointerDown={criticalMode ? undefined : focusBoardRegion}
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                width: '100%',
+                                outline: 'none',
+                                borderRadius: 1,
+                                '&:focus-visible': {
+                                    boxShadow: (theme) => `0 0 0 2px ${theme.palette.primary.main}`,
+                                },
+                            }}
+                        >
                         <ChessinsightBoard
                             fen={boardFen}
                             orientation={orientation}
@@ -396,14 +447,14 @@ export default function CoachStudyWorkspace({
                         )}
                         {!criticalMode && (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 2 }}>
-                                <IconButton size="small" onClick={() => goToPath([])} aria-label="Inicio">
+                                <IconButton size="small" onClick={stepFirst} aria-label="Primera posición">
                                     <FirstPage />
                                 </IconButton>
                                 <IconButton
                                     size="small"
-                                    onClick={() => goToPath(pathStepBack(cursorPath))}
+                                    onClick={stepBack}
                                     disabled={cursorPath.length <= 0}
-                                    aria-label="Anterior"
+                                    aria-label="Jugada anterior"
                                 >
                                     <NavigateBefore />
                                 </IconButton>
@@ -421,21 +472,22 @@ export default function CoachStudyWorkspace({
                                 </Typography>
                                 <IconButton
                                     size="small"
-                                    onClick={() => goToPath(pathStepForward(treeRoot, cursorPath))}
+                                    onClick={stepForward}
                                     disabled={!canStepForward}
-                                    aria-label="Siguiente"
+                                    aria-label="Jugada siguiente"
                                 >
                                     <NavigateNext />
                                 </IconButton>
                                 <IconButton
                                     size="small"
-                                    onClick={() => goToPath(pathToBranchEnd(treeRoot, cursorPath))}
-                                    aria-label="Final"
+                                    onClick={stepLast}
+                                    aria-label="Última posición de la rama"
                                 >
                                     <LastPage />
                                 </IconButton>
                             </Box>
                         )}
+                        </Box>
                         {criticalMode && (
                             <Button size="small" sx={{ mt: 2 }} onClick={exitCritical}>
                                 Volver al recorrido PGN
