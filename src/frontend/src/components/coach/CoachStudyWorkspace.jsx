@@ -8,9 +8,17 @@ import {
     Paper,
     Tab,
     Tabs,
+    Tooltip,
     Typography,
 } from '@mui/material'
-import { FirstPage, FlipCameraAndroid, LastPage, NavigateBefore, NavigateNext } from '@mui/icons-material'
+import {
+    FirstPage,
+    FlipCameraAndroid,
+    LastPage,
+    NavigateBefore,
+    NavigateNext,
+    PowerSettingsNew,
+} from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachPgnMoveList from './CoachPgnMoveList.jsx'
@@ -473,22 +481,29 @@ export default function CoachStudyWorkspace({
                     <Box sx={{ mb: 2, minHeight: 120 }}>
                         {tab === 0 && (
                             <>
-                                <Button
-                                    variant={lightClassificationOn ? 'contained' : 'outlined'}
-                                    size="small"
-                                    onClick={() => setLightClassificationOn((on) => !on)}
-                                    sx={{ mb: 2 }}
-                                >
-                                    {lightClassificationOn
-                                        ? 'Desactivar análisis liviano (Stockfish WASM)'
-                                        : 'Activar análisis liviano (Stockfish WASM)'}
-                                </Button>
-                                {!lightClassificationOn && (
-                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                        Stockfish en el navegador está apagado hasta que lo actives: no
-                                        corre análisis rápido ni clasificación del PGN.
-                                    </Typography>
-                                )}
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                    <Tooltip
+                                        title={
+                                            lightClassificationOn
+                                                ? 'Desactivar análisis liviano (Stockfish WASM)'
+                                                : 'Activar análisis liviano (Stockfish WASM)'
+                                        }
+                                    >
+                                        <IconButton
+                                            onClick={() => setLightClassificationOn((on) => !on)}
+                                            color={lightClassificationOn ? 'primary' : 'default'}
+                                            aria-pressed={lightClassificationOn}
+                                            aria-label={
+                                                lightClassificationOn
+                                                    ? 'Desactivar análisis liviano'
+                                                    : 'Activar análisis liviano'
+                                            }
+                                            size="small"
+                                        >
+                                            <PowerSettingsNew />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
                                 {lightClassificationOn && (
                                     <LiveEnginePanel
                                         liveState={liveEngine}
