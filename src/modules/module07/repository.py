@@ -216,12 +216,48 @@ def list_games(db: Session, owner_user_id: int) -> list[CoachGame]:
 def get_game(db: Session, game_id: str, owner_user_id: int) -> CoachGame | None:
     return (
         db.query(CoachGame)
+        .options(joinedload(CoachGame.analysis_job))
         .filter(
             CoachGame.id == game_id,
             CoachGame.owner_user_id == owner_user_id,
         )
         .first()
     )
+
+
+def delete_coach_game(db: Session, game_id: str, owner_user_id: int) -> bool:
+    """Remove one Coach library row (decisions + ply annotations cascade)."""
+    game = get_game(db, game_id, owner_user_id)
+    if game is None:
+        return False
+    job = game.analysis_job
+    if job is not None and job.status in ("pending", "running"):
+        raise ValueError("cannot_delete_while_job_active")
+    db.delete(game)
+    db.commit()
+    return True
+
+
+def delete_coach_games(
+    db: Session, game_ids: list[str], owner_user_id: int
+) -> dict[str, Any]:
+    deleted: list[str] = []
+    blocked: list[str] = []
+    missing: list[str] = []
+    for gid in game_ids:
+        game = get_game(db, gid, owner_user_id)
+        if game is None:
+            missing.append(gid)
+            continue
+        job = game.analysis_job
+        if job is not None and job.status in ("pending", "running"):
+            blocked.append(gid)
+            continue
+        db.delete(game)
+        deleted.append(gid)
+    if deleted:
+        db.commit()
+    return {"deleted": deleted, "blocked": blocked, "missing": missing}
 
 
 def list_decisions_for_game(
