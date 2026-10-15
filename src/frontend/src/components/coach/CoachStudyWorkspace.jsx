@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
+import CoachCurrentFenBar from './CoachCurrentFenBar.jsx'
 import CoachPgnMoveList from './CoachPgnMoveList.jsx'
 import CoachSubNav from './CoachSubNav.jsx'
 import Mental1600Panel from './Mental1600Panel.jsx'
@@ -436,6 +437,7 @@ export default function CoachStudyWorkspace({
                                 <FlipCameraAndroid fontSize="small" />
                             </IconButton>
                         </Box>
+                        <CoachCurrentFenBar fen={boardFen} maxWidth={boardWidth} />
                         {!criticalMode && (
                             <Typography
                                 variant="caption"
