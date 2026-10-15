@@ -437,7 +437,11 @@ export default function CoachStudyWorkspace({
                                 <FlipCameraAndroid fontSize="small" />
                             </IconButton>
                         </Box>
-                        <CoachCurrentFenBar fen={boardFen} maxWidth={boardWidth} />
+                        <CoachCurrentFenBar
+                            fen={boardFen}
+                            maxWidth={boardWidth}
+                            returnTo={returnTo}
+                        />
                         {!criticalMode && (
                             <Typography
                                 variant="caption"

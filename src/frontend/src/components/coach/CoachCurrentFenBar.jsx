@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react'
 import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import ContentCopy from '@mui/icons-material/ContentCopy'
+import OpenInNew from '@mui/icons-material/OpenInNew'
+import { Link as RouterLink } from 'react-router-dom'
 import { copyTextToClipboard } from '../../utils/coachPgnExport.js'
 
-/** Posición actual (FEN) bajo el tablero — FEAT-022/023; enlace posición en FEAT-024. */
-export default function CoachCurrentFenBar({ fen, maxWidth }) {
+/** Posición actual (FEN) bajo el tablero — FEAT-022…024. */
+export default function CoachCurrentFenBar({ fen, maxWidth, returnTo = null }) {
     const value = (fen || '').trim()
     const [copied, setCopied] = useState(false)
 
@@ -69,6 +71,18 @@ export default function CoachCurrentFenBar({ fen, maxWidth }) {
                     sx={{ mt: -0.25, flexShrink: 0 }}
                 >
                     <ContentCopy sx={{ fontSize: '0.95rem' }} />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Abrir en Posición (FEN)">
+                <IconButton
+                    size="small"
+                    component={RouterLink}
+                    to="/coach/position"
+                    state={{ fen: value, returnTo }}
+                    aria-label="Abrir posición en tab Posición (FEN)"
+                    sx={{ mt: -0.25, flexShrink: 0 }}
+                >
+                    <OpenInNew sx={{ fontSize: '0.95rem' }} />
                 </IconButton>
             </Tooltip>
         </Box>
