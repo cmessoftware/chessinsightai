@@ -4,7 +4,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom'
 
 const TABS = [
     { label: 'Inicio', path: '/coach' },
-    { label: 'Importar PGN', path: '/coach/importar' },
+    { label: 'Importar Partidas', path: '/coach/importar' },
     { label: 'Partidas', path: '/coach/partidas' },
     { label: 'Posición (FEN)', path: '/coach/position' },
 ]
