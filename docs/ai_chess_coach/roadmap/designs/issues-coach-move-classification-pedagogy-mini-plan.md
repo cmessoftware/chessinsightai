@@ -1,55 +1,56 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
-**Estado:** Borrador de implementación  
-**Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)
+**Estado:** Seguimiento activo (UI MVP liviano)  
+**Actualizado:** 2026-10-15  
+**Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)  
+**Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
+**Split monolito #158:** integrado en `main` (#159–#164); ver [pr_158_riesgos.md](../../pr_158_riesgos.md).
 
-**Estrategia acordada:** primero **MVP en el navegador** (Stockfish WASM + UI de análisis avanzada). **No** persistir clasificación en PostgreSQL ni duplicar la cola module07 hasta cerrar **validación con humanos** (umbrales, copy, UX). Después se **congela el contrato** y se mueve a servicios F07 + modelos en DB (Phase 2).
+**Estrategia (vigente):** MVP **Stockfish WASM** + UI de análisis avanzada en cliente. **SV-2** persiste clasificación por ply en Postgres (#159) cuando hay `gameId` y el usuario activa análisis liviano. Análisis profundo servidor → Phase 2 ([arquitectura candidata](../../arquitectura_candidata_servicios_analisis.md)).
 
-**Código cliente ya existente (base):** `clientStockfishEngine.js`, `useLiveStockfishAnalysis.js`, `usePgnEvalCache.js`, `engineEval.js`, `CoachGameAnalysisPage.jsx`, `CoachPgnMoveList.jsx`, `LiveEnginePanel.jsx`.
+**Superficie UI actual:** `CoachStudyWorkspace.jsx`, `CoachGameAnalysisPage.jsx`, `CoachPgnMoveList.jsx`, `AdvancedMoveAnalysisPanel.jsx`, `LiveEnginePanel.jsx`, hooks `usePgnMoveClassification`, `useSyncPlyClassificationPersistence`.
 
 ---
-## 3. Issues de UI para MVP de analisis liviano
 
-Ramas sugeridas: `feature/11_11x_*` (solo frontend + utils JS). Un ítem por rama según [roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc).
+## 3. Issues de UI para MVP de análisis liviano
 
-| Tipo-Id  | IdRel   | Descripción                                                                                                                                                                                                                                                                           | Estado | Comentarios                                                                                                       |
-| -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------- |
-| FEAT-01  |         | Eliminar barrar vertical                                                                                                                                                                                                                                                              | ✅ Done |                                                                                                                   |
-| BUG-02   |         | Error en parseo gral del pgn                                                                                                                                                                                                                                                          | ✅ Done |                                                                                                                   |
-| FEAT-02  |         | Sacar ok (redundante)                                                                                                                                                                                                                                                                 | ✅ Done |                                                                                                                   |
-| FEAT-03  |         | Poner simbolos con sus colores en la ayuda de arriba.                                                                                                                                                                                                                                 | ✅ Done |                                                                                                                   |
-| BUG-04   |         | Falta indicar error_label para las negras.                                                                                                                                                                                                                                            | ✅ Done |                                                                                                                   |
-| FEAT-05  |         | En tooltip que sale sobre simbolo de error_label indicar solo su descripción (Impresición, error, error grave) y mostrar la PV alternativa sugerida por el motor.                                                                                                                     | ✅ Done |                                                                                                                   |
-| FEAT-06  |         | dejar simbolo de error_label solo al lado de la jugada, no de la evaluación numerica, pero usar el badge que ahora esta al lado de la evaluación nuemerica.                                                                                                                           | ✅ Done |                                                                                                                   |
-| BUG-07   |         | Al agregar variante y pasado cierto numero de jugadas de la variante el panel de pgn se va abajo del tablero, si es PC o tablet mantenerlo siempre a al derecha, adaptar linea de variantes a varias filas dentro del panel de pgn si es necesario.                                   | ✅ Done |                                                                                                                   |
-| FEAT-08  |         | Agregar soporte para subvariantes hasta dos niveles, permitiendo varias subvariante desde la misma jugadaa de la linea principal y primera variante. 2. Permitir borrar jugadas desde un punto en adelante, con pedido de confirmación al usuario para evitar borrados involuntarios. | ✅ Done |                                                                                                                   |
-| FEAT-09  | FEAT-08 | Sacar logo de tijera (rompe la regla de una linea por par de plies), habilitar opción cuando el usuario presiona botón derecho del mouse sobre jugada                                                                                                                                 | ✅ Done | Menú contextual «Borrar jugadas desde aquí…»; tijera quitada del PGN                                              |
-| BUG-10   | FEAT-09 | Rompe regla de 1 linea por par de plies                                                                                                                                                                                                                                               | ✅ Done | Par blanca/negra + variantes en una fila flex; variantes inline                                                   |  |
-| FEAT-11  | FEAT-08 | Acomodar font de letras de mensaje tooltip, mismo font que las movidad del pgn                                                                                                                                                                                                        | ✅ Done | `pgnMoveTextSx` (body2+mono) tooltip, menú contextual y botones SAN                                               |
-| BUG-12   |         | Analizar jugadas marcadas como blunder cuando no lo son, logica de perdida de cp entando ganado, con ventaja, igual o con desventaja o perdido. Los criterio son diferentes, ver spec                                                                                                 | 🔄 WIP  | Tooltip impacto v1 + umbrales por Elo (`coachPedagogicalImpact.js`); etiqueta cp sin cambio                       |
-| BUG-013  |         | en partida actual aparece el tab "Analisis Avanzando" pero  cuando cargo otro pgn desaparece                                                                                                                                                                                          | ✅ Done | Tabs arriba + sticky; reset al cambiar `gameId`                                                                   |
-| FEAT-07  |         | **Modelo mental 1600** (MVP cliente WASM + chess.js, sin DB)                                                                                                                                                                                                                          | 🔄 WIP  | Rama **`feature/11_117_mental_1600_wip`** (parked); M-11 HITL: [checklist](./coach-mental-1600-hitl-checklist.md) |
-| FEAT-014 |         | En tablero de analisis agregar boton para girar el tablero                                                                                                                                                                                                                            | ✅ Done | Icono `FlipCameraAndroid`; POV jugador por defecto; reset al cambiar partida/color                                |
-| BUG-015  |         | En numeración de jugadas usar nro de movimiento no de ply                                                                                                                                                                                                                             | ✅ Done | `moveNumberFromPlyCount`; nav «Jugada N / M» (PGN, no ply)                                                        |  |
-| BUG-016  |         | Incosistencia entre pantallas cuando entro a cola de analisis:                                                                                                                                                                                                                        |
- 1. Entro a "Importar Partida"
-    2. Cargo el pgn y presiona Importar Partida
-    3. Analizo la partida movimiento a movimiento hasta un punto cualquiera.
-    4. Entro a Cola de Analisis.
-    5. Elijo opción Analis de una partida (la mismo que estaba analizando en punto 3).
-    6. El sistema entra a "Coach-Analisi de partida".
-    7. Muestra el tablero en la posición suspendida a pasar a Cola de Analisis
-    8. En "Analisis Avanzado" muestra un reporte que no coincide con la posiciónd el tablero. Ver [bug-016](./../../img/BUG-016.png) | ✅ Done | #165 — cursor session + sin auto-select decisión servidor |
-| FEAT-017 || Agregar en Acciones opción para eliminar partidas de la cola de analisis | ⬜ Todo || 
-| FEAT-018 || Analisis liviano desactivado por defeceto. Agregar botón en tab Motor para activarlo | 🔄 WIP | `feature/11_135_feat_018_light_analysis_toggle` |  
-| FEAT-019 || Al hacer foco en tablero de analisis habilitar movimiento de piezas hacia adelante o atrás usandos las teclas de flechas derecha e izq respectivamente|⬜ Todo || 
-| FEAT-20 || Menu contextual sobre panel de pgn: Copiar PGN Variante Principal |⬜ Todo || 
-| FEAT-21 |FEAT-20| Menu contextual sobre panel de pgn: Copiar PGN con variantes |⬜ Todo || 
-| FEAT-22 || Mostrar FEN de la movida actual debajo de tablero de analisis. |⬜ Todo || 
-| FEAT-23 |FEAT-22|  Agregar botón a la derecha del FEN para copiar al portapapeles. |⬜ Todo || 
-| FEAT-24 |FEAT-22| Link en el FEN hacia el TAB Posición (FEN) con el el FEN cargado en el tablero de analisis. |⬜ Todo || 
+Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc)).
 
+| Tipo-Id | IdRel | Descripción | Estado | Comentarios |
+| -------- | ------- | ----------- | ------ | ----------- |
+| FEAT-01 | | Eliminar barra vertical | ✅ Done | |
+| BUG-02 | | Error en parseo general del PGN | ✅ Done | |
+| FEAT-02 | | Sacar ok (redundante) | ✅ Done | |
+| FEAT-03 | | Símbolos con colores en la ayuda superior | ✅ Done | |
+| BUG-04 | | Falta `error_label` para las negras | ✅ Done | |
+| FEAT-05 | | Tooltip en símbolo: descripción + PV alternativa | ✅ Done | |
+| FEAT-06 | | Badge de error solo junto a la jugada (no junto a eval numérica) | ✅ Done | |
+| BUG-07 | | Panel PGN no debe caer bajo el tablero en desktop/tablet | ✅ Done | |
+| FEAT-08 | | Subvariantes (2 niveles); borrar jugadas hacia adelante con confirmación | ✅ Done | |
+| FEAT-09 | FEAT-08 | Borrar desde jugada vía clic derecho (sin icono tijera) | ✅ Done | Menú «Borrar jugadas desde aquí…» |
+| BUG-10 | FEAT-09 | Una línea por par de plies | ✅ Done | Fila flex blanca/negra + variantes inline |
+| FEAT-11 | FEAT-08 | Font tooltip = font movidas PGN | ✅ Done | `pgnMoveTextSx` |
+| BUG-12 | | Blunders falsos según contexto (ganado/igual/perdido) | 🔄 WIP | `coachPedagogicalImpact.js`; etiqueta cp sin cambio |
+| BUG-013 | | Tab Análisis avanzado desaparecía al cambiar PGN | ✅ Done | Tabs sticky; reset por `gameId` |
+| FEAT-07 | | **Mental 1600** (WASM + chess.js) | 🔄 WIP | Tab en workspace; M-11 HITL: [checklist](./coach-mental-1600-hitl-checklist.md) |
+| FEAT-014 | | Botón girar tablero | ✅ Done | #159 — `FlipCameraAndroid` |
+| BUG-015 | | Numeración por movimiento PGN (no ply) | ✅ Done | #159 — `moveNumberFromPlyCount` |
+| BUG-016 | | Tras importar y analizar hasta ply X, reabrir desde Partidas: tablero vs **Análisis avanzado** desincronizados ([captura](../../img/BUG-016.png)) | ✅ Done | [#165](https://github.com/cmessoftware/chessinsightai/pull/165) — `coachLastGameSession` cursor + sin auto-select 1ª decisión servidor |
+| FEAT-017 | | Eliminar partidas desde Acciones (cola / biblioteca) | ⬜ Todo | |
+| FEAT-018 | | Análisis liviano **off** por defecto; botón en tab **Motor** para activarlo | 🔄 WIP | [#166](https://github.com/cmessoftware/chessinsightai/pull/166) — `lightClassificationOn` en `CoachStudyWorkspace` |
+| FEAT-019 | | Flechas ←/→ con foco en tablero (atrás/adelante en línea) | ⬜ Todo | |
+| FEAT-20 | | Menú contextual PGN: copiar variante principal | ⬜ Todo | |
+| FEAT-21 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | ⬜ Todo | |
+| FEAT-22 | | Mostrar FEN de la jugada actual bajo el tablero | ⬜ Todo | |
+| FEAT-23 | FEAT-22 | Botón copiar FEN al portapapeles | ⬜ Todo | |
+| FEAT-24 | FEAT-22 | Link FEN → `/coach/position` con posición cargada | ⬜ Todo | |
 
+### Resumen backlog
 
+| Estado | IDs |
+| ------ | --- |
+| ✅ Done | FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014 |
+| 🔄 WIP | BUG-12, FEAT-07, FEAT-018 |
+| ⬜ Todo | FEAT-017, FEAT-019, FEAT-20…24 |
 
-⬜ Todo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+**Siguiente sugerido (orden):** FEAT-018 merge → FEAT-019 (teclado) → FEAT-22…24 (FEN bajo tablero) → FEAT-017 (eliminar en cola).
