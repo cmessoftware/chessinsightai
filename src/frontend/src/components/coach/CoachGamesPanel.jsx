@@ -5,6 +5,7 @@ import {
     Checkbox,
     Chip,
     FormControl,
+    IconButton,
     InputLabel,
     MenuItem,
     Paper,
@@ -14,8 +15,10 @@ import {
     TableCell,
     TableHead,
     TableRow,
+    Tooltip,
     Typography,
 } from '@mui/material'
+import { Analytics, DeleteOutline, Visibility } from '@mui/icons-material'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import {
     createAnalysisJob,
@@ -66,6 +69,16 @@ function canQueueAnalysis(game, jobStatusById) {
 
 function canOpenReview(game, jobStatusById) {
     return jobStatusForGame(game, jobStatusById) === 'completed'
+}
+
+function viewGameActionLabel(game, jobStatusById, clientDone) {
+    if (canOpenReview(game, jobStatusById)) return 'Review job'
+    if (clientDone) return 'Revisar'
+    return 'Ver partida'
+}
+
+function analyzeGameActionLabel(game, jobStatusById) {
+    return jobStatusForGame(game, jobStatusById) === 'failed' ? 'Reintentar' : 'Analizar'
 }
 
 function canDeleteGame(game, jobStatusById) {
@@ -541,46 +554,82 @@ export default function CoachGamesPanel() {
                                     </TableCell>
                                     <TableCell>{formatResult(g.result)}</TableCell>
                                     <TableCell>
-                                        <Button
-                                            size="small"
-                                            component={RouterLink}
-                                            to={`/coach/games/${g.id}/analysis`}
-                                            state={analysisLinkState}
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 0.25,
+                                            }}
                                         >
-                                            {canOpenReview(g, jobStatusById)
-                                                ? 'Review job'
-                                                : clientDone
-                                                  ? 'Revisar'
-                                                  : 'Ver partida'}
-                                        </Button>
-                                        {queueable && (
-                                            <Button
-                                                size="small"
-                                                sx={{ ml: 1 }}
-                                                disabled={analyzing}
-                                                onClick={() =>
-                                                    runAnalysis(
-                                                        [g.id],
-                                                        g.player_username || '',
-                                                    )
-                                                }
+                                            <Tooltip
+                                                title={viewGameActionLabel(
+                                                    g,
+                                                    jobStatusById,
+                                                    clientDone,
+                                                )}
                                             >
-                                                {jobStatusForGame(g, jobStatusById) === 'failed'
-                                                    ? 'Reintentar'
-                                                    : 'Analizar'}
-                                            </Button>
-                                        )}
-                                        <Button
-                                            size="small"
-                                            color="error"
-                                            sx={{ ml: 1 }}
-                                            disabled={
-                                                deleting || !canDeleteGame(g, jobStatusById)
-                                            }
-                                            onClick={() => handleDeleteGames([g.id])}
-                                        >
-                                            Eliminar
-                                        </Button>
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    component={RouterLink}
+                                                    to={`/coach/games/${g.id}/analysis`}
+                                                    state={analysisLinkState}
+                                                    aria-label={viewGameActionLabel(
+                                                        g,
+                                                        jobStatusById,
+                                                        clientDone,
+                                                    )}
+                                                >
+                                                    <Visibility fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                            {queueable && (
+                                                <Tooltip
+                                                    title={analyzeGameActionLabel(
+                                                        g,
+                                                        jobStatusById,
+                                                    )}
+                                                >
+                                                    <span>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="primary"
+                                                            disabled={analyzing}
+                                                            aria-label={analyzeGameActionLabel(
+                                                                g,
+                                                                jobStatusById,
+                                                            )}
+                                                            onClick={() =>
+                                                                runAnalysis(
+                                                                    [g.id],
+                                                                    g.player_username || '',
+                                                                )
+                                                            }
+                                                        >
+                                                            <Analytics fontSize="small" />
+                                                        </IconButton>
+                                                    </span>
+                                                </Tooltip>
+                                            )}
+                                            <Tooltip title="Eliminar">
+                                                <span>
+                                                    <IconButton
+                                                        size="small"
+                                                        color="error"
+                                                        disabled={
+                                                            deleting ||
+                                                            !canDeleteGame(g, jobStatusById)
+                                                        }
+                                                        aria-label="Eliminar"
+                                                        onClick={() =>
+                                                            handleDeleteGames([g.id])
+                                                        }
+                                                    >
+                                                        <DeleteOutline fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        </Box>
                                     </TableCell>
                                 </TableRow>
                             )

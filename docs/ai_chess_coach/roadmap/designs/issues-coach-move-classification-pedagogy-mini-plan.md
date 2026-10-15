@@ -68,7 +68,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 | Estado | IDs                                                                   |
 | ------ | --------------------------------------------------------------------- |
 | ✅ Done | FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…025 |
-| 🔄 WIP  | BUG-12, FEAT-07                                                        |
-| ⬜ Todo | FEAT-026…029                                                           |
+| 🔄 WIP  | BUG-12, FEAT-07, FEAT-026                                              |
+| ⬜ Todo | FEAT-027…029                                                           |
 
 **Siguiente sugerido (orden):** FEAT-026 (iconos Partidas) → FEAT-027 (import Lichess).
