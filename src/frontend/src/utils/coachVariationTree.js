@@ -14,6 +14,12 @@ export function createEmptyRoot(fen) {
 }
 
 /** Build tree from main-line replay arrays (children[0] chain = partida importada). */
+/** Path on imported main line (child index 0) with `plyCount` plies from root. */
+export function mainLinePathForPlyCount(plyCount) {
+    const n = Math.max(0, Math.floor(Number(plyCount) || 0))
+    return Array.from({ length: n }, () => 0)
+}
+
 export function buildTreeFromMainLine(fens, ucis, moves) {
     const root = createEmptyRoot(fens[0])
     let node = root

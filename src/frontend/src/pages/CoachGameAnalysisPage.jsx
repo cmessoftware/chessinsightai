@@ -14,11 +14,13 @@ import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { COACH_RETURN_PARTIDAS } from '../components/coach/CoachSubNav.jsx'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
-import { saveCoachLastGameId } from '../utils/coachLastGameSession.js'
+import { loadCoachAnalysisCursor, saveCoachLastGameId } from '../utils/coachLastGameSession.js'
 import {
     buildTreeFromMainLine,
     createEmptyRoot,
+    getNodeAtPath,
     mainLineEndPath,
+    mainLinePathForPlyCount,
 } from '../utils/coachVariationTree.js'
 
 /** Análisis de una sola partida: tablero + MultiPV por punto crítico. */
@@ -60,7 +62,11 @@ export default function CoachGameAnalysisPage() {
                     const built = buildReplayFromPgn(g.pgn)
                     const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
                     setTreeRoot(tree)
-                    setCursorPath(mainLineEndPath(tree))
+                    const saved = loadCoachAnalysisCursor(gameId)
+                    const fallback = mainLineEndPath(tree)
+                    const restored =
+                        saved && getNodeAtPath(tree, saved) ? saved : fallback
+                    setCursorPath(restored)
                 }
             })
             .catch(() => {
@@ -77,7 +83,9 @@ export default function CoachGameAnalysisPage() {
                 const rows = await loadDecisions()
                 if (cancelled) return
                 setError(null)
-                setSelectedId((prev) => prev ?? rows[0]?.id ?? null)
+                setSelectedId((prev) =>
+                    prev && rows.some((r) => r.id === prev) ? prev : null,
+                )
                 setLoading(false)
                 if (!rows.length) {
                     timer = setTimeout(poll, 4000)
@@ -142,7 +150,15 @@ export default function CoachGameAnalysisPage() {
                         <ListItemButton
                             key={d.id}
                             selected={d.id === selectedId}
-                            onClick={() => setSelectedId(d.id)}
+                            onClick={() => {
+                                setSelectedId(d.id)
+                                if (typeof d.ply === 'number' && treeRoot?.fen) {
+                                    const path = mainLinePathForPlyCount(d.ply)
+                                    if (getNodeAtPath(treeRoot, path)) {
+                                        setCursorPath(path)
+                                    }
+                                }
+                            }}
                         >
                             <ListItemText
                                 primary={`${d.review_pack?.move_number ?? '?'}. ${d.review_pack?.played_move?.san ?? `ply ${d.ply}`}`}
