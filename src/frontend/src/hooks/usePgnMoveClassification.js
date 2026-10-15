@@ -116,6 +116,7 @@ export function usePgnMoveClassification(
                         depth,
                         multipv,
                         priority,
+                        coachPlayerColor: _playerColor,
                     })
                     if (cancelled || gen !== runGen.current) return
                     const moverElo = parseMoverEloFromGame(gameMeta, row.moverColor)

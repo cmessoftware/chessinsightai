@@ -34,7 +34,8 @@ export default function ChessinsightBoard({
                     return false
                 }
                 if (onMove) {
-                    onMove({ from: sourceSquare, to: targetSquare, fen })
+                    const accepted = onMove({ from: sourceSquare, to: targetSquare, fen })
+                    return accepted !== false
                 }
                 return true
             },

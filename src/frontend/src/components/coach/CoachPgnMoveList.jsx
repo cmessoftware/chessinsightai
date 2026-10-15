@@ -418,6 +418,7 @@ export default function CoachPgnMoveList({
     maxHeight = 520,
     onTruncateForward = null,
     pathHasContinuations = null,
+    rootPositionLabel = 'Posición inicial',
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
@@ -519,7 +520,7 @@ export default function CoachPgnMoveList({
                     }}
                 >
                     <InlineMove
-                        half={{ san: 'Posición inicial', path: [] }}
+                        half={{ san: rootPositionLabel, path: [] }}
                         selected={atStart}
                         onSelectPath={onSelectPath}
                         moveRef={atStart ? activeRef : undefined}

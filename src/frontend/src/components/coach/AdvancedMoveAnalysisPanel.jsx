@@ -4,12 +4,23 @@ import {
     classificationPendingUserMessage,
     engineLabelDisplayName,
     formatClassificationProgressLabel,
+    formatStockfishWasmCaption,
+    parsePlayerColor,
 } from '../../utils/coachEngineLabels.js'
 import { formatPlayerEval } from '../../utils/engineEval.js'
 import { lookupClassification } from '../../utils/coachPgnDisplay.js'
 import { formatCpPawnsShort } from '../../utils/coachPedagogicalImpact.js'
 import { pathKeyFromPath } from '../../utils/coachPlyClassification.js'
 import { lookupRecommendationTemplate } from '../../utils/coachRecommendations.js'
+
+function colorLabel(color) {
+    return parsePlayerColor(color) === 'black' ? 'negras' : 'blancas'
+}
+
+function sideToMoveLabel(fen) {
+    const stm = (fen || '').split(/\s+/)[1]?.toLowerCase()
+    return stm === 'b' ? 'negras' : 'blancas'
+}
 
 function Block({ title, children }) {
     return (
@@ -18,6 +29,17 @@ function Block({ title, children }) {
                 {title}
             </Typography>
             {children}
+        </Box>
+    )
+}
+
+function WasmEngineHeader({ targetDepth, multipv, depthReached }) {
+    return (
+        <Box sx={{ mb: 1.5 }}>
+            <Typography variant="subtitle2">Análisis avanzado (navegador)</Typography>
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                {formatStockfishWasmCaption({ targetDepth, multipv, depthReached })}
+            </Typography>
         </Box>
     )
 }
@@ -31,14 +53,20 @@ export default function AdvancedMoveAnalysisPanel({
     classificationByPathKey = null,
     classificationProgress = null,
     moverElo = null,
+    targetDepth = 12,
+    multipv = 3,
+    coachPlayerColor = 'white',
 }) {
     const atStart = !cursorPath?.length
     const pathKey = pathKeyFromPath(cursorPath)
     const row = lookupClassification(classificationByPathKey, cursorPath)
+    const depthReached =
+        row?.engineDepthReached > 0 ? row.engineDepthReached : null
 
     if (atStart) {
         return (
             <Paper variant="outlined" sx={{ p: 2 }}>
+                <WasmEngineHeader targetDepth={targetDepth} multipv={multipv} />
                 <Typography variant="body2" color="text.secondary">
                     Elegí una jugada en el PGN para ver el análisis avanzado de ese ply.
                 </Typography>
@@ -56,6 +84,11 @@ export default function AdvancedMoveAnalysisPanel({
 
         return (
             <Paper variant="outlined" sx={{ p: 2 }}>
+                <WasmEngineHeader
+                    targetDepth={targetDepth}
+                    multipv={multipv}
+                    depthReached={depthReached}
+                />
                 {globalLine && (
                     <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
                         {globalLine}
@@ -87,9 +120,14 @@ export default function AdvancedMoveAnalysisPanel({
         )
     }
 
+    const coachPov = parsePlayerColor(coachPlayerColor)
+    const moverPov = parsePlayerColor(row.moverColor)
+    const isCoachMove = moverPov === coachPov
+    const positionAfterEval = formatPlayerEval(row.positionAfterScore)
     const playedEval = formatPlayerEval(row.playedScore)
     const bestEval = formatPlayerEval(row.bestScore)
     const labelName = engineLabelDisplayName(row.engineLabel)
+    const stmAfter = sideToMoveLabel(row.fenAfter)
     const cpLossText =
         row.cpLoss != null ? `${row.cpLoss} cp (${formatCpPawnsShort(row.cpLoss)} peones)` : '—'
 
@@ -123,6 +161,11 @@ export default function AdvancedMoveAnalysisPanel({
 
     return (
         <Paper variant="outlined" sx={{ p: 2 }}>
+            <WasmEngineHeader
+                targetDepth={targetDepth}
+                multipv={multipv}
+                depthReached={depthReached}
+            />
             {globalLine && classificationProgress?.status === 'running' && (
                 <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
                     {globalLine}
@@ -137,22 +180,44 @@ export default function AdvancedMoveAnalysisPanel({
                 ) : null}
             </Typography>
 
-            <Block title="1. Qué cambió con la jugada">
+            <Block title="1. Posición tras la jugada">
                 <Typography variant="body2" component="div">
-                    Eval tras tu jugada: <strong>{playedEval}</strong>
-                    {bestEval !== '—' ? (
-                        <>
-                            {' '}
-                            · Mejor candidata: <strong>{bestEval}</strong>
-                        </>
-                    ) : null}
+                    Tu eval (POV {colorLabel(coachPov)}): <strong>{positionAfterEval}</strong>
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Pérdida vs mejor: {cpLossText}
+                {row.fenAfter && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Tras {cursorSan || row.san}
+                        {stmAfter ? ` · juegan las ${stmAfter}` : ''}
+                    </Typography>
+                )}
+                <Typography variant="caption" color="text.disabled" display="block" sx={{ mt: 0.75 }}>
+                    Motor en la posición resultante (fen_after), no la barra en vivo del tablero.
                 </Typography>
             </Block>
 
-            <Block title="2. Alternativa a considerar">
+            <Block
+                title={
+                    isCoachMove
+                        ? '2. Calidad de tu jugada'
+                        : `2. Calidad de la jugada (${colorLabel(moverPov)})`
+                }
+            >
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                    Comparación en la bifurcación (MultiPV, misma profundidad).
+                </Typography>
+                <Typography variant="body2" component="div">
+                    Pérdida vs mejor: <strong>{cpLossText}</strong>
+                    {bestEval !== '—' && playedEval !== '—' ? (
+                        <>
+                            {' '}
+                            · Ref. motor antes del movimiento: mejor {bestEval}
+                            {isCoachMove ? ` · jugada ${playedEval}` : ''}
+                        </>
+                    ) : null}
+                </Typography>
+            </Block>
+
+            <Block title="3. Alternativa a considerar">
                 {bestSan ? (
                     <Typography variant="body2">
                         Mejor jugada: <strong>{bestSan}</strong>
@@ -164,7 +229,7 @@ export default function AdvancedMoveAnalysisPanel({
                 )}
             </Block>
 
-            <Block title="3. Variante">
+            <Block title="4. Variante">
                 {pvLine ? (
                     <Typography
                         variant="body2"
@@ -179,7 +244,7 @@ export default function AdvancedMoveAnalysisPanel({
                 )}
             </Block>
 
-            <Block title="4. Lección práctica">
+            <Block title="5. Lección práctica">
                 {lessonLines.map((line, i) => (
                     <Typography key={i} variant="body2" sx={{ mt: i ? 0.75 : 0 }}>
                         {line}
@@ -188,7 +253,7 @@ export default function AdvancedMoveAnalysisPanel({
             </Block>
 
             <Typography variant="caption" color="text.disabled" display="block" sx={{ mt: 1 }}>
-                Motor local (WASM) · etiqueta por cp_loss §1; impacto por umbrales Elo v1.
+                Etiqueta por cp_loss §1; impacto por umbrales Elo v1.
             </Typography>
         </Paper>
     )
