@@ -72,6 +72,7 @@ export default function CoachStudyWorkspace({
     const [boardOrientationOverride, setBoardOrientationOverride] = useState(null)
     const orientation = boardOrientationOverride ?? boardOrientation ?? playerColor
     const [tab, setTab] = useState(0)
+    const [lightClassificationOn, setLightClassificationOn] = useState(false)
     const boardColumnRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(420)
 
@@ -85,6 +86,10 @@ export default function CoachStudyWorkspace({
     useEffect(() => {
         if (gameId) saveCoachAnalysisCursor(gameId, cursorPath)
     }, [gameId, cursorPath])
+
+    useEffect(() => {
+        setLightClassificationOn(false)
+    }, [gameId])
 
     const flipBoard = useCallback(() => {
         setBoardOrientationOverride((prev) => {
@@ -234,7 +239,7 @@ export default function CoachStudyWorkspace({
         treeRoot,
         playerColor,
         {
-            enabled: classificationHydrateReady && classificationEnabled,
+            enabled: classificationHydrateReady && classificationEnabled && lightClassificationOn,
             depth: classificationDepth,
             multipv: classificationMultipv,
             cursorPath,
@@ -250,7 +255,7 @@ export default function CoachStudyWorkspace({
         multipv: classificationMultipv,
         byPathKey: classificationByPathKey,
         progress: classificationProgress,
-        enabled: Boolean(gameId && treeRoot?.fen),
+        enabled: Boolean(gameId && treeRoot?.fen && lightClassificationOn),
     })
 
     const liveDepth = 14
@@ -473,6 +478,23 @@ export default function CoachStudyWorkspace({
                                     targetDepth={liveDepth}
                                     multipv={liveMultipv}
                                 />
+                                <Button
+                                    variant={lightClassificationOn ? 'contained' : 'outlined'}
+                                    size="small"
+                                    onClick={() => setLightClassificationOn((on) => !on)}
+                                    sx={{ mb: 2 }}
+                                >
+                                    {lightClassificationOn
+                                        ? 'Desactivar análisis liviano (línea principal)'
+                                        : 'Activar análisis liviano (Stockfish WASM)'}
+                                </Button>
+                                {!lightClassificationOn && (
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                        Por defecto el motor solo analiza la posición actual. Activá el
+                                        análisis liviano para clasificar jugadas en el PGN y en Análisis
+                                        avanzado.
+                                    </Typography>
+                                )}
                                 {pack && criticalMode && (
                                     <>
                                         <Typography variant="subtitle2" sx={{ mb: 1 }}>
