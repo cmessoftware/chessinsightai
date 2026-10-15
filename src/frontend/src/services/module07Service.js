@@ -103,3 +103,15 @@ export async function putGameAnnotations(gameId, body) {
     const { data } = await api.put(`/api/v1/module07/games/${gameId}/annotations`, body)
     return data
 }
+
+export async function deleteCoachGame(gameId) {
+    const { data } = await api.delete(`/api/v1/module07/games/${gameId}`)
+    return data
+}
+
+export async function deleteCoachGames(gameIds) {
+    const { data } = await api.post('/api/v1/module07/games/bulk-delete', {
+        game_ids: gameIds,
+    })
+    return data
+}

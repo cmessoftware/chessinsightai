@@ -20,6 +20,8 @@ import {
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import {
     createAnalysisJob,
+    deleteCoachGame,
+    deleteCoachGames,
     listGames,
     listJobs,
     parseApiDetail,
@@ -66,6 +68,11 @@ function canOpenReview(game, jobStatusById) {
     return jobStatusForGame(game, jobStatusById) === 'completed'
 }
 
+function canDeleteGame(game, jobStatusById) {
+    const st = jobStatusForGame(game, jobStatusById)
+    return st !== 'pending' && st !== 'running'
+}
+
 function isClientAnalyzed(game) {
     return Boolean(game.client_analyzed || (game.client_analysis_ply_count ?? 0) > 0)
 }
@@ -93,6 +100,7 @@ export default function CoachGamesPanel() {
     const [playerHandle, setPlayerHandle] = useState('')
     const [selectedIds, setSelectedIds] = useState(() => new Set())
     const [analyzing, setAnalyzing] = useState(false)
+    const [deleting, setDeleting] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
 
     const jobStatusById = useMemo(() => {
@@ -180,11 +188,59 @@ export default function CoachGamesPanel() {
         })
     }
 
-    const toggleAllQueueable = () => {
-        if (selectedIds.size === queueableGames.length) {
+    const toggleAllGames = () => {
+        if (selectedIds.size === games.length) {
             setSelectedIds(new Set())
         } else {
-            setSelectedIds(new Set(queueableGames.map((g) => g.id)))
+            setSelectedIds(new Set(games.map((g) => g.id)))
+        }
+    }
+
+    const selectedQueueableIds = useMemo(
+        () => [...selectedIds].filter((id) => queueableGames.some((g) => g.id === id)),
+        [selectedIds, queueableGames],
+    )
+
+    const handleDeleteGames = async (ids) => {
+        const unique = [...new Set(ids)].filter(Boolean)
+        if (!unique.length) return
+        const msg =
+            unique.length === 1
+                ? '¿Eliminar esta partida de tu biblioteca Coach? Se borran análisis liviano y decisiones asociadas.'
+                : `¿Eliminar ${unique.length} partidas de tu biblioteca Coach?`
+        if (!window.confirm(msg)) return
+        setDeleting(true)
+        try {
+            let deletedCount = unique.length
+            let bulkResult = null
+            if (unique.length === 1) {
+                await deleteCoachGame(unique[0])
+            } else {
+                bulkResult = await deleteCoachGames(unique)
+                deletedCount = bulkResult.deleted?.length ?? 0
+                if (bulkResult.blocked?.length) {
+                    setError(
+                        `${deletedCount} eliminada(s); ${bulkResult.blocked.length} con job activo (pendiente/en ejecución).`,
+                    )
+                }
+            }
+            setSelectedIds((prev) => {
+                const next = new Set(prev)
+                for (const id of unique) next.delete(id)
+                return next
+            })
+            await refresh()
+            if (deletedCount > 0 && (unique.length === 1 || !bulkResult?.blocked?.length)) {
+                setInfo(
+                    deletedCount === 1
+                        ? 'Partida eliminada.'
+                        : `${deletedCount} partida(s) eliminada(s).`,
+                )
+            }
+        } catch (err) {
+            setError(parseApiDetail(err))
+        } finally {
+            setDeleting(false)
         }
     }
 
@@ -335,9 +391,11 @@ export default function CoachGamesPanel() {
                         disabled={
                             analyzing || !queueableGames.length || selectedIds.size === 0
                         }
-                        onClick={() => runAnalysis([...selectedIds])}
+                        onClick={() => runAnalysis(selectedQueueableIds)}
                     >
-                        {analyzing ? 'Encolando…' : `Analizar selección (${selectedIds.size})`}
+                        {analyzing
+                            ? 'Encolando…'
+                            : `Analizar selección (${selectedQueueableIds.length})`}
                     </Button>
                     <Button
                         variant="outlined"
@@ -345,6 +403,16 @@ export default function CoachGamesPanel() {
                         onClick={() => runAnalysis(queueableGames.map((g) => g.id))}
                     >
                         Analizar todas ({queueableGames.length})
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        disabled={deleting || selectedIds.size === 0}
+                        onClick={() => handleDeleteGames([...selectedIds])}
+                    >
+                        {deleting
+                            ? 'Eliminando…'
+                            : `Eliminar selección (${selectedIds.size})`}
                     </Button>
                 </Box>
             </Paper>
@@ -356,14 +424,14 @@ export default function CoachGamesPanel() {
                                 <Checkbox
                                     indeterminate={
                                         selectedIds.size > 0 &&
-                                        selectedIds.size < queueableGames.length
+                                        selectedIds.size < games.length
                                     }
                                     checked={
-                                        queueableGames.length > 0 &&
-                                        selectedIds.size === queueableGames.length
+                                        games.length > 0 &&
+                                        selectedIds.size === games.length
                                     }
-                                    disabled={!queueableGames.length}
-                                    onChange={toggleAllQueueable}
+                                    disabled={!games.length}
+                                    onChange={toggleAllGames}
                                 />
                             </TableCell>
                             <TableCell>Blancas</TableCell>
@@ -393,7 +461,6 @@ export default function CoachGamesPanel() {
                                     <TableCell padding="checkbox">
                                         <Checkbox
                                             checked={selectedIds.has(g.id)}
-                                            disabled={!queueable}
                                             onChange={() => toggleGame(g.id)}
                                         />
                                     </TableCell>
@@ -481,6 +548,17 @@ export default function CoachGamesPanel() {
                                                     : 'Analizar'}
                                             </Button>
                                         )}
+                                        <Button
+                                            size="small"
+                                            color="error"
+                                            sx={{ ml: 1 }}
+                                            disabled={
+                                                deleting || !canDeleteGame(g, jobStatusById)
+                                            }
+                                            onClick={() => handleDeleteGames([g.id])}
+                                        >
+                                            Eliminar
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             )
