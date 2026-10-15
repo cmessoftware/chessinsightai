@@ -215,9 +215,9 @@ Esto dificulta:
 | Orden | PR                          | Dependencia                              | Estado | PR / rama | Pendiente para cerrar esta fase |
 | ----- | --------------------------- | ---------------------------------------- | ------ | --------- | -------------------------------- |
 | 1     | PR A — Persistencia por ply | Estado actual de `main`                  | ✅ **Mergeado** | [#159](https://github.com/cmessoftware/chessinsightai/pull/159) · `feature/11_120_sv2_ply_persist` | `alembic upgrade 20261009_000002` en entornos que aún no migraron |
-| 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | 🔄 **En review** | [#161](https://github.com/cmessoftware/chessinsightai/pull/161) · `feature/11_130_coach_games_catalog` | HITL GC-2; backup + DB **5433**; migración aún importa `master_games` (P0 doc) |
-| 3     | PR C — Workspace compartido | Contratos de API estabilizados           | ⬜ **No iniciado (split)** | En monolito #158 · `feature/11_131_coach_study_workspace` (plan) | Extraer workspace; **Mental 1600** reconectado; npm test/build + HITL ply estable |
-| 4     | PR D — Navegación y FEN     | Workspace compartido integrado           | ⬜ **No iniciado (split)** | En monolito #158 · `feature/11_132_coach_nav_fen` (plan) | CoachHome/Partidas/Importar/Position; FEN; multi-PGN aviso; HITL navegación |
+| 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | ✅ **Mergeado** | [#161](https://github.com/cmessoftware/chessinsightai/pull/161) · `feature/11_130_coach_games_catalog` | `alembic upgrade 20261010_000001` en staging/prod (backup); migración aún importa `master_games` (P0 doc) |
+| 3     | PR C — Workspace compartido | B en `main`                                | ✅ **Mergeado** | [#162](https://github.com/cmessoftware/chessinsightai/pull/162) · `feature/11_131_coach_study_workspace` | — |
+| 4     | PR D — Navegación y FEN     | C en `main`                                | 🔄 **En rama** | `feature/11_132_coach_nav_fen` (PR pendiente) | CoachHome/Partidas/Importar/Position; FEN; SubNav; HITL navegación |
 | 5     | PR E — Documentación        | Independiente                            | ⬜ **No iniciado (split)** | Docs Lc0/Maia/Stockfish en #158 | PR solo docs; sin bloquear A–D |
 
 ### Qué falta para cerrar la integración del split #158
@@ -362,9 +362,9 @@ git worktree add ..\chessinsightai-pr-a main
 | PR | Rama | Estado | Notas |
 |---|---|---|---|
 | **A** | `feature/11_120_sv2_ply_persist` | ✅ **#159 MERGED** | SV-2: `20261009_*`, GET/PUT annotations, hook en `CoachGameAnalysisPage`; + FEAT-014 / BUG-015 UI |
-| **B** | `feature/11_130_coach_games_catalog` | 🔄 | Extraído de #158; GC-1–GC-3 backend + filtro ANALYSIS |
-| **C** | `feature/11_131_coach_study_workspace` (plan) | ⬜ | Solo en #158 monolito |
-| **D** | `feature/11_132_coach_nav_fen` (plan) | ⬜ | Solo en #158 monolito |
+| **B** | `feature/11_130_coach_games_catalog` | ✅ **#161 MERGED** | GC-1–GC-3; HITL local; `alembic upgrade 20261010_000001` en cada entorno |
+| **C** | `feature/11_131_coach_study_workspace` | ✅ **#162 MERGED** | CoachStudyWorkspace + CoachGameAnalysisPage |
+| **D** | `feature/11_132_coach_nav_fen` | 🔄 | SubNav, Inicio, Partidas, FEN, PgnImportPanel compartido |
 | **E** | docs | ⬜ | Extraer de #158 |
 | **Monolito** | `feature/11_120_ply_classification_persist` | 📌 **#158 OPEN** — aparte, sin merge | Cherry-pick fuente; tabla de hijas en descripción de #158 |
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { CssBaseline, Container } from '@mui/material'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -21,8 +21,13 @@ import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
 import AdminRolesPage from './pages/AdminRolesPage.jsx'
 import UnifiedImportPage from './pages/UnifiedImportPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
+import CoachHomePage from './pages/CoachHomePage.jsx'
+import CoachImportarPage from './pages/CoachImportarPage.jsx'
+import CoachPartidasPage from './pages/CoachPartidasPage.jsx'
 import CoachReviewPage from './pages/CoachReviewPage.jsx'
 import CoachGameAnalysisPage from './pages/CoachGameAnalysisPage.jsx'
+import CoachPositionPage from './pages/CoachPositionPage.jsx'
+import CoachPositionStudyPage from './pages/CoachPositionStudyPage.jsx'
 
 // Utilidades
 import { logger } from './utils/helpers.js'
@@ -121,10 +126,34 @@ function App() {
                   }
                 />
                 <Route
+                  path="/coach"
+                  element={
+                    <ProtectedRoute>
+                      <CoachHomePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/importar"
+                  element={
+                    <ProtectedRoute>
+                      <CoachImportarPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/partidas"
+                  element={
+                    <ProtectedRoute>
+                      <CoachPartidasPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/coach/import"
                   element={
                     <ProtectedRoute>
-                      <UnifiedImportPage />
+                      <Navigate to="/coach/importar" replace />
                     </ProtectedRoute>
                   }
                 />
@@ -133,6 +162,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <CoachJobsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/position"
+                  element={
+                    <ProtectedRoute>
+                      <CoachPositionPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/position/study"
+                  element={
+                    <ProtectedRoute>
+                      <CoachPositionStudyPage />
                     </ProtectedRoute>
                   }
                 />
