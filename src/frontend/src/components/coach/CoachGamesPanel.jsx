@@ -324,7 +324,7 @@ export default function CoachGamesPanel() {
                         ) : null,
                         !games.length ? (
                             <CoachStatusBadge key="empty-library" severity="info">
-                                Importá un PGN en <strong>Importar PGN</strong> o analizá con{' '}
+                                Importá partidas en <strong>Importar Partidas</strong> o analizá con{' '}
                                 <strong>Posición (FEN)</strong>.
                             </CoachStatusBadge>
                         ) : null,

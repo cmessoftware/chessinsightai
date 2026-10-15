@@ -13,11 +13,18 @@ export function parseApiDetail(err) {
 }
 
 export async function ingestPgn(pgnText, options = {}) {
-    const { corpusType = 'personal', source = 'pgn_upload' } = options
+    const {
+        corpusType = 'personal',
+        source = 'pgn_upload',
+        maxGames = null,
+    } = options
     const payload = {
         pgn_text: pgnText,
         corpus_type: corpusType,
         source,
+    }
+    if (maxGames != null) {
+        payload.max_games = maxGames
     }
     const { data } = await api.post('/api/v1/module07/ingest', payload)
     return data

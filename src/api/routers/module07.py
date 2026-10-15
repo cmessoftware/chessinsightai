@@ -63,7 +63,7 @@ class IngestBody(BaseModel):
     max_games: Optional[int] = Field(
         default=1,
         ge=1,
-        description="Cap games imported from a multi-game PGN (Coach default: first game only).",
+        description="Cap games imported from a multi-game PGN (Coach UI sends 100; default 1).",
     )
 
     @field_validator("player_username")

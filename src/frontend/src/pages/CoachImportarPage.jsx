@@ -33,7 +33,7 @@ export default function CoachImportarPage() {
             <CoachSubNav />
             <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
-                    Importar PGN
+                    Importar Partidas
                 </Typography>
                 <PgnImportPanel
                     corpusType={corpusType}

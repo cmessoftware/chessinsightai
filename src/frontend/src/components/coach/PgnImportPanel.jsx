@@ -3,11 +3,8 @@ import {
     Alert,
     Box,
     Button,
-    Checkbox,
     FormControl,
-    FormControlLabel,
     InputLabel,
-    Link,
     MenuItem,
     Select,
     TextField,
@@ -15,9 +12,12 @@ import {
 } from '@mui/material'
 import { CloudUpload } from '@mui/icons-material'
 import { useDropzone } from 'react-dropzone'
-import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ingestPgn } from '../../services/module07Service.js'
-import { pgnMultiGameImportNotice } from '../../utils/coachPgnImport.js'
+import {
+    COACH_PGN_IMPORT_MAX_GAMES,
+    pgnMultiGameImportNotice,
+} from '../../utils/coachPgnImport.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 
 async function readFileAsText(file) {
@@ -35,9 +35,6 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
     const [pgnFile, setPgnFile] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(null)
-    const [goToPartidasAfter, setGoToPartidasAfter] = useState(true)
-
     const resolvePgnText = async () => {
         if (pgnFile) {
             return readFileAsText(pgnFile)
@@ -51,7 +48,6 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
             return
         }
         setError(null)
-        setSuccess(null)
         setLoading(true)
         try {
             const text = (await resolvePgnText()).trim()
@@ -62,6 +58,7 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
             const result = await ingestPgn(text, {
                 corpusType,
                 source: 'pgn_upload',
+                maxGames: COACH_PGN_IMPORT_MAX_GAMES,
             })
             const imported = result.games || []
             const count = result.count ?? imported.length
@@ -93,21 +90,14 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                 return
             }
 
-            if (goToPartidasAfter) {
-                const dupNote =
-                    dupCount > 0 ? ` ${dupCount} ya existían (resaltadas).` : ''
-                const multiPrefix = multiNote ? `${multiNote} ` : ''
-                navigate(COACH_RETURN_PARTIDAS, {
-                    state: {
-                        message: `${multiPrefix}${newCount} nueva(s), ${count} en total.${dupNote} Elegí jugador y encolá análisis.`,
-                        ...partidasState,
-                    },
-                })
-            } else {
-                setSuccess(
-                    `Importadas ${count} partida(s) (${newCount} nueva(s)). Ver pestaña Partidas.`,
-                )
-            }
+            const dupNote = dupCount > 0 ? ` ${dupCount} ya existían (resaltadas).` : ''
+            const multiPrefix = multiNote ? `${multiNote} ` : ''
+            navigate(COACH_RETURN_PARTIDAS, {
+                state: {
+                    message: `${multiPrefix}${newCount} nueva(s), ${count} en total.${dupNote} Elegí jugador y encolá análisis.`,
+                    ...partidasState,
+                },
+            })
         } catch (err) {
             const detail = err.response?.data?.detail
             setError(
@@ -153,15 +143,6 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                     {String(error)}
                 </Alert>
             )}
-            {success && (
-                <Alert severity="success" sx={{ mb: 2 }}>
-                    {success}{' '}
-                    <Link component={RouterLink} to={COACH_RETURN_PARTIDAS}>
-                        Ir a Partidas
-                    </Link>
-                </Alert>
-            )}
-
             {corpusOptions.length > 1 && (
                 <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                     <InputLabel id="corpus-label">Tipo de corpus</InputLabel>
@@ -200,7 +181,7 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                 helperText={
                     pgnFile
                         ? 'Hay un archivo seleccionado: se importará el archivo (no el texto del cuadro).'
-                        : 'Si el archivo tiene varias partidas, se importa solo la primera.'
+                        : `Podés pegar o subir un PGN con varias partidas (hasta ${COACH_PGN_IMPORT_MAX_GAMES} por importación).`
                 }
                 sx={{ mb: 2, '& .MuiInputBase-input': { fontFamily: 'monospace', fontSize: 14 } }}
             />
@@ -235,17 +216,6 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                 )}
             </Box>
 
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        checked={goToPartidasAfter}
-                        onChange={(e) => setGoToPartidasAfter(e.target.checked)}
-                    />
-                }
-                label="Después de importar, ir a la pestaña Partidas para encolar análisis"
-                sx={{ mb: 1, alignItems: 'flex-start' }}
-            />
-
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button
                     variant="contained"
@@ -256,7 +226,7 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                     onClick={() => submitImport()}
                     sx={{ fontWeight: 700, letterSpacing: 0.5, px: 4, py: 1.25 }}
                 >
-                    {loading ? 'Importando…' : 'Importar partida'}
+                    {loading ? 'Importando…' : 'Importar partidas'}
                 </Button>
             </Box>
         </Box>
