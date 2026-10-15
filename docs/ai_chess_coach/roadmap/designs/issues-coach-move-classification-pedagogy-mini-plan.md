@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)  
-**Actualizado:** 2026-10-15  
+**Actualizado:** 2026-10-15 (FEAT-020/021 merged #169)  
 **Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)  
 **Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
 **Split monolito #158:** integrado en `main` (#159–#164); ver [pr_158_riesgos.md](../../pr_158_riesgos.md).
@@ -39,8 +39,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 | FEAT-017 | | Eliminar partidas desde Acciones (cola / biblioteca) | ✅ Done | [#167](https://github.com/cmessoftware/chessinsightai/pull/167) — DELETE + bulk-delete; badges de estado en Partidas |
 | FEAT-018 | | Análisis liviano **off** por defecto; icono power en **Motor** (sin WASM al entrar) | ✅ Done | [#166](https://github.com/cmessoftware/chessinsightai/pull/166) merged |
 | FEAT-019 | | Flechas ←/→ con foco en tablero (atrás/adelante en línea) | ✅ Done | [#168](https://github.com/cmessoftware/chessinsightai/pull/168) — `usePgnKeyboardNav` |
-| FEAT-020 | | Menú contextual PGN: copiar variante principal | 🔄 WIP | `feature/11_138_feat_020_copy_main_line_pgn` |
-| FEAT-021 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | 🔄 WIP | [#169](https://github.com/cmessoftware/chessinsightai/pull/169) — `formatTreePgnMovetext` |
+| FEAT-020 | | Menú contextual PGN: copiar variante principal | ✅ Done | [#169](https://github.com/cmessoftware/chessinsightai/pull/169) — `formatMainLinePgnMovetext` |
+| FEAT-021 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | ✅ Done | [#169](https://github.com/cmessoftware/chessinsightai/pull/169) — `formatTreePgnMovetext` |
 | FEAT-022 | | Mostrar FEN de la jugada actual bajo el tablero | ⬜ Todo | |
 | FEAT-023 | FEAT-22 | Botón copiar FEN al portapapeles | ⬜ Todo | |
 | FEAT-024 | FEAT-22 | Link FEN → `/coach/position` con posición cargada | ⬜ Todo | |
@@ -51,8 +51,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 
 | Estado | IDs |
 | ------ | --- |
-| ✅ Done | FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017/018/019 |
-| 🔄 WIP | BUG-12, FEAT-07, FEAT-020 |
-| ⬜ Todo | FEAT-021, FEAT-22…24, FEAT-025…026 |
+| ✅ Done | FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…021 |
+| 🔄 WIP | BUG-12, FEAT-07, FEAT-022 |
+| ⬜ Todo | FEAT-023…024, FEAT-025…026 |
 
-**Siguiente sugerido (orden):** FEAT-020/021 (copiar PGN) → FEAT-22…24 (FEN bajo tablero).
+**Siguiente sugerido (orden):** FEAT-022 (#170) → FEAT-023/024 (copiar FEN + link posición).
