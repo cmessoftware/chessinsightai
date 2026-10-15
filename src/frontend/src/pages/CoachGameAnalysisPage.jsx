@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { Link as RouterLink, useLocation, useParams } from 'react-router-dom'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
-const COACH_RETURN_JOBS = '/coach/jobs'
+import { COACH_RETURN_PARTIDAS } from '../components/coach/CoachSubNav.jsx'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
 import { saveCoachLastGameId } from '../utils/coachLastGameSession.js'
@@ -25,7 +25,7 @@ import {
 export default function CoachGameAnalysisPage() {
     const { gameId } = useParams()
     const location = useLocation()
-    const returnTo = location.state?.returnTo || COACH_RETURN_JOBS
+    const returnTo = location.state?.returnTo || COACH_RETURN_PARTIDAS
 
     const [gameMeta, setGameMeta] = useState(null)
     const [treeRoot, setTreeRoot] = useState(() => createEmptyRoot())
@@ -158,7 +158,7 @@ export default function CoachGameAnalysisPage() {
                                 <Button
                                     size="small"
                                     component={RouterLink}
-                                    to={COACH_RETURN_JOBS}
+                                    to={COACH_RETURN_PARTIDAS}
                                     sx={{ mt: 1, p: 0 }}
                                 >
                                     Ir a cola de análisis
@@ -190,9 +190,9 @@ export default function CoachGameAnalysisPage() {
             gameMeta={gameMeta}
             gameId={gameId}
             returnTo={returnTo}
-            backLabel="← Volver a Cola de análisis"
+            backLabel="← Volver a Coach — Partidas"
             importBanner={importBanner}
-            showCoachSubNav={false}
+            showCoachSubNav
             showMentalTab
             reviewCritical={
                 detail
