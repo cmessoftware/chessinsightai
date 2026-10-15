@@ -42,7 +42,7 @@ Esto dificulta:
 | P1        | El hash incluye encabezados PGN                                    | La misma partida importada desde fuentes diferentes puede no deduplicarse  | ⬜ **Abierto** — sin cambio en split actual |
 | P1        | Endpoint de reparación elimina filas                               | Falta `dry_run`, auditoría y confirmación explícita                        | ⬜ **Abierto** — entra con catálogo **PR B** |
 | P1        | CI verde solamente para Python                                     | No valida WASM, React, migraciones reales ni recorrido end-to-end          | 🟡 **Parcial** — P0-1 cubre frontend en PR funcionales; sin HITL automatizado ni GC-2 en CI |
-| P2        | Documentación de Lc0/Maia mezclada con el MVP                      | Aumenta el ruido de revisión sin aportar implementación ejecutable         | ⬜ **Abierto** — mover a **PR E** al hacer split docs |
+| P2        | Documentación de Lc0/Maia mezclada con el MVP                      | Aumenta el ruido de revisión sin aportar implementación ejecutable         | 🟡 **Mitigado** — mini-plans en **PR E** (`feature/11_133_coach_engine_docs`) |
 
 
 
@@ -217,16 +217,16 @@ Esto dificulta:
 | 1     | PR A — Persistencia por ply | Estado actual de `main`                  | ✅ **Mergeado** | [#159](https://github.com/cmessoftware/chessinsightai/pull/159) · `feature/11_120_sv2_ply_persist` | `alembic upgrade 20261009_000002` en entornos que aún no migraron |
 | 2     | PR B — Catálogo y migración | PR A integrada o migraciones coordinadas | ✅ **Mergeado** | [#161](https://github.com/cmessoftware/chessinsightai/pull/161) · `feature/11_130_coach_games_catalog` | `alembic upgrade 20261010_000001` en staging/prod (backup); migración aún importa `master_games` (P0 doc) |
 | 3     | PR C — Workspace compartido | B en `main`                                | ✅ **Mergeado** | [#162](https://github.com/cmessoftware/chessinsightai/pull/162) · `feature/11_131_coach_study_workspace` | — |
-| 4     | PR D — Navegación y FEN     | C en `main`                                | 🔄 **En rama** | `feature/11_132_coach_nav_fen` (PR pendiente) | CoachHome/Partidas/Importar/Position; FEN; SubNav; HITL navegación |
-| 5     | PR E — Documentación        | Independiente                            | ⬜ **No iniciado (split)** | Docs Lc0/Maia/Stockfish en #158 | PR solo docs; sin bloquear A–D |
+| 4     | PR D — Navegación y FEN     | C en `main`                                | ✅ **Mergeado** | [#163](https://github.com/cmessoftware/chessinsightai/pull/163) · `feature/11_132_coach_nav_fen` | — |
+| 5     | PR E — Documentación        | Independiente                            | 🔄 **En rama** | `feature/11_133_coach_engine_docs` (PR pendiente) | Arquitectura async + mini-plans SF/Maia/Lc0; Phase 2 index |
 
 ### Qué falta para cerrar la integración del split #158
 
 1. ~~**Cerrar PR A:** merge #159 → `main`.~~ **Hecho.** Migraciones `20261009_*` en prod/staging según checklist.
 2. **Publicar PR B–E:** ramas desde `main` post-A (no desde el monolito mezclado); cherry-pick selectivo desde `feature/11_120_ply_classification_persist` / #158.
-3. **Integrar B → C → D** en ese orden (`alembic upgrade head` tras **B** con backup).
-4. **PR E** en paralelo cuando convenga.
-5. **#158 aparte:** permanece **abierta sin merge**; descripción con tabla de PRs hijas (#159 ✅). Al abrir B–E: línea **«Extraído de #158»** + actualizar tabla en #158. Cerrar #158 cuando B–E estén en `main` (opcional).
+3. ~~**Integrar B → C → D** en ese orden~~ **Hecho** (`alembic upgrade head` tras **B** con backup en cada entorno).
+4. **PR E** — docs motores (rama `feature/11_133_coach_engine_docs`); merge sin código producto.
+5. **#158 aparte:** cerrar cuando **E** esté en `main` (opcional tag `backup/pr-158-*` en monolito).
 6. **Opcional recomendado:** tag `backup/pr-158-<fecha>` en el tip del monolito antes de dejar de usarlo como fuente.
 
 **Fuera del split pero ya en rama A:** FEAT-014 (girar tablero) y BUG-015 (numeración PGN en nav) en `feature/11_120_sv2_ply_persist` — van con el merge de #159, no requieren PR aparte.
@@ -364,7 +364,7 @@ git worktree add ..\chessinsightai-pr-a main
 | **A** | `feature/11_120_sv2_ply_persist` | ✅ **#159 MERGED** | SV-2: `20261009_*`, GET/PUT annotations, hook en `CoachGameAnalysisPage`; + FEAT-014 / BUG-015 UI |
 | **B** | `feature/11_130_coach_games_catalog` | ✅ **#161 MERGED** | GC-1–GC-3; HITL local; `alembic upgrade 20261010_000001` en cada entorno |
 | **C** | `feature/11_131_coach_study_workspace` | ✅ **#162 MERGED** | CoachStudyWorkspace + CoachGameAnalysisPage |
-| **D** | `feature/11_132_coach_nav_fen` | 🔄 | SubNav, Inicio, Partidas, FEN, PgnImportPanel compartido |
-| **E** | docs | ⬜ | Extraer de #158 |
+| **D** | `feature/11_132_coach_nav_fen` | ✅ **#163 MERGED** | SubNav, Inicio, Partidas, FEN, PgnImportPanel compartido |
+| **E** | `feature/11_133_coach_engine_docs` | 🔄 | Arquitectura + AS/LZ/MA mini-plans; roadmap Phase 2 |
 | **Monolito** | `feature/11_120_ply_classification_persist` | 📌 **#158 OPEN** — aparte, sin merge | Cherry-pick fuente; tabla de hijas en descripción de #158 |
 
