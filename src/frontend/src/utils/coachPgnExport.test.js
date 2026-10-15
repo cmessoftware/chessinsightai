@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
 import { createEmptyRoot } from './coachVariationTree.js'
-import { formatMainLinePgnMovetext } from './coachPgnExport.js'
+import { formatMainLinePgnMovetext, formatTreePgnMovetext } from './coachPgnExport.js'
 
 function buildMainLineRoot(sans) {
     const chess = new Chess()
@@ -36,5 +36,25 @@ describe('formatMainLinePgnMovetext', () => {
     it('returns empty for root only', () => {
         const root = createEmptyRoot()
         expect(formatMainLinePgnMovetext(root)).toBe('')
+    })
+})
+
+describe('formatTreePgnMovetext', () => {
+    it('includes sibling branches in parentheses', () => {
+        const root = buildMainLineRoot(['e4', 'e5', 'Nf3'])
+        const afterE4 = root.children[0]
+        afterE4.children.push({
+            id: 'alt-c5',
+            san: 'c5',
+            uci: 'c7c5',
+            fen: 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
+            fromGame: false,
+            children: [],
+        })
+        const text = formatTreePgnMovetext(root)
+        expect(text).toContain('1. e4')
+        expect(text).toContain('(1... c5)')
+        expect(text).toContain('e5')
+        expect(text).toContain('2. Nf3')
     })
 })

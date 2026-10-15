@@ -5,6 +5,7 @@ import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import {
     copyTextToClipboard,
     formatMainLinePgnMovetext,
+    formatTreePgnMovetext,
 } from '../../utils/coachPgnExport.js'
 import { formatClassificationProgressLabel } from '../../utils/coachEngineLabels.js'
 import {
@@ -483,9 +484,24 @@ export default function CoachPgnMoveList({
         closeMoveMenu()
     }, [treeRoot, mainLineResult])
 
+    const handleCopyWithVariations = useCallback(async () => {
+        const text = formatTreePgnMovetext(treeRoot, { result: mainLineResult })
+        if (!text) {
+            closeMoveMenu()
+            return
+        }
+        try {
+            await copyTextToClipboard(text)
+        } catch {
+            /* clipboard denied */
+        }
+        closeMoveMenu()
+    }, [treeRoot, mainLineResult])
+
     const menuCanTruncate = moveMenu?.canTruncate
     const menuCanDeleteBranch = moveMenu?.canDeleteBranch
     const canCopyMainLine = Boolean(formatMainLinePgnMovetext(treeRoot))
+    const canCopyWithVariations = Boolean(formatTreePgnMovetext(treeRoot))
 
     const atStart = cursorPath.length === 0
     const showLegend = Boolean(classificationByPathKey)
@@ -675,6 +691,17 @@ export default function CoachPgnMoveList({
                     >
                         <ContentCopy fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />
                         Copiar variante principal
+                    </MenuItem>
+                )}
+                {canCopyWithVariations && (
+                    <MenuItem
+                        sx={(theme) => pgnMoveTextSx(theme)}
+                        onClick={() => {
+                            void handleCopyWithVariations()
+                        }}
+                    >
+                        <ContentCopy fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />
+                        Copiar PGN con variantes
                     </MenuItem>
                 )}
                 {menuCanTruncate && (

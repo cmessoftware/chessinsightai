@@ -40,7 +40,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 | FEAT-018 | | Análisis liviano **off** por defecto; icono power en **Motor** (sin WASM al entrar) | ✅ Done | [#166](https://github.com/cmessoftware/chessinsightai/pull/166) merged |
 | FEAT-019 | | Flechas ←/→ con foco en tablero (atrás/adelante en línea) | ✅ Done | [#168](https://github.com/cmessoftware/chessinsightai/pull/168) — `usePgnKeyboardNav` |
 | FEAT-020 | | Menú contextual PGN: copiar variante principal | 🔄 WIP | `feature/11_138_feat_020_copy_main_line_pgn` |
-| FEAT-021 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | ⬜ Todo | |
+| FEAT-021 | FEAT-20 | Menú contextual PGN: copiar PGN con variantes | 🔄 WIP | [#169](https://github.com/cmessoftware/chessinsightai/pull/169) — `formatTreePgnMovetext` |
 | FEAT-022 | | Mostrar FEN de la jugada actual bajo el tablero | ⬜ Todo | |
 | FEAT-023 | FEAT-22 | Botón copiar FEN al portapapeles | ⬜ Todo | |
 | FEAT-024 | FEAT-22 | Link FEN → `/coach/position` con posición cargada | ⬜ Todo | |

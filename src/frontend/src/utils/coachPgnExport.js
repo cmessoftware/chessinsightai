@@ -1,4 +1,55 @@
-import { mainLineMovesFromTree } from './coachVariationTree.js'
+import { mainLineMovesFromTree, moveNumberFromPlyCount } from './coachVariationTree.js'
+
+function sideToMove(fen) {
+    return (fen.split(/\s+/)[1] || 'w').toLowerCase()
+}
+
+function appendResult(text, result) {
+    const trimmedResult = typeof result === 'string' ? result.trim() : ''
+    if (!trimmedResult || trimmedResult === '*') return text
+    return `${text} ${trimmedResult}`
+}
+
+/** White move or black starting a variation segment (`1... c5`). */
+function formatMoveToken(fen, san, plyBefore) {
+    const stm = sideToMove(fen)
+    const moveNum = moveNumberFromPlyCount(plyBefore + 1)
+    if (stm === 'w') return `${moveNum}. ${san}`
+    return `${moveNum}... ${san}`
+}
+
+function serializeFromChild(parent, childIndex, plyBefore) {
+    const child = parent?.children?.[childIndex]
+    if (!child) return ''
+
+    const chunks = []
+    let cur = child
+    let ply = plyBefore + 1
+    chunks.push(formatMoveToken(parent.fen, cur.san, plyBefore))
+
+    while (cur.children?.length > 0) {
+        for (let i = 1; i < cur.children.length; i += 1) {
+            const nested = serializeFromChild(cur, i, ply)
+            if (nested) chunks.push(`(${nested})`)
+        }
+        const next = cur.children[0]
+        if (sideToMove(cur.fen) === 'w') {
+            chunks.push(formatMoveToken(cur.fen, next.san, ply))
+        } else {
+            chunks.push(next.san)
+        }
+        cur = next
+        ply += 1
+    }
+
+    return chunks.join(' ')
+}
+
+/** Movetext with nested `( )` variations (all branches in the tree). */
+export function formatTreePgnMovetext(root, { result = null } = {}) {
+    if (!root?.children?.length) return ''
+    return appendResult(serializeFromChild(root, 0, 0), result)
+}
 
 /** Standard movetext for the main line (children[0] only), e.g. `1. e4 e5 2. Nf3`. */
 export function formatMainLinePgnMovetext(root, { result = null } = {}) {
@@ -15,12 +66,7 @@ export function formatMainLinePgnMovetext(root, { result = null } = {}) {
         }
     }
 
-    let text = parts.join(' ')
-    const trimmedResult = typeof result === 'string' ? result.trim() : ''
-    if (trimmedResult && trimmedResult !== '*') {
-        text = `${text} ${trimmedResult}`
-    }
-    return text
+    return appendResult(parts.join(' '), result)
 }
 
 export async function copyTextToClipboard(text) {
