@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-    Alert,
     Box,
     Button,
     Checkbox,
@@ -20,11 +19,14 @@ import {
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import {
     createAnalysisJob,
+    deleteCoachGame,
+    deleteCoachGames,
     listGames,
     listJobs,
     parseApiDetail,
 } from '../../services/module07Service.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
+import { CoachStatusBadge, CoachStatusBadgeRow } from './coachPanelStatus.jsx'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -66,6 +68,11 @@ function canOpenReview(game, jobStatusById) {
     return jobStatusForGame(game, jobStatusById) === 'completed'
 }
 
+function canDeleteGame(game, jobStatusById) {
+    const st = jobStatusForGame(game, jobStatusById)
+    return st !== 'pending' && st !== 'running'
+}
+
 function isClientAnalyzed(game) {
     return Boolean(game.client_analyzed || (game.client_analysis_ply_count ?? 0) > 0)
 }
@@ -93,6 +100,7 @@ export default function CoachGamesPanel() {
     const [playerHandle, setPlayerHandle] = useState('')
     const [selectedIds, setSelectedIds] = useState(() => new Set())
     const [analyzing, setAnalyzing] = useState(false)
+    const [deleting, setDeleting] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
 
     const jobStatusById = useMemo(() => {
@@ -180,11 +188,59 @@ export default function CoachGamesPanel() {
         })
     }
 
-    const toggleAllQueueable = () => {
-        if (selectedIds.size === queueableGames.length) {
+    const toggleAllGames = () => {
+        if (selectedIds.size === games.length) {
             setSelectedIds(new Set())
         } else {
-            setSelectedIds(new Set(queueableGames.map((g) => g.id)))
+            setSelectedIds(new Set(games.map((g) => g.id)))
+        }
+    }
+
+    const selectedQueueableIds = useMemo(
+        () => [...selectedIds].filter((id) => queueableGames.some((g) => g.id === id)),
+        [selectedIds, queueableGames],
+    )
+
+    const handleDeleteGames = async (ids) => {
+        const unique = [...new Set(ids)].filter(Boolean)
+        if (!unique.length) return
+        const msg =
+            unique.length === 1
+                ? '¿Eliminar esta partida de tu biblioteca Coach? Se borran análisis liviano y decisiones asociadas.'
+                : `¿Eliminar ${unique.length} partidas de tu biblioteca Coach?`
+        if (!window.confirm(msg)) return
+        setDeleting(true)
+        try {
+            let deletedCount = unique.length
+            let bulkResult = null
+            if (unique.length === 1) {
+                await deleteCoachGame(unique[0])
+            } else {
+                bulkResult = await deleteCoachGames(unique)
+                deletedCount = bulkResult.deleted?.length ?? 0
+                if (bulkResult.blocked?.length) {
+                    setError(
+                        `${deletedCount} eliminada(s); ${bulkResult.blocked.length} con job activo (pendiente/en ejecución).`,
+                    )
+                }
+            }
+            setSelectedIds((prev) => {
+                const next = new Set(prev)
+                for (const id of unique) next.delete(id)
+                return next
+            })
+            await refresh()
+            if (deletedCount > 0 && (unique.length === 1 || !bulkResult?.blocked?.length)) {
+                setInfo(
+                    deletedCount === 1
+                        ? 'Partida eliminada.'
+                        : `${deletedCount} partida(s) eliminada(s).`,
+                )
+            }
+        } catch (err) {
+            setError(parseApiDetail(err))
+        } finally {
+            setDeleting(false)
         }
     }
 
@@ -230,34 +286,54 @@ export default function CoachGamesPanel() {
 
     return (
         <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: 1,
+                    flexWrap: 'wrap',
+                    mb: 2,
+                }}
+            >
+                <CoachStatusBadgeRow
+                    badges={[
+                        failedJobCount > 0 ? (
+                            <CoachStatusBadge key="failed-jobs" severity="warning">
+                                Jobs en <strong>failed</strong> son historial; usá{' '}
+                                <strong>Reintentar</strong> (jugador = nombre del PGN).
+                            </CoachStatusBadge>
+                        ) : null,
+                        info ? (
+                            <CoachStatusBadge
+                                key="info"
+                                severity="success"
+                                onDismiss={() => setInfo(null)}
+                            >
+                                {info}
+                            </CoachStatusBadge>
+                        ) : null,
+                        error ? (
+                            <CoachStatusBadge
+                                key="error"
+                                severity="error"
+                                onDismiss={() => setError(null)}
+                            >
+                                {String(error)}
+                            </CoachStatusBadge>
+                        ) : null,
+                        !games.length ? (
+                            <CoachStatusBadge key="empty-library" severity="info">
+                                Importá un PGN en <strong>Importar PGN</strong> o analizá con{' '}
+                                <strong>Posición (FEN)</strong>.
+                            </CoachStatusBadge>
+                        ) : null,
+                    ]}
+                />
                 <Button variant="outlined" size="small" onClick={refresh} disabled={refreshing}>
                     {refreshing ? 'Actualizando…' : 'Actualizar'}
                 </Button>
             </Box>
-            {failedJobCount > 0 && (
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                    Jobs en <strong>failed</strong> son historial; usá <strong>Reintentar</strong>{' '}
-                    (jugador = nombre del PGN).
-                </Alert>
-            )}
-            {info && (
-                <Alert severity="success" sx={{ mb: 2 }} onClose={() => setInfo(null)}>
-                    {info}
-                </Alert>
-            )}
-            {error && (
-                <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-                    {String(error)}
-                </Alert>
-            )}
-            {!games.length && (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                    Importá un PGN en la pestaña{' '}
-                    <strong>Importar PGN</strong> o analizá una posición con{' '}
-                    <strong>Posición (FEN)</strong>.
-                </Alert>
-            )}
             <Paper sx={{ mb: 3 }}>
                 <Table size="small">
                     <TableHead>
@@ -325,9 +401,11 @@ export default function CoachGamesPanel() {
                         </Select>
                     </FormControl>
                 ) : (
-                    <Alert severity="info" sx={{ mb: 2 }}>
-                        No hay partidas pendientes o con job fallido para analizar.
-                    </Alert>
+                    <Box sx={{ mb: 2 }}>
+                        <CoachStatusBadge severity="info">
+                            No hay partidas pendientes o con job fallido para analizar.
+                        </CoachStatusBadge>
+                    </Box>
                 )}
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                     <Button
@@ -335,9 +413,11 @@ export default function CoachGamesPanel() {
                         disabled={
                             analyzing || !queueableGames.length || selectedIds.size === 0
                         }
-                        onClick={() => runAnalysis([...selectedIds])}
+                        onClick={() => runAnalysis(selectedQueueableIds)}
                     >
-                        {analyzing ? 'Encolando…' : `Analizar selección (${selectedIds.size})`}
+                        {analyzing
+                            ? 'Encolando…'
+                            : `Analizar selección (${selectedQueueableIds.length})`}
                     </Button>
                     <Button
                         variant="outlined"
@@ -345,6 +425,16 @@ export default function CoachGamesPanel() {
                         onClick={() => runAnalysis(queueableGames.map((g) => g.id))}
                     >
                         Analizar todas ({queueableGames.length})
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        disabled={deleting || selectedIds.size === 0}
+                        onClick={() => handleDeleteGames([...selectedIds])}
+                    >
+                        {deleting
+                            ? 'Eliminando…'
+                            : `Eliminar selección (${selectedIds.size})`}
                     </Button>
                 </Box>
             </Paper>
@@ -356,14 +446,14 @@ export default function CoachGamesPanel() {
                                 <Checkbox
                                     indeterminate={
                                         selectedIds.size > 0 &&
-                                        selectedIds.size < queueableGames.length
+                                        selectedIds.size < games.length
                                     }
                                     checked={
-                                        queueableGames.length > 0 &&
-                                        selectedIds.size === queueableGames.length
+                                        games.length > 0 &&
+                                        selectedIds.size === games.length
                                     }
-                                    disabled={!queueableGames.length}
-                                    onChange={toggleAllQueueable}
+                                    disabled={!games.length}
+                                    onChange={toggleAllGames}
                                 />
                             </TableCell>
                             <TableCell>Blancas</TableCell>
@@ -393,7 +483,6 @@ export default function CoachGamesPanel() {
                                     <TableCell padding="checkbox">
                                         <Checkbox
                                             checked={selectedIds.has(g.id)}
-                                            disabled={!queueable}
                                             onChange={() => toggleGame(g.id)}
                                         />
                                     </TableCell>
@@ -481,6 +570,17 @@ export default function CoachGamesPanel() {
                                                     : 'Analizar'}
                                             </Button>
                                         )}
+                                        <Button
+                                            size="small"
+                                            color="error"
+                                            sx={{ ml: 1 }}
+                                            disabled={
+                                                deleting || !canDeleteGame(g, jobStatusById)
+                                            }
+                                            onClick={() => handleDeleteGames([g.id])}
+                                        >
+                                            Eliminar
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             )

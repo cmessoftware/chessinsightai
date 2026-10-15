@@ -29,6 +29,8 @@ from modules.module07.repository import (
     list_jobs,
     list_ply_annotations_for_game,
     replace_ply_annotations_for_game,
+    delete_coach_game,
+    delete_coach_games,
 )
 from modules.module07.worker import run_analysis_job
 from modules.game_import.coach_catalog import (
@@ -307,6 +309,39 @@ def repair_coach_catalog(request: Request, db: Session = Depends(get_db)):
 def get_games(request: Request, db: Session = Depends(get_db)):
     owner = _owner_id(request)
     return {"games": [_game_json(r) for r in list_games(db, owner)]}
+
+
+class BulkDeleteGamesBody(BaseModel):
+    game_ids: list[str] = Field(..., min_length=1)
+
+
+@router.delete("/games/{game_id}")
+def delete_game_by_id(
+    game_id: str, request: Request, db: Session = Depends(get_db)
+):
+    owner = _owner_id(request)
+    try:
+        ok = delete_coach_game(db, game_id, owner)
+    except ValueError as exc:
+        if str(exc) == "cannot_delete_while_job_active":
+            raise HTTPException(
+                status_code=409,
+                detail="No se puede borrar mientras el job Stockfish está pendiente o en ejecución.",
+            ) from exc
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not ok:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return {"deleted": game_id}
+
+
+@router.post("/games/bulk-delete")
+def bulk_delete_games(
+    body: BulkDeleteGamesBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    owner = _owner_id(request)
+    return delete_coach_games(db, body.game_ids, owner)
 
 
 @router.get("/games/{game_id}")
