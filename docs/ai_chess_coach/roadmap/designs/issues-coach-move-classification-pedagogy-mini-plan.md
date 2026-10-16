@@ -18,6 +18,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 
 <!-- Tablas en HTML: Markdown Preview Enhanced (extended table) rompe pipe tables con celdas vacías. -->
 
+## Features y bug de UI 
 <table>
 <thead>
 <tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
@@ -51,11 +52,54 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-024</td><td>FEAT-22</td><td>Link FEN → <code>/coach/position</code> con posición cargada</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/172">#172</a></td></tr>
 <tr><td>FEAT-025</td><td></td><td>Importar Partidas: importación masiva PGN (texto/archivo, máx. 100); 1 partida → análisis; &gt;1 → Partidas</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/173">#173</a> — HITL</td></tr>
 <tr><td>FEAT-026</td><td></td><td>Iconos Acciones: <a href="../../img/ver.png">VER</a> / <a href="../../img/analizar.png">ANALIZAR</a> / <a href="../../img/eliminar.png">ELIMINAR</a></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/174">#174</a> — HITL; <a href="https://github.com/cmessoftware/chessinsightai/pull/175">#175</a> tracker</td></tr>
-<tr><td>FEAT-027</td><td></td><td>Importación masiva desde Lichess</td><td>🔄 WIP</td><td><code>feature/11_146_feat_027_lichess_bulk_import</code> — config por usuario, lotes 200, token opcional, alias POV, cursor/resume</td></tr>
-<tr><td>FEAT-028</td><td></td><td>Importación masiva desde Chess.com</td><td>⬜ Todo</td><td>Igual FEAT-027 adaptado a Chess.com (usuario, fechas, ritmo; lotes 200; reinicio API; alias POV; rollback).</td></tr>
+<tr><td>FEAT-027</td><td></td><td>Importación masiva desde Lichess</td><td>✅ Done</td><td>HITL — <a href="https://github.com/cmessoftware/chessinsightai/pull/176">#176</a> merged; hardening alias POV / nav en PR follow-up</td></tr>
+<tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>🔄 WIP</td><td><code>feature/11_149_feat_028_chesscom_bulk_import</code></td></tr>
 <tr><td>FEAT-029</td><td></td><td>Cambio de usuario POV en todas las partidas (bulk)</td><td>⬜ Todo</td><td>Preservar usuario original para rollback.</td></tr>
+<tr><td>FEAT-030</td><td></td><td>Importación masiva desde Chess.com</td><td>⬜ Todo</td><td>Igual FEAT-027 adaptado a Chess.com (usuario, fechas, ritmo; lotes 200; reinicio API; alias POV; rollback).</td></tr>
+<tr><td>FEAT-031</td><td></td><td>Mover sidebar de menu horizonal a vertical en la izquierda con icono de sanguche para colapsar, soporte responsive</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-032</td><td>FEAT-019 / FEAT-020</td><td>Modificar, al copiar PGN copiar tambien el emcabezado del mismo</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-033</td><td></td><td>En tabla partidas agregar ritmo (Blitz,Rapid,Classic,Correspondence, Unknow)</td><td>✅ Done</td><td>HITL — <code>feature/11_147_feat_033_partidas_ritmo</code>; <code>CoachGamesPanel</code> + <code>coachSpeedClassLabel</code></td></tr>
+<tr><td>FEAT-034</td><td>FEAT-027</td><td>Por defecto no migrar: Cant movimientos<=10 excepto si son analiss de posiciones que no empiezan de la posicion inicial, en ese caso marcar Fuente=Estudio</td><td>⬜ Todo</td><td></td></tr>
+</tbody>
+<tr><td>FEAT-034</td><td></td><td>En tabla partidas agregar campo Fuente (corpus_type de tabla module07_games</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-035</td><td></td><td>En tablero de analisis mostrar arriba y abajo según corresponda al color mini iconos de las piezas ya retiradas del tablero, adaptar si se gira el tablero.</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-036</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td>HITL — <code>formatCoachGameSubtitle</code>; API <code>time_control</code></td></tr>
+<tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar item del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code> — selección inicial/import una sola vez</td></tr>
+<tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posicion FEN desde la imagen de un tablero</td><td></td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posicion FEN desde drag&drop de iconos de piezas externas al tablero, permitir posiciones ilegales</td><td></td><td>⬜ Todo</td><td></td></tr>
+</table>
+
+
+
+
+
+
+## Features y bugs de login
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>LOG-FEAT-01</td><td></td><td>Soporte para login con usuario de google</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>LOG-FEAT-02</td><td></td><td>Soporte para login con usuario de chess.com</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de lichess</td><td>⬜ Todo</td><td></td></tr>
 </tbody>
 </table>
+
+## Features y bugs de estructura de tablas
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>DB-FEAT-01</td><td></td><td>cambiar tabla module07_games por coach_games</td><td>✅ Done</td><td>Actualizar referencias en codigo python </td></tr>
+<tr><td>DB-FEAT-02</td><td></td><td>cambiar tabla module07_decision_points por coach_decision_points</td><td>⬜ Todo</td><td>Actualizar referencias en codigo python </td></tr>
+<tr><td>DB-FEAT-03</td><td></td><td>cambiar tabla module07_analysis_jobs por coach_analysis_jobs</td><td>⬜ Todo</td><td>Actualizar referencias en codigo python </td></tr>
+<tr><td>DB-FEAT-04</td><td></td><td>cambiar tabla module07_ply_annotations por coach_ply_annotations</td><td>⬜ Todo</td><td>Actualizar referencias en codigo python </td></tr>
+</tbody>
+</tbody>
+</table>
+
 
 ### Resumen backlog
 
@@ -64,10 +108,10 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…026</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-027</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-028…029</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…026, FEAT-033/036</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-028</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-029…</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-027 (import Lichess) → FEAT-028 (Chess.com) → FEAT-029 (bulk POV).
+**Siguiente sugerido (orden):** FEAT-028 (Chess.com) → FEAT-029 (bulk POV).

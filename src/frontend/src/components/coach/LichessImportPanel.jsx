@@ -18,7 +18,28 @@ import {
     runLichessImport,
     saveLichessImportSettings,
 } from '../../services/module07Service.js'
+import { useAuth } from '../../hooks/useAuth.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
+
+function normalizePlayerAlias(alias, lichessUsername, appUsername) {
+    const a = (alias || '').trim()
+    if (!a) return null
+    const lichess = (lichessUsername || '').trim()
+    const app = (appUsername || '').trim()
+    if (lichess && a.toLowerCase() === lichess.toLowerCase()) return null
+    if (app && a.toLowerCase() === app.toLowerCase()) return null
+    return a
+}
+
+/** Evita la barra gris de autofill del navegador (login) sobre inputs del formulario. */
+const noLoginAutofillSx = {
+    '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
+        WebkitBoxShadow: '0 0 0 100px rgb(255, 255, 255) inset',
+        WebkitTextFillColor: 'rgba(0, 0, 0, 0.87)',
+        caretColor: 'rgba(0, 0, 0, 0.87)',
+        transition: 'background-color 99999s ease-out 0s',
+    },
+}
 
 const PERF_OPTIONS = [
     { value: 'ultraBullet', label: 'UltraBullet' },
@@ -63,6 +84,8 @@ function navigateAfterImport(navigate, result) {
 
 export default function LichessImportPanel({ corpusType }) {
     const navigate = useNavigate()
+    const { user } = useAuth()
+    const appUsername = user?.username || ''
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [importing, setImporting] = useState(false)
@@ -96,7 +119,9 @@ export default function LichessImportPanel({ corpusType }) {
                     : PERF_OPTIONS.map((o) => o.value),
             )
             setBatchSize(s.batch_size || 200)
-            setPlayerAlias(s.player_alias || '')
+            setPlayerAlias(
+                normalizePlayerAlias(s.player_alias, s.lichess_username, appUsername) || '',
+            )
             setHasStoredToken(Boolean(s.has_api_token))
             setTokenHint(s.api_token_hint || null)
             setImportComplete(Boolean(s.last_cursor?.completed))
@@ -105,7 +130,7 @@ export default function LichessImportPanel({ corpusType }) {
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [appUsername])
 
     useEffect(() => {
         loadSettings()
@@ -128,13 +153,20 @@ export default function LichessImportPanel({ corpusType }) {
                 until_date: untilDate.trim() || null,
                 perf_types: perfTypes,
                 batch_size: Number(batchSize) || 200,
-                player_alias: playerAlias.trim() || null,
+                player_alias: normalizePlayerAlias(
+                    playerAlias,
+                    lichessUsername,
+                    appUsername,
+                ),
                 clear_api_token: clearToken,
             }
             if (apiToken.trim()) {
                 body.api_token = apiToken.trim()
             }
             const s = await saveLichessImportSettings(body)
+            setPlayerAlias(
+                normalizePlayerAlias(s.player_alias, s.lichess_username, appUsername) || '',
+            )
             setHasStoredToken(Boolean(s.has_api_token))
             setTokenHint(s.api_token_hint || null)
             setApiToken('')
@@ -162,7 +194,11 @@ export default function LichessImportPanel({ corpusType }) {
                 until_date: untilDate.trim() || null,
                 perf_types: perfTypes,
                 batch_size: Number(batchSize) || 200,
-                player_alias: playerAlias.trim() || null,
+                player_alias: normalizePlayerAlias(
+                    playerAlias,
+                    lichessUsername,
+                    appUsername,
+                ),
                 reset_cursor: resetCursor,
             })
             const result = await runLichessImport({
@@ -196,9 +232,13 @@ export default function LichessImportPanel({ corpusType }) {
     }
 
     return (
-        <Box>
+        <Box
+            component="form"
+            autoComplete="off"
+            onSubmit={(e) => e.preventDefault()}
+        >
             {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" sx={{ mb: 2, wordBreak: 'break-word' }}>
                     {error}
                 </Alert>
             )}
@@ -214,7 +254,12 @@ export default function LichessImportPanel({ corpusType }) {
                 label="Usuario Lichess"
                 value={lichessUsername}
                 onChange={(e) => setLichessUsername(e.target.value)}
-                sx={{ mb: 2 }}
+                sx={{ mb: 2, ...noLoginAutofillSx }}
+                inputProps={{
+                    autoComplete: 'off',
+                    name: 'coach_lichess_handle',
+                    id: 'coach-lichess-handle',
+                }}
             />
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
                 <TextField
@@ -266,10 +311,17 @@ export default function LichessImportPanel({ corpusType }) {
                 fullWidth
                 size="small"
                 label="Alias POV (opcional)"
-                helperText="Reemplaza tu usuario Lichess en [White]/[Black] al importar; el original queda en provenance para rollback (FEAT-029)."
+                helperText="Opcional: otro nombre en [White]/[Black]. No uses tu login de Chess Trainer (p. ej. admin); el POV por defecto es el usuario Lichess de arriba."
                 value={playerAlias}
                 onChange={(e) => setPlayerAlias(e.target.value)}
-                sx={{ mb: 2 }}
+                sx={{ mb: 2, ...noLoginAutofillSx }}
+                inputProps={{
+                    autoComplete: 'off',
+                    name: 'coach_lichess_pov_alias',
+                    id: 'coach-lichess-pov-alias',
+                    'data-1p-ignore': 'true',
+                    'data-lpignore': 'true',
+                }}
             />
 
             <TextField
@@ -284,7 +336,14 @@ export default function LichessImportPanel({ corpusType }) {
                 }
                 value={apiToken}
                 onChange={(e) => setApiToken(e.target.value)}
-                sx={{ mb: 1 }}
+                sx={{ mb: 1, ...noLoginAutofillSx }}
+                inputProps={{
+                    autoComplete: 'new-password',
+                    name: 'coach_lichess_api_token',
+                    id: 'coach-lichess-api-token',
+                    'data-1p-ignore': 'true',
+                    'data-lpignore': 'true',
+                }}
             />
             <FormControlLabel
                 control={
