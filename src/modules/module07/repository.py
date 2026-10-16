@@ -43,12 +43,18 @@ def create_games_from_ingest(
     corpus_type: str = "personal",
     source: str = "pgn",
     imported_by: str | None = None,
+    import_provenance: list[dict[str, Any] | None] | None = None,
 ) -> tuple[list[CoachGame], list[bool]]:
     rows: list[CoachGame] = []
     is_new_flags: list[bool] = []
     now = datetime.now(timezone.utc)
     catalog_user = (imported_by or "").strip() or str(owner_user_id)
-    for item in parsed_games:
+    for index, item in enumerate(parsed_games):
+        prov = (
+            import_provenance[index]
+            if import_provenance and index < len(import_provenance)
+            else None
+        )
         master_id = master_game_id_from_pgn(item.pgn)
         prior_master = (
             db.query(Games).filter(Games.game_id == master_id).first()
@@ -69,10 +75,15 @@ def create_games_from_ingest(
             )
             .first()
         )
+        speed = getattr(item, "speed_class", "unknown")
+        if prov and prov.get("speed_class"):
+            speed = str(prov["speed_class"])
         if existing:
             existing.master_game_id = master_id
             existing.last_imported_at = now
-            existing.speed_class = getattr(item, "speed_class", existing.speed_class)
+            existing.speed_class = speed
+            if prov:
+                existing.import_provenance = prov
             if pgn_changed:
                 _clear_client_analysis(db, existing)
             rows.append(existing)
@@ -87,8 +98,9 @@ def create_games_from_ingest(
             player_color=item.player_color,
             source=source,
             corpus_type=corpus_type,
-            speed_class=getattr(item, "speed_class", "unknown"),
+            speed_class=speed,
             last_imported_at=now,
+            import_provenance=prov,
         )
         db.add(row)
         rows.append(row)

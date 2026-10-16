@@ -1,0 +1,14 @@
+---
+description: Coach UI issues tracker markdown — valid GFM tables
+globs:
+  - docs/ai_chess_coach/roadmap/designs/issues-coach-move-classification-pedagogy-mini-plan.md
+alwaysApply: false
+---
+
+# issues-coach-move-classification-pedagogy-mini-plan.md
+
+When editing this file:
+
+- **Use HTML `<table>` blocks** (not pipe `| ... |` tables). Markdown Preview Enhanced “extended table” merges empty pipe cells and breaks rendering.
+- Empty cells: `<td></td>` (valid HTML). Links/code use normal HTML or `<code>`.
+- Do not run “Format Document” on this file; listed in `.prettierignore`.
