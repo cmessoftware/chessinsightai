@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
     Box,
     Button,
@@ -182,15 +182,33 @@ export default function CoachGamesPanel() {
         return () => clearInterval(timer)
     }, [refresh])
 
+    const initialSelectionDone = useRef(false)
+    const importHighlightKey = useRef(null)
+
     useEffect(() => {
         const fromImport = location.state?.highlightGameIds
-        if (fromImport?.length) {
+        const highlightKey =
+            fromImport?.length > 0 ? fromImport.slice().sort().join(',') : null
+        if (highlightKey && importHighlightKey.current !== highlightKey) {
+            importHighlightKey.current = highlightKey
+            initialSelectionDone.current = true
             const queueable = new Set(queueableGames.map((g) => g.id))
             setSelectedIds(new Set(fromImport.filter((id) => queueable.has(id))))
             return
         }
+        if (initialSelectionDone.current || !games.length) return
+        initialSelectionDone.current = true
         setSelectedIds(new Set(queueableGames.map((g) => g.id)))
-    }, [queueableGames, location.state?.highlightGameIds])
+    }, [queueableGames, games.length, location.state?.highlightGameIds])
+
+    useEffect(() => {
+        const valid = new Set(games.map((g) => g.id))
+        setSelectedIds((prev) => {
+            if (!prev.size) return prev
+            const next = new Set([...prev].filter((id) => valid.has(id)))
+            return next.size === prev.size ? prev : next
+        })
+    }, [games])
 
     const toggleGame = (id) => {
         setSelectedIds((prev) => {
