@@ -13,7 +13,9 @@ from alembic import context
 # Add the project root to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Load environment variables
+# Load environment variables (repo root .env, same as src/api/database.py)
+_repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+load_dotenv(os.path.join(_repo_root, ".env"))
 load_dotenv()
 
 # Import your Base and models
