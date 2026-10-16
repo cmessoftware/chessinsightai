@@ -122,3 +122,18 @@ export async function deleteCoachGames(gameIds) {
     })
     return data
 }
+
+export async function getLichessImportSettings() {
+    const { data } = await api.get('/api/v1/module07/lichess-import/settings')
+    return data
+}
+
+export async function saveLichessImportSettings(body) {
+    const { data } = await api.put('/api/v1/module07/lichess-import/settings', body)
+    return data
+}
+
+export async function runLichessImport(body = {}) {
+    const { data } = await api.post('/api/v1/module07/lichess-import/run', body)
+    return data
+}

@@ -86,6 +86,7 @@ class CoachGame(Base):
     client_analyzed_at = Column(DateTime, nullable=True)
     client_analysis_ply_count = Column(Integer, nullable=False, default=0)
     client_main_line_signature = Column(String(512), nullable=True)
+    import_provenance = Column(JSON, nullable=True)
 
     master_game = relationship(
         Games,
