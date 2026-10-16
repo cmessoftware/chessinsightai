@@ -27,6 +27,26 @@ _HEADER_PLAYER = re.compile(
 )
 
 
+def effective_player_alias(
+    lichess_username: str,
+    player_alias: str | None,
+    *,
+    reject_usernames: tuple[str, ...] = (),
+) -> str | None:
+    """POV alias only when explicit and distinct from Lichess handle and app login."""
+    lichess = (lichess_username or "").strip()
+    alias = (player_alias or "").strip()
+    if not alias:
+        return None
+    if lichess and alias.casefold() == lichess.casefold():
+        return None
+    for rejected in reject_usernames:
+        bad = (rejected or "").strip()
+        if bad and alias.casefold() == bad.casefold():
+            return None
+    return alias
+
+
 def replace_lichess_username_in_pgn(pgn: str, lichess_username: str, alias: str) -> str:
     """Replace the Lichess handle in White/Black headers only (rivals unchanged)."""
     source = (lichess_username or "").strip()
@@ -86,6 +106,7 @@ def fetch_lichess_batch(
     cursor: LichessImportCursor | None,
     api_token: str | None,
     player_alias: str | None,
+    app_login_username: str | None = None,
 ) -> LichessBatchResult:
     """Download up to ``batch_size`` games for the current perf slice."""
     name = (lichess_username or "").strip()
@@ -110,7 +131,11 @@ def fetch_lichess_batch(
         )
 
     perf = perf_list[state.perf_index]
-    alias = (player_alias or "").strip() or None
+    alias = effective_player_alias(
+        name,
+        player_alias,
+        reject_usernames=(app_login_username or "",),
+    )
     client = LichessClient(token=(api_token or "").strip() or None)
 
     pgns: list[str] = []

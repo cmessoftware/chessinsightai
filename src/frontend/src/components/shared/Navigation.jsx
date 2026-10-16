@@ -56,16 +56,19 @@ const Navigation = () => {
 
     return (
         <AppBar position="static" sx={{ mb: 2 }}>
-            <Toolbar>
-                <Typography variant="h6" component="div" sx={{ mr: 4 }}>
+            <Toolbar sx={{ flexWrap: 'wrap', gap: 1 }}>
+                <Typography variant="h6" component="div" sx={{ mr: 2, flexShrink: 0 }}>
                     Chess Trainer
                 </Typography>
 
                 {isAuthenticated && (
-                    <Box sx={{ flexGrow: 1 }}>
+                    <Box sx={{ flexGrow: 1, minWidth: 0, maxWidth: { xs: '100%', md: 'calc(100% - 280px)' } }}>
                         <Tabs
                             value={getCurrentTab()}
                             onChange={handleTabChange}
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            allowScrollButtonsMobile
                             textColor="inherit"
                             indicatorColor="secondary"
                             sx={{
@@ -124,18 +127,32 @@ const Navigation = () => {
                 )}
 
                 {isAuthenticated ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="body2">
-                            {user?.username}
-                        </Typography>
-
-                        {/* Role Indicator */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            flexShrink: 0,
+                            ml: 'auto',
+                        }}
+                    >
                         <Chip
                             icon={<SwapHoriz />}
-                            label={user?.roles?.join(', ') || 'Sin roles'}
+                            label={user?.username || 'Usuario'}
+                            title={
+                                user?.roles?.length
+                                    ? `Roles: ${user.roles.join(', ')}`
+                                    : undefined
+                            }
                             color="primary"
                             variant="outlined"
-                            sx={{ color: 'white', borderColor: 'white' }}
+                            size="small"
+                            sx={{
+                                color: 'white',
+                                borderColor: 'rgba(255,255,255,0.7)',
+                                maxWidth: { xs: 120, sm: 200 },
+                                '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' },
+                            }}
                         />
 
                         {/* Campanita de notificaciones */}

@@ -11,6 +11,7 @@ if str(SRC_DIR) not in sys.path:
 
 from modules.module07.lichess_coach_import import (
     LichessImportCursor,
+    effective_player_alias,
     replace_lichess_username_in_pgn,
 )
 
@@ -29,6 +30,18 @@ def test_replace_alias_white_only():
     assert '[White "MyAlias"]' in out
     assert '[Black "Bob"]' in out
     assert "AliceLichess" not in out
+
+
+def test_effective_alias_ignores_app_login():
+    assert (
+        effective_player_alias(
+            "cmess4401",
+            "admin",
+            reject_usernames=("admin",),
+        )
+        is None
+    )
+    assert effective_player_alias("cmess4401", "MyTag", reject_usernames=("admin",)) == "MyTag"
 
 
 def test_cursor_roundtrip():
