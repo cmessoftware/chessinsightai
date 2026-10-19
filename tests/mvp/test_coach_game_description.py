@@ -20,6 +20,17 @@ def test_time_control_seconds_to_minutes_increment():
     assert format_time_control_display("600") == "10+0"
 
 
+def test_time_control_correspondence_days():
+    assert format_time_control_display("1/86400") == "1 día"
+    assert format_time_control_display("1/259200") == "3 días"
+    assert format_time_control_display("1/604800") == "7 días"
+
+
+def test_time_control_daily_speed_never_shows_phantom_seconds():
+    assert format_time_control_display("1/86400", speed_class="daily") == "1 día"
+    assert format_time_control_display("1/86400", speed_class="correspondence") == "1 día"
+
+
 def test_full_description_example():
     text = format_coach_game_description(
         white_player="Frontallappen",
@@ -29,3 +40,14 @@ def test_full_description_example():
         time_control="900+10",
     )
     assert text == "Frontallappen vs cmess1315 · POV cmess1315 (Rapid 15+10)"
+
+
+def test_full_description_correspondence():
+    text = format_coach_game_description(
+        white_player="manuelfrp79",
+        black_player="cmess1315",
+        player_username="cmess1315",
+        speed_class="daily",
+        time_control="1/259200",
+    )
+    assert text == "manuelfrp79 vs cmess1315 · POV cmess1315 (Correspondencia 3 días)"

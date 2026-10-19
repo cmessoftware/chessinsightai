@@ -134,7 +134,8 @@ def _game_json(
         "speed_class": row.speed_class,
         "time_control": getattr(row, "time_control", None),
         "time_control_display": format_time_control_display(
-            getattr(row, "time_control", None)
+            getattr(row, "time_control", None),
+            speed_class=row.speed_class,
         ),
         "description": format_coach_game_description(
             white_player=row.white_player,

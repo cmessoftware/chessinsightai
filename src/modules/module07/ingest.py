@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import re
 from dataclasses import dataclass
 
 import chess.pgn
@@ -72,6 +73,48 @@ class PgnParseResult:
     total_games_in_pgn: int
 
 
+def _split_pgn_into_game_chunks(text: str) -> list[str]:
+    """Split a multi-game file on blank lines before the next ``[Tag]`` block."""
+    stripped = text.strip()
+    if not stripped:
+        return []
+    chunks = re.split(r"\n\s*\n(?=\[)", stripped)
+    return [c.strip() for c in chunks if c.strip()]
+
+
+def _collapse_movetext_blank_lines(chunk: str) -> str:
+    """
+    Join movetext onto one line.
+
+    Blank lines *between* moves look like game boundaries to python-chess; annotated
+    exports often use one move (or ply) per line with empty lines in between.
+    """
+    header: list[str] = []
+    body: list[str] = []
+    for raw in chunk.splitlines():
+        s = raw.strip()
+        if not s:
+            continue
+        if s.startswith("[") and not body:
+            header.append(s)
+        else:
+            body.append(s)
+    if not body:
+        return "\n".join(header).strip()
+    head = "\n".join(header)
+    movetext = " ".join(body)
+    if head:
+        return f"{head}\n\n{movetext}"
+    return movetext
+
+
+def normalize_pgn_text_for_parse(pgn_text: str) -> str:
+    chunks = _split_pgn_into_game_chunks(pgn_text)
+    if not chunks:
+        raise ValueError("PGN text is empty")
+    return "\n\n".join(_collapse_movetext_blank_lines(c) for c in chunks)
+
+
 def parse_games_from_pgn_text(
     pgn_text: str,
     *,
@@ -84,9 +127,7 @@ def parse_games_from_pgn_text(
     When ``max_games`` is set (e.g. 1 for Coach import), only that many games are
     returned; ``total_games_in_pgn`` still reflects the full file.
     """
-    text = (pgn_text or "").strip()
-    if not text:
-        raise ValueError("PGN text is empty")
+    text = normalize_pgn_text_for_parse(pgn_text or "")
     if max_games is not None and max_games < 1:
         raise ValueError("max_games must be at least 1")
 

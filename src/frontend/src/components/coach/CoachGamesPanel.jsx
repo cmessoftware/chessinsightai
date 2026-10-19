@@ -29,7 +29,11 @@ import {
     parseApiDetail,
 } from '../../services/module07Service.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
-import { CoachStatusBadge, CoachStatusBadgeRow } from './coachPanelStatus.jsx'
+import {
+    CoachConfirmBadge,
+    CoachStatusBadge,
+    CoachStatusBadgeRow,
+} from './coachPanelStatus.jsx'
 import { formatCoachGameDescription } from '../../utils/coachGameDisplay.js'
 
 const statusColor = (status) => {
@@ -115,6 +119,7 @@ export default function CoachGamesPanel() {
     const [selectedIds, setSelectedIds] = useState(() => new Set())
     const [analyzing, setAnalyzing] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    const [pendingDelete, setPendingDelete] = useState(null)
     const [refreshing, setRefreshing] = useState(false)
 
     const jobStatusById = useMemo(() => {
@@ -132,14 +137,6 @@ export default function CoachGamesPanel() {
         () => new Set(location.state?.highlightGameIds || []),
         [location.state?.highlightGameIds],
     )
-
-    const importedMetaById = useMemo(() => {
-        const m = new Map()
-        for (const g of location.state?.importedGames || []) {
-            m.set(g.id, g.is_new)
-        }
-        return m
-    }, [location.state?.importedGames])
 
     const failedJobCount = useMemo(
         () => jobs.filter((j) => j.status === 'failed').length,
@@ -233,14 +230,9 @@ export default function CoachGamesPanel() {
         [selectedIds, queueableGames],
     )
 
-    const handleDeleteGames = async (ids) => {
+    const executeDeleteGames = async (ids) => {
         const unique = [...new Set(ids)].filter(Boolean)
         if (!unique.length) return
-        const msg =
-            unique.length === 1
-                ? '¿Eliminar esta partida de tu biblioteca Coach? Se borran análisis liviano y decisiones asociadas.'
-                : `¿Eliminar ${unique.length} partidas de tu biblioteca Coach?`
-        if (!window.confirm(msg)) return
         setDeleting(true)
         try {
             let deletedCount = unique.length
@@ -275,6 +267,29 @@ export default function CoachGamesPanel() {
             setDeleting(false)
         }
     }
+
+    const requestDeleteGames = (ids) => {
+        const unique = [...new Set(ids)].filter(Boolean)
+        if (!unique.length) return
+        const message =
+            unique.length === 1
+                ? '¿Eliminar esta partida de tu biblioteca Coach? Se borran análisis liviano y decisiones asociadas.'
+                : `¿Eliminar ${unique.length} partidas de tu biblioteca Coach?`
+        setPendingDelete({
+            ids: unique,
+            message,
+            confirmLabel: unique.length === 1 ? 'Eliminar partida' : 'Eliminar selección',
+        })
+    }
+
+    const confirmPendingDelete = () => {
+        if (!pendingDelete?.ids?.length) return
+        const ids = pendingDelete.ids
+        setPendingDelete(null)
+        void executeDeleteGames(ids)
+    }
+
+    const cancelPendingDelete = () => setPendingDelete(null)
 
     const runAnalysis = async (gameIds, fallbackHandle = '') => {
         const handle = (playerHandle || fallbackHandle || '').trim()
@@ -412,6 +427,16 @@ export default function CoachGamesPanel() {
             <Typography variant="h6" gutterBottom>
                 Biblioteca de partidas
             </Typography>
+            {pendingDelete && (
+                <Box sx={{ mb: 2 }}>
+                    <CoachConfirmBadge
+                        message={pendingDelete.message}
+                        confirmLabel={pendingDelete.confirmLabel}
+                        onConfirm={confirmPendingDelete}
+                        onCancel={cancelPendingDelete}
+                    />
+                </Box>
+            )}
             <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="subtitle2" gutterBottom>
                     Encolar análisis en servidor (Stockfish)
@@ -462,7 +487,7 @@ export default function CoachGamesPanel() {
                         variant="outlined"
                         color="error"
                         disabled={deleting || selectedIds.size === 0}
-                        onClick={() => handleDeleteGames([...selectedIds])}
+                        onClick={() => requestDeleteGames([...selectedIds])}
                     >
                         {deleting
                             ? 'Eliminando…'
@@ -500,7 +525,6 @@ export default function CoachGamesPanel() {
                             const queueable = canQueueAnalysis(g, jobStatusById)
                             const serverStatus = serverStatusLabel(g, jobStatusById)
                             const clientDone = isClientAnalyzed(g)
-                            const importTag = importedMetaById.get(g.id)
                             return (
                                 <TableRow
                                     key={g.id}
@@ -517,18 +541,7 @@ export default function CoachGamesPanel() {
                                             onChange={() => toggleGame(g.id)}
                                         />
                                     </TableCell>
-                                    <TableCell>
-                                        {formatCoachGameDescription(g)}
-                                        {importTag !== undefined && (
-                                            <Chip
-                                                size="small"
-                                                label={importTag ? 'Nueva' : 'Ya existía'}
-                                                color={importTag ? 'success' : 'default'}
-                                                variant="outlined"
-                                                sx={{ ml: 1, verticalAlign: 'middle' }}
-                                            />
-                                        )}
-                                    </TableCell>
+                                    <TableCell>{formatCoachGameDescription(g)}</TableCell>
                                     <TableCell>
                                         {g.player_username
                                             ? `${g.player_username} (${g.player_color || '?'})`
@@ -639,7 +652,7 @@ export default function CoachGamesPanel() {
                                                         }
                                                         aria-label="Eliminar"
                                                         onClick={() =>
-                                                            handleDeleteGames([g.id])
+                                                            requestDeleteGames([g.id])
                                                         }
                                                     >
                                                         <DeleteOutline fontSize="small" />

@@ -46,6 +46,14 @@ def infer_speed_class_from_headers(headers: dict[str, str]) -> str:
         return "unknown"
     if tc.startswith("-"):
         return "daily"
+    if "/" in tc:
+        _moves, _, period_part = tc.partition("/")
+        period_base = period_part.split("+")[0]
+        try:
+            if int(period_base.strip()) >= 86_400:
+                return "daily"
+        except ValueError:
+            pass
     base = tc.split("+")[0].split("/")[0]
     try:
         seconds = int(base)
