@@ -581,7 +581,9 @@ def put_lichess_settings(
     db: Session = Depends(get_db),
 ):
     owner = _owner_id(request)
+    user = getattr(request.state, "user", {}) or {}
     payload = body.model_dump(exclude_unset=True)
+    payload["app_login_username"] = (user.get("username") or "").strip() or str(owner)
     if body.reset_cursor:
         payload["last_cursor"] = None
     return upsert_lichess_import_settings(db, owner, payload)
@@ -619,6 +621,7 @@ def run_lichess_import(
             cursor=cursor,
             api_token=token,
             player_alias=settings.get("player_alias"),
+            app_login_username=imported_by,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

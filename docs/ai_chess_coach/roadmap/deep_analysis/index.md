@@ -38,6 +38,6 @@ Diseños UI: [../designs/index.md](../designs/index.md) · Roadmap Phase 2: [../
 | [coach-classification-hitl-checklist.md](./coach-classification-hitl-checklist.md) | Gate **CA-8** (badges / impacto). |
 | [coach-mental-1600-hitl-checklist.md](./coach-mental-1600-hitl-checklist.md) | Gate **M-11** (mental 1600). |
 | [coach-games-catalog-unify-mini-plan.md](./coach-games-catalog-unify-mini-plan.md) | **GC-1…GC-5** — `games` maestro + `coach_games`. |
-| [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) | Issues CA / FEAT trazables. |
+| [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) | Issues CA / FEAT trazables (**espejo**; canónico en [`../designs/issues-coach-move-classification-pedagogy-mini-plan.md`](../designs/issues-coach-move-classification-pedagogy-mini-plan.md)). |
 
 Fuentes históricas (no planificar): [sources/](./sources/)

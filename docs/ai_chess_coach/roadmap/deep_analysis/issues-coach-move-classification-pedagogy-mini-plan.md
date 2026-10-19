@@ -2,6 +2,9 @@
 
 **Estado:** Seguimiento activo (UI MVP liviano)  
 **Actualizado:** 2026-10-19  
+
+> **Sync (obligatorio):** **Espejo** del canónico en [`../designs/issues-coach-move-classification-pedagogy-mini-plan.md`](../designs/issues-coach-move-classification-pedagogy-mini-plan.md). Cuerpo del tracker idéntico a `designs/`; mismo commit; rama `docs/coach_issues_tracker` → merge a feature.
+
 **Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)  
 **Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
 **Split monolito #158:** integrado en `main` (#159–#164); ver [pr_158_riesgos.md](../../pr_158_riesgos.md).
@@ -66,6 +69,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
 <tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>⬜ Todo</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code>; enlaza <a href="../deep_analysis/coach-games-catalog-unify-mini-plan.md">GC UI-G3</a></td></tr>
+<tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>⬜ Todo</td><td><code>feature/11_152_feat_041_deprecate_chess_board_tab</code>; tablero canónico = <code>CoachStudyWorkspace</code></td></tr>
+<tr><td>FEAT-042</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>⬜ Todo</td><td><code>feature/11_153_feat_042_coach_partidas_master_list</code> — entrega <strong>UI-G3</strong> del mini-plan catálogo; filtros corpus (UI-G2) opcional bajo rol admin</td></tr>
 </tbody>
 </table>
 
@@ -105,8 +111,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…027, FEAT-033/036, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-028</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-029, FEAT-031…035, FEAT-038/039, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-029, FEAT-031…035, FEAT-038…042, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-028 (Chess.com) → FEAT-029 (bulk POV) → FEAT-034 (filtro cortas / Fuente).
+**Siguiente sugerido (orden):** FEAT-028 (Chess.com, PR #181) → FEAT-029 (bulk POV) → FEAT-040/041 (deprecar navegador + tablero sueltos) → FEAT-042 (UI-G3 lista unificada) → FEAT-034 (filtro cortas / Fuente).

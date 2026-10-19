@@ -1,4 +1,4 @@
-# CHESS TRAINER - Versión: v0.1.487-cc99238
+# CHESS TRAINER - Versión: v0.1.492-e205e9a
 
 # chessinsightai
 
@@ -90,10 +90,10 @@ Para la UI **Coach** (import PGN → cola de análisis → revisión), no hace f
 
 ```powershell
 pip install -r requirements-coach-mvp.txt
-docker compose up -d postgres   # o tu Postgres local
-# .env: CHESS_TRAINER_DB_URL=postgresql://...  (sin espacios alrededor del =)
+# Dev DB (volumen persistente): src/start_db.ps1 → host 5434
+# .env: CHESS_TRAINER_DB_URL=postgresql://chess:chess_pass@localhost:5434/chess_trainer_db
 # .env: STOCKFISH_PATH=bin\stockfish.exe
-alembic upgrade 20260923_000001
+alembic upgrade head
 cd src\api
 $env:PYTHONPATH="..\..\src;."
 python -m uvicorn main:app --reload --port 8000

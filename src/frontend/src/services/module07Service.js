@@ -3,7 +3,20 @@ import api from './api.js'
 /** FastAPI detail: string, validation array, or fallback. */
 export function parseApiDetail(err) {
     const detail = err.response?.data?.detail
-    if (typeof detail === 'string') return detail
+    if (typeof detail === 'string') {
+        if (
+            detail.includes('coach_lichess_import_settings') &&
+            detail.includes('does not exist')
+        ) {
+            return 'Falta la migración de Lichess en Postgres. En la raíz del repo ejecutá: alembic upgrade head (revisión 20261015_000001).'
+        }
+        if (detail.length > 320) {
+            const oneLine = detail.split('\n').find((line) => /Error|UndefinedTable|ProgrammingError|HTTPException/i.test(line))
+            if (oneLine) return oneLine.trim().slice(0, 280)
+            return `${detail.slice(0, 280)}…`
+        }
+        return detail
+    }
     if (Array.isArray(detail)) {
         return detail
             .map((item) => item.msg || item.message || JSON.stringify(item))
