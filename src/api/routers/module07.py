@@ -17,11 +17,23 @@ from models.module07_models import (
     DEFAULT_STOCKFISH_DEPTH,
     DEFAULT_STOCKFISH_MULTIPV,
 )
+from modules.game_import.game_description import (
+    format_coach_game_description,
+    format_time_control_display,
+)
 from modules.module07.ingest import parse_games_from_pgn_text
 from modules.module07.lichess_coach_import import (
     DEFAULT_BATCH_SIZE,
     LichessImportCursor,
     fetch_lichess_batch,
+)
+from modules.module07.chesscom_coach_import import (
+    ChessComImportCursor,
+    fetch_chesscom_batch,
+)
+from modules.module07.chesscom_settings import (
+    get_chesscom_import_settings,
+    upsert_chesscom_import_settings,
 )
 from modules.module07.lichess_settings import (
     get_lichess_import_settings,
@@ -120,6 +132,17 @@ def _game_json(
         "result": row.result,
         "corpus_type": row.corpus_type,
         "speed_class": row.speed_class,
+        "time_control": getattr(row, "time_control", None),
+        "time_control_display": format_time_control_display(
+            getattr(row, "time_control", None)
+        ),
+        "description": format_coach_game_description(
+            white_player=row.white_player,
+            black_player=row.black_player,
+            player_username=row.player_username,
+            speed_class=row.speed_class,
+            time_control=getattr(row, "time_control", None),
+        ),
         "source": row.source,
         "analysis_job_id": row.analysis_job_id,
         "analysis_job_status": (
@@ -639,6 +662,126 @@ def run_lichess_import(
         "new_count": sum(1 for f in is_new_flags if f),
         "perf_type": batch.perf_type,
         "fetched_from_lichess": batch.fetched_from_lichess,
+        "cursor": batch.cursor.to_json(),
+        "import_complete": batch.cursor.completed,
+        "errors": list(batch.errors),
+    }
+
+
+class ChesscomImportSettingsBody(BaseModel):
+    chesscom_username: Optional[str] = None
+    since_date: Optional[str] = Field(default=None, description="YYYY-MM-DD")
+    until_date: Optional[str] = Field(default=None, description="YYYY-MM-DD")
+    perf_types: Optional[list[str]] = None
+    batch_size: Optional[int] = Field(default=None, ge=1, le=500)
+    player_alias: Optional[str] = None
+    reset_cursor: bool = False
+
+
+class ChesscomImportRunBody(BaseModel):
+    corpus_type: str = Field(default="personal")
+    resume: bool = True
+    reset_cursor: bool = False
+
+
+@router.get("/chesscom-import/settings")
+def get_chesscom_settings(request: Request, db: Session = Depends(get_db)):
+    owner = _owner_id(request)
+    try:
+        return get_chesscom_import_settings(db, owner)
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Base de datos no disponible o migraciones pendientes: {e}",
+        ) from e
+
+
+@router.put("/chesscom-import/settings")
+def put_chesscom_settings(
+    body: ChesscomImportSettingsBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    owner = _owner_id(request)
+    payload = body.model_dump(exclude_unset=True)
+    if body.reset_cursor:
+        payload["last_cursor"] = None
+    return upsert_chesscom_import_settings(db, owner, payload)
+
+
+@router.post("/chesscom-import/run")
+def run_chesscom_import(
+    body: ChesscomImportRunBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    owner = _owner_id(request)
+    user = getattr(request.state, "user", {}) or {}
+    imported_by = (user.get("username") or "").strip() or str(owner)
+    settings = get_chesscom_import_settings(db, owner)
+    if not (settings.get("chesscom_username") or "").strip():
+        raise HTTPException(status_code=400, detail="Configurá el usuario de Chess.com.")
+
+    cursor_raw = settings.get("last_cursor")
+    if body.reset_cursor or not body.resume:
+        cursor = ChessComImportCursor()
+    else:
+        cursor = ChessComImportCursor.from_json(cursor_raw)
+
+    batch_size = int(settings.get("batch_size") or DEFAULT_BATCH_SIZE)
+
+    try:
+        batch = fetch_chesscom_batch(
+            chesscom_username=settings["chesscom_username"],
+            since=settings.get("since_date"),
+            until=settings.get("until_date"),
+            perf_types=settings.get("perf_types"),
+            batch_size=batch_size,
+            cursor=cursor,
+            player_alias=settings.get("player_alias"),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    upsert_chesscom_import_settings(
+        db,
+        owner,
+        {"last_cursor": batch.cursor.to_json()},
+    )
+
+    if not batch.parsed_games:
+        return {
+            "games": [],
+            "count": 0,
+            "new_count": 0,
+            "perf_type": batch.perf_type,
+            "fetched_from_chesscom": 0,
+            "cursor": batch.cursor.to_json(),
+            "import_complete": batch.cursor.completed,
+            "errors": list(batch.errors),
+            "message": "Sin partidas nuevas en este lote (probá continuar o revisar fechas/ritmos).",
+        }
+
+    corpus = _resolved_corpus(request, body.corpus_type)
+    provenance = [dict(p) for p in batch.provenance]
+    rows, is_new_flags = create_games_from_ingest(
+        db,
+        owner_user_id=owner,
+        parsed_games=list(batch.parsed_games),
+        corpus_type=corpus,
+        source="chess.com",
+        imported_by=imported_by,
+        import_provenance=provenance,
+    )
+    imported_count = len(rows)
+    return {
+        "games": [
+            _game_json(r, is_new=flag) for r, flag in zip(rows, is_new_flags, strict=True)
+        ],
+        "count": imported_count,
+        "new_count": sum(1 for f in is_new_flags if f),
+        "perf_type": batch.perf_type,
+        "fetched_from_chesscom": batch.fetched_from_chesscom,
         "cursor": batch.cursor.to_json(),
         "import_complete": batch.cursor.completed,
         "errors": list(batch.errors),

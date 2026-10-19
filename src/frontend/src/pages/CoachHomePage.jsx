@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
+import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
 import CoachSubNav from '../components/coach/CoachSubNav.jsx'
 import { getGame, listGames } from '../services/module07Service.js'
 import { createStudyRootFromFen } from '../utils/coachStudyFromFen.js'
@@ -85,7 +86,7 @@ export default function CoachHomePage() {
             subtitle={
                 gameMeta ? (
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        Última partida: {gameMeta.white_player} vs {gameMeta.black_player}
+                        Última partida: {formatCoachGameDescription(gameMeta)}
                         {gameMeta.client_analyzed
                             ? ` · clasificación guardada (${gameMeta.client_analysis_ply_count} jug.)`
                             : ''}
