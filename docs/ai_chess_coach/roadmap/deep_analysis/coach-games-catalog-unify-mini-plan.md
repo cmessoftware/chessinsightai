@@ -2,7 +2,7 @@
 
 **Estado:** ✅ GC-1 … GC-3 en repo (migración GC-2: `alembic upgrade head` desde la raíz del repo)  
 **Última actualización catálogo:** 2026-10-09  
-**Relacionado:** [06-phase-05-coach-ui-complete.md](../06-phase-05-coach-ui-complete.md) (UI-104+), [02-phase-01-coach-web-slice.md](../02-phase-01-coach-web-slice.md), [arquitectura_candidata_servicios_analisis.md](../../arquitectura_candidata_servicios_analisis.md)  
+**Relacionado:** [06-phase-05-coach-ui-complete.md](../06-phase-05-coach-ui-complete.md) (UI-104+), [02-phase-01-coach-web-slice.md](../02-phase-01-coach-web-slice.md), [architecture-shared-analysis-platform.md](./architecture-shared-analysis-platform.md)  
 **Regla ramas:** un ítem por branch — [roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc)
 
 **Objetivo:** una sola **biblioteca de partidas** (`games` maestra), capa **Coach** en tablas relacionadas (hoy `module07_*`), fuente **`ANALYSIS`** para partidas importadas para estudio Coach, y **Navegador de Partidas** con borrado y filtros avanzados.
