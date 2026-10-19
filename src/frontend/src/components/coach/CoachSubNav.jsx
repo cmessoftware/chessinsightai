@@ -30,9 +30,17 @@ export default function CoachSubNav() {
     return (
         <Tabs
             value={value}
-            sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
+            sx={{
+                mb: 0,
+                borderBottom: 1,
+                borderColor: 'divider',
+                minHeight: 44,
+                '& .MuiTab-root': { minHeight: 44, py: 0.75, textTransform: 'none' },
+            }}
             variant="scrollable"
             scrollButtons="auto"
+            allowScrollButtonsMobile
+            aria-label="Secciones Coach"
         >
             {TABS.map((t) => (
                 <Tab
@@ -41,7 +49,6 @@ export default function CoachSubNav() {
                     value={t.path}
                     component={RouterLink}
                     to={t.path}
-                    sx={{ textTransform: 'none' }}
                 />
             ))}
         </Tabs>

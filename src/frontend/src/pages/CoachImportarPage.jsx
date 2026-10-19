@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
-import { Box, Button, Paper, Tab, Tabs, Typography } from '@mui/material'
-import { Link as RouterLink } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Box, Button, Divider, Paper, Tab, Tabs, Typography } from '@mui/material'
+import { Link as RouterLink, useLocation } from 'react-router-dom'
 import CoachSubNav from '../components/coach/CoachSubNav.jsx'
 import LichessImportPanel from '../components/coach/LichessImportPanel.jsx'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
@@ -16,31 +16,52 @@ const ADMIN_CORPUS = [
 
 const USER_CORPUS = [{ value: 'personal', label: 'Personal' }]
 
+const IMPORT_SECTIONS = new Set(['pgn', 'lichess', 'fen'])
+
 export default function CoachImportarPage() {
     const { user } = useAuth()
+    const { hash } = useLocation()
     const isAdmin = user?.roles?.includes('admin')
     const corpusOptions = useMemo(() => (isAdmin ? ADMIN_CORPUS : USER_CORPUS), [isAdmin])
     const [corpusType, setCorpusType] = useState('personal')
     const [importSection, setImportSection] = useState('pgn')
 
+    useEffect(() => {
+        const key = (hash || '').replace(/^#/, '')
+        if (IMPORT_SECTIONS.has(key)) {
+            setImportSection(key)
+        }
+    }, [hash])
+
     return (
-        <Box>
-            <Typography variant="h5" gutterBottom>
-                Coach
-            </Typography>
+        <Box sx={{ maxWidth: 960, mx: 'auto' }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Importá partidas (PGN) o analizá una posición suelta (FEN). El jugador POV se elige
-                en <strong>Partidas</strong> al encolar Stockfish.
+                Importá partidas (PGN, Lichess) o abrí una posición FEN. El jugador POV se elige en{' '}
+                <strong>Partidas</strong> al encolar Stockfish.
             </Typography>
             <CoachSubNav />
+            <Divider sx={{ mb: 1 }} />
+            <Typography variant="caption" color="text.secondary" component="p" sx={{ mb: 0.5, px: 0.5 }}>
+                Fuente de importación
+            </Typography>
             <Tabs
                 value={importSection}
                 onChange={(_e, v) => setImportSection(v)}
-                sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
+                variant="scrollable"
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+                aria-label="Fuente de importación"
+                sx={{
+                    mb: 2,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    minHeight: 40,
+                    '& .MuiTab-root': { minHeight: 40, py: 0.75, textTransform: 'none' },
+                }}
             >
-                <Tab label="PGN (texto o archivo)" value="pgn" sx={{ textTransform: 'none' }} />
-                <Tab label="Lichess" value="lichess" sx={{ textTransform: 'none' }} />
-                <Tab label="FEN suelta" value="fen" sx={{ textTransform: 'none' }} />
+                <Tab label="PGN" value="pgn" />
+                <Tab label="Lichess" value="lichess" />
+                <Tab label="FEN suelta" value="fen" />
             </Tabs>
             {importSection === 'pgn' && (
                 <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>

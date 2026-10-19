@@ -48,6 +48,7 @@ const Navigation = () => {
         if (path === '/') return '/'
         if (path.startsWith('/games')) return '/games'
         if (path.startsWith('/chess-board')) return '/chess-board'
+        if (path.startsWith('/import')) return '/coach'
         if (path.startsWith('/reports')) return '/reports'
         if (path.startsWith('/coach')) return '/coach'
         return false
@@ -55,21 +56,36 @@ const Navigation = () => {
 
     return (
         <AppBar position="static" sx={{ mb: 2 }}>
-            <Toolbar>
-                <Typography variant="h6" component="div" sx={{ mr: 4 }}>
+            <Toolbar sx={{ gap: 1, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
+                <Typography variant="h6" component="div" sx={{ mr: { xs: 0, sm: 2 }, flexShrink: 0 }}>
                     Chess Trainer
                 </Typography>
 
                 {isAuthenticated && (
-                    <Box sx={{ flexGrow: 1 }}>
+                    <Box
+                        sx={{
+                            flex: '1 1 auto',
+                            minWidth: 0,
+                            maxWidth: { xs: '100%', md: 'calc(100% - 18rem)' },
+                            order: { xs: 3, md: 2 },
+                            width: { xs: '100%', md: 'auto' },
+                        }}
+                    >
                         <Tabs
                             value={getCurrentTab()}
                             onChange={handleTabChange}
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            allowScrollButtonsMobile
                             textColor="inherit"
                             indicatorColor="secondary"
                             sx={{
+                                minHeight: 48,
                                 '& .MuiTab-root': {
                                     color: 'rgba(255, 255, 255, 0.7)',
+                                    minHeight: 48,
+                                    minWidth: { xs: 72, sm: 96 },
+                                    px: { xs: 1, sm: 2 },
                                     '&.Mui-selected': {
                                         color: 'white'
                                     }
@@ -116,18 +132,31 @@ const Navigation = () => {
                 )}
 
                 {isAuthenticated ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="body2">
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: { xs: 0.5, sm: 1.5 },
+                            flexShrink: 0,
+                            ml: { xs: 0, md: 'auto' },
+                            order: { xs: 2, md: 3 },
+                        }}
+                    >
+                        <Typography variant="body2" sx={{ display: { xs: 'none', lg: 'block' } }}>
                             {user?.username}
                         </Typography>
 
-                        {/* Role Indicator */}
                         <Chip
-                            icon={<SwapHoriz />}
+                            icon={<SwapHoriz sx={{ display: { xs: 'none', sm: 'block' } }} />}
                             label={user?.roles?.join(', ') || 'Sin roles'}
                             color="primary"
                             variant="outlined"
-                            sx={{ color: 'white', borderColor: 'white' }}
+                            sx={{
+                                color: 'white',
+                                borderColor: 'white',
+                                maxWidth: { xs: 88, sm: 160 },
+                                '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' },
+                            }}
                         />
 
                         {/* Campanita de notificaciones */}
