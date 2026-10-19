@@ -3,7 +3,7 @@
 **Estado:** ⬜ Planned (solo roadmap; sin implementación)  
 **Phase:** **1** (cliente Coach) — complemento de CA-4, no bloquea SV-2 ni CA-8.  
 **Spec / referencia:** [CSSLab/maia-chess](https://github.com/CSSLab/maia-chess) · dual-engine en [07_analysis_coherence_with_06_specs.md](../../../ai_chess_coach_course/07_analysis_coherence_with_06_specs.md) §9.1  
-**Mini-plan padre:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md) (**CA-9**)
+**Mini-plan padre:** [coach-move-classification-pedagogy-mini-plan.md](../deep_analysis/coach-move-classification-pedagogy-mini-plan.md) (**CA-9**)
 
 **Rama sugerida:** `feature/11_121_maia_wasm_advanced` (un ítem por branch).
 
