@@ -76,7 +76,7 @@ const HomePage = () => {
                         </Typography>
                         <Button
                             variant="contained"
-                            onClick={() => navigate('/import')}
+                            onClick={() => navigate('/coach/importar')}
                             sx={{ mt: 1 }}
                         >
                             Importar PGN

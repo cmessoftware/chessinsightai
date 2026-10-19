@@ -19,7 +19,6 @@ import LogViewerPage from './pages/LogViewerPage.jsx'
 import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
 import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
 import AdminRolesPage from './pages/AdminRolesPage.jsx'
-import UnifiedImportPage from './pages/UnifiedImportPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachHomePage from './pages/CoachHomePage.jsx'
 import CoachImportarPage from './pages/CoachImportarPage.jsx'
@@ -113,7 +112,7 @@ function App() {
                   path="/import"
                   element={
                     <ProtectedRoute>
-                      <UnifiedImportPage />
+                      <Navigate to="/coach/importar" replace />
                     </ProtectedRoute>
                   }
                 />

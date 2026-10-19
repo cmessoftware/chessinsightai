@@ -201,6 +201,7 @@ export const useAuth = () => {
         const routePermissions = {
             '/games': ['view_own_games', 'view_all_games', 'chess_board'],
             '/import': ['personal_analysis', 'bulk_upload', 'import_pgn'],
+            '/coach/importar': ['personal_analysis', 'bulk_upload', 'import_pgn'],
             '/reports': ['own_reports', 'view_stats', 'reports'],
             '/chess-board': ['chess_board'],
             '/admin/roles': ['ALL'] // Admin only
