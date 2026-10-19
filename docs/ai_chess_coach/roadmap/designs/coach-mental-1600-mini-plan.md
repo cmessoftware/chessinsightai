@@ -7,7 +7,7 @@
 
 **Layout:** [coach-game-analysis-layout-pgn.md](./coach-game-analysis-layout-pgn.md)
 
-**Relación con clasificación (CA-*):** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md) — mismo **MVP navegador + WASM**, sin persistir en PostgreSQL. Mental 1600 **reutiliza** FEN del cursor, última jugada, eval antes/después (prefetch/classification) y MultiPV cuando ya exista.
+**Relación con clasificación (CA-*):** [coach-move-classification-pedagogy-mini-plan.md](../deep_analysis/coach-move-classification-pedagogy-mini-plan.md) — mismo **MVP navegador + WASM**, sin persistir en PostgreSQL. Mental 1600 **reutiliza** FEN del cursor, última jugada, eval antes/después (prefetch/classification) y MultiPV cuando ya exista.
 
 **Estrategia acordada (2026-10):** integrar Mental 1600 en el **MVP cliente** (Stockfish WASM + chess.js). **No** depender del job module07 ni de `mental_model` en DB para probar el flujo. El Python en `analysis/mental_model/` es **referencia y paridad**; la implementación activa es **JS** en `src/frontend/src/utils/`. Tras HITL, portar reglas a worker (Phase 2) con tests golden compartidos.
 
@@ -103,7 +103,7 @@ Al **navegar el PGN** (línea principal o variante; ply donde actúa el jugador 
 | **M-8** | UI panel | `Mental1600Panel`: triggers, plan, D1–D5, copy modo fast; tipografía PGN | `Mental1600Panel.jsx` | ✅ Done |
 | **M-9** | Integración página | Tab Mental lee assessment **cliente** en ply del cursor (POV jugador); fallback JSON server en modo crítico job | `CoachGameAnalysisPage.jsx` | ✅ Done |
 | **M-10** | Vitest + golden | 3–5 FEN fijos; paridad tolerante vs casos de `test_mental_model_1600.py` | `coachMental1600.test.js` | ✅ Done |
-| **M-11** | HITL MVP | Checklist operativo + revisión humana antes de congelar reglas JS | [coach-mental-1600-hitl-checklist.md](./coach-mental-1600-hitl-checklist.md) | 🔄 WIP (doc listo; revisión pendiente) |
+| **M-11** | HITL MVP | Checklist operativo + revisión humana antes de congelar reglas JS | [coach-mental-1600-hitl-checklist.md](../deep_analysis/coach-mental-1600-hitl-checklist.md) | 🔄 WIP (doc listo; revisión pendiente) |
 
 **Dependencias:** M-1 → M-2 → M-3 → M-4; M-5 en paralelo tras M-1; M-7 agrega M-2…M-5; M-8/M-9 tras M-7.
 
@@ -197,8 +197,8 @@ Rama sugerida: **`feature/11_117_mental_1600_client`**.
 |-----------|-----|
 | [07_cc_human_mental_model_analysis.md](../../../ai_chess_coach_course/07_cc_human_mental_model_analysis.md) | Flujo pedagógico primario |
 | [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md) | Misma estrategia sin DB |
-| [coach-mental-1600-hitl-checklist.md](./coach-mental-1600-hitl-checklist.md) | Gate M-11 (HITL mental 1600) |
-| [coach-classification-hitl-checklist.md](./coach-classification-hitl-checklist.md) | Gate CA-8 (badges / impacto) |
+| [coach-mental-1600-hitl-checklist.md](../deep_analysis/coach-mental-1600-hitl-checklist.md) | Gate M-11 (HITL mental 1600) |
+| [coach-classification-hitl-checklist.md](../deep_analysis/coach-classification-hitl-checklist.md) | Gate CA-8 (badges / impacto) |
 | [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) | FEAT-07 enlazado aquí |
 
 ---
@@ -207,7 +207,7 @@ Rama sugerida: **`feature/11_117_mental_1600_client`**.
 
 **Rama activa FEAT-07:** `feature/11_117_mental_1600_wip` (WIP, sin merge hasta M-11).
 
-1. Ejecutar HITL con [coach-mental-1600-hitl-checklist.md](./coach-mental-1600-hitl-checklist.md) (≥ 3 partidas rapid, §4 casos obligatorios).
+1. Ejecutar HITL con [coach-mental-1600-hitl-checklist.md](../deep_analysis/coach-mental-1600-hitl-checklist.md) (≥ 3 partidas rapid, §4 casos obligatorios).
 2. Ajustar `coachMental1600.js` / tests según causas A–F; bump `MENTAL_MODEL_RULES_VERSION` si cambia comportamiento.
 3. Tras gate M-11: PR desde `11_117` → `main`.
 

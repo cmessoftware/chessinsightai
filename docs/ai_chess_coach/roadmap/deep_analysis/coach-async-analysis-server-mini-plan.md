@@ -1,9 +1,10 @@
 # Mini-plan · Análisis asíncrono en servidor (Phase 2)
 
 **Estado:** ⬜ Planned  
-**Arquitectura:** [arquitectura_candidata_servicios_analisis.md](../../arquitectura_candidata_servicios_analisis.md)  
+**Spec canónica:** [spec_analisis_profundo_unificado.md](../../spec_analisis_profundo_unificado.md) (capacidades A, B, C)  
+**Arquitectura:** [architecture-deep-analysis-module.md](./architecture-deep-analysis-module.md) · [architecture-shared-analysis-platform.md](./architecture-shared-analysis-platform.md)  
 **Precondición:** Phase 1 slice usable; curso **suspendido** (solo producto + `src/analysis/`).  
-**Precondición funcional:** [POS-1 FEN texto](./coach-position-analysis-entry-mini-plan.md) (tablero + motor live para posición suelta) **antes** de AS-2…AS-4.
+**Precondición funcional:** POS-1 FEN texto (UI tablero + motor live) **antes** de AS-2…AS-4 — [03-phase-02](../03-phase-02-analysis-in-product.md).
 
 **Meta de fase:** Cerrar **infra + HITL** y que el **análisis profundo de línea principal** corra en **servidor** (Stockfish); cliente WASM = preview live. Posiciones sueltas: POS-1 (FEN) → AS-9 (server).
 

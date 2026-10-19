@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
     Box,
     Button,
@@ -30,6 +30,7 @@ import {
 } from '../../services/module07Service.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 import { CoachStatusBadge, CoachStatusBadgeRow } from './coachPanelStatus.jsx'
+import { formatCoachGameDescription } from '../../utils/coachGameDisplay.js'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -182,15 +183,33 @@ export default function CoachGamesPanel() {
         return () => clearInterval(timer)
     }, [refresh])
 
+    const initialSelectionDone = useRef(false)
+    const importHighlightKey = useRef(null)
+
     useEffect(() => {
         const fromImport = location.state?.highlightGameIds
-        if (fromImport?.length) {
+        const highlightKey =
+            fromImport?.length > 0 ? fromImport.slice().sort().join(',') : null
+        if (highlightKey && importHighlightKey.current !== highlightKey) {
+            importHighlightKey.current = highlightKey
+            initialSelectionDone.current = true
             const queueable = new Set(queueableGames.map((g) => g.id))
             setSelectedIds(new Set(fromImport.filter((id) => queueable.has(id))))
             return
         }
+        if (initialSelectionDone.current || !games.length) return
+        initialSelectionDone.current = true
         setSelectedIds(new Set(queueableGames.map((g) => g.id)))
-    }, [queueableGames, location.state?.highlightGameIds])
+    }, [queueableGames, games.length, location.state?.highlightGameIds])
+
+    useEffect(() => {
+        const valid = new Set(games.map((g) => g.id))
+        setSelectedIds((prev) => {
+            if (!prev.size) return prev
+            const next = new Set([...prev].filter((id) => valid.has(id)))
+            return next.size === prev.size ? prev : next
+        })
+    }, [games])
 
     const toggleGame = (id) => {
         setSelectedIds((prev) => {
@@ -469,8 +488,7 @@ export default function CoachGamesPanel() {
                                     onChange={toggleAllGames}
                                 />
                             </TableCell>
-                            <TableCell>Blancas</TableCell>
-                            <TableCell>Negras</TableCell>
+                            <TableCell>Partida</TableCell>
                             <TableCell>Jugador POV</TableCell>
                             <TableCell>Análisis</TableCell>
                             <TableCell>Resultado</TableCell>
@@ -500,18 +518,17 @@ export default function CoachGamesPanel() {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {g.white_player}
+                                        {formatCoachGameDescription(g)}
                                         {importTag !== undefined && (
                                             <Chip
                                                 size="small"
                                                 label={importTag ? 'Nueva' : 'Ya existía'}
                                                 color={importTag ? 'success' : 'default'}
                                                 variant="outlined"
-                                                sx={{ ml: 1 }}
+                                                sx={{ ml: 1, verticalAlign: 'middle' }}
                                             />
                                         )}
                                     </TableCell>
-                                    <TableCell>{g.black_player}</TableCell>
                                     <TableCell>
                                         {g.player_username
                                             ? `${g.player_username} (${g.player_color || '?'})`

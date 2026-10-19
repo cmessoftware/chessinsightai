@@ -52,6 +52,17 @@ Definition of Done for requirement changes:
 2. [`architecture/03-consolidated-architecture.md`](architecture/03-consolidated-architecture.md) — consolidated system view and logical flow
 3. [`modules/01-module-taxonomy.md`](modules/01-module-taxonomy.md) — core and extension module taxonomy
 
+### Product specifications (canónicas)
+1. [`spec_analisis_profundo_unificado.md`](spec_analisis_profundo_unificado.md) — análisis profundo servidor **A** + **B** + **C** (comportamiento)
+2. [`spec_sparring_maia_stockfish_unificado.md`](spec_sparring_maia_stockfish_unificado.md) — sparring Maia/Stockfish, ejercicios, progreso
+3. [`spec_planes_hitl.md`](spec_planes_hitl.md) — planes estratégicos y HITL
+
+### Arquitectura análisis / sparring (implementación)
+[`roadmap/deep_analysis/index.md`](roadmap/deep_analysis/index.md) — specs, arquitectura y mini-plans con resumen.
+
+### Diseños UI Coach
+[`roadmap/designs/index.md`](roadmap/designs/index.md)
+
 ### Planning and Delivery
 1. [`roadmap/00-roadmap-index.md`](roadmap/00-roadmap-index.md) — **living hub** (Phase 1 activa, P0/P1)
 2. [`roadmap/01-phase-roadmap.md`](roadmap/01-phase-roadmap.md) — secuencia web phases **1–6** + plataforma **7–16**

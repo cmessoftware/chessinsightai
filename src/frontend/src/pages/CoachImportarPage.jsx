@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Box, Button, Paper, Tab, Tabs, Typography } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
 import CoachSubNav from '../components/coach/CoachSubNav.jsx'
+import ChesscomImportPanel from '../components/coach/ChesscomImportPanel.jsx'
 import LichessImportPanel from '../components/coach/LichessImportPanel.jsx'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
 import { useAuth } from '../hooks/useAuth.js'
@@ -29,7 +30,7 @@ export default function CoachImportarPage() {
                 Coach
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Importá partidas (PGN) o analizá una posición suelta (FEN). El jugador POV se elige
+                Importá partidas (PGN, Lichess, Chess.com) o analizá una posición suelta (FEN). El jugador POV se elige
                 en <strong>Partidas</strong> al encolar Stockfish.
             </Typography>
             <CoachSubNav />
@@ -40,6 +41,7 @@ export default function CoachImportarPage() {
             >
                 <Tab label="PGN (texto o archivo)" value="pgn" sx={{ textTransform: 'none' }} />
                 <Tab label="Lichess" value="lichess" sx={{ textTransform: 'none' }} />
+                <Tab label="Chess.com" value="chesscom" sx={{ textTransform: 'none' }} />
                 <Tab label="FEN suelta" value="fen" sx={{ textTransform: 'none' }} />
             </Tabs>
             {importSection === 'pgn' && (
@@ -64,6 +66,18 @@ export default function CoachImportarPage() {
                         configuración se guarda en tu cuenta.
                     </Typography>
                     <LichessImportPanel corpusType={corpusType} />
+                </Paper>
+            )}
+            {importSection === 'chesscom' && (
+                <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, mb: 3 }} id="coach-chesscom-import">
+                    <Typography variant="h6" gutterBottom>
+                        Importar desde Chess.com
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Descarga lotes de hasta 200 partidas por ritmo desde la API pública de
+                        Chess.com (archivos mensuales). La configuración se guarda en tu cuenta.
+                    </Typography>
+                    <ChesscomImportPanel corpusType={corpusType} />
                 </Paper>
             )}
             {importSection === 'fen' && (

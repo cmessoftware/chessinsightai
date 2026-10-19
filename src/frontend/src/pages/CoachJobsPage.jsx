@@ -18,6 +18,7 @@ import {
     Typography,
 } from '@mui/material'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
 import {
     createAnalysisJob,
     listGames,
@@ -356,8 +357,7 @@ export default function CoachJobsPage() {
                                     onChange={toggleAllQueueable}
                                 />
                             </TableCell>
-                            <TableCell>Blancas</TableCell>
-                            <TableCell>Negras</TableCell>
+                            <TableCell>Partida</TableCell>
                             <TableCell>Jugador POV</TableCell>
                             <TableCell>Estado análisis</TableCell>
                             <TableCell>Resultado</TableCell>
@@ -389,18 +389,17 @@ export default function CoachJobsPage() {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {g.white_player}
+                                        {formatCoachGameDescription(g)}
                                         {importTag !== undefined && (
                                             <Chip
                                                 size="small"
                                                 label={importTag ? 'Nueva' : 'Ya existía'}
                                                 color={importTag ? 'success' : 'default'}
                                                 variant="outlined"
-                                                sx={{ ml: 1 }}
+                                                sx={{ ml: 1, verticalAlign: 'middle' }}
                                             />
                                         )}
                                     </TableCell>
-                                    <TableCell>{g.black_player}</TableCell>
                                     <TableCell>
                                         {g.player_username
                                             ? `${g.player_username} (${g.player_color || '?'})`

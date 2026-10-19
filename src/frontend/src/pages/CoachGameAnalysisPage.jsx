@@ -12,6 +12,7 @@ import {
 import { Link as RouterLink, useLocation, useParams } from 'react-router-dom'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { COACH_RETURN_PARTIDAS } from '../components/coach/CoachSubNav.jsx'
+import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
 import { loadCoachAnalysisCursor, saveCoachLastGameId } from '../utils/coachLastGameSession.js'
@@ -193,8 +194,7 @@ export default function CoachGameAnalysisPage() {
             subtitle={
                 gameMeta ? (
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        {gameMeta.white_player} vs {gameMeta.black_player}
-                        {gameMeta.player_username ? ` · POV ${gameMeta.player_username}` : ''}
+                        {formatCoachGameDescription(gameMeta)}
                     </Typography>
                 ) : null
             }

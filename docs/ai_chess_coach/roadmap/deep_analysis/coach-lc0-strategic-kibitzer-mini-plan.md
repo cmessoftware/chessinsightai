@@ -2,7 +2,9 @@
 
 **Estado:** ⬜ Backlog  
 **Prioridad:** P2 (después de AS-A y HITL CA-8; paralelo o posterior a AS-10 Maia server)  
-**Relacionado:** [03-phase-02-analysis-in-product.md](../03-phase-02-analysis-in-product.md), [coach-async-analysis-server-mini-plan.md](./coach-async-analysis-server-mini-plan.md) (AS-11), [arquitectura_candidata_servicios_analisis.md](../../arquitectura_candidata_servicios_analisis.md)  
+**Spec (capacidad C):** [spec_analisis_profundo_unificado.md](../../spec_analisis_profundo_unificado.md) §3  
+**Arquitectura C:** [architecture-deep-analysis-module.md](./architecture-deep-analysis-module.md) §5  
+**Relacionado:** [03-phase-02-analysis-in-product.md](../03-phase-02-analysis-in-product.md), [coach-async-analysis-server-mini-plan.md](./coach-async-analysis-server-mini-plan.md) (AS-11), [architecture-shared-analysis-platform.md](./architecture-shared-analysis-platform.md)  
 **Regla ramas:** un ítem por branch — [roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc)
 
 **Inspiración producto:** kibitzers duales en Lucas Chess (Stockfish + Leela Zero) — SF para eval/táctica rápida; red neuronal como **segunda opinión** en momentos importantes, no en cada ply.
@@ -123,7 +125,7 @@ Adjunto al `review_pack` o campo hermano en decisión crítica:
 | Críticas / job | `modules/module07/worker.py`, `create_analysis_job` |
 | Review pack | `analysis/review_pack.py`, `module07_decision_points.review_pack` |
 | UI crítica | `CoachGameAnalysisPage.jsx`, `CoachStudyWorkspace.jsx` |
-| Registry motores | [arquitectura §5](../../arquitectura_candidata_servicios_analisis.md) |
+| Registry motores | [architecture-shared-analysis-platform.md](./architecture-shared-analysis-platform.md) §4 |
 
 ---
 
