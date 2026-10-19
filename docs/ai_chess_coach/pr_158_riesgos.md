@@ -307,9 +307,28 @@ alembic upgrade 20261010_000001    # incluye PR B
 alembic upgrade head               # último revision de la rama actual
 ```
 
-### Postgres desechable (solo PR B — migración GC-2)
+### Dos Postgres locales (convención post-split)
 
-Para no arriesgar el volumen Docker habitual (`chess_pgdata` en 5432):
+| Puerto host | Uso | Cómo levantarlo | Volumen |
+|-------------|-----|-----------------|---------|
+| **5434** | **Dev diario** (API, Vite, `.env`) | `src/start_db.ps1` → contenedor `chessinsight-postgres` | `chessinsightai_chess_pgdata` |
+| **5433** | **Pruebas / migraciones arriesgadas** (pytest GC, HITL de ramas) | contenedor desechable abajo | ninguno (o borrar contenedor al terminar) |
+
+`.env` apunta siempre a **5434**. Para probar una revisión Alembic sin tocar dev:
+
+```powershell
+$env:CHESS_TRAINER_DB_URL="postgresql://chess:chess_pass@127.0.0.1:5433/chess_trainer_db"
+alembic upgrade head   # o una revision concreta
+pytest tests/mvp/... -q
+```
+
+Los datos **no se comparten** entre 5433 y 5434: mismo esquema tras `upgrade head`, pero filas distintas (reimportar en dev si hiciste pruebas solo en 5433).
+
+`docker compose up -d postgres` publica **5432** (otro volumen `chess_pgdata`); no es el stack Coach MVP documentado en Phase 1 (5434).
+
+### Postgres desechable (patrón PR B — migración GC-2)
+
+Para no arriesgar el volumen de dev en **5434**:
 
 ```powershell
 docker rm -f chess_pg_test 2>$null

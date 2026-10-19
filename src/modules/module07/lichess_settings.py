@@ -78,6 +78,14 @@ def upsert_lichess_import_settings(
     if "player_alias" in payload:
         alias = payload.get("player_alias")
         row.player_alias = str(alias).strip() if alias else None
+        reject = str(payload.get("app_login_username") or "").strip()
+        lichess = (row.lichess_username or "").strip()
+        alias_val = (row.player_alias or "").strip()
+        if alias_val and (
+            (lichess and alias_val.casefold() == lichess.casefold())
+            or (reject and alias_val.casefold() == reject.casefold())
+        ):
+            row.player_alias = None
     if payload.get("clear_api_token"):
         row.api_token = None
     elif "api_token" in payload:
