@@ -24,6 +24,7 @@ import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachCurrentFenBar from './CoachCurrentFenBar.jsx'
 import CoachPgnMoveList from './CoachPgnMoveList.jsx'
 import CoachSubNav from './CoachSubNav.jsx'
+import { CoachConfirmBadge } from './coachPanelStatus.jsx'
 import Mental1600Panel from './Mental1600Panel.jsx'
 import EngineMultipvPanel from './EngineMultipvPanel.jsx'
 import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
@@ -86,6 +87,7 @@ export default function CoachStudyWorkspace({
     const boardColumnRef = useRef(null)
     const boardKeyboardRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(420)
+    const [pendingPgnAction, setPendingPgnAction] = useState(null)
 
     const pack = reviewCritical?.pack
     const criticalMode = Boolean(reviewCritical?.detail?.fen_before)
@@ -216,11 +218,8 @@ export default function CoachStudyWorkspace({
         [treeRoot, cursorPath, criticalMode, exitCritical, setTreeRoot, setCursorPath],
     )
 
-    const handleDeleteVariation = useCallback(
+    const executeDeleteVariation = useCallback(
         (path) => {
-            if (!window.confirm('¿Quitar esta variante (rama completa)?')) {
-                return
-            }
             const result = deleteVariationAtPath(treeRoot, path)
             if (!result) return
             setTreeRoot(result.tree)
@@ -228,6 +227,16 @@ export default function CoachStudyWorkspace({
         },
         [treeRoot, setTreeRoot, setCursorPath],
     )
+
+    const requestDeleteVariation = useCallback((path) => {
+        if (!path?.length) return
+        setPendingPgnAction({
+            kind: 'deleteVariation',
+            path,
+            message: '¿Quitar esta variante (rama completa)?',
+            confirmLabel: 'Quitar variante',
+        })
+    }, [])
 
     const pathHasContinuations = useCallback(
         (path) => {
@@ -238,21 +247,45 @@ export default function CoachStudyWorkspace({
         [treeRoot],
     )
 
-    const handleTruncateForward = useCallback(
+    const executeTruncateForward = useCallback(
+        (path) => {
+            if (!path?.length) return
+            const result = truncateLineForward(treeRoot, path)
+            if (!result) return
+            setTreeRoot(result.tree)
+            setCursorPath(result.path)
+        },
+        [treeRoot, setTreeRoot, setCursorPath],
+    )
+
+    const requestTruncateForward = useCallback(
         (path) => {
             if (!path?.length || !pathHasContinuations(path)) return
             const touchesImport = truncateTouchesImportedMoves(treeRoot, path)
             const message = touchesImport
                 ? '¿Borrar todas las jugadas desde aquí en adelante? Se eliminará parte de la partida importada y sus variantes.'
                 : '¿Borrar todas las jugadas y subvariantes desde esta posición en adelante?'
-            if (!window.confirm(message)) return
-            const result = truncateLineForward(treeRoot, path)
-            if (!result) return
-            setTreeRoot(result.tree)
-            setCursorPath(result.path)
+            setPendingPgnAction({
+                kind: 'truncate',
+                path,
+                message,
+                confirmLabel: 'Sí, borrar',
+            })
         },
-        [treeRoot, pathHasContinuations, setTreeRoot, setCursorPath],
+        [treeRoot, pathHasContinuations],
     )
+
+    const confirmPendingPgnAction = useCallback(() => {
+        if (!pendingPgnAction) return
+        const { kind, path } = pendingPgnAction
+        if (kind === 'deleteVariation') executeDeleteVariation(path)
+        else executeTruncateForward(path)
+        setPendingPgnAction(null)
+    }, [pendingPgnAction, executeDeleteVariation, executeTruncateForward])
+
+    const cancelPendingPgnAction = useCallback(() => {
+        setPendingPgnAction(null)
+    }, [])
 
     const { evalByFen, setEvalForFen } = usePgnEvalCache(treeRoot, playerColor, {
         prefetchDepth: 10,
@@ -611,12 +644,23 @@ export default function CoachStudyWorkspace({
                         )}
                     </Box>
 
+                    {pendingPgnAction && (
+                        <Box sx={{ mb: 1 }}>
+                            <CoachConfirmBadge
+                                message={pendingPgnAction.message}
+                                confirmLabel={pendingPgnAction.confirmLabel}
+                                onConfirm={confirmPendingPgnAction}
+                                onCancel={cancelPendingPgnAction}
+                            />
+                        </Box>
+                    )}
+
                     <CoachPgnMoveList
                         treeRoot={treeRoot}
                         cursorPath={cursorPath}
                         onSelectPath={goToPath}
-                        onDeleteVariation={handleDeleteVariation}
-                        onTruncateForward={handleTruncateForward}
+                        onDeleteVariation={requestDeleteVariation}
+                        onTruncateForward={requestTruncateForward}
                         pathHasContinuations={pathHasContinuations}
                         evalByFen={evalByFen}
                         classificationByPathKey={classificationByPathKey}
