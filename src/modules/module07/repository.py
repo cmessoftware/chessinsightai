@@ -218,7 +218,10 @@ def get_job(db: Session, job_id: str, owner_user_id: int) -> Module07AnalysisJob
 def list_games(db: Session, owner_user_id: int) -> list[CoachGame]:
     return (
         db.query(CoachGame)
-        .options(joinedload(CoachGame.analysis_job))
+        .options(
+            joinedload(CoachGame.analysis_job),
+            joinedload(CoachGame.master_game),
+        )
         .filter(CoachGame.owner_user_id == owner_user_id)
         .order_by(CoachGame.last_imported_at.desc(), CoachGame.created_at.desc())
         .all()
@@ -228,7 +231,10 @@ def list_games(db: Session, owner_user_id: int) -> list[CoachGame]:
 def get_game(db: Session, game_id: str, owner_user_id: int) -> CoachGame | None:
     return (
         db.query(CoachGame)
-        .options(joinedload(CoachGame.analysis_job))
+        .options(
+            joinedload(CoachGame.analysis_job),
+            joinedload(CoachGame.master_game),
+        )
         .filter(
             CoachGame.id == game_id,
             CoachGame.owner_user_id == owner_user_id,

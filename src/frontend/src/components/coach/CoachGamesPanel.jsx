@@ -30,6 +30,7 @@ import {
 } from '../../services/module07Service.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 import { CoachStatusBadge, CoachStatusBadgeRow } from './coachPanelStatus.jsx'
+import { formatCoachGameDescription } from '../../utils/coachGameDisplay.js'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -487,8 +488,7 @@ export default function CoachGamesPanel() {
                                     onChange={toggleAllGames}
                                 />
                             </TableCell>
-                            <TableCell>Blancas</TableCell>
-                            <TableCell>Negras</TableCell>
+                            <TableCell>Partida</TableCell>
                             <TableCell>Jugador POV</TableCell>
                             <TableCell>Análisis</TableCell>
                             <TableCell>Resultado</TableCell>
@@ -518,18 +518,17 @@ export default function CoachGamesPanel() {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {g.white_player}
+                                        {formatCoachGameDescription(g)}
                                         {importTag !== undefined && (
                                             <Chip
                                                 size="small"
                                                 label={importTag ? 'Nueva' : 'Ya existía'}
                                                 color={importTag ? 'success' : 'default'}
                                                 variant="outlined"
-                                                sx={{ ml: 1 }}
+                                                sx={{ ml: 1, verticalAlign: 'middle' }}
                                             />
                                         )}
                                     </TableCell>
-                                    <TableCell>{g.black_player}</TableCell>
                                     <TableCell>
                                         {g.player_username
                                             ? `${g.player_username} (${g.player_color || '?'})`

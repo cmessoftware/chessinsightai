@@ -119,3 +119,4 @@ class TacticalExercises(Base):
 # Register Module 07 MVP tables on the same metadata (Alembic autogenerate / migrations).
 from . import module07_models as _module07_models  # noqa: E402, F401
 from . import coach_lichess_import_models as _coach_lichess_import_models  # noqa: E402, F401
+from . import coach_chesscom_import_models as _coach_chesscom_import_models  # noqa: E402, F401

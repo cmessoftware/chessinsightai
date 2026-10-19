@@ -1,12 +1,12 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)  
-**Actualizado:** 2026-10-15  
+**Actualizado:** 2026-10-19  
 **Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)  
 **Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
 **Split monolito #158:** integrado en `main` (#159–#164); ver [pr_158_riesgos.md](../../pr_158_riesgos.md).
 
-**Estrategia (vigente):** MVP **Stockfish WASM** + UI de análisis avanzada en cliente. **SV-2** persiste clasificación por ply en Postgres (#159) cuando hay `gameId` y el usuario activa análisis liviano. Análisis profundo servidor → Phase 2 ([index.md](./index.md)).
+**Estrategia (vigente):** MVP **Stockfish WASM** + UI de análisis avanzada en cliente. **SV-2** persiste clasificación por ply en Postgres (#159) cuando hay `gameId` y el usuario activa análisis liviano. Análisis profundo servidor → Phase 2 ([deep_analysis index](../deep_analysis/index.md)).
 
 **Superficie UI actual:** `CoachStudyWorkspace.jsx`, `CoachGameAnalysisPage.jsx`, `CoachPgnMoveList.jsx`, `AdvancedMoveAnalysisPanel.jsx`, `LiveEnginePanel.jsx`, hooks `usePgnMoveClassification`, `useSyncPlyClassificationPersistence`.
 
@@ -17,6 +17,8 @@
 Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc)).
 
 <!-- Tablas en HTML: Markdown Preview Enhanced (extended table) rompe pipe tables con celdas vacías. -->
+
+## Features y bugs de UI
 
 <table>
 <thead>
@@ -51,9 +53,46 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-024</td><td>FEAT-22</td><td>Link FEN → <code>/coach/position</code> con posición cargada</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/172">#172</a></td></tr>
 <tr><td>FEAT-025</td><td></td><td>Importar Partidas: importación masiva PGN (texto/archivo, máx. 100); 1 partida → análisis; &gt;1 → Partidas</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/173">#173</a> — HITL</td></tr>
 <tr><td>FEAT-026</td><td></td><td>Iconos Acciones: <a href="../../img/ver.png">VER</a> / <a href="../../img/analizar.png">ANALIZAR</a> / <a href="../../img/eliminar.png">ELIMINAR</a></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/174">#174</a> — HITL; <a href="https://github.com/cmessoftware/chessinsightai/pull/175">#175</a> tracker</td></tr>
-<tr><td>FEAT-027</td><td></td><td>Importación masiva desde Lichess</td><td>🔄 WIP</td><td><code>feature/11_146_feat_027_lichess_bulk_import</code> — config por usuario, lotes 200, token opcional, alias POV, cursor/resume</td></tr>
-<tr><td>FEAT-028</td><td></td><td>Importación masiva desde Chess.com</td><td>⬜ Todo</td><td>Igual FEAT-027 adaptado a Chess.com (usuario, fechas, ritmo; lotes 200; reinicio API; alias POV; rollback).</td></tr>
+<tr><td>FEAT-027</td><td></td><td>Importación masiva desde Lichess</td><td>✅ Done</td><td>HITL — <a href="https://github.com/cmessoftware/chessinsightai/pull/176">#176</a>; hardening en <code>feature/11_146b_feat_027_lichess_hardening</code></td></tr>
+<tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>🔄 WIP</td><td><code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
 <tr><td>FEAT-029</td><td></td><td>Cambio de usuario POV en todas las partidas (bulk)</td><td>⬜ Todo</td><td>Preservar usuario original para rollback.</td></tr>
+<tr><td>FEAT-031</td><td></td><td>Mover sidebar de menú horizontal a vertical en la izquierda con icono de sanguche para colapsar, soporte responsive</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-032</td><td>FEAT-019 / FEAT-020</td><td>Modificar: al copiar PGN copiar también el encabezado del mismo</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-033</td><td></td><td>En tabla partidas agregar ritmo (Blitz, Rapid, Classical, Correspondence, Unknown)</td><td>✅ Done</td><td><code>feature/11_147_feat_033_partidas_ritmo</code>; <code>CoachGamesPanel</code> + <code>coachSpeedClassLabel</code></td></tr>
+<tr><td>FEAT-034</td><td>FEAT-027</td><td>Por defecto no migrar: cant. movimientos ≤10 excepto análisis de posiciones que no empiezan desde la inicial; en ese caso marcar Fuente=Estudio</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-034</td><td></td><td>En tabla partidas agregar campo Fuente (<code>corpus_type</code> de <code>coach_games</code>)</td><td>⬜ Todo</td><td>Id duplicado en borrador — renumerar al implementar</td></tr>
+<tr><td>FEAT-035</td><td></td><td>En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-036</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td><code>formatCoachGameDescription</code>; API <code>description</code> + <code>time_control</code></td></tr>
+<tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
+<tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td></td></tr>
+</tbody>
+</table>
+
+## Features y bugs de login
+
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>LOG-FEAT-01</td><td></td><td>Soporte para login con usuario de Google</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>LOG-FEAT-02</td><td></td><td>Soporte para login con usuario de Chess.com</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td></td></tr>
+</tbody>
+</table>
+
+## Features y bugs de estructura de tablas
+
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>DB-FEAT-01</td><td></td><td>cambiar tabla module07_games por coach_games</td><td>✅ Done</td><td>Actualizar referencias en código Python</td></tr>
+<tr><td>DB-FEAT-02</td><td></td><td>cambiar tabla module07_decision_points por coach_decision_points</td><td>⬜ Todo</td><td>Actualizar referencias en código Python</td></tr>
+<tr><td>DB-FEAT-03</td><td></td><td>cambiar tabla module07_analysis_jobs por coach_analysis_jobs</td><td>⬜ Todo</td><td>Actualizar referencias en código Python</td></tr>
+<tr><td>DB-FEAT-04</td><td></td><td>cambiar tabla module07_ply_annotations por coach_ply_annotations</td><td>⬜ Todo</td><td>Actualizar referencias en código Python</td></tr>
 </tbody>
 </table>
 
@@ -64,10 +103,10 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…026</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-027</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-028…029</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…027, FEAT-033/036, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-028</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-029, FEAT-031…035, FEAT-038/039, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-027 (import Lichess) → FEAT-028 (Chess.com) → FEAT-029 (bulk POV).
+**Siguiente sugerido (orden):** FEAT-028 (Chess.com) → FEAT-029 (bulk POV) → FEAT-034 (filtro cortas / Fuente).

@@ -121,6 +121,12 @@ class CoachGame(Base):
     def result(self) -> str | None:
         return self.master_game.result if self.master_game else None
 
+    @property
+    def time_control(self) -> str | None:
+        if not self.master_game:
+            return None
+        return (self.master_game.time_control or "").strip() or None
+
 
 # Backward-compatible alias (API package name module07 until GC-4).
 Module07Game = CoachGame

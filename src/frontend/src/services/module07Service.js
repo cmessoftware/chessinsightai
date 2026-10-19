@@ -137,3 +137,18 @@ export async function runLichessImport(body = {}) {
     const { data } = await api.post('/api/v1/module07/lichess-import/run', body)
     return data
 }
+
+export async function getChesscomImportSettings() {
+    const { data } = await api.get('/api/v1/module07/chesscom-import/settings')
+    return data
+}
+
+export async function saveChesscomImportSettings(body) {
+    const { data } = await api.put('/api/v1/module07/chesscom-import/settings', body)
+    return data
+}
+
+export async function runChesscomImport(body = {}) {
+    const { data } = await api.post('/api/v1/module07/chesscom-import/run', body)
+    return data
+}
