@@ -40,3 +40,10 @@ def test_infer_speed_classical():
         infer_speed_class_from_headers({"TimeControl": "900+10"})
         == "classical"
     )
+
+
+def test_infer_speed_daily_from_correspondence_time_control():
+    assert (
+        infer_speed_class_from_headers({"TimeControl": "1/86400"})
+        == "daily"
+    )

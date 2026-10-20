@@ -3,7 +3,7 @@
 **Estado:** Seguimiento activo (UI MVP liviano)  
 **Actualizado:** 2026-10-19  
 
-> **Sync (obligatorio):** Copia **canónica**. Mantener **idéntico** a [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md`](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Cambios del tracker en **ambos** archivos en el mismo commit; rama `docs/coach_issues_tracker` → merge a la feature activa.
+> **Sync (obligatorio):** **Canónico** — espejo en [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md`](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Cuerpo del tracker idéntico a `designs/`; mismo commit.
 
 **Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)  
 **Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
@@ -42,7 +42,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-11</td><td>FEAT-08</td><td>Font tooltip = font movidas PGN</td><td>✅ Done</td><td><code>pgnMoveTextSx</code></td></tr>
 <tr><td>BUG-12</td><td></td><td>Blunders falsos según contexto (ganado/igual/perdido)</td><td>🔄 WIP</td><td><code>coachPedagogicalImpact.js</code>; etiqueta cp sin cambio</td></tr>
 <tr><td>BUG-013</td><td></td><td>Tab Análisis avanzado desaparecía al cambiar PGN</td><td>✅ Done</td><td>Tabs sticky; reset por <code>gameId</code></td></tr>
-<tr><td>FEAT-07</td><td></td><td><strong>Mental 1600</strong> (WASM + chess.js)</td><td>🔄 WIP</td><td>Tab en workspace; M-11 HITL: <a href="./coach-mental-1600-hitl-checklist.md">checklist</a></td></tr>
+<tr><td>FEAT-07</td><td></td><td><strong>Mental 1600</strong> (WASM + chess.js)</td><td>🔄 WIP</td><td>Tab en workspace; M-11 HITL: <a href="../deep_analysis/coach-mental-1600-hitl-checklist.md">checklist</a></td></tr>
 <tr><td>FEAT-014</td><td></td><td>Botón girar tablero</td><td>✅ Done</td><td>#159 — <code>FlipCameraAndroid</code></td></tr>
 <tr><td>BUG-015</td><td></td><td>Numeración por movimiento PGN (no ply)</td><td>✅ Done</td><td>#159 — <code>moveNumberFromPlyCount</code></td></tr>
 <tr><td>BUG-016</td><td></td><td>Tras importar y analizar hasta ply X, reabrir desde Partidas: tablero vs <strong>Análisis avanzado</strong> desincronizados (<a href="../../img/BUG-016.png">captura</a>)</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/165">#165</a> — <code>coachLastGameSession</code> cursor + sin auto-select 1ª decisión servidor</td></tr>
@@ -72,6 +72,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>⬜ Todo</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code>; enlaza <a href="../deep_analysis/coach-games-catalog-unify-mini-plan.md">GC UI-G3</a></td></tr>
 <tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>⬜ Todo</td><td><code>feature/11_152_feat_041_deprecate_chess_board_tab</code>; tablero canónico = <code>CoachStudyWorkspace</code></td></tr>
 <tr><td>FEAT-042</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>⬜ Todo</td><td><code>feature/11_153_feat_042_coach_partidas_master_list</code> — entrega <strong>UI-G3</strong> del mini-plan catálogo; filtros corpus (UI-G2) opcional bajo rol admin</td></tr>
+<tr><td>FEAT-043</td><td>FEAT-045</td><td>Partidas: eliminar selección / icono — confirmación con badge (sin <code>window.confirm</code>)</td><td>✅ Done</td><td><code>feature/11_154_bug_044_feat_043_045_coach_ux</code> — <code>CoachGamesPanel</code></td></tr>
+<tr><td>BUG-044</td><td>FEAT-036</td><td>Correspondencia: reloj en días (<code>1/86400</code>); PGN anotado multilínea = una sola partida</td><td>✅ Done</td><td><code>game_description</code>, <code>normalize_pgn_text_for_parse</code> — HITL OK</td></tr>
+<tr><td>FEAT-045</td><td>FEAT-08 / FEAT-09</td><td>Menú PGN (borrar desde aquí / quitar variante): confirmación con badge, sin <code>window.confirm</code></td><td>✅ Done</td><td><code>CoachConfirmBadge</code>, <code>CoachStudyWorkspace</code></td></tr>
 </tbody>
 </table>
 
@@ -109,10 +112,10 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…027, FEAT-033/036, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044, FEAT-08…11, FEAT-014/017…027, FEAT-033/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-028</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-029, FEAT-031…035, FEAT-038…042, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-028 (Chess.com, PR #181) → FEAT-029 (bulk POV) → FEAT-040/041 (deprecar navegador + tablero sueltos) → FEAT-042 (UI-G3 lista unificada) → FEAT-034 (filtro cortas / Fuente).
+**Siguiente sugerido (orden):** FEAT-028 (Chess.com) → FEAT-029 (bulk POV) → FEAT-034 (filtro cortas / Fuente).
