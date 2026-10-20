@@ -57,8 +57,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-025</td><td></td><td>Importar Partidas: importación masiva PGN (texto/archivo, máx. 100); 1 partida → análisis; &gt;1 → Partidas</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/173">#173</a> — HITL</td></tr>
 <tr><td>FEAT-026</td><td></td><td>Iconos Acciones: <a href="../../img/ver.png">VER</a> / <a href="../../img/analizar.png">ANALIZAR</a> / <a href="../../img/eliminar.png">ELIMINAR</a></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/174">#174</a> — HITL; <a href="https://github.com/cmessoftware/chessinsightai/pull/175">#175</a> tracker</td></tr>
 <tr><td>FEAT-027</td><td></td><td>Importación masiva desde Lichess</td><td>✅ Done</td><td>HITL — <a href="https://github.com/cmessoftware/chessinsightai/pull/176">#176</a>; hardening en <code>feature/11_146b_feat_027_lichess_hardening</code></td></tr>
-<tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>🔄 WIP</td><td><code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
-<tr><td>FEAT-029</td><td></td><td>Cambio de usuario POV en todas las partidas (bulk)</td><td>⬜ Todo</td><td>Preservar usuario original para rollback.</td></tr>
+<tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>✅ Done</td><td>HITL OK — <code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
+<tr><td>FEAT-029</td><td></td><td>Cambio de usuario POV en todas las partidas (bulk)</td><td>🔄 WIP</td><td><code>feature/11_148_feat_029_bulk_pov</code> — apply/rollback API + tab POV masivo; snapshot en <code>import_provenance</code></td></tr>
 <tr><td>FEAT-031</td><td></td><td>Mover sidebar de menú horizontal a vertical en la izquierda con icono de sanguche para colapsar, soporte responsive</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-032</td><td>FEAT-019 / FEAT-020</td><td>Modificar: al copiar PGN copiar también el encabezado del mismo</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-033</td><td></td><td>En tabla partidas agregar ritmo (Blitz, Rapid, Classical, Correspondence, Unknown)</td><td>✅ Done</td><td><code>feature/11_147_feat_033_partidas_ritmo</code>; <code>CoachGamesPanel</code> + <code>coachSpeedClassLabel</code></td></tr>
@@ -118,4 +118,4 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-028 (Chess.com) → FEAT-029 (bulk POV) → FEAT-034 (filtro cortas / Fuente).
+**Siguiente sugerido (orden):** FEAT-029 (bulk POV, HITL) → FEAT-040/041 (deprecar navegador + tablero sueltos) → FEAT-042 (UI-G3 lista unificada) → FEAT-034 (filtro cortas / Fuente).

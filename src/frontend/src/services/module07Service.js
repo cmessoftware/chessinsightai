@@ -165,3 +165,18 @@ export async function runChesscomImport(body = {}) {
     const { data } = await api.post('/api/v1/module07/chesscom-import/run', body)
     return data
 }
+
+export async function getPovBulkStatus() {
+    const { data } = await api.get('/api/v1/module07/pov-bulk/status')
+    return data
+}
+
+export async function applyPovBulk(body) {
+    const { data } = await api.post('/api/v1/module07/pov-bulk/apply', body)
+    return data
+}
+
+export async function rollbackPovBulk() {
+    const { data } = await api.post('/api/v1/module07/pov-bulk/rollback')
+    return data
+}

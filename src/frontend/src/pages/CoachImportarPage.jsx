@@ -5,6 +5,7 @@ import CoachSubNav from '../components/coach/CoachSubNav.jsx'
 import ChesscomImportPanel from '../components/coach/ChesscomImportPanel.jsx'
 import LichessImportPanel from '../components/coach/LichessImportPanel.jsx'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
+import PovBulkPanel from '../components/coach/PovBulkPanel.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 
 const ADMIN_CORPUS = [
@@ -42,6 +43,7 @@ export default function CoachImportarPage() {
                 <Tab label="PGN (texto o archivo)" value="pgn" sx={{ textTransform: 'none' }} />
                 <Tab label="Lichess" value="lichess" sx={{ textTransform: 'none' }} />
                 <Tab label="Chess.com" value="chesscom" sx={{ textTransform: 'none' }} />
+                <Tab label="POV masivo" value="pov" sx={{ textTransform: 'none' }} />
                 <Tab label="FEN suelta" value="fen" sx={{ textTransform: 'none' }} />
             </Tabs>
             {importSection === 'pgn' && (
@@ -78,6 +80,14 @@ export default function CoachImportarPage() {
                         Chess.com (archivos mensuales). La configuración se guarda en tu cuenta.
                     </Typography>
                     <ChesscomImportPanel corpusType={corpusType} />
+                </Paper>
+            )}
+            {importSection === 'pov' && (
+                <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, mb: 3 }} id="coach-pov-bulk">
+                    <Typography variant="h6" gutterBottom>
+                        Cambio de usuario POV (todas las partidas)
+                    </Typography>
+                    <PovBulkPanel />
                 </Paper>
             )}
             {importSection === 'fen' && (
