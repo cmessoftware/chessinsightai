@@ -4,7 +4,11 @@ const SPEED_TITLES = {
     rapid: 'Rapid',
     classical: 'Classical',
     daily: 'Correspondencia',
+    correspondence: 'Correspondencia',
 }
+
+const CORRESPONDENCE = new Set(['daily', 'correspondence'])
+const DAY_PERIODS = new Set([86400, 172800, 259200, 432000, 604800])
 
 export function formatClockLabel(initialSeconds, increment) {
     const inc = Math.max(0, increment || 0)
@@ -14,10 +18,38 @@ export function formatClockLabel(initialSeconds, increment) {
     return `${initialSeconds}s+${inc}`
 }
 
-export function formatTimeControlDisplay(raw) {
+function daysLabel(days) {
+    return `${days}d`
+}
+
+export function formatTimeControlDisplay(raw, speedClass) {
+    const key = String(speedClass || '').trim().toLowerCase()
     const tc = String(raw || '').trim()
     if (!tc || tc === '-' || tc === '*') return null
     if (tc.startsWith('-')) return null
+
+    if (tc.includes('/')) {
+        const [daysRaw, periodRaw] = tc.split('/')
+        const days = Number.parseInt(daysRaw, 10)
+        const period = Number.parseInt(String(periodRaw || '').split('+')[0], 10)
+        if (Number.isFinite(days) && DAY_PERIODS.has(period)) {
+            return daysLabel(days)
+        }
+    }
+
+    if (CORRESPONDENCE.has(key)) {
+        if (tc.includes('+')) return null
+        const value = Number.parseInt(tc.split('/')[0], 10)
+        if (!Number.isFinite(value)) return null
+        if (value >= 86400 && value % 86400 === 0) {
+            return daysLabel(value / 86400)
+        }
+        if (value >= 1 && value < 60) {
+            return daysLabel(value)
+        }
+        return null
+    }
+
     if (tc.includes('+')) {
         const [left, right] = tc.split('+')
         const base = left.split('/')[0]
@@ -44,21 +76,19 @@ function speedClassTitle(speedClass) {
 
 /** @param {Record<string, unknown>} game */
 export function formatCoachGameDescription(game) {
-    if (game?.description) {
+    const white = String(game?.white_player || '').trim()
+    const black = String(game?.black_player || '').trim()
+    if (!white && !black && game?.description) {
         return String(game.description)
     }
-    const white = String(game?.white_player || '').trim() || 'Blancas'
-    const black = String(game?.black_player || '').trim() || 'Negras'
-    let line = `${white} vs ${black}`
+    let line = `${white || 'Blancas'} vs ${black || 'Negras'}`
     const pov = String(game?.player_username || '').trim()
     if (pov) {
         line += ` · POV ${pov}`
     }
     const rhythm = []
     const speedTitle = speedClassTitle(game?.speed_class)
-    const clock =
-        game?.time_control_display ||
-        formatTimeControlDisplay(game?.time_control)
+    const clock = formatTimeControlDisplay(game?.time_control, game?.speed_class)
     if (speedTitle) rhythm.push(speedTitle)
     if (clock) rhythm.push(clock)
     if (rhythm.length) {

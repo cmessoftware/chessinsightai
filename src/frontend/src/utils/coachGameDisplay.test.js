@@ -17,4 +17,18 @@ describe('coachGameDisplay', () => {
             }),
         ).toBe('Frontallappen vs cmess1315 · POV cmess1315 (Rapid 15+10)')
     })
+
+    it('formats Chess.com correspondence days, not 1s+0', () => {
+        expect(formatTimeControlDisplay('1/86400', 'daily')).toBe('1d')
+        expect(
+            formatCoachGameDescription({
+                white_player: 'cmess4401',
+                black_player: 'Ejemplo: RajaDogor16',
+                player_username: 'cmess4401',
+                speed_class: 'daily',
+                time_control: '1/86400',
+                description: 'cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)',
+            }),
+        ).toBe('cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1d)')
+    })
 })

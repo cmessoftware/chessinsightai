@@ -8,7 +8,11 @@ _SPEED_TITLES = {
     "rapid": "Rapid",
     "classical": "Classical",
     "daily": "Correspondencia",
+    "correspondence": "Correspondencia",
 }
+
+_CORRESPONDENCE = frozenset({"daily", "correspondence"})
+_DAY_PERIODS = frozenset({86400, 172800, 259200, 432000, 604800})
 
 
 def format_clock_label(initial_seconds: int, increment: int) -> str:
@@ -19,13 +23,48 @@ def format_clock_label(initial_seconds: int, increment: int) -> str:
     return f"{initial_seconds}s+{inc}"
 
 
-def format_time_control_display(raw: str | None) -> str | None:
-    """Turn PGN ``TimeControl`` (seconds) into ``15+10`` when possible."""
+def _days_label(days: int) -> str:
+    return f"{days}d"
+
+
+def format_time_control_display(
+    raw: str | None,
+    speed_class: str | None = None,
+) -> str | None:
+    """Turn PGN ``TimeControl`` into ``15+10`` or correspondence ``1d``."""
+    key = (speed_class or "").strip().lower()
     tc = (raw or "").strip()
     if not tc or tc in {"-", "*"}:
         return None
     if tc.startswith("-"):
         return None
+
+    if "/" in tc:
+        days_s, _, period_s = tc.partition("/")
+        period_s = period_s.split("+")[0]
+        try:
+            days = int(days_s)
+            period = int(period_s)
+        except ValueError:
+            days = None
+            period = None
+        if days is not None and period in _DAY_PERIODS:
+            return _days_label(days)
+
+    if key in _CORRESPONDENCE:
+        if "+" in tc:
+            return None
+        base = tc.split("/")[0]
+        try:
+            value = int(base)
+        except ValueError:
+            return None
+        if value >= 86400 and value % 86400 == 0:
+            return _days_label(value // 86400)
+        if 1 <= value < 60:
+            return _days_label(value)
+        return None
+
     if "+" in tc:
         left, _, right = tc.partition("+")
         base = left.split("/")[0]
@@ -60,6 +99,7 @@ def format_coach_game_description(
 ) -> str:
     """
     Example: ``Frontallappen vs cmess1315 · POV cmess1315 (Rapid 15+10)``.
+    Correspondence: ``cmess4401 vs Rival · POV cmess4401 (Correspondencia 1d)``.
     """
     white = (white_player or "").strip() or "Blancas"
     black = (black_player or "").strip() or "Negras"
@@ -69,7 +109,7 @@ def format_coach_game_description(
         line += f" · POV {pov}"
     rhythm: list[str] = []
     speed_title = speed_class_title(speed_class)
-    clock = format_time_control_display(time_control)
+    clock = format_time_control_display(time_control, speed_class)
     if speed_title:
         rhythm.append(speed_title)
     if clock:
