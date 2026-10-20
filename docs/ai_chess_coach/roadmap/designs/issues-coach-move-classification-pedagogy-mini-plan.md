@@ -57,7 +57,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-025</td><td></td><td>Importar Partidas: importación masiva PGN (texto/archivo, máx. 100); 1 partida → análisis; &gt;1 → Partidas</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/173">#173</a> — HITL</td></tr>
 <tr><td>FEAT-026</td><td></td><td>Iconos Acciones: <a href="../../img/ver.png">VER</a> / <a href="../../img/analizar.png">ANALIZAR</a> / <a href="../../img/eliminar.png">ELIMINAR</a></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/174">#174</a> — HITL; <a href="https://github.com/cmessoftware/chessinsightai/pull/175">#175</a> tracker</td></tr>
 <tr><td>FEAT-027</td><td></td><td>Importación masiva desde Lichess</td><td>✅ Done</td><td>HITL — <a href="https://github.com/cmessoftware/chessinsightai/pull/176">#176</a>; hardening en <code>feature/11_146b_feat_027_lichess_hardening</code></td></tr>
-<tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>🔄 WIP</td><td><code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
+<tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>✅ Done</td><td>HITL OK — <code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
 <tr><td>FEAT-029</td><td></td><td>Cambio de usuario POV en todas las partidas (bulk)</td><td>⬜ Todo</td><td>Preservar usuario original para rollback.</td></tr>
 <tr><td>FEAT-031</td><td></td><td>Mover sidebar de menú horizontal a vertical en la izquierda con icono de sanguche para colapsar, soporte responsive</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-032</td><td>FEAT-019 / FEAT-020</td><td>Modificar: al copiar PGN copiar también el encabezado del mismo</td><td>⬜ Todo</td><td></td></tr>
@@ -112,10 +112,10 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044, FEAT-08…11, FEAT-014/017…027, FEAT-033/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-028</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044, FEAT-08…11, FEAT-014/017…028, FEAT-033/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-029, FEAT-031…035, FEAT-038…042, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-028 (Chess.com) → FEAT-029 (bulk POV) → FEAT-034 (filtro cortas / Fuente).
+**Siguiente sugerido (orden):** FEAT-029 (bulk POV) → FEAT-034 (filtro cortas / Fuente).

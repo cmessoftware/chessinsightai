@@ -72,7 +72,7 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
     user_response = UserResponse(
         id=user_data["user_id"],
         username=user_data["username"],
-        email=user_data.get("email", "legacy@example.com"),
+        email=(user_data.get("email") or "legacy@example.com"),
         roles=user_data.get("roles", []),
         created_at=datetime.utcnow(),  # For legacy users
         is_active=True,
@@ -103,7 +103,7 @@ async def verify_token(
     user_response = UserResponse(
         id=user_data["user_id"],
         username=user_data["username"],
-        email=user_data.get("email", "legacy@example.com"),
+        email=(user_data.get("email") or "legacy@example.com"),
         roles=user_data.get("roles", []),
         created_at=datetime.utcnow(),  # For legacy users
         is_active=True,

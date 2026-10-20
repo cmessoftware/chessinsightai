@@ -5,6 +5,7 @@ from jose import JWTError, jwt
 import bcrypt  # Use bcrypt directly instead of passlib
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -44,6 +45,19 @@ class AuthService:
                 "user_id": 3,
             },
         }
+
+    @staticmethod
+    def _coerce_roles(raw_roles: list | None) -> List[BaseRole]:
+        role_enums: List[BaseRole] = []
+        for role in raw_roles or []:
+            if isinstance(role, BaseRole):
+                role_enums.append(role)
+                continue
+            try:
+                role_enums.append(BaseRole(str(role)))
+            except ValueError:
+                continue
+        return role_enums
 
     def get_user_permissions(self, roles: List[BaseRole]) -> Set[str]:
         """Obtiene todos los permisos basados en los roles del usuario"""
@@ -127,21 +141,10 @@ class AuthService:
             try:
                 user = await self.authenticate_user_db(db, username, password)
                 if user:
-                    # Convert role strings from DB to BaseRole enums
-                    role_enums = []
-                    for role_str in user.roles:
-                        try:
-                            role_enums.append(BaseRole(role_str))
-                        except ValueError:
-                            print(
-                                f"Warning: Unknown role '{role_str}' for user {user.username}"
-                            )
-                            continue
-
                     return {
                         "user_id": user.id,
                         "username": user.username,
-                        "roles": role_enums,
+                        "roles": self._coerce_roles(user.roles),
                         "email": user.email,
                     }
             except Exception as e:
@@ -236,41 +239,41 @@ class AuthService:
 
             # If database available, try to get user from database
             if db and user_id:
-                # Try to verify session exists (but don't fail if it doesn't)
-                session = (
-                    db.query(UserSession)
-                    .filter(
+                try:
+                    db.query(UserSession).filter(
                         and_(
                             UserSession.token_jti == token,
                             UserSession.expires_at > datetime.utcnow(),
                         )
+                    ).first()
+
+                    user = (
+                        db.query(User)
+                        .filter(User.id == user_id, User.is_active == True)
+                        .first()
                     )
-                    .first()
-                )
+                    if user:
+                        return {
+                            "username": user.username,
+                            "user_id": user.id,
+                            "roles": self._coerce_roles(user.roles),
+                            "email": user.email or "legacy@example.com",
+                        }
+                except SQLAlchemyError as exc:
+                    print(f"verify_token DB lookup failed, using JWT claims: {exc}")
 
-                # Get user from database (regardless of session)
-                user = (
-                    db.query(User)
-                    .filter(User.id == user_id, User.is_active == True)
-                    .first()
-                )
-                if user:
-                    return {
-                        "username": user.username,
-                        "user_id": user.id,
-                        "roles": user.roles,
-                        "email": user.email,
-                    }
-
-            # Fallback to token data if user not found in DB
+            # Fallback to token data if user not found in DB or DB unavailable
             roles_str = payload.get("roles", "")
-            roles = (
-                [BaseRole(role) for role in roles_str.split(",") if role]
-                if roles_str
-                else []
+            roles = self._coerce_roles(
+                [r for r in roles_str.split(",") if r] if roles_str else []
             )
 
-            return {"username": username, "user_id": user_id, "roles": roles}
+            return {
+                "username": username,
+                "user_id": user_id,
+                "roles": roles,
+                "email": payload.get("email") or "legacy@example.com",
+            }
 
         except JWTError:
             return None

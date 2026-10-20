@@ -11,6 +11,9 @@ _SPEED_TITLES = {
     "correspondence": "Correspondencia",
 }
 
+_SECONDS_PER_DAY = 86_400
+_DAILY_SPEED = frozenset({"daily", "correspondence"})
+
 
 _SECONDS_PER_DAY = 86_400
 _DAILY_SPEED = frozenset({"daily", "correspondence"})
