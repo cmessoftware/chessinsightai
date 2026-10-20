@@ -54,6 +54,11 @@ from modules.module07.repository import (
     delete_coach_game,
     delete_coach_games,
 )
+from modules.module07.pov_bulk import (
+    apply_bulk_pov,
+    bulk_pov_status,
+    rollback_bulk_pov,
+)
 from modules.module07.worker import run_analysis_job
 from modules.game_import.coach_catalog import (
     coach_catalog_health,
@@ -789,3 +794,60 @@ def run_chesscom_import(
         "import_complete": batch.cursor.completed,
         "errors": list(batch.errors),
     }
+
+
+class PovBulkApplyBody(BaseModel):
+    source_username: str = Field(..., min_length=1)
+    target_username: str = Field(..., min_length=1)
+
+    @field_validator("source_username", "target_username")
+    @classmethod
+    def strip_pov_bulk_names(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("username cannot be blank")
+        return stripped
+
+
+def _pov_bulk_json(result: Any) -> dict[str, Any]:
+    return {
+        "updated": result.updated,
+        "skipped": result.skipped,
+        "rollback_available_count": result.rollback_available,
+    }
+
+
+@router.get("/pov-bulk/status")
+def get_pov_bulk_status(request: Request, db: Session = Depends(get_db)):
+    owner = _owner_id(request)
+    return bulk_pov_status(db, owner)
+
+
+@router.post("/pov-bulk/apply")
+def post_pov_bulk_apply(
+    body: PovBulkApplyBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    owner = _owner_id(request)
+    try:
+        result = apply_bulk_pov(
+            db,
+            owner_user_id=owner,
+            source_username=body.source_username,
+            target_username=body.target_username,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    payload = _pov_bulk_json(result)
+    payload["status"] = bulk_pov_status(db, owner)
+    return payload
+
+
+@router.post("/pov-bulk/rollback")
+def post_pov_bulk_rollback(request: Request, db: Session = Depends(get_db)):
+    owner = _owner_id(request)
+    result = rollback_bulk_pov(db, owner_user_id=owner)
+    payload = _pov_bulk_json(result)
+    payload["status"] = bulk_pov_status(db, owner)
+    return payload
