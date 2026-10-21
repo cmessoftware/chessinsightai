@@ -42,11 +42,33 @@ def normalize_header_player(value: str | None, *, side_label: str) -> str:
     return name
 
 
+ALLOWED_RESULTS = ("1-0", "0-1", "1/2-1/2", "*")
+
+
 def normalize_result(value: str | None) -> str:
-    r = (value or "").strip()
+    r = (value or "").strip().replace("\u00bd", "1/2")
     if not r or r == "*":
         return "*"
     return r
+
+
+def parse_allowed_result(value: str | None) -> str:
+    r = normalize_result(value)
+    if r not in ALLOWED_RESULTS:
+        raise ValueError("result must be 1-0, 0-1, 1/2-1/2 or *")
+    return r
+
+
+def rewrite_pgn_result(pgn_text: str, result: str) -> str:
+    text = (pgn_text or "").strip()
+    if not text:
+        return pgn_text or ""
+    game = chess.pgn.read_game(io.StringIO(text))
+    if game is None:
+        return pgn_text
+    game.headers["Result"] = result
+    exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
+    return game.accept(exporter)
 
 
 def resolve_player_color(white: str, black: str, username: str) -> str:

@@ -12,7 +12,6 @@ import ErrorBoundary from './components/shared/ErrorBoundary.jsx'
 // Páginas
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
-import GamesPage from './pages/GamesPage.tsx'
 import ImportPage from './pages/ImportPage.jsx'
 import LogViewerPage from './pages/LogViewerPage.jsx'
 import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
@@ -99,8 +98,8 @@ function App() {
                 <Route
                   path="/games"
                   element={
-                    <ProtectedRoute customCheck="hasAccessToGames">
-                      <GamesPage />
+                    <ProtectedRoute>
+                      <Navigate to="/coach/partidas" replace />
                     </ProtectedRoute>
                   }
                 />

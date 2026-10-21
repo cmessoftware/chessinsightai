@@ -96,14 +96,19 @@ def format_coach_game_description(
     player_username: str | None = None,
     speed_class: str | None = None,
     time_control: str | None = None,
+    display_title: str | None = None,
 ) -> str:
     """
     Example: ``Frontallappen vs cmess1315 · POV cmess1315 (Rapid 15+10)``.
     Correspondence: ``cmess4401 vs Rival · POV cmess4401 (Correspondencia 1d)``.
     """
-    white = (white_player or "").strip() or "Blancas"
-    black = (black_player or "").strip() or "Negras"
-    line = f"{white} vs {black}"
+    custom = (display_title or "").strip()
+    if custom:
+        line = custom
+    else:
+        white = (white_player or "").strip() or "Blancas"
+        black = (black_player or "").strip() or "Negras"
+        line = f"{white} vs {black}"
     pov = (player_username or "").strip()
     if pov:
         line += f" · POV {pov}"

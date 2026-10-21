@@ -16,7 +16,6 @@ import {
     useTheme,
 } from '@mui/material'
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
-import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined'
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined'
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -42,7 +41,7 @@ function readCollapsedPreference() {
     }
 }
 
-function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToGames, hasAccessToReports }) {
+function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports }) {
     const { pathname } = useLocation()
     const coachActive = activeCoachNavPath(pathname)
     const [coachOpen, setCoachOpen] = useState(() => pathname.startsWith('/coach'))
@@ -51,17 +50,10 @@ function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToGames, hasAcce
         if (pathname.startsWith('/coach')) setCoachOpen(true)
     }, [pathname])
 
-    const topItems = useMemo(() => {
-        const items = [{ label: 'Inicio', path: '/', icon: HomeOutlinedIcon }]
-        if (hasAccessToGames()) {
-            items.push({
-                label: 'Partidas',
-                path: '/games',
-                icon: FormatListBulletedOutlinedIcon,
-            })
-        }
-        return items
-    }, [hasAccessToGames])
+    const topItems = useMemo(
+        () => [{ label: 'Inicio', path: '/', icon: HomeOutlinedIcon }],
+        [],
+    )
 
     const renderLink = (item, selected) => {
         const Icon = item.icon
@@ -171,7 +163,7 @@ export default function AppShell() {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const [mobileOpen, setMobileOpen] = useState(false)
     const [collapsed, setCollapsed] = useState(() => readCollapsedPreference())
-    const { isAuthenticated, hasAccessToGames, hasAccessToReports } = useAuth()
+    const { isAuthenticated, hasAccessToReports } = useAuth()
 
     const toggleCollapsed = useCallback(() => {
         setCollapsed((prev) => {
@@ -237,7 +229,6 @@ export default function AppShell() {
                 collapsed={collapsed && !isMobile}
                 isMobile={isMobile}
                 onNavigate={isMobile ? closeMobile : undefined}
-                hasAccessToGames={hasAccessToGames}
                 hasAccessToReports={hasAccessToReports}
             />
         </Box>

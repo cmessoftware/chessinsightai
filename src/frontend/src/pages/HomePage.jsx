@@ -11,11 +11,10 @@ import {
 import { useAuth } from '../hooks/useAuth.js'
 import { logger } from '../utils/helpers.js'
 import coachLogo from '../assets/coach.png'
-import gamesLogo from '../assets/games.png'
 import reportsLogo from '../assets/reports.png'
 
 const HomePage = () => {
-    const { user, hasAccessToGames, hasAccessToReports } = useAuth()
+    const { user, hasAccessToReports } = useAuth()
     const navigate = useNavigate()
 
     React.useEffect(() => {
@@ -30,14 +29,6 @@ const HomePage = () => {
             path: '/coach',
             image: coachLogo,
             show: true,
-        },
-        {
-            key: 'partidas',
-            title: 'Partidas',
-            description: 'Catálogo de partidas con filtros.',
-            path: '/games',
-            image: gamesLogo,
-            show: hasAccessToGames(),
         },
         {
             key: 'reportes',

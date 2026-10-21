@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { formatCoachGameDescription, formatTimeControlDisplay } from './coachGameDisplay.js'
+import {
+    coachGamePlayersLabel,
+    formatCoachGameDescription,
+    formatTimeControlDisplay,
+} from './coachGameDisplay.js'
 
 describe('coachGameDisplay', () => {
     it('formats seconds TimeControl as minutes+increment', () => {
@@ -30,5 +34,15 @@ describe('coachGameDisplay', () => {
                 description: 'cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)',
             }),
         ).toBe('cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1d)')
+    })
+
+    it('uses custom display_title for players label', () => {
+        expect(
+            coachGamePlayersLabel({
+                white_player: 'Alice',
+                black_player: 'Bob',
+                display_title: 'Torneo A: Alice vs Bob',
+            }),
+        ).toBe('Torneo A: Alice vs Bob')
     })
 })
