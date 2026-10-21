@@ -3,7 +3,7 @@
 **Estado:** Seguimiento activo (UI MVP liviano)  
 **Actualizado:** 2026-10-19  
 
-> **Sync (obligatorio):** Copia **canónica**. Mantener **idéntico** a `[../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md)`. Cambios del tracker en **ambos** archivos en el mismo commit; rama `docs/coach_issues_tracker` → merge a la feature activa.
+> **Sync (obligatorio):** **Canónico** — espejo en [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md`](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Cuerpo del tracker idéntico a `designs/`; mismo commit.
 
 **Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)  
 **Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
@@ -15,103 +15,110 @@
 
 ---
 
-
-
 ## 3. Issues de UI para MVP de análisis liviano
 
 Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc)).
 
-
+<!-- Tablas en HTML: Markdown Preview Enhanced (extended table) rompe pipe tables con celdas vacías. -->
 
 ## Features y bugs de UI
 
-
-| Tipo-Id  | IdRel               | Descripción                                                                                                                                                                                     | Estado | Comentarios                                                                                                                                     |
-| -------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| FEAT-01  |                     | Eliminar barra vertical                                                                                                                                                                         | ✅ Done |                                                                                                                                                 |
-| BUG-02   |                     | Error en parseo general del PGN                                                                                                                                                                 | ✅ Done |                                                                                                                                                 |
-| FEAT-02  |                     | Sacar ok (redundante)                                                                                                                                                                           | ✅ Done |                                                                                                                                                 |
-| FEAT-03  |                     | Símbolos con colores en la ayuda superior                                                                                                                                                       | ✅ Done |                                                                                                                                                 |
-| BUG-04   |                     | Falta `error_label` para las negras                                                                                                                                                             | ✅ Done |                                                                                                                                                 |
-| FEAT-05  |                     | Tooltip en símbolo: descripción + PV alternativa                                                                                                                                                | ✅ Done |                                                                                                                                                 |
-| FEAT-06  |                     | Badge de error solo junto a la jugada (no junto a eval numérica)                                                                                                                                | ✅ Done |                                                                                                                                                 |
-| BUG-07   |                     | Panel PGN no debe caer bajo el tablero en desktop/tablet                                                                                                                                        | ✅ Done |                                                                                                                                                 |
-| FEAT-08  |                     | Subvariantes (2 niveles); borrar jugadas hacia adelante con confirmación                                                                                                                        | ✅ Done |                                                                                                                                                 |
-| FEAT-09  | FEAT-08             | Borrar desde jugada vía clic derecho (sin icono tijera)                                                                                                                                         | ✅ Done | Menú «Borrar jugadas desde aquí…»                                                                                                               |
-| BUG-10   | FEAT-09             | Una línea por par de plies                                                                                                                                                                      | ✅ Done | Fila flex blanca/negra + variantes inline                                                                                                       |
-| FEAT-11  | FEAT-08             | Font tooltip = font movidas PGN                                                                                                                                                                 | ✅ Done | `pgnMoveTextSx`                                                                                                                                 |
-| BUG-12   |                     | Blunders falsos según contexto (ganado/igual/perdido)                                                                                                                                           | 🔄 WIP  | `coachPedagogicalImpact.js`; etiqueta cp sin cambio                                                                                             |
-| BUG-013  |                     | Tab Análisis avanzado desaparecía al cambiar PGN                                                                                                                                                | ✅ Done | Tabs sticky; reset por `gameId`                                                                                                                 |
-| FEAT-07  |                     | **Mental 1600** (WASM + chess.js)                                                                                                                                                               | 🔄 WIP  | Tab en workspace; M-11 HITL: [checklist](./coach-mental-1600-hitl-checklist.md)                                                                 |
-| FEAT-014 |                     | Botón girar tablero                                                                                                                                                                             | ✅ Done | #159 — `FlipCameraAndroid`                                                                                                                      |
-| BUG-015  |                     | Numeración por movimiento PGN (no ply)                                                                                                                                                          | ✅ Done | #159 — `moveNumberFromPlyCount`                                                                                                                 |
-| BUG-016  |                     | Tras importar y analizar hasta ply X, reabrir desde Partidas: tablero vs **Análisis avanzado** desincronizados ([captura](../../img/BUG-016.png))                                               | ✅ Done | [#165](https://github.com/cmessoftware/chessinsightai/pull/165) — `coachLastGameSession` cursor + sin auto-select 1ª decisión servidor          |
-| FEAT-017 |                     | Eliminar partidas desde Acciones (cola / biblioteca)                                                                                                                                            | ✅ Done | [#167](https://github.com/cmessoftware/chessinsightai/pull/167) — DELETE + bulk-delete; badges de estado en Partidas                            |
-| FEAT-018 |                     | Análisis liviano **off** por defecto; icono power en **Motor** (sin WASM al entrar)                                                                                                             | ✅ Done | [#166](https://github.com/cmessoftware/chessinsightai/pull/166) merged                                                                          |
-| FEAT-019 |                     | Flechas ←/→ con foco en tablero (atrás/adelante en línea)                                                                                                                                       | ✅ Done | [#168](https://github.com/cmessoftware/chessinsightai/pull/168) — `usePgnKeyboardNav`                                                           |
-| FEAT-020 |                     | Menú contextual PGN: copiar variante principal                                                                                                                                                  | ✅ Done | [#169](https://github.com/cmessoftware/chessinsightai/pull/169) — `formatMainLinePgnMovetext`                                                   |
-| FEAT-021 | FEAT-20             | Menú contextual PGN: copiar PGN con variantes                                                                                                                                                   | ✅ Done | [#169](https://github.com/cmessoftware/chessinsightai/pull/169) — `formatTreePgnMovetext`                                                       |
-| FEAT-022 |                     | Mostrar FEN de la jugada actual bajo el tablero                                                                                                                                                 | ✅ Done | [#170](https://github.com/cmessoftware/chessinsightai/pull/170) — `CoachCurrentFenBar`                                                          |
-| FEAT-023 | FEAT-22             | Botón copiar FEN al portapapeles                                                                                                                                                                | ✅ Done | [#171](https://github.com/cmessoftware/chessinsightai/pull/171) — HITL                                                                          |
-| FEAT-024 | FEAT-22             | Link FEN → `/coach/position` con posición cargada                                                                                                                                               | ✅ Done | [#172](https://github.com/cmessoftware/chessinsightai/pull/172)                                                                                 |
-| FEAT-025 |                     | Importar Partidas: importación masiva PGN (texto/archivo, máx. 100); 1 partida → análisis; >1 → Partidas                                                                                        | ✅ Done | [#173](https://github.com/cmessoftware/chessinsightai/pull/173) — HITL                                                                          |
-| FEAT-026 |                     | Iconos Acciones: [VER](../../img/ver.png) / [ANALIZAR](../../img/analizar.png) / [ELIMINAR](../../img/eliminar.png)                                                                             | ✅ Done | [#174](https://github.com/cmessoftware/chessinsightai/pull/174) — HITL; [#175](https://github.com/cmessoftware/chessinsightai/pull/175) tracker |
-| FEAT-027 |                     | Importación masiva desde Lichess                                                                                                                                                                | ✅ Done | HITL — [#176](https://github.com/cmessoftware/chessinsightai/pull/176); hardening en `feature/11_146b_feat_027_lichess_hardening`               |
-| FEAT-028 | FEAT-027            | Importación masiva desde Chess.com                                                                                                                                                              | ✅ Done | HITL OK — `feature/11_147_feat_028_chesscom_bulk_import`                                                                                        |
-| FEAT-029 |                     | Cambio de usuario POV en todas las partidas (bulk)                                                                                                                                              | ✅ Done | HITL OK — `feature/11_148_feat_029_bulk_pov`                                                                                                    |
-| FEAT-030 |                     | Menú principal: barra superior → **sidebar izquierdo** colapsable; secciones (Inicio, Partidas, Reportes) + **Coach** como submenú; sin Tablero (→ `/coach/position`); responsive                                                                 | ✅ Done | HITL OK — `feature/11_149_feat_030_coach_sidebar` — `AppShell`; Home con tarjetas; logo                                                                 |
-| FEAT-031 | FEAT-019 / FEAT-020 | Modificar: al copiar PGN copiar también el encabezado del mismo                                                                                                                                 | ⬜ Todo |                                                                                                                                                 |
-| FEAT-032 |                     | En tabla partidas agregar ritmo (Blitz, Rapid, Classical, Correspondence, Unknown)                                                                                                              | ✅ Done | `feature/11_147_feat_033_partidas_ritmo`; `CoachGamesPanel` + `coachSpeedClassLabel`                                                            |
-| FEAT-033 | FEAT-027            | Por defecto no migrar: cant. movimientos ≤10 excepto análisis de posiciones que no empiezan desde la inicial; en ese caso marcar Fuente=Estudio                                                 | 🔄 WIP  | `feature/11_150_feat_033_skip_short_games`                                                                                                      |
-| FEAT-034 |                     | En tabla partidas agregar campo Fuente (`corpus_type` de `coach_games`)                                                                                                                         | ⬜ Todo | Id duplicado en borrador — renumerar al implementar                                                                                             |
-| FEAT-035 |                     | En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero                                                                                   | ⬜ Todo |                                                                                                                                                 |
-| FEAT-036 | FEAT-033            | Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)                                                                                                                 | ✅ Done | `formatCoachGameDescription`; API `description` + `time_control`                                                                                |
-| BUG-037  |                     | No funciona botón de seleccionar/deseleccionar ítem del listado de partidas                                                                                                                     | ✅ Done | Poll 5s reseteaba `selectedIds` vía `useEffect(queueableGames)`                                                                                 |
-| FEAT-038 |                     | Habilitar cargar una posición FEN desde la imagen de un tablero                                                                                                                                 | ⬜ Todo |                                                                                                                                                 |
-| FEAT-039 |                     | Habilitar cargar una posición FEN desde drag&drop de iconos de piezas externas al tablero; permitir posiciones ilegales                                                                         | ⬜ Todo |                                                                                                                                                 |
-| FEAT-040 | UI-G3               | Retirar **Navegador de Partidas** del menú principal y Home; redirect `/games` → `/coach/partidas` (alias temporal). Mantener `/api/chess/games` para admin / filtros avanzados (ver FEAT-042). | 🔄 WIP  | `feature/11_151_feat_040_deprecate_games_navigator`; enlaza [GC UI-G3](../deep_analysis/coach-games-catalog-unify-mini-plan.md)                 |
-| FEAT-041 | FEAT-024            | Retirar pestaña **Tablero** del AppBar; redirect `/chess-board` (y `/chess-board/:gameId` si aplica) → `/coach/position` o análisis Coach cuando haya partida.                                  | ⬜ Todo | `feature/11_152_feat_041_deprecate_chess_board_tab`; tablero canónico = `CoachStudyWorkspace`                                                   |
-| FEAT-042 | FEAT-040 / GC-2     | Unificar UX Coach → Partidas con catálogo maestro: lista desde `games` (+ join `coach_games` para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».   | ⬜ Todo | `feature/11_153_feat_042_coach_partidas_master_list` — entrega **UI-G3** del mini-plan catálogo; filtros corpus (UI-G2) opcional bajo rol admin |
-| FEAT-043 |                     | Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema tactico , Estudios etc                                                         | ⬜ Todo |                                                                                                                                                 |
-| FEAT-044 |                     | En panel de analisis mostrar en gráfico de lineas la variaciónd cp, con el cero en el medio horizontal, -100 a +100 cp                                                                          | ⬜ Todo |                                                                                                                                                 |
-| FEAT-045 |                     | En lista de partidas agregar opción para poder cambiar el resultado                                                                                                                             | 🔄 WIP  | Inline como Partida (lápiz + 1-0 / 0-1 / 1/2-1/2 / Sin resultado) — en `feature/11_151` junto con descripción Partida                          |
-
-
-
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>FEAT-01</td><td></td><td>Eliminar barra vertical</td><td>✅ Done</td><td></td></tr>
+<tr><td>BUG-02</td><td></td><td>Error en parseo general del PGN</td><td>✅ Done</td><td></td></tr>
+<tr><td>FEAT-02</td><td></td><td>Sacar ok (redundante)</td><td>✅ Done</td><td></td></tr>
+<tr><td>FEAT-03</td><td></td><td>Símbolos con colores en la ayuda superior</td><td>✅ Done</td><td></td></tr>
+<tr><td>BUG-04</td><td></td><td>Falta <code>error_label</code> para las negras</td><td>✅ Done</td><td></td></tr>
+<tr><td>FEAT-05</td><td></td><td>Tooltip en símbolo: descripción + PV alternativa</td><td>✅ Done</td><td></td></tr>
+<tr><td>FEAT-06</td><td></td><td>Badge de error solo junto a la jugada (no junto a eval numérica)</td><td>✅ Done</td><td></td></tr>
+<tr><td>BUG-07</td><td></td><td>Panel PGN no debe caer bajo el tablero en desktop/tablet</td><td>✅ Done</td><td></td></tr>
+<tr><td>FEAT-08</td><td></td><td>Subvariantes (2 niveles); borrar jugadas hacia adelante con confirmación</td><td>✅ Done</td><td></td></tr>
+<tr><td>FEAT-09</td><td>FEAT-08</td><td>Borrar desde jugada vía clic derecho (sin icono tijera)</td><td>✅ Done</td><td>Menú «Borrar jugadas desde aquí…»</td></tr>
+<tr><td>BUG-10</td><td>FEAT-09</td><td>Una línea por par de plies</td><td>✅ Done</td><td>Fila flex blanca/negra + variantes inline</td></tr>
+<tr><td>FEAT-11</td><td>FEAT-08</td><td>Font tooltip = font movidas PGN</td><td>✅ Done</td><td><code>pgnMoveTextSx</code></td></tr>
+<tr><td>BUG-12</td><td></td><td>Blunders falsos según contexto (ganado/igual/perdido)</td><td>🔄 WIP</td><td><code>coachPedagogicalImpact.js</code>; etiqueta cp sin cambio</td></tr>
+<tr><td>BUG-013</td><td></td><td>Tab Análisis avanzado desaparecía al cambiar PGN</td><td>✅ Done</td><td>Tabs sticky; reset por <code>gameId</code></td></tr>
+<tr><td>FEAT-07</td><td></td><td><strong>Mental 1600</strong> (WASM + chess.js)</td><td>🔄 WIP</td><td>Tab en workspace; M-11 HITL: <a href="../deep_analysis/coach-mental-1600-hitl-checklist.md">checklist</a></td></tr>
+<tr><td>FEAT-014</td><td></td><td>Botón girar tablero</td><td>✅ Done</td><td>#159 — <code>FlipCameraAndroid</code></td></tr>
+<tr><td>BUG-015</td><td></td><td>Numeración por movimiento PGN (no ply)</td><td>✅ Done</td><td>#159 — <code>moveNumberFromPlyCount</code></td></tr>
+<tr><td>BUG-016</td><td></td><td>Tras importar y analizar hasta ply X, reabrir desde Partidas: tablero vs <strong>Análisis avanzado</strong> desincronizados (<a href="../../img/BUG-016.png">captura</a>)</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/165">#165</a> — <code>coachLastGameSession</code> cursor + sin auto-select 1ª decisión servidor</td></tr>
+<tr><td>FEAT-017</td><td></td><td>Eliminar partidas desde Acciones (cola / biblioteca)</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/167">#167</a> — DELETE + bulk-delete; badges de estado en Partidas</td></tr>
+<tr><td>FEAT-018</td><td></td><td>Análisis liviano <strong>off</strong> por defecto; icono power en <strong>Motor</strong> (sin WASM al entrar)</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/166">#166</a> merged</td></tr>
+<tr><td>FEAT-019</td><td></td><td>Flechas ←/→ con foco en tablero (atrás/adelante en línea)</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/168">#168</a> — <code>usePgnKeyboardNav</code></td></tr>
+<tr><td>FEAT-020</td><td></td><td>Menú contextual PGN: copiar variante principal</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/169">#169</a> — <code>formatMainLinePgnMovetext</code></td></tr>
+<tr><td>FEAT-021</td><td>FEAT-20</td><td>Menú contextual PGN: copiar PGN con variantes</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/169">#169</a> — <code>formatTreePgnMovetext</code></td></tr>
+<tr><td>FEAT-022</td><td></td><td>Mostrar FEN de la jugada actual bajo el tablero</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/170">#170</a> — <code>CoachCurrentFenBar</code></td></tr>
+<tr><td>FEAT-023</td><td>FEAT-22</td><td>Botón copiar FEN al portapapeles</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/171">#171</a> — HITL</td></tr>
+<tr><td>FEAT-024</td><td>FEAT-22</td><td>Link FEN → <code>/coach/position</code> con posición cargada</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/172">#172</a></td></tr>
+<tr><td>FEAT-025</td><td></td><td>Importar Partidas: importación masiva PGN (texto/archivo, máx. 100); 1 partida → análisis; &gt;1 → Partidas</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/173">#173</a> — HITL</td></tr>
+<tr><td>FEAT-026</td><td></td><td>Iconos Acciones: <a href="../../img/ver.png">VER</a> / <a href="../../img/analizar.png">ANALIZAR</a> / <a href="../../img/eliminar.png">ELIMINAR</a></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/174">#174</a> — HITL; <a href="https://github.com/cmessoftware/chessinsightai/pull/175">#175</a> tracker</td></tr>
+<tr><td>FEAT-027</td><td></td><td>Importación masiva desde Lichess</td><td>✅ Done</td><td>HITL — <a href="https://github.com/cmessoftware/chessinsightai/pull/176">#176</a>; hardening en <code>feature/11_146b_feat_027_lichess_hardening</code></td></tr>
+<tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>✅ Done</td><td>HITL OK — <code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
+<tr><td>FEAT-029</td><td></td><td>Cambio de usuario POV en todas las partidas (bulk)</td><td>✅ Done</td><td>HITL OK — <code>feature/11_148_feat_029_bulk_pov</code></td></tr>
+<tr><td>FEAT-030</td><td></td><td>Menú principal: barra superior → sidebar izquierdo colapsable; Coach como submenú; sin Tablero (redirect <code>/coach/position</code>)</td><td>✅ Done</td><td>HITL OK — <code>feature/11_149_feat_030_coach_sidebar</code> — <code>AppShell</code></td></tr>
+<tr><td>FEAT-031</td><td>FEAT-019 / FEAT-020</td><td>Modificar: al copiar PGN copiar también el encabezado del mismo</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-032</td><td></td><td>En tabla partidas agregar ritmo (Blitz, Rapid, Classical, Correspondence, Unknown)</td><td>✅ Done</td><td><code>feature/11_147_feat_033_partidas_ritmo</code>; <code>CoachGamesPanel</code> + <code>coachSpeedClassLabel</code></td></tr>
+<tr><td>FEAT-033</td><td>FEAT-027</td><td>Por defecto no migrar: cant. movimientos ≤10 excepto análisis de posiciones que no empiezan desde la inicial; en ese caso marcar Fuente=Estudio</td><td>🔄 WIP</td><td><code>feature/11_150_feat_033_skip_short_games</code></td></tr>
+<tr><td>FEAT-034</td><td></td><td>En tabla partidas agregar campo Fuente (<code>corpus_type</code> de <code>coach_games</code>)</td><td>⬜ Todo</td><td>Id duplicado en borrador — renumerar al implementar</td></tr>
+<tr><td>FEAT-035</td><td></td><td>En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-036</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td><code>formatCoachGameDescription</code>; API <code>description</code> + <code>time_control</code></td></tr>
+<tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
+<tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>🔄 WIP</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code>; enlaza <a href="../deep_analysis/coach-games-catalog-unify-mini-plan.md">GC UI-G3</a></td></tr>
+<tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>⬜ Todo</td><td><code>feature/11_152_feat_041_deprecate_chess_board_tab</code>; tablero canónico = <code>CoachStudyWorkspace</code></td></tr>
+<tr><td>FEAT-042</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>⬜ Todo</td><td><code>feature/11_153_feat_042_coach_partidas_master_list</code> — entrega <strong>UI-G3</strong> del mini-plan catálogo; filtros corpus (UI-G2) opcional bajo rol admin</td></tr>
+<tr><td>FEAT-043</td><td>FEAT-045</td><td>Partidas: eliminar selección / icono — confirmación con badge (sin <code>window.confirm</code>)</td><td>✅ Done</td><td><code>feature/11_154_bug_044_feat_043_045_coach_ux</code> — <code>CoachGamesPanel</code></td></tr>
+<tr><td>BUG-044</td><td>FEAT-036</td><td>Correspondencia: reloj en días (<code>1/86400</code>); PGN anotado multilínea = una sola partida</td><td>✅ Done</td><td><code>game_description</code>, <code>normalize_pgn_text_for_parse</code> — HITL OK</td></tr>
+<tr><td>FEAT-045</td><td>FEAT-08 / FEAT-09</td><td>Menú PGN (borrar desde aquí / quitar variante): confirmación con badge, sin <code>window.confirm</code></td><td>✅ Done</td><td><code>CoachConfirmBadge</code>, <code>CoachStudyWorkspace</code></td></tr>
+<tr><td>FEAT-046</td><td></td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema tactico , Estudios etc</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-047</td><td></td><td>En panel de analisis mostrar en gráfico de lineas la variaciónd cp, con el cero en el medio horizontal, -100 a +100 cp</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>🔄 WIP</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — <code>CoachGamesPanel</code>, PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
+</tbody>
+</table>
 
 ## Features y bugs de login
 
-
-| Tipo-Id     | IdRel | Descripción                                 | Estado | Comentarios |
-| ----------- | ----- | ------------------------------------------- | ------ | ----------- |
-| LOG-FEAT-01 |       | Soporte para login con usuario de Google    | ⬜ Todo |             |
-| LOG-FEAT-02 |       | Soporte para login con usuario de Chess.com | ⬜ Todo |             |
-| LOG-FEAT-03 |       | Soporte para login con usuario de Lichess   | ⬜ Todo |             |
-
-
-
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>LOG-FEAT-01</td><td></td><td>Soporte para login con usuario de Google</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>LOG-FEAT-02</td><td></td><td>Soporte para login con usuario de Chess.com</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td></td></tr>
+</tbody>
+</table>
 
 ## Features y bugs de estructura de tablas
 
-
-| Tipo-Id    | IdRel | Descripción                                                      | Estado | Comentarios                             |
-| ---------- | ----- | ---------------------------------------------------------------- | ------ | --------------------------------------- |
-| DB-FEAT-01 |       | cambiar tabla module07_games por coach_games                     | ✅ Done | Actualizar referencias en código Python |
-| DB-FEAT-02 |       | cambiar tabla module07_decision_points por coach_decision_points | ⬜ Todo | Actualizar referencias en código Python |
-| DB-FEAT-03 |       | cambiar tabla module07_analysis_jobs por coach_analysis_jobs     | ⬜ Todo | Actualizar referencias en código Python |
-| DB-FEAT-04 |       | cambiar tabla module07_ply_annotations por coach_ply_annotations | ⬜ Todo | Actualizar referencias en código Python |
-
-
-
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>DB-FEAT-01</td><td></td><td>cambiar tabla module07_games por coach_games</td><td>✅ Done</td><td>Actualizar referencias en código Python</td></tr>
+<tr><td>DB-FEAT-02</td><td></td><td>cambiar tabla module07_decision_points por coach_decision_points</td><td>⬜ Todo</td><td>Actualizar referencias en código Python</td></tr>
+<tr><td>DB-FEAT-03</td><td></td><td>cambiar tabla module07_analysis_jobs por coach_analysis_jobs</td><td>⬜ Todo</td><td>Actualizar referencias en código Python</td></tr>
+<tr><td>DB-FEAT-04</td><td></td><td>cambiar tabla module07_ply_annotations por coach_ply_annotations</td><td>⬜ Todo</td><td>Actualizar referencias en código Python</td></tr>
+</tbody>
+</table>
 
 ### Resumen backlog
 
-
-| Estado | IDs                                                                                                      |
-| ------ | -------------------------------------------------------------------------------------------------------- |
-| ✅ Done | FEAT-01…06, BUG-02/04/07/10/013/015/016, FEAT-08…11, FEAT-014/017…030, FEAT-032/036, BUG-037, DB-FEAT-01 |
-| 🔄 WIP  | BUG-12, FEAT-07, FEAT-033, FEAT-040, FEAT-045                                                             |
-| ⬜ Todo | FEAT-031, FEAT-034…035, FEAT-038…039, FEAT-041…044, LOG-FEAT-01…03, DB-FEAT-02…04                          |
-
+<table>
+<thead>
+<tr><th>Estado</th><th>IDs</th></tr>
+</thead>
+<tbody>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044, FEAT-08…11, FEAT-014/017…030, FEAT-032/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-033, FEAT-040, FEAT-048</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-031, FEAT-034…035, FEAT-038…039, FEAT-041…042, FEAT-046…047, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+</tbody>
+</table>
 
 **Siguiente sugerido (orden):** FEAT-033 (no migrar cortas / Fuente=Estudio) → FEAT-031 (PGN + headers) → FEAT-040/041 (deprecar navegador + tablero sueltos) → FEAT-042 (UI-G3 lista unificada).

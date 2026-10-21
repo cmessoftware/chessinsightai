@@ -32,7 +32,11 @@ import {
     patchCoachGameTitle,
 } from '../../services/module07Service.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
-import { CoachStatusBadge, CoachStatusBadgeRow } from './coachPanelStatus.jsx'
+import {
+    CoachConfirmBadge,
+    CoachStatusBadge,
+    CoachStatusBadgeRow,
+} from './coachPanelStatus.jsx'
 import {
     coachGamePlayersLabel,
     formatCoachGameDescription,
@@ -287,6 +291,7 @@ export default function CoachGamesPanel() {
     const [selectedIds, setSelectedIds] = useState(() => new Set())
     const [analyzing, setAnalyzing] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    const [pendingDelete, setPendingDelete] = useState(null)
     const [refreshing, setRefreshing] = useState(false)
 
     const jobStatusById = useMemo(() => {
@@ -405,14 +410,9 @@ export default function CoachGamesPanel() {
         [selectedIds, queueableGames],
     )
 
-    const handleDeleteGames = async (ids) => {
+    const executeDeleteGames = async (ids) => {
         const unique = [...new Set(ids)].filter(Boolean)
         if (!unique.length) return
-        const msg =
-            unique.length === 1
-                ? '¿Eliminar esta partida de tu biblioteca Coach? Se borran análisis liviano y decisiones asociadas.'
-                : `¿Eliminar ${unique.length} partidas de tu biblioteca Coach?`
-        if (!window.confirm(msg)) return
         setDeleting(true)
         try {
             let deletedCount = unique.length
@@ -447,6 +447,29 @@ export default function CoachGamesPanel() {
             setDeleting(false)
         }
     }
+
+    const requestDeleteGames = (ids) => {
+        const unique = [...new Set(ids)].filter(Boolean)
+        if (!unique.length) return
+        const message =
+            unique.length === 1
+                ? '¿Eliminar esta partida de tu biblioteca Coach? Se borran análisis liviano y decisiones asociadas.'
+                : `¿Eliminar ${unique.length} partidas de tu biblioteca Coach?`
+        setPendingDelete({
+            ids: unique,
+            message,
+            confirmLabel: unique.length === 1 ? 'Eliminar partida' : 'Eliminar selección',
+        })
+    }
+
+    const confirmPendingDelete = () => {
+        if (!pendingDelete?.ids?.length) return
+        const ids = pendingDelete.ids
+        setPendingDelete(null)
+        void executeDeleteGames(ids)
+    }
+
+    const cancelPendingDelete = () => setPendingDelete(null)
 
     const runAnalysis = async (gameIds, fallbackHandle = '') => {
         const handle = (playerHandle || fallbackHandle || '').trim()
@@ -584,6 +607,16 @@ export default function CoachGamesPanel() {
             <Typography variant="h6" gutterBottom>
                 Biblioteca de partidas
             </Typography>
+            {pendingDelete && (
+                <Box sx={{ mb: 2 }}>
+                    <CoachConfirmBadge
+                        message={pendingDelete.message}
+                        confirmLabel={pendingDelete.confirmLabel}
+                        onConfirm={confirmPendingDelete}
+                        onCancel={cancelPendingDelete}
+                    />
+                </Box>
+            )}
             <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="subtitle2" gutterBottom>
                     Encolar análisis en servidor (Stockfish)
@@ -634,7 +667,7 @@ export default function CoachGamesPanel() {
                         variant="outlined"
                         color="error"
                         disabled={deleting || selectedIds.size === 0}
-                        onClick={() => handleDeleteGames([...selectedIds])}
+                        onClick={() => requestDeleteGames([...selectedIds])}
                     >
                         {deleting
                             ? 'Eliminando…'
@@ -829,7 +862,7 @@ export default function CoachGamesPanel() {
                                                         }
                                                         aria-label="Eliminar"
                                                         onClick={() =>
-                                                            handleDeleteGames([g.id])
+                                                            requestDeleteGames([g.id])
                                                         }
                                                     >
                                                         <DeleteOutline fontSize="small" />

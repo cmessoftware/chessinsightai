@@ -10,6 +10,23 @@ describe('coachGameDisplay', () => {
         expect(formatTimeControlDisplay('900+10')).toBe('15+10')
     })
 
+    it('formats correspondence TimeControl as days', () => {
+        expect(formatTimeControlDisplay('1/86400')).toBe('1 día')
+        expect(formatTimeControlDisplay('1/259200')).toBe('3 días')
+    })
+
+    it('builds correspondence game description', () => {
+        expect(
+            formatCoachGameDescription({
+                white_player: 'manuelfrp79',
+                black_player: 'cmess1315',
+                player_username: 'cmess1315',
+                speed_class: 'daily',
+                time_control: '1/259200',
+            }),
+        ).toBe('manuelfrp79 vs cmess1315 · POV cmess1315 (Correspondencia 3 días)')
+    })
+
     it('builds full game description', () => {
         expect(
             formatCoachGameDescription({
@@ -23,7 +40,7 @@ describe('coachGameDisplay', () => {
     })
 
     it('formats Chess.com correspondence days, not 1s+0', () => {
-        expect(formatTimeControlDisplay('1/86400', 'daily')).toBe('1d')
+        expect(formatTimeControlDisplay('1/86400', 'daily')).toBe('1 día')
         expect(
             formatCoachGameDescription({
                 white_player: 'cmess4401',
@@ -31,9 +48,10 @@ describe('coachGameDisplay', () => {
                 player_username: 'cmess4401',
                 speed_class: 'daily',
                 time_control: '1/86400',
-                description: 'cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)',
+                description:
+                    'cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)',
             }),
-        ).toBe('cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1d)')
+        ).toBe('cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)')
     })
 
     it('uses custom display_title for players label', () => {

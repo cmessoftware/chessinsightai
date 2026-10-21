@@ -87,3 +87,32 @@ def test_parse_allowed_result():
 def test_rewrite_pgn_result_updates_header():
     pgn = rewrite_pgn_result(SAMPLE, "0-1")
     assert '[Result "0-1"]' in pgn
+
+
+ANNOTATED_DAILY = """
+[Event "Chess.com Daily Game"]
+[White "manuelfrp79"]
+[Black "cmess1315"]
+[Result "*"]
+[TimeControl "1/86400"]
+
+1. c4 {White begins. Evaluation: =.}
+
+1... e5 {Black chooses. Evaluation: =.}
+
+2. d3 {Restrained. Evaluation: =.}
+
+2... Nf6 {Natural. Evaluation: =.}
+
+1-0
+"""
+
+
+def test_parse_annotated_pgn_with_blank_lines_between_moves_is_one_game():
+    result = parse_games_from_pgn_text(ANNOTATED_DAILY, max_games=100)
+    assert result.total_games_in_pgn == 1
+    assert len(result.games) == 1
+    g = result.games[0]
+    assert g.white_player == "manuelfrp79"
+    assert g.black_player == "cmess1315"
+    assert g.speed_class == "daily"

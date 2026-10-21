@@ -1,5 +1,5 @@
 import React from 'react'
-import { Chip, Stack } from '@mui/material'
+import { Button, Chip, Stack } from '@mui/material'
 
 const SEVERITY_CHIP = {
     success: { color: 'success', variant: 'filled' },
@@ -44,6 +44,29 @@ export function CoachStatusBadgeRow({ badges = [] }) {
     return (
         <Stack direction="row" flexWrap="wrap" gap={1} useFlexGap sx={{ flex: 1, minWidth: 0 }}>
             {visible}
+        </Stack>
+    )
+}
+
+/** Confirmación inline (FEAT-045) — sustituye `window.confirm` en acciones PGN destructivas. */
+export function CoachConfirmBadge({
+    message,
+    confirmLabel = 'Confirmar',
+    onConfirm,
+    onCancel,
+}) {
+    if (!message) return null
+    return (
+        <Stack direction="row" flexWrap="wrap" alignItems="center" gap={1} useFlexGap>
+            <CoachStatusBadge severity="warning" onDismiss={onCancel}>
+                {message}
+            </CoachStatusBadge>
+            <Button size="small" variant="contained" color="error" onClick={onConfirm}>
+                {confirmLabel}
+            </Button>
+            <Button size="small" onClick={onCancel}>
+                Cancelar
+            </Button>
         </Stack>
     )
 }
