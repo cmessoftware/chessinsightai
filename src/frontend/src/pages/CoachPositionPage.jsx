@@ -12,7 +12,7 @@ import {
     Typography,
 } from '@mui/material'
 import { useLocation } from 'react-router-dom'
-import CoachSubNav from '../components/coach/CoachSubNav.jsx'
+import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { createStudyRootFromFen } from '../utils/coachStudyFromFen.js'
 import {
@@ -100,7 +100,7 @@ export default function CoachPositionPage() {
     const orientationNorm = orientation.toLowerCase() === 'black' ? 'black' : 'white'
 
     return (
-        <Box sx={{ py: 2 }}>
+        <CoachPageLayout>
             <Typography variant="h5" gutterBottom>
                 Coach
             </Typography>
@@ -108,7 +108,6 @@ export default function CoachPositionPage() {
                 Cargá un FEN y mové en el tablero: el PGN, motor live, clasificación y análisis avanzado
                 se actualizan en el mismo panel (sin cambiar de pantalla).
             </Typography>
-            <CoachSubNav />
             <Typography variant="h6" gutterBottom sx={{ mt: 1 }}>
                 Análisis de posición (FEN)
             </Typography>
@@ -193,6 +192,6 @@ export default function CoachPositionPage() {
                     </Typography>
                 </Paper>
             )}
-        </Box>
+        </CoachPageLayout>
     )
 }

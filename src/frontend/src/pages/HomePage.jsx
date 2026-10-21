@@ -1,118 +1,120 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Container, Typography, Paper, Box, Button } from '@mui/material'
-import { SportsTennis, Analytics, Upload } from '@mui/icons-material'
+import {
+    Box,
+    Card,
+    CardActionArea,
+    CardContent,
+    CardMedia,
+    Typography,
+} from '@mui/material'
 import { useAuth } from '../hooks/useAuth.js'
 import { logger } from '../utils/helpers.js'
+import coachLogo from '../assets/coach.png'
+import gamesLogo from '../assets/games.png'
+import reportsLogo from '../assets/reports.png'
 
 const HomePage = () => {
-    const { user, hasPermission } = useAuth()
+    const { user, hasAccessToGames, hasAccessToReports } = useAuth()
     const navigate = useNavigate()
 
     React.useEffect(() => {
         logger.info('home', 'Usuario accedió a página principal', { user: user?.username })
     }, [user])
 
+    const cards = [
+        {
+            key: 'coach',
+            title: 'Coach',
+            description: 'Estudiá partidas, motor live y posiciones FEN.',
+            path: '/coach',
+            image: coachLogo,
+            show: true,
+        },
+        {
+            key: 'partidas',
+            title: 'Partidas',
+            description: 'Catálogo de partidas con filtros.',
+            path: '/games',
+            image: gamesLogo,
+            show: hasAccessToGames(),
+        },
+        {
+            key: 'reportes',
+            title: 'Reportes',
+            description: 'Estadísticas y análisis de tu juego.',
+            path: '/reports',
+            image: reportsLogo,
+            show: hasAccessToReports(),
+        },
+    ].filter((card) => card.show)
+
     return (
-        <Container maxWidth="lg">
-            <Typography variant="h3" gutterBottom align="center">
-                Bienvenido a Chess Trainer
-            </Typography>
-
-            <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
-                Hola, {user?.username}! Tu rol: {user?.role}
-            </Typography>
-
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 3 }}>
-                {/* Tablero de Ajedrez */}
-                {hasPermission('chess_board') && (
-                    <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-                        <SportsTennis sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-                        <Typography variant="h5" gutterBottom>
-                            Tablero de Ajedrez
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                            Analiza partidas y juega contra Stockfish en el mismo tablero unificado
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            onClick={() => navigate('/chess-board')}
-                            sx={{ mt: 1 }}
+        <Box
+            sx={{
+                height: { xs: 'auto', md: 'calc(100vh - 112px)' },
+                maxHeight: { md: 'calc(100vh - 112px)' },
+                display: 'flex',
+                alignItems: 'center',
+                overflow: { md: 'hidden' },
+            }}
+        >
+            <Box
+                sx={{
+                    width: '100%',
+                    display: 'grid',
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        sm: 'repeat(2, minmax(0, 1fr))',
+                        md: `repeat(${Math.min(cards.length, 3)}, minmax(0, 1fr))`,
+                    },
+                    gap: { xs: 2, md: 3 },
+                }}
+            >
+                {cards.map((card) => (
+                    <Card
+                        key={card.key}
+                        elevation={2}
+                        sx={{
+                            height: { xs: 'auto', md: '100%' },
+                            maxHeight: { md: 360 },
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <CardActionArea
+                            onClick={() => navigate(card.path)}
+                            sx={{
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'stretch',
+                            }}
                         >
-                            Ir al Tablero
-                        </Button>
-                    </Paper>
-                )}
-
-                {/* Navegador de Partidas */}
-                {(hasPermission('view_own_games') || hasPermission('view_all_games')) && (
-                    <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-                        <Analytics sx={{ fontSize: 48, color: 'secondary.main', mb: 2 }} />
-                        <Typography variant="h5" gutterBottom>
-                            Navegador de Partidas
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                            Explora tu colección de partidas con filtros avanzados
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            onClick={() => navigate('/games')}
-                            sx={{ mt: 1 }}
-                        >
-                            Explorar Partidas
-                        </Button>
-                    </Paper>
-                )}
-
-                {/* Importación */}
-                {(hasPermission('import_pgn') || hasPermission('bulk_upload')) && (
-                    <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-                        <Upload sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
-                        <Typography variant="h5" gutterBottom>
-                            Importar Partidas
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                            Sube archivos PGN para expandir tu base de datos
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            onClick={() => navigate('/coach/importar')}
-                            sx={{ mt: 1 }}
-                        >
-                            Importar PGN
-                        </Button>
-                    </Paper>
-                )}
+                            <CardMedia
+                                component="img"
+                                image={card.image}
+                                alt={card.title}
+                                sx={{
+                                    height: { xs: 140, md: 200 },
+                                    objectFit: 'contain',
+                                    bgcolor: '#000',
+                                    p: 1.5,
+                                }}
+                            />
+                            <CardContent sx={{ py: 1.5, px: 2 }}>
+                                <Typography variant="h6" component="h2" gutterBottom>
+                                    {card.title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {card.description}
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+                ))}
             </Box>
-
-            {/* Información adicional para diferentes roles */}
-            <Paper elevation={1} sx={{ p: 3, mt: 4, backgroundColor: 'grey.50' }}>
-                <Typography variant="h6" gutterBottom>
-                    Tu Nivel de Acceso: {user?.role}
-                </Typography>
-
-                {user?.role === 'admin' && (
-                    <Typography variant="body2" color="text.secondary">
-                        Como administrador, tienes acceso completo a todas las funcionalidades del sistema,
-                        incluyendo la administración de usuarios y el pipeline de ML.
-                    </Typography>
-                )}
-
-                {user?.role === 'analista' && (
-                    <Typography variant="body2" color="text.secondary">
-                        Como analista, puedes acceder al tablero, navegador de partidas, análisis avanzado
-                        y el pipeline de machine learning.
-                    </Typography>
-                )}
-
-                {user?.role === 'user' && (
-                    <Typography variant="body2" color="text.secondary">
-                        Como usuario, puedes acceder al tablero de ajedrez (con modo de juego contra Stockfish integrado),
-                        ver tus propias partidas en el navegador, y analizar tus juegos para mejorar.
-                    </Typography>
-                )}
-            </Paper>
-        </Container>
+        </Box>
     )
 }
 

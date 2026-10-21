@@ -18,6 +18,7 @@ import {
     Typography,
 } from '@mui/material'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
 import {
     createAnalysisJob,
@@ -226,7 +227,7 @@ export default function CoachJobsPage() {
     }
 
     return (
-        <Box>
+        <CoachPageLayout>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="h5">Coach — Cola de análisis</Typography>
                 <Button variant="outlined" onClick={refresh} disabled={refreshing}>
@@ -453,6 +454,6 @@ export default function CoachJobsPage() {
                     </TableBody>
                 </Table>
             </Paper>
-        </Box>
+        </CoachPageLayout>
     )
 }

@@ -1,18 +1,17 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { CssBaseline, Container } from '@mui/material'
+import { CssBaseline } from '@mui/material'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // Componentes
-import Navigation from './components/shared/Navigation.jsx'
+import AppShell from './components/shared/AppShell.jsx'
 import ProtectedRoute from './components/shared/ProtectedRoute.jsx'
 import ErrorBoundary from './components/shared/ErrorBoundary.jsx'
 
 // Páginas
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
-import ChessBoardPage from './pages/ChessBoardPage.jsx'
 import GamesPage from './pages/GamesPage.tsx'
 import ImportPage from './pages/ImportPage.jsx'
 import LogViewerPage from './pages/LogViewerPage.jsx'
@@ -68,14 +67,11 @@ function App() {
         <CssBaseline />
         <ErrorBoundary>
           <Router>
-            <Navigation />
-            <Container maxWidth="xl" sx={{ py: 2 }}>
-              <Routes>
-                {/* Rutas públicas */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/unauthorized" element={<UnauthorizedPage />} />
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-                {/* Rutas protegidas */}
+              <Route element={<AppShell />}>
                 <Route
                   path="/"
                   element={
@@ -87,16 +83,16 @@ function App() {
                 <Route
                   path="/chess-board"
                   element={
-                    <ProtectedRoute requiredPermission="chess_board">
-                      <ChessBoardPage />
+                    <ProtectedRoute>
+                      <Navigate to="/coach/position" replace />
                     </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/chess-board/:gameId"
                   element={
-                    <ProtectedRoute requiredPermission="chess_board">
-                      <ChessBoardPage />
+                    <ProtectedRoute>
+                      <Navigate to="/coach/position" replace />
                     </ProtectedRoute>
                   }
                 />
@@ -220,8 +216,8 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-              </Routes>
-            </Container>
+              </Route>
+            </Routes>
           </Router>
         </ErrorBoundary>
       </ThemeProvider>

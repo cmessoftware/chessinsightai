@@ -120,7 +120,7 @@ const GamesPage = () => {
     }
 
     const handleViewGame = (gameId) => {
-        navigate(`/chess-board/${gameId}`)
+        navigate(`/coach/games/${gameId}/analysis`)
     }
 
     const getResultColor = (result) => {

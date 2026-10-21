@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
     AppBar,
     Toolbar,
@@ -9,20 +9,24 @@ import {
     Menu,
     MenuItem,
     IconButton,
-    Tabs,
-    Tab,
-    Chip
+    Chip,
 } from '@mui/material'
-import { AccountCircle, ExitToApp, Home, Games, SportsEsports, Assessment, SwapHoriz, Security, Psychology } from '@mui/icons-material'
+import {
+    AccountCircle,
+    ExitToApp,
+    SwapHoriz,
+    Security,
+    Menu as MenuIcon,
+} from '@mui/icons-material'
 import { useAuth } from '../../hooks/useAuth.js'
 import { logger } from '../../utils/helpers.js'
 import NotificationBell from './NotificationBell.jsx'
+import logo from '../../assets/logo.png'
 
-const Navigation = () => {
+const Navigation = ({ onOpenSidebar }) => {
     const { user, logout, isAuthenticated } = useAuth()
     const [anchorEl, setAnchorEl] = React.useState(null)
     const navigate = useNavigate()
-    const location = useLocation()
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget)
@@ -36,87 +40,50 @@ const Navigation = () => {
         logger.info('navigation', 'Usuario haciendo logout')
         logout()
         handleClose()
-        navigate('/login')  // Redirigir a login después del logout
-    }
-
-    const handleTabChange = (event, newValue) => {
-        navigate(newValue)
-    }
-
-    const getCurrentTab = () => {
-        const path = location.pathname
-        if (path === '/') return '/'
-        if (path.startsWith('/games')) return '/games'
-        if (path.startsWith('/chess-board')) return '/chess-board'
-        if (path.startsWith('/reports')) return '/reports'
-        if (path.startsWith('/coach')) return '/coach'
-        return false
+        navigate('/login')
     }
 
     return (
-        <AppBar position="static" sx={{ mb: 2 }}>
+        <AppBar position="static" sx={{ mb: 0 }}>
             <Toolbar sx={{ flexWrap: 'wrap', gap: 1 }}>
-                <Typography variant="h6" component="div" sx={{ mr: 2, flexShrink: 0 }}>
-                    Chess Trainer
-                </Typography>
-
-                {isAuthenticated && (
-                    <Box sx={{ flexGrow: 1, minWidth: 0, maxWidth: { xs: '100%', md: 'calc(100% - 280px)' } }}>
-                        <Tabs
-                            value={getCurrentTab()}
-                            onChange={handleTabChange}
-                            variant="scrollable"
-                            scrollButtons="auto"
-                            allowScrollButtonsMobile
-                            textColor="inherit"
-                            indicatorColor="secondary"
-                            sx={{
-                                '& .MuiTab-root': {
-                                    color: 'rgba(255, 255, 255, 0.7)',
-                                    '&.Mui-selected': {
-                                        color: 'white'
-                                    }
-                                }
-                            }}
-                        >
-                            <Tab
-                                label="Inicio"
-                                value="/"
-                                icon={<Home />}
-                                iconPosition="start"
-                                sx={{ minHeight: 48 }}
-                            />
-                            <Tab
-                                label="Partidas"
-                                value="/games"
-                                icon={<Games />}
-                                iconPosition="start"
-                                sx={{ minHeight: 48 }}
-                            />
-                            <Tab
-                                label="Tablero"
-                                value="/chess-board"
-                                icon={<SportsEsports />}
-                                iconPosition="start"
-                                sx={{ minHeight: 48 }}
-                            />
-                            <Tab
-                                label="Coach"
-                                value="/coach"
-                                icon={<Psychology />}
-                                iconPosition="start"
-                                sx={{ minHeight: 48 }}
-                            />
-                            <Tab
-                                label="Reportes"
-                                value="/reports"
-                                icon={<Assessment />}
-                                iconPosition="start"
-                                sx={{ minHeight: 48 }}
-                            />
-                        </Tabs>
-                    </Box>
+                {isAuthenticated && onOpenSidebar && (
+                    <IconButton
+                        color="inherit"
+                        aria-label="Abrir menú"
+                        onClick={onOpenSidebar}
+                        edge="start"
+                        sx={{ mr: 0.5 }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
                 )}
+                <Box
+                    onClick={() => navigate(isAuthenticated ? '/' : '/login')}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        mr: 2,
+                        flexShrink: 0,
+                        cursor: 'pointer',
+                    }}
+                >
+                    <Box
+                        component="img"
+                        src={logo}
+                        alt="Chess Trainer"
+                        sx={{
+                            height: 40,
+                            width: 'auto',
+                            display: 'block',
+                        }}
+                    />
+                    <Typography variant="h6" component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
+                        Chess Trainer
+                    </Typography>
+                </Box>
+
+                <Box sx={{ flexGrow: 1 }} />
 
                 {isAuthenticated ? (
                     <Box
@@ -125,7 +92,6 @@ const Navigation = () => {
                             alignItems: 'center',
                             gap: 1,
                             flexShrink: 0,
-                            ml: 'auto',
                         }}
                     >
                         <Chip
@@ -147,7 +113,6 @@ const Navigation = () => {
                             }}
                         />
 
-                        {/* Campanita de notificaciones */}
                         <NotificationBell />
 
                         <IconButton
@@ -185,7 +150,12 @@ const Navigation = () => {
                                 Permisos: {user?.permissions?.length || 0} permisos activos
                             </MenuItem>
                             {user?.roles?.includes('admin') && (
-                                <MenuItem onClick={() => { handleClose(); navigate('/admin/roles'); }}>
+                                <MenuItem
+                                    onClick={() => {
+                                        handleClose()
+                                        navigate('/admin/roles')
+                                    }}
+                                >
                                     <Security sx={{ mr: 1 }} />
                                     Administrar Roles
                                 </MenuItem>
