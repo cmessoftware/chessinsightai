@@ -99,6 +99,20 @@ export async function listGames() {
     return data.games || []
 }
 
+export async function patchCoachGameTitle(gameId, displayTitle) {
+    const { data } = await api.patch(`/api/v1/module07/games/${gameId}`, {
+        display_title: displayTitle,
+    })
+    return data
+}
+
+export async function patchCoachGameResult(gameId, result) {
+    const { data } = await api.patch(`/api/v1/module07/games/${gameId}`, {
+        result,
+    })
+    return data
+}
+
 export async function getGame(gameId) {
     const { data } = await api.get(`/api/v1/module07/games/${gameId}`)
     return data

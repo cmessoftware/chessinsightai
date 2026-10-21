@@ -51,3 +51,27 @@ def test_full_description_correspondence():
         time_control="1/259200",
     )
     assert text == "manuelfrp79 vs cmess1315 · POV cmess1315 (Correspondencia 3 días)"
+
+
+def test_correspondence_chesscom_days_not_live_clock():
+    text = format_coach_game_description(
+        white_player="cmess4401",
+        black_player="Ejemplo: RajaDogor16",
+        player_username="cmess4401",
+        speed_class="daily",
+        time_control="1/86400",
+    )
+    assert text == "cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1 día)"
+    assert "1s+0" not in text
+
+
+def test_custom_display_title_prefix():
+    text = format_coach_game_description(
+        white_player="Alice",
+        black_player="Bob",
+        player_username="Alice",
+        speed_class="blitz",
+        time_control="180+0",
+        display_title="Estudio táctico",
+    )
+    assert text == "Estudio táctico · POV Alice (Blitz 3+0)"

@@ -13,7 +13,7 @@ const ChessBoardPage = () => {
     const initialMode = location.state?.mode || new URLSearchParams(location.search).get('mode') || 'view'
 
     const handleBackToGames = () => {
-        navigate('/games')
+        navigate('/coach/partidas')
     }
 
     return (

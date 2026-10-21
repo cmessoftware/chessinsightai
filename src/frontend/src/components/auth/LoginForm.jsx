@@ -14,6 +14,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useAuth } from '../../hooks/useAuth.js'
 import { logger } from '../../utils/helpers.js'
 import { useNavigate } from 'react-router-dom'
+import logo from '../../assets/logo.png'
 
 const LoginForm = () => {
     const [username, setUsername] = useState('')
@@ -69,6 +70,14 @@ const LoginForm = () => {
                 }}
             >
                 <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                        <Box
+                            component="img"
+                            src={logo}
+                            alt="Chess Trainer"
+                            sx={{ height: 72, width: 'auto' }}
+                        />
+                    </Box>
                     <Typography component="h1" variant="h4" align="center" gutterBottom>
                         Chess Trainer
                     </Typography>

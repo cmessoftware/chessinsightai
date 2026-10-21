@@ -67,7 +67,7 @@ export default function UnifiedImportPage() {
                 <Link component={RouterLink} to="/coach/importar">
                     Abrir hub Coach (PGN y FEN)
                 </Link>
-                . El menú <strong>Partidas</strong> es otro catálogo (legacy).
+                .
             </Alert>
 
             <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, textTransform: 'none' }}>

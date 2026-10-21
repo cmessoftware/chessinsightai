@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { formatCoachGameDescription, formatTimeControlDisplay } from './coachGameDisplay.js'
+import {
+    coachGamePlayersLabel,
+    formatCoachGameDescription,
+    formatTimeControlDisplay,
+} from './coachGameDisplay.js'
 
 describe('coachGameDisplay', () => {
     it('formats seconds TimeControl as minutes+increment', () => {
@@ -33,5 +37,30 @@ describe('coachGameDisplay', () => {
                 time_control: '900+10',
             }),
         ).toBe('Frontallappen vs cmess1315 · POV cmess1315 (Rapid 15+10)')
+    })
+
+    it('formats Chess.com correspondence days, not 1s+0', () => {
+        expect(formatTimeControlDisplay('1/86400', 'daily')).toBe('1 día')
+        expect(
+            formatCoachGameDescription({
+                white_player: 'cmess4401',
+                black_player: 'Ejemplo: RajaDogor16',
+                player_username: 'cmess4401',
+                speed_class: 'daily',
+                time_control: '1/86400',
+                description:
+                    'cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)',
+            }),
+        ).toBe('cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)')
+    })
+
+    it('uses custom display_title for players label', () => {
+        expect(
+            coachGamePlayersLabel({
+                white_player: 'Alice',
+                black_player: 'Bob',
+                display_title: 'Torneo A: Alice vs Bob',
+            }),
+        ).toBe('Torneo A: Alice vs Bob')
     })
 })

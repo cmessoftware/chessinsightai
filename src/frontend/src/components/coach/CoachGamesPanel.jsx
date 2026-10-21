@@ -10,6 +10,7 @@ import {
     MenuItem,
     Paper,
     Select,
+    TextField,
     Table,
     TableBody,
     TableCell,
@@ -18,7 +19,7 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material'
-import { Analytics, DeleteOutline, Visibility } from '@mui/icons-material'
+import { Analytics, Check, Close, DeleteOutline, EditOutlined, Visibility } from '@mui/icons-material'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import {
     createAnalysisJob,
@@ -27,6 +28,8 @@ import {
     listGames,
     listJobs,
     parseApiDetail,
+    patchCoachGameResult,
+    patchCoachGameTitle,
 } from '../../services/module07Service.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 import {
@@ -34,7 +37,10 @@ import {
     CoachStatusBadge,
     CoachStatusBadgeRow,
 } from './coachPanelStatus.jsx'
-import { formatCoachGameDescription } from '../../utils/coachGameDisplay.js'
+import {
+    coachGamePlayersLabel,
+    formatCoachGameDescription,
+} from '../../utils/coachGameDisplay.js'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -105,6 +111,172 @@ function formatResult(result) {
     return result
 }
 
+const RESULT_OPTIONS = [
+    { value: '1-0', label: '1-0' },
+    { value: '0-1', label: '0-1' },
+    { value: '1/2-1/2', label: '1/2-1/2' },
+    { value: '*', label: 'Sin resultado' },
+]
+
+function ResultadoCell({ game, onSaved, onError }) {
+    const [editing, setEditing] = useState(false)
+    const current = !game.result || game.result === '*' ? '*' : game.result
+    const [draft, setDraft] = useState(current)
+    const [saving, setSaving] = useState(false)
+
+    useEffect(() => {
+        if (!editing) setDraft(!game.result || game.result === '*' ? '*' : game.result)
+    }, [game, editing])
+
+    const save = async () => {
+        setSaving(true)
+        try {
+            const updated = await patchCoachGameResult(game.id, draft)
+            onSaved(updated)
+            setEditing(false)
+        } catch (err) {
+            onError(parseApiDetail(err))
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    if (editing) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 160 }}>
+                <Select
+                    size="small"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    disabled={saving}
+                    sx={{ minWidth: 120 }}
+                >
+                    {RESULT_OPTIONS.map((opt) => (
+                        <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                        </MenuItem>
+                    ))}
+                </Select>
+                <IconButton size="small" onClick={save} disabled={saving} aria-label="Guardar resultado">
+                    <Check fontSize="small" />
+                </IconButton>
+                <IconButton
+                    size="small"
+                    onClick={() => setEditing(false)}
+                    disabled={saving}
+                    aria-label="Cancelar"
+                >
+                    <Close fontSize="small" />
+                </IconButton>
+            </Box>
+        )
+    }
+
+    return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="body2" component="span">
+                {formatResult(game.result)}
+            </Typography>
+            <Tooltip title="Cambiar resultado">
+                <IconButton
+                    size="small"
+                    onClick={() => setEditing(true)}
+                    aria-label="Editar resultado"
+                >
+                    <EditOutlined fontSize="small" />
+                </IconButton>
+            </Tooltip>
+        </Box>
+    )
+}
+
+function PartidaTitleCell({ game, importTag, onSaved, onError }) {
+    const [editing, setEditing] = useState(false)
+    const [draft, setDraft] = useState(() => coachGamePlayersLabel(game))
+    const [saving, setSaving] = useState(false)
+
+    useEffect(() => {
+        if (!editing) setDraft(coachGamePlayersLabel(game))
+    }, [game, editing])
+
+    const save = async () => {
+        const title = draft.trim()
+        if (!title) {
+            onError('La descripción no puede estar vacía.')
+            return
+        }
+        setSaving(true)
+        try {
+            const updated = await patchCoachGameTitle(game.id, title)
+            onSaved(updated)
+            setEditing(false)
+        } catch (err) {
+            onError(parseApiDetail(err))
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    if (editing) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 220 }}>
+                <TextField
+                    size="small"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') save()
+                        if (e.key === 'Escape') setEditing(false)
+                    }}
+                    disabled={saving}
+                    fullWidth
+                    autoFocus
+                    placeholder="Blancas vs Negras"
+                />
+                <IconButton size="small" onClick={save} disabled={saving} aria-label="Guardar descripción">
+                    <Check fontSize="small" />
+                </IconButton>
+                <IconButton
+                    size="small"
+                    onClick={() => setEditing(false)}
+                    disabled={saving}
+                    aria-label="Cancelar"
+                >
+                    <Close fontSize="small" />
+                </IconButton>
+            </Box>
+        )
+    }
+
+    return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="body2" component="span">
+                {formatCoachGameDescription(game)}
+            </Typography>
+            <Tooltip title="Cambiar descripción">
+                <IconButton
+                    size="small"
+                    onClick={() => {
+                        setDraft(coachGamePlayersLabel(game))
+                        setEditing(true)
+                    }}
+                    aria-label="Editar descripción de la partida"
+                >
+                    <EditOutlined fontSize="small" />
+                </IconButton>
+            </Tooltip>
+            {importTag !== undefined && (
+                <Chip
+                    size="small"
+                    label={importTag ? 'Nueva' : 'Ya existía'}
+                    color={importTag ? 'success' : 'default'}
+                    variant="outlined"
+                />
+            )}
+        </Box>
+    )
+}
+
 const analysisLinkState = { returnTo: COACH_RETURN_PARTIDAS }
 
 /** Cola module07 + tabla de partidas importadas (tab Coach → Partidas). */
@@ -137,6 +309,14 @@ export default function CoachGamesPanel() {
         () => new Set(location.state?.highlightGameIds || []),
         [location.state?.highlightGameIds],
     )
+
+    const importedMetaById = useMemo(() => {
+        const m = new Map()
+        for (const g of location.state?.importedGames || []) {
+            m.set(g.id, g.is_new)
+        }
+        return m
+    }, [location.state?.importedGames])
 
     const failedJobCount = useMemo(
         () => jobs.filter((j) => j.status === 'failed').length,
@@ -525,6 +705,7 @@ export default function CoachGamesPanel() {
                             const queueable = canQueueAnalysis(g, jobStatusById)
                             const serverStatus = serverStatusLabel(g, jobStatusById)
                             const clientDone = isClientAnalyzed(g)
+                            const importTag = importedMetaById.get(g.id)
                             return (
                                 <TableRow
                                     key={g.id}
@@ -541,7 +722,22 @@ export default function CoachGamesPanel() {
                                             onChange={() => toggleGame(g.id)}
                                         />
                                     </TableCell>
-                                    <TableCell>{formatCoachGameDescription(g)}</TableCell>
+                                    <TableCell>
+                                        <PartidaTitleCell
+                                            game={g}
+                                            importTag={importTag}
+                                            onSaved={(updated) => {
+                                                setGames((prev) =>
+                                                    prev.map((row) =>
+                                                        row.id === updated.id
+                                                            ? { ...row, ...updated }
+                                                            : row,
+                                                    ),
+                                                )
+                                            }}
+                                            onError={setError}
+                                        />
+                                    </TableCell>
                                     <TableCell>
                                         {g.player_username
                                             ? `${g.player_username} (${g.player_color || '?'})`
@@ -582,7 +778,21 @@ export default function CoachGamesPanel() {
                                             )}
                                         </Box>
                                     </TableCell>
-                                    <TableCell>{formatResult(g.result)}</TableCell>
+                                    <TableCell>
+                                        <ResultadoCell
+                                            game={g}
+                                            onSaved={(updated) => {
+                                                setGames((prev) =>
+                                                    prev.map((row) =>
+                                                        row.id === updated.id
+                                                            ? { ...row, ...updated }
+                                                            : row,
+                                                    ),
+                                                )
+                                            }}
+                                            onError={setError}
+                                        />
+                                    </TableCell>
                                     <TableCell>
                                         <Box
                                             sx={{

@@ -75,14 +75,20 @@ function speedClassTitle(speedClass) {
     return SPEED_TITLES[key] || key.charAt(0).toUpperCase() + key.slice(1)
 }
 
+export function coachGamePlayersLabel(game) {
+    const custom = String(game?.display_title || '').trim()
+    if (custom) return custom
+    const white = String(game?.white_player || '').trim() || 'Blancas'
+    const black = String(game?.black_player || '').trim() || 'Negras'
+    return `${white} vs ${black}`
+}
+
 /** @param {Record<string, unknown>} game */
 export function formatCoachGameDescription(game) {
     if (game?.description) {
         return String(game.description)
     }
-    const white = String(game?.white_player || '').trim() || 'Blancas'
-    const black = String(game?.black_player || '').trim() || 'Negras'
-    let line = `${white} vs ${black}`
+    let line = coachGamePlayersLabel(game)
     const pov = String(game?.player_username || '').trim()
     if (pov) {
         line += ` · POV ${pov}`

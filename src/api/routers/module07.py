@@ -43,6 +43,7 @@ from modules.module07.lichess_settings import (
 from modules.module07.repository import (
     create_analysis_job,
     create_games_from_ingest,
+    display_title_from_game,
     get_decision,
     get_game,
     get_job,
@@ -53,6 +54,8 @@ from modules.module07.repository import (
     replace_ply_annotations_for_game,
     delete_coach_game,
     delete_coach_games,
+    update_coach_game_display_title,
+    update_coach_game_result,
 )
 from modules.module07.pov_bulk import (
     apply_bulk_pov,
@@ -142,12 +145,14 @@ def _game_json(
             getattr(row, "time_control", None),
             speed_class=row.speed_class,
         ),
+        "display_title": display_title_from_game(row),
         "description": format_coach_game_description(
             white_player=row.white_player,
             black_player=row.black_player,
             player_username=row.player_username,
             speed_class=row.speed_class,
             time_control=getattr(row, "time_control", None),
+            display_title=display_title_from_game(row),
         ),
         "source": row.source,
         "analysis_job_id": row.analysis_job_id,
@@ -381,6 +386,46 @@ def bulk_delete_games(
 ):
     owner = _owner_id(request)
     return delete_coach_games(db, body.game_ids, owner)
+
+
+class GameDisplayPatchBody(BaseModel):
+    display_title: Optional[str] = Field(default=None, max_length=200)
+    result: Optional[str] = None
+
+    @field_validator("display_title")
+    @classmethod
+    def strip_display_title(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        text = value.strip()
+        if not text:
+            raise ValueError("display_title cannot be blank")
+        return text
+
+
+@router.patch("/games/{game_id}")
+def patch_game_by_id(
+    game_id: str,
+    body: GameDisplayPatchBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    owner = _owner_id(request)
+    if body.display_title is None and body.result is None:
+        raise HTTPException(status_code=400, detail="Nada para actualizar")
+    try:
+        row = None
+        if body.display_title is not None:
+            row = update_coach_game_display_title(
+                db, game_id, owner, body.display_title
+            )
+        if body.result is not None:
+            row = update_coach_game_result(db, game_id, owner, body.result)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if row is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return _game_json(row, include_pgn=False)
 
 
 @router.get("/games/{game_id}")

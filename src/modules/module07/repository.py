@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm.attributes import flag_modified
 
 from modules.game_import.master_games import upsert_master_game_from_coach_item
-from modules.module07.ingest import resolve_player_color
+from modules.module07.ingest import parse_allowed_result, resolve_player_color, rewrite_pgn_result
 from models.database_models import Games
 from models.module07_models import (
     CoachGame,
@@ -20,6 +22,38 @@ from models.module07_models import (
     Module07PlyAnnotation,
 )
 from modules.game_import.master_games import master_game_id_from_pgn
+
+_TITLE_VS = re.compile(r"^(.+?)\s+vs\s+(.+)$", re.IGNORECASE)
+
+
+def display_title_from_game(game: CoachGame) -> str:
+    prov = game.import_provenance if isinstance(game.import_provenance, dict) else {}
+    custom = str(prov.get("display_title") or "").strip()
+    if custom:
+        return custom
+    white = (game.white_player or "").strip() or "Blancas"
+    black = (game.black_player or "").strip() or "Negras"
+    return f"{white} vs {black}"
+
+
+def _default_display_title(item: Any) -> str:
+    white = (getattr(item, "white_player", None) or "").strip() or "Blancas"
+    black = (getattr(item, "black_player", None) or "").strip() or "Negras"
+    return f"{white} vs {black}"
+
+
+def _merge_provenance(
+    item: Any,
+    prov: dict[str, Any] | None,
+    *,
+    keep_title: str | None = None,
+) -> dict[str, Any]:
+    data = dict(prov or {})
+    if keep_title and not str(data.get("display_title") or "").strip():
+        data["display_title"] = keep_title
+    if not str(data.get("display_title") or "").strip():
+        data["display_title"] = _default_display_title(item)
+    return data
 
 
 def _new_id() -> str:
@@ -78,12 +112,16 @@ def create_games_from_ingest(
         speed = getattr(item, "speed_class", "unknown")
         if prov and prov.get("speed_class"):
             speed = str(prov["speed_class"])
+        keep_title = None
+        if existing and isinstance(existing.import_provenance, dict):
+            keep_title = str(existing.import_provenance.get("display_title") or "").strip() or None
+        merged_prov = _merge_provenance(item, prov, keep_title=keep_title)
         if existing:
             existing.master_game_id = master_id
             existing.last_imported_at = now
             existing.speed_class = speed
-            if prov:
-                existing.import_provenance = prov
+            existing.import_provenance = merged_prov
+            flag_modified(existing, "import_provenance")
             if pgn_changed:
                 _clear_client_analysis(db, existing)
             rows.append(existing)
@@ -100,7 +138,7 @@ def create_games_from_ingest(
             corpus_type=corpus_type,
             speed_class=speed,
             last_imported_at=now,
-            import_provenance=prov,
+            import_provenance=merged_prov,
         )
         db.add(row)
         rows.append(row)
@@ -241,6 +279,54 @@ def get_game(db: Session, game_id: str, owner_user_id: int) -> CoachGame | None:
         )
         .first()
     )
+
+
+def update_coach_game_display_title(
+    db: Session,
+    game_id: str,
+    owner_user_id: int,
+    display_title: str,
+) -> CoachGame | None:
+    game = get_game(db, game_id, owner_user_id)
+    if game is None:
+        return None
+    title = (display_title or "").strip()
+    if not title:
+        raise ValueError("display_title cannot be blank")
+    if len(title) > 200:
+        raise ValueError("display_title is too long")
+    prov = dict(game.import_provenance or {})
+    prov["display_title"] = title
+    game.import_provenance = prov
+    flag_modified(game, "import_provenance")
+    match = _TITLE_VS.match(title)
+    if match and game.master_game is not None:
+        game.master_game.white_player = match.group(1).strip()[:255]
+        game.master_game.black_player = match.group(2).strip()[:255]
+    db.commit()
+    db.refresh(game)
+    return game
+
+
+def update_coach_game_result(
+    db: Session,
+    game_id: str,
+    owner_user_id: int,
+    result: str,
+) -> CoachGame | None:
+    game = get_game(db, game_id, owner_user_id)
+    if game is None:
+        return None
+    normalized = parse_allowed_result(result)
+    master = game.master_game
+    if master is None:
+        raise ValueError("game has no master row")
+    master.result = normalized
+    if master.pgn:
+        master.pgn = rewrite_pgn_result(master.pgn, normalized)
+    db.commit()
+    db.refresh(game)
+    return game
 
 
 def delete_coach_game(db: Session, game_id: str, owner_user_id: int) -> bool:

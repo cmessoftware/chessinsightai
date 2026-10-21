@@ -9,7 +9,11 @@ SRC_DIR = Path(__file__).resolve().parents[2] / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from modules.module07.ingest import parse_games_from_pgn_text
+from modules.module07.ingest import (
+    parse_allowed_result,
+    parse_games_from_pgn_text,
+    rewrite_pgn_result,
+)
 
 SAMPLE = """
 [Event "Test"]
@@ -72,6 +76,17 @@ def test_parse_multi_game_pgn_unlimited():
     result = parse_games_from_pgn_text(MULTI, max_games=None)
     assert result.total_games_in_pgn == 2
     assert len(result.games) == 2
+
+
+def test_parse_allowed_result():
+    assert parse_allowed_result("1-0") == "1-0"
+    assert parse_allowed_result("*") == "*"
+    assert parse_allowed_result("1/2-1/2") == "1/2-1/2"
+
+
+def test_rewrite_pgn_result_updates_header():
+    pgn = rewrite_pgn_result(SAMPLE, "0-1")
+    assert '[Result "0-1"]' in pgn
 
 
 ANNOTATED_DAILY = """

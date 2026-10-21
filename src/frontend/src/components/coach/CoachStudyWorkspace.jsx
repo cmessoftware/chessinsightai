@@ -23,7 +23,6 @@ import { Link as RouterLink } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachCurrentFenBar from './CoachCurrentFenBar.jsx'
 import CoachPgnMoveList from './CoachPgnMoveList.jsx'
-import CoachSubNav from './CoachSubNav.jsx'
 import { CoachConfirmBadge } from './coachPanelStatus.jsx'
 import Mental1600Panel from './Mental1600Panel.jsx'
 import EngineMultipvPanel from './EngineMultipvPanel.jsx'
@@ -382,7 +381,6 @@ export default function CoachStudyWorkspace({
                 </Typography>
             )}
             {!embedded && subtitle}
-            {!embedded && showCoachSubNav && <CoachSubNav />}
             {!embedded && returnTo && (
                 <Button
                     component={RouterLink}

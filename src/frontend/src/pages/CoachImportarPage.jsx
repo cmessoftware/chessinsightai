@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Box, Button, Paper, Tab, Tabs, Typography } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
-import CoachSubNav from '../components/coach/CoachSubNav.jsx'
+import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import ChesscomImportPanel from '../components/coach/ChesscomImportPanel.jsx'
 import LichessImportPanel from '../components/coach/LichessImportPanel.jsx'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
@@ -26,7 +26,7 @@ export default function CoachImportarPage() {
     const [importSection, setImportSection] = useState('pgn')
 
     return (
-        <Box>
+        <CoachPageLayout>
             <Typography variant="h5" gutterBottom>
                 Coach
             </Typography>
@@ -34,7 +34,6 @@ export default function CoachImportarPage() {
                 Importá partidas (PGN, Lichess, Chess.com) o analizá una posición suelta (FEN). El jugador POV se elige
                 en <strong>Partidas</strong> al encolar Stockfish.
             </Typography>
-            <CoachSubNav />
             <Tabs
                 value={importSection}
                 onChange={(_e, v) => setImportSection(v)}
@@ -104,6 +103,6 @@ export default function CoachImportarPage() {
                     </Button>
                 </Paper>
             )}
-        </Box>
+        </CoachPageLayout>
     )
 }

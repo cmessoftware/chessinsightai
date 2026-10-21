@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
-import CoachSubNav from '../components/coach/CoachSubNav.jsx'
+import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import { getGame, listGames } from '../services/module07Service.js'
 import { createStudyRootFromFen } from '../utils/coachStudyFromFen.js'
 import { loadCoachAnalysisCursor, loadCoachLastGameId } from '../utils/coachLastGameSession.js'
@@ -65,15 +65,14 @@ export default function CoachHomePage() {
 
     if (loading) {
         return (
-            <Box>
+            <CoachPageLayout>
                 <Typography variant="h5" gutterBottom>
                     Coach
                 </Typography>
-                <CoachSubNav />
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
                     <CircularProgress />
                 </Box>
-            </Box>
+            </CoachPageLayout>
         )
     }
 
