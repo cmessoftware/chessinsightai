@@ -20,7 +20,7 @@ const accordionSx = {
 export default function CoachConfigSectionAccordion({
     id,
     title,
-    defaultExpanded = true,
+    defaultExpanded = false,
     children,
 }) {
     return (
