@@ -11,14 +11,18 @@ import { formatPlayerEval } from '../utils/engineEval.js'
  */
 export function usePgnEvalCache(treeRoot, playerColor, { prefetchDepth = 10, prefetchEnabled = true } = {}) {
     const [evalByFen, setEvalByFen] = useState({})
+    const [scoreByFen, setScoreByFen] = useState({})
     const evalRef = useRef({})
+    const scoreRef = useRef({})
     evalRef.current = evalByFen
+    scoreRef.current = scoreByFen
     const prefetchGen = useRef(0)
 
     const setEvalForFen = useCallback((fen, playerScore) => {
         if (!fen || !playerScore) return
         const text = formatPlayerEval(playerScore)
         setEvalByFen((prev) => (prev[fen] === text ? prev : { ...prev, [fen]: text }))
+        setScoreByFen((prev) => (prev[fen] === playerScore ? prev : { ...prev, [fen]: playerScore }))
     }, [])
 
     useEffect(() => {
@@ -37,7 +41,7 @@ export function usePgnEvalCache(treeRoot, playerColor, { prefetchDepth = 10, pre
             }
             for (const fen of fens) {
                 if (cancelled || gen !== prefetchGen.current) return
-                if (evalRef.current[fen]) continue
+                if (scoreRef.current[fen]) continue
                 try {
                     const raw = await engine.analyze({ fen, depth: prefetchDepth, multipv: 1 })
                     if (cancelled || gen !== prefetchGen.current) return
@@ -57,5 +61,5 @@ export function usePgnEvalCache(treeRoot, playerColor, { prefetchDepth = 10, pre
         }
     }, [treeRoot, playerColor, prefetchDepth, prefetchEnabled, setEvalForFen])
 
-    return { evalByFen, setEvalForFen }
+    return { evalByFen, scoreByFen, setEvalForFen }
 }
