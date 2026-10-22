@@ -21,6 +21,7 @@ import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachHomePage from './pages/CoachHomePage.jsx'
 import CoachImportarPage from './pages/CoachImportarPage.jsx'
 import CoachPartidasPage from './pages/CoachPartidasPage.jsx'
+import CoachConfiguracionPage from './pages/CoachConfiguracionPage.jsx'
 import CoachReviewPage from './pages/CoachReviewPage.jsx'
 import CoachGameAnalysisPage from './pages/CoachGameAnalysisPage.jsx'
 import CoachPositionPage from './pages/CoachPositionPage.jsx'
@@ -140,6 +141,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <CoachPartidasPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/configuracion"
+                  element={
+                    <ProtectedRoute>
+                      <CoachConfiguracionPage />
                     </ProtectedRoute>
                   }
                 />

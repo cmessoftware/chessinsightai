@@ -39,13 +39,17 @@ import {
     CoachStatusBadgeRow,
 } from './coachPanelStatus.jsx'
 import {
-    coachGamePlayersLabel,
     formatCoachCatalogSource,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
-    formatCoachGameDescription,
+    formatCoachPartidaTableLabel,
 } from '../../utils/coachGameDisplay.js'
 import { sortCoachGames } from '../../utils/coachGamesSort.js'
+import {
+    coachGamesTableColSpan,
+    loadVisibleCoachGamesColumns,
+} from '../../utils/coachGamesTableColumns.js'
+import { COACH_PARTIDAS_COLUMNS_CHANGED } from '../../utils/coachPartidasColumnsSync.js'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -230,11 +234,11 @@ function ResultadoCell({ game, onSaved, onError }) {
 
 function PartidaTitleCell({ game, importTag, onSaved, onError }) {
     const [editing, setEditing] = useState(false)
-    const [draft, setDraft] = useState(() => coachGamePlayersLabel(game))
+    const [draft, setDraft] = useState(() => formatCoachPartidaTableLabel(game))
     const [saving, setSaving] = useState(false)
 
     useEffect(() => {
-        if (!editing) setDraft(coachGamePlayersLabel(game))
+        if (!editing) setDraft(formatCoachPartidaTableLabel(game))
     }, [game, editing])
 
     const save = async () => {
@@ -289,13 +293,13 @@ function PartidaTitleCell({ game, importTag, onSaved, onError }) {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography variant="body2" component="span">
-                {formatCoachGameDescription(game)}
+                {formatCoachPartidaTableLabel(game)}
             </Typography>
             <Tooltip title="Cambiar descripción">
                 <IconButton
                     size="small"
                     onClick={() => {
-                        setDraft(coachGamePlayersLabel(game))
+                        setDraft(formatCoachPartidaTableLabel(game))
                         setEditing(true)
                     }}
                     aria-label="Editar descripción de la partida"
@@ -333,6 +337,7 @@ export default function CoachGamesPanel() {
     const [refreshing, setRefreshing] = useState(false)
     const [sortBy, setSortBy] = useState(null)
     const [sortDirection, setSortDirection] = useState('asc')
+    const [visibleColumns, setVisibleColumns] = useState(() => loadVisibleCoachGamesColumns())
 
     const jobStatusById = useMemo(() => {
         const m = new Map()
@@ -396,6 +401,14 @@ export default function CoachGamesPanel() {
         () => sortCoachGames(games, sortBy, sortDirection, sortContext),
         [games, sortBy, sortDirection, sortContext],
     )
+
+    const showCol = useCallback((id) => visibleColumns.has(id), [visibleColumns])
+
+    useEffect(() => {
+        const syncColumns = () => setVisibleColumns(loadVisibleCoachGamesColumns())
+        window.addEventListener(COACH_PARTIDAS_COLUMNS_CHANGED, syncColumns)
+        return () => window.removeEventListener(COACH_PARTIDAS_COLUMNS_CHANGED, syncColumns)
+    }, [])
 
     useEffect(() => {
         if (playerHandle && playerOptions.includes(playerHandle)) return
@@ -757,94 +770,114 @@ export default function CoachGamesPanel() {
                                     onChange={toggleAllGames}
                                 />
                             </TableCell>
-                            <TableCell>Partida</TableCell>
-                            <SortableGamesHeader
-                                field="white_player"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                                sx={playerNameColSx}
-                            >
-                                Blancas
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="black_player"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                                sx={playerNameColSx}
-                            >
-                                Negras
-                            </SortableGamesHeader>
-                            <TableCell>Jugador POV</TableCell>
-                            <SortableGamesHeader
-                                field="eco"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                                sx={compactTableColSx}
-                            >
-                                ECO
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="white_elo"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                                sx={compactTableColSx}
-                            >
-                                Elo B
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="black_elo"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                                sx={compactTableColSx}
-                            >
-                                Elo N
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="opening"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                            >
-                                Apertura
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="date_played"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                            >
-                                Fecha
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="source"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                            >
-                                Fuente
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="analysis"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                            >
-                                Análisis
-                            </SortableGamesHeader>
-                            <SortableGamesHeader
-                                field="result"
-                                sortBy={sortBy}
-                                sortDirection={sortDirection}
-                                onSort={handleRequestSort}
-                            >
-                                Resultado
-                            </SortableGamesHeader>
-                            <TableCell>Acciones</TableCell>
+                            {showCol('partida') && <TableCell>Partida</TableCell>}
+                            {showCol('white_player') && (
+                                <SortableGamesHeader
+                                    field="white_player"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                    sx={playerNameColSx}
+                                >
+                                    Blancas
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('black_player') && (
+                                <SortableGamesHeader
+                                    field="black_player"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                    sx={playerNameColSx}
+                                >
+                                    Negras
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('player_pov') && <TableCell>Jugador POV</TableCell>}
+                            {showCol('eco') && (
+                                <SortableGamesHeader
+                                    field="eco"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                    sx={compactTableColSx}
+                                >
+                                    ECO
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('white_elo') && (
+                                <SortableGamesHeader
+                                    field="white_elo"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                    sx={compactTableColSx}
+                                >
+                                    Elo B
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('black_elo') && (
+                                <SortableGamesHeader
+                                    field="black_elo"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                    sx={compactTableColSx}
+                                >
+                                    Elo N
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('opening') && (
+                                <SortableGamesHeader
+                                    field="opening"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Apertura
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('date_played') && (
+                                <SortableGamesHeader
+                                    field="date_played"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Fecha
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('source') && (
+                                <SortableGamesHeader
+                                    field="source"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Fuente
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('analysis') && (
+                                <SortableGamesHeader
+                                    field="analysis"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Análisis
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('result') && (
+                                <SortableGamesHeader
+                                    field="result"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Resultado
+                                </SortableGamesHeader>
+                            )}
+                            {showCol('actions') && <TableCell>Acciones</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -869,121 +902,146 @@ export default function CoachGamesPanel() {
                                             onChange={() => toggleGame(g.id)}
                                         />
                                     </TableCell>
-                                    <TableCell>
-                                        <PartidaTitleCell
-                                            game={g}
-                                            importTag={importTag}
-                                            onSaved={(updated) => {
-                                                setGames((prev) =>
-                                                    prev.map((row) =>
-                                                        row.id === updated.id
-                                                            ? { ...row, ...updated }
-                                                            : row,
-                                                    ),
+                                    {showCol('partida') && (
+                                        <TableCell>
+                                            <PartidaTitleCell
+                                                game={g}
+                                                importTag={importTag}
+                                                onSaved={(updated) => {
+                                                    setGames((prev) =>
+                                                        prev.map((row) =>
+                                                            row.id === updated.id
+                                                                ? { ...row, ...updated }
+                                                                : row,
+                                                        ),
+                                                    )
+                                                }}
+                                                onError={setError}
+                                            />
+                                        </TableCell>
+                                    )}
+                                    {showCol('white_player') && (
+                                        <TableCell sx={playerNameColSx}>
+                                            {g.white_player || '—'}
+                                        </TableCell>
+                                    )}
+                                    {showCol('black_player') && (
+                                        <TableCell sx={playerNameColSx}>
+                                            {g.black_player || '—'}
+                                        </TableCell>
+                                    )}
+                                    {showCol('player_pov') && (
+                                        <TableCell>
+                                            {g.player_username
+                                                ? `${g.player_username} (${g.player_color || '?'})`
+                                                : '—'}
+                                        </TableCell>
+                                    )}
+                                    {showCol('eco') && (
+                                        <TableCell sx={ecoTableColSx}>
+                                            {(() => {
+                                                const eco = formatCoachEcoForDisplay(g.eco)
+                                                const label = (
+                                                    <Box component="span" sx={{ display: 'block' }}>
+                                                        {eco.display}
+                                                    </Box>
                                                 )
-                                            }}
-                                            onError={setError}
-                                        />
-                                    </TableCell>
-                                    <TableCell sx={playerNameColSx}>
-                                        {g.white_player || '—'}
-                                    </TableCell>
-                                    <TableCell sx={playerNameColSx}>
-                                        {g.black_player || '—'}
-                                    </TableCell>
-                                    <TableCell>
-                                        {g.player_username
-                                            ? `${g.player_username} (${g.player_color || '?'})`
-                                            : '—'}
-                                    </TableCell>
-                                    <TableCell sx={ecoTableColSx}>
-                                        {(() => {
-                                            const eco = formatCoachEcoForDisplay(g.eco)
-                                            const label = (
-                                                <Box component="span" sx={{ display: 'block' }}>
-                                                    {eco.display}
-                                                </Box>
-                                            )
-                                            return eco.tooltip ? (
-                                                <Tooltip title={eco.tooltip}>
-                                                    {label}
-                                                </Tooltip>
-                                            ) : (
-                                                label
-                                            )
-                                        })()}
-                                    </TableCell>
-                                    <TableCell sx={compactTableColSx}>
-                                        {g.white_elo || '—'}
-                                    </TableCell>
-                                    <TableCell sx={compactTableColSx}>
-                                        {g.black_elo || '—'}
-                                    </TableCell>
-                                    <TableCell
-                                        sx={{
-                                            maxWidth: 160,
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                        }}
-                                    >
-                                        {g.opening || '—'}
-                                    </TableCell>
-                                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                                        {formatCoachDatePlayed(g.date_played)}
-                                    </TableCell>
-                                    <TableCell>{formatCoachCatalogSource(g)}</TableCell>
-                                    <TableCell>
-                                        <Box
+                                                return eco.tooltip ? (
+                                                    <Tooltip title={eco.tooltip}>
+                                                        {label}
+                                                    </Tooltip>
+                                                ) : (
+                                                    label
+                                                )
+                                            })()}
+                                        </TableCell>
+                                    )}
+                                    {showCol('white_elo') && (
+                                        <TableCell sx={compactTableColSx}>
+                                            {g.white_elo || '—'}
+                                        </TableCell>
+                                    )}
+                                    {showCol('black_elo') && (
+                                        <TableCell sx={compactTableColSx}>
+                                            {g.black_elo || '—'}
+                                        </TableCell>
+                                    )}
+                                    {showCol('opening') && (
+                                        <TableCell
                                             sx={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'flex-start',
-                                                gap: 0.5,
+                                                maxWidth: 160,
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
                                             }}
                                         >
-                                            {clientDone && (
-                                                <Chip
-                                                    size="small"
-                                                    label={`Analizado liviano (${g.client_analysis_ply_count} jug.)`}
-                                                    color="success"
-                                                    variant="filled"
-                                                />
-                                            )}
-                                            {serverStatus ? (
-                                                <Chip
-                                                    size="small"
-                                                    label={`Stockfish: ${serverStatus}`}
-                                                    color={statusColor(serverStatus)}
-                                                    variant="filled"
-                                                />
-                                            ) : (
-                                                !clientDone && (
+                                            {g.opening || '—'}
+                                        </TableCell>
+                                    )}
+                                    {showCol('date_played') && (
+                                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                                            {formatCoachDatePlayed(g.date_played)}
+                                        </TableCell>
+                                    )}
+                                    {showCol('source') && (
+                                        <TableCell>{formatCoachCatalogSource(g)}</TableCell>
+                                    )}
+                                    {showCol('analysis') && (
+                                        <TableCell>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'flex-start',
+                                                    gap: 0.5,
+                                                }}
+                                            >
+                                                {clientDone && (
                                                     <Chip
                                                         size="small"
-                                                        label="Sin análisis"
-                                                        variant="outlined"
+                                                        label={`Analizado liviano (${g.client_analysis_ply_count} jug.)`}
+                                                        color="success"
+                                                        variant="filled"
                                                     />
-                                                )
-                                            )}
-                                        </Box>
-                                    </TableCell>
-                                    <TableCell>
-                                        <ResultadoCell
-                                            game={g}
-                                            onSaved={(updated) => {
-                                                setGames((prev) =>
-                                                    prev.map((row) =>
-                                                        row.id === updated.id
-                                                            ? { ...row, ...updated }
-                                                            : row,
-                                                    ),
-                                                )
-                                            }}
-                                            onError={setError}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
+                                                )}
+                                                {serverStatus ? (
+                                                    <Chip
+                                                        size="small"
+                                                        label={`Stockfish: ${serverStatus}`}
+                                                        color={statusColor(serverStatus)}
+                                                        variant="filled"
+                                                    />
+                                                ) : (
+                                                    !clientDone && (
+                                                        <Chip
+                                                            size="small"
+                                                            label="Sin análisis"
+                                                            variant="outlined"
+                                                        />
+                                                    )
+                                                )}
+                                            </Box>
+                                        </TableCell>
+                                    )}
+                                    {showCol('result') && (
+                                        <TableCell>
+                                            <ResultadoCell
+                                                game={g}
+                                                onSaved={(updated) => {
+                                                    setGames((prev) =>
+                                                        prev.map((row) =>
+                                                            row.id === updated.id
+                                                                ? { ...row, ...updated }
+                                                                : row,
+                                                        ),
+                                                    )
+                                                }}
+                                                onError={setError}
+                                            />
+                                        </TableCell>
+                                    )}
+                                    {showCol('actions') && (
+                                        <TableCell>
                                         <Box
                                             sx={{
                                                 display: 'flex',
@@ -1060,13 +1118,14 @@ export default function CoachGamesPanel() {
                                                 </span>
                                             </Tooltip>
                                         </Box>
-                                    </TableCell>
+                                        </TableCell>
+                                    )}
                                 </TableRow>
                             )
                         })}
                         {!games.length && (
                             <TableRow>
-                                <TableCell colSpan={14} align="center">
+                                <TableCell colSpan={coachGamesTableColSpan(visibleColumns)} align="center">
                                     Sin partidas importadas.
                                 </TableCell>
                             </TableRow>
