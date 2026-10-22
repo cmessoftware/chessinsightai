@@ -1,5 +1,30 @@
 import { mainLineMovesFromTree, moveNumberFromPlyCount } from './coachVariationTree.js'
 
+/** Tag-pair lines before movetext (Event, White, FEN, SetUp, …). */
+export function extractPgnHeadersBlock(pgnText) {
+    const lines = []
+    for (const raw of String(pgnText || '').split(/\r?\n/)) {
+        const trimmed = raw.trim()
+        if (/^\[[A-Za-z][A-Za-z0-9]*\s+"[^"]*"\]\s*$/.test(trimmed)) {
+            lines.push(trimmed)
+            continue
+        }
+        if (!trimmed && lines.length) break
+        if (lines.length) break
+        if (trimmed) break
+    }
+    return lines.join('\n')
+}
+
+/** Full PGN snippet for clipboard: headers + blank line + movetext. */
+export function buildPgnClipboardText(movetext, sourcePgn) {
+    const body = String(movetext ?? '').trim()
+    const headers = extractPgnHeadersBlock(sourcePgn)
+    if (!headers) return body
+    if (!body) return headers
+    return `${headers}\n\n${body}`
+}
+
 function sideToMove(fen) {
     return (fen.split(/\s+/)[1] || 'w').toLowerCase()
 }

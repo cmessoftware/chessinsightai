@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
 import { createEmptyRoot } from './coachVariationTree.js'
-import { formatMainLinePgnMovetext, formatTreePgnMovetext } from './coachPgnExport.js'
+import {
+    buildPgnClipboardText,
+    extractPgnHeadersBlock,
+    formatMainLinePgnMovetext,
+    formatTreePgnMovetext,
+} from './coachPgnExport.js'
 
 function buildMainLineRoot(sans) {
     const chess = new Chess()
@@ -21,6 +26,46 @@ function buildMainLineRoot(sans) {
     }
     return root
 }
+
+describe('extractPgnHeadersBlock', () => {
+    it('returns tag pairs before movetext', () => {
+        const pgn = `[Event "Test"]
+[White "Alice"]
+[Black "Bob"]
+[Result "*"]
+
+1. e4 e5`
+        expect(extractPgnHeadersBlock(pgn)).toBe(
+            '[Event "Test"]\n[White "Alice"]\n[Black "Bob"]\n[Result "*"]',
+        )
+    })
+
+    it('includes FEN and SetUp headers', () => {
+        const pgn = `[SetUp "1"]
+[FEN "4rkn1/p1q4p/1p2Q1p1/4P1N1/b1p4P/2P1P3/6P1/4R1K1 b - - 0 1"]
+
+1... Re7`
+        const headers = extractPgnHeadersBlock(pgn)
+        expect(headers).toContain('[SetUp "1"]')
+        expect(headers).toContain('[FEN "4rkn1')
+    })
+})
+
+describe('buildPgnClipboardText', () => {
+    it('prepends headers to movetext', () => {
+        const source = `[Event "X"]
+[White "W"]
+
+1. d4`
+        const out = buildPgnClipboardText('1. d4 d5 1-0', source)
+        expect(out).toMatch(/^\[Event "X"\]/)
+        expect(out).toContain('\n\n1. d4 d5 1-0')
+    })
+
+    it('returns movetext only when source has no headers', () => {
+        expect(buildPgnClipboardText('1. e4', '1. e4 e5')).toBe('1. e4')
+    })
+})
 
 describe('formatMainLinePgnMovetext', () => {
     it('formats a short main line', () => {

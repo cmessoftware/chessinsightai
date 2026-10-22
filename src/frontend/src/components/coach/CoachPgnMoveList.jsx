@@ -3,6 +3,7 @@ import { Box, IconButton, Menu, MenuItem, Paper, Tooltip, Typography } from '@mu
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import {
+    buildPgnClipboardText,
     copyTextToClipboard,
     formatMainLinePgnMovetext,
     formatTreePgnMovetext,
@@ -426,6 +427,7 @@ export default function CoachPgnMoveList({
     onTruncateForward = null,
     pathHasContinuations = null,
     rootPositionLabel = 'Posición inicial',
+    sourcePgn = null,
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
@@ -471,7 +473,8 @@ export default function CoachPgnMoveList({
     const closeMoveMenu = () => setMoveMenu(null)
 
     const handleCopyMainLine = useCallback(async () => {
-        const text = formatMainLinePgnMovetext(treeRoot, { result: mainLineResult })
+        const movetext = formatMainLinePgnMovetext(treeRoot, { result: mainLineResult })
+        const text = buildPgnClipboardText(movetext, sourcePgn)
         if (!text) {
             closeMoveMenu()
             return
@@ -482,10 +485,11 @@ export default function CoachPgnMoveList({
             /* clipboard denied — silent */
         }
         closeMoveMenu()
-    }, [treeRoot, mainLineResult])
+    }, [treeRoot, mainLineResult, sourcePgn])
 
     const handleCopyWithVariations = useCallback(async () => {
-        const text = formatTreePgnMovetext(treeRoot, { result: mainLineResult })
+        const movetext = formatTreePgnMovetext(treeRoot, { result: mainLineResult })
+        const text = buildPgnClipboardText(movetext, sourcePgn)
         if (!text) {
             closeMoveMenu()
             return
@@ -496,7 +500,7 @@ export default function CoachPgnMoveList({
             /* clipboard denied */
         }
         closeMoveMenu()
-    }, [treeRoot, mainLineResult])
+    }, [treeRoot, mainLineResult, sourcePgn])
 
     const menuCanTruncate = moveMenu?.canTruncate
     const menuCanDeleteBranch = moveMenu?.canDeleteBranch

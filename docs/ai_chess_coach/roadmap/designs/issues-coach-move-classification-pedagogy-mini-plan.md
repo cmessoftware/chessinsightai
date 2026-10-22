@@ -60,7 +60,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-028</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>✅ Done</td><td>HITL OK — <code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
 <tr><td>FEAT-029</td><td></td><td>Cambio de usuario POV en todas las partidas (bulk)</td><td>✅ Done</td><td>HITL OK — <code>feature/11_148_feat_029_bulk_pov</code></td></tr>
 <tr><td>FEAT-030</td><td></td><td>Menú principal: barra superior → sidebar izquierdo colapsable; Coach como submenú; sin Tablero (redirect <code>/coach/position</code>)</td><td>✅ Done</td><td>HITL OK — <code>feature/11_149_feat_030_coach_sidebar</code> — <code>AppShell</code></td></tr>
-<tr><td>FEAT-031</td><td>FEAT-019 / FEAT-020</td><td>Modificar: al copiar PGN copiar también el encabezado del mismo</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-031</td><td>FEAT-019 / FEAT-020</td><td>Modificar: al copiar PGN copiar también el encabezado del mismo</td><td>✅ Done</td><td><code>feature/11_156_feat_031_pgn_copy_headers</code> — <code>buildPgnClipboardText</code></td></tr>
 <tr><td>FEAT-032</td><td></td><td>En tabla partidas agregar ritmo (Blitz, Rapid, Classical, Correspondence, Unknown)</td><td>✅ Done</td><td><code>feature/11_147_feat_033_partidas_ritmo</code>; <code>CoachGamesPanel</code> + <code>coachSpeedClassLabel</code></td></tr>
 <tr><td>FEAT-033</td><td>FEAT-027</td><td>Por defecto no migrar: cant. movimientos ≤10 excepto análisis de posiciones que no empiezan desde la inicial; en ese caso marcar Fuente=Estudio</td><td>🔄 WIP</td><td><code>feature/11_150_feat_033_skip_short_games</code></td></tr>
 <tr><td>FEAT-034</td><td></td><td>En tabla partidas agregar campo Fuente (<code>corpus_type</code> de <code>coach_games</code>)</td><td>⬜ Todo</td><td>Id duplicado en borrador — renumerar al implementar</td></tr>
@@ -118,9 +118,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…030, FEAT-032/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…031, FEAT-032/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-033, FEAT-040, FEAT-048</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-031, FEAT-034…035, FEAT-038…039, FEAT-041…042, FEAT-046…047, FEAT-050…051, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-034…035, FEAT-038…039, FEAT-041…042, FEAT-046…047, FEAT-050…052, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 </tbody>
 </table>
 
