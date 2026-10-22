@@ -41,6 +41,7 @@ import {
     coachGamePlayersLabel,
     formatCoachCatalogSource,
     formatCoachDatePlayed,
+    formatCoachEcoForDisplay,
     formatCoachGameDescription,
 } from '../../utils/coachGameDisplay.js'
 
@@ -119,6 +120,17 @@ const RESULT_OPTIONS = [
     { value: '1/2-1/2', label: '1/2-1/2' },
     { value: '*', label: 'Sin resultado' },
 ]
+
+/** Columnas numéricas/código: ocupan solo el ancho del contenido (no reparten espacio extra). */
+const compactTableColSx = { width: '1%', whiteSpace: 'nowrap', px: 1 }
+const ecoTableColSx = {
+    ...compactTableColSx,
+    maxWidth: 52,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontFamily: 'monospace',
+    fontSize: 12,
+}
 
 function ResultadoCell({ game, onSaved, onError }) {
     const [editing, setEditing] = useState(false)
@@ -697,9 +709,9 @@ export default function CoachGamesPanel() {
                             </TableCell>
                             <TableCell>Partida</TableCell>
                             <TableCell>Jugador POV</TableCell>
-                            <TableCell>ECO</TableCell>
-                            <TableCell>Elo B</TableCell>
-                            <TableCell>Elo N</TableCell>
+                            <TableCell sx={compactTableColSx}>ECO</TableCell>
+                            <TableCell sx={compactTableColSx}>Elo B</TableCell>
+                            <TableCell sx={compactTableColSx}>Elo N</TableCell>
                             <TableCell>Apertura</TableCell>
                             <TableCell>Fecha</TableCell>
                             <TableCell>Fuente</TableCell>
@@ -751,11 +763,29 @@ export default function CoachGamesPanel() {
                                             ? `${g.player_username} (${g.player_color || '?'})`
                                             : '—'}
                                     </TableCell>
-                                    <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>
-                                        {g.eco || '—'}
+                                    <TableCell sx={ecoTableColSx}>
+                                        {(() => {
+                                            const eco = formatCoachEcoForDisplay(g.eco)
+                                            const label = (
+                                                <Box component="span" sx={{ display: 'block' }}>
+                                                    {eco.display}
+                                                </Box>
+                                            )
+                                            return eco.tooltip ? (
+                                                <Tooltip title={eco.tooltip}>
+                                                    {label}
+                                                </Tooltip>
+                                            ) : (
+                                                label
+                                            )
+                                        })()}
                                     </TableCell>
-                                    <TableCell>{g.white_elo || '—'}</TableCell>
-                                    <TableCell>{g.black_elo || '—'}</TableCell>
+                                    <TableCell sx={compactTableColSx}>
+                                        {g.white_elo || '—'}
+                                    </TableCell>
+                                    <TableCell sx={compactTableColSx}>
+                                        {g.black_elo || '—'}
+                                    </TableCell>
                                     <TableCell
                                         sx={{
                                             maxWidth: 160,
@@ -903,7 +933,7 @@ export default function CoachGamesPanel() {
                         })}
                         {!games.length && (
                             <TableRow>
-                                <TableCell colSpan={7} align="center">
+                                <TableCell colSpan={12} align="center">
                                     Sin partidas importadas.
                                 </TableCell>
                             </TableRow>

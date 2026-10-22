@@ -3,6 +3,7 @@ import {
     coachGamePlayersLabel,
     formatCoachCatalogSource,
     formatCoachDatePlayed,
+    formatCoachEcoForDisplay,
     formatCoachGameDescription,
     formatTimeControlDisplay,
 } from './coachGameDisplay.js'
@@ -69,5 +70,15 @@ describe('coachGameDisplay', () => {
     it('formats PGN dates and catalog source', () => {
         expect(formatCoachDatePlayed('2024.03.15')).toBe('15/03/2024')
         expect(formatCoachCatalogSource({ catalog_source: 'lichess' })).toBe('lichess')
+    })
+
+    it('shows normal ECO codes and hides URL junk in eco field', () => {
+        expect(formatCoachEcoForDisplay('c55')).toEqual({ display: 'C55', tooltip: null })
+        expect(formatCoachEcoForDisplay('B90/1')).toEqual({
+            display: 'B90/1',
+            tooltip: null,
+        })
+        const url = 'https://www.chess.com/openings/French-Defense'
+        expect(formatCoachEcoForDisplay(url)).toEqual({ display: '—', tooltip: url })
     })
 })
