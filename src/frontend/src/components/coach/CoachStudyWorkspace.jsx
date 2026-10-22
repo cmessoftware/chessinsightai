@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
+import CoachCapturedPiecesStack from './CoachCapturedPiecesBar.jsx'
 import CoachCurrentFenBar from './CoachCurrentFenBar.jsx'
 import CoachPgnMoveList from './CoachPgnMoveList.jsx'
 import { CoachConfirmBadge } from './coachPanelStatus.jsx'
@@ -39,6 +40,7 @@ import { useMental1600Assessment } from '../../hooks/useMental1600Assessment.js'
 import { usePgnKeyboardNav } from '../../hooks/usePgnKeyboardNav.js'
 import { parseMoverEloFromGame } from '../../utils/coachPlayerElo.js'
 import { saveCoachAnalysisCursor } from '../../utils/coachLastGameSession.js'
+import { computeCapturedPiecesFromTree } from '../../utils/coachCapturedPieces.js'
 import {
     applyMoveAtPath,
     countMainLinePlies,
@@ -150,6 +152,10 @@ export default function CoachStudyWorkspace({
     }, [cursorPath, treeRoot, gameMeta])
 
     const boardFen = criticalMode ? reviewCritical.detail.fen_before : cursorNode.fen
+    const capturedPieces = useMemo(
+        () => computeCapturedPiecesFromTree(treeRoot, cursorPath),
+        [treeRoot, cursorPath],
+    )
     const lastMove = criticalMode
         ? pack?.played_move?.uci
         : lastUciForPath(treeRoot, cursorPath)
@@ -443,14 +449,21 @@ export default function CoachStudyWorkspace({
                                 },
                             }}
                         >
-                        <ChessinsightBoard
-                            fen={boardFen}
+                        <CoachCapturedPiecesStack
                             orientation={orientation}
-                            lastMove={lastMove}
-                            viewOnly={criticalMode}
-                            onMove={handleBoardMove}
+                            capturedByWhite={capturedPieces.capturedByWhite}
+                            capturedByBlack={capturedPieces.capturedByBlack}
                             boardWidth={boardWidth}
-                        />
+                        >
+                            <ChessinsightBoard
+                                fen={boardFen}
+                                orientation={orientation}
+                                lastMove={lastMove}
+                                viewOnly={criticalMode}
+                                onMove={handleBoardMove}
+                                boardWidth={boardWidth}
+                            />
+                        </CoachCapturedPiecesStack>
                         <Box
                             sx={{
                                 width: boardWidth,
