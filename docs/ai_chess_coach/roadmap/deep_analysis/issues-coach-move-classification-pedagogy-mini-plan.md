@@ -81,7 +81,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>BUG-049</td><td></td><td>A cargar una pgn desde FEN de una posición no iniclal, no da error pero carga parida vacia</td><td>✅ Done</td><td><code>ensure_fen_setup_headers</code>, <code>coachPgnReplay</code> SetUp + replay desde FEN</td></tr>
 <tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code> — API + <code>CoachGamesPanel</code></td></tr>
 <tr><td>FEAT-051</td><td></td><td>En tablas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente,Analisis, Resultado </td><td>✅ Done</td><td><code>feature/11_159_feat_051_partidas_sort</code> — <code>CoachGamesPanel</code> + <code>coachGamesSort</code></td></tr>
-<tr><td>FEAT-052</td><td></td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>✅ Done</td><td><code>feature/11_160_feat_052_table_columns</code> — menú Columnas + <code>localStorage</code></td></tr>
+<tr><td>FEAT-052</td><td>FEAT-054</td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>🔄 WIP</td><td><code>feature/11_160_feat_052_table_columns</code> — preferencias en Coach → Configuración (columnas Partidas)</td></tr>
+<tr><td>FEAT-053</td><td></td><td>Agrega cuadro de texto para cargar comentarios para movidas en particular</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-054</td><td></td><td>Menú <strong>Configuración</strong> en Coach (subnav) para preferencias de UI; primer ítem: columnas visibles en Partidas (FEAT-052)</td><td>🔄 WIP</td><td><code>/coach/configuracion</code>, <code>CoachConfiguracionPage</code></td></tr>
 </tbody>
 </table>
 
@@ -121,11 +123,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/048/050/051/052, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046…047, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/048/050/051, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-052, FEAT-054</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046…047, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-038/039 (FEN desde imagen / piezas en tablero) → FEAT-046 (categorías).
+**Siguiente sugerido (orden):** FEAT-052/054 (Configuración + columnas Partidas, pendiente OK) → FEAT-038/039 → FEAT-046.

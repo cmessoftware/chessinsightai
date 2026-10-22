@@ -47,13 +47,10 @@ import {
 } from '../../utils/coachGameDisplay.js'
 import { sortCoachGames } from '../../utils/coachGamesSort.js'
 import {
-    COACH_GAMES_TABLE_COLUMN_DEFS,
     coachGamesTableColSpan,
-    defaultVisibleCoachGamesColumns,
     loadVisibleCoachGamesColumns,
-    saveVisibleCoachGamesColumns,
 } from '../../utils/coachGamesTableColumns.js'
-import CoachGamesColumnMenu from './CoachGamesColumnMenu.jsx'
+import { COACH_PARTIDAS_COLUMNS_CHANGED } from '../../utils/coachPartidasColumnsSync.js'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -408,27 +405,10 @@ export default function CoachGamesPanel() {
 
     const showCol = useCallback((id) => visibleColumns.has(id), [visibleColumns])
 
-    const toggleColumnVisibility = useCallback((columnId) => {
-        const locked = COACH_GAMES_TABLE_COLUMN_DEFS.find((c) => c.id === columnId)?.locked
-        if (locked) {
-            return
-        }
-        setVisibleColumns((prev) => {
-            const next = new Set(prev)
-            if (next.has(columnId)) {
-                next.delete(columnId)
-            } else {
-                next.add(columnId)
-            }
-            saveVisibleCoachGamesColumns(next)
-            return next
-        })
-    }, [])
-
-    const resetColumnVisibility = useCallback(() => {
-        const next = defaultVisibleCoachGamesColumns()
-        setVisibleColumns(next)
-        saveVisibleCoachGamesColumns(next)
+    useEffect(() => {
+        const syncColumns = () => setVisibleColumns(loadVisibleCoachGamesColumns())
+        window.addEventListener(COACH_PARTIDAS_COLUMNS_CHANGED, syncColumns)
+        return () => window.removeEventListener(COACH_PARTIDAS_COLUMNS_CHANGED, syncColumns)
     }, [])
 
     useEffect(() => {
@@ -702,23 +682,9 @@ export default function CoachGamesPanel() {
                     </TableBody>
                 </Table>
             </Paper>
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 1,
-                    flexWrap: 'wrap',
-                    mb: 1,
-                }}
-            >
-                <Typography variant="h6">Biblioteca de partidas</Typography>
-                <CoachGamesColumnMenu
-                    visibleColumns={visibleColumns}
-                    onToggleColumn={toggleColumnVisibility}
-                    onResetColumns={resetColumnVisibility}
-                />
-            </Box>
+            <Typography variant="h6" gutterBottom>
+                Biblioteca de partidas
+            </Typography>
             {pendingDelete && (
                 <Box sx={{ mb: 2 }}>
                     <CoachConfirmBadge

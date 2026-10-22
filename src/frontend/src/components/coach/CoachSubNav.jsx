@@ -2,6 +2,7 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import UploadOutlinedIcon from '@mui/icons-material/UploadOutlined'
 import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined'
 import GridOnOutlinedIcon from '@mui/icons-material/GridOnOutlined'
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 
 export const COACH_RETURN_PARTIDAS = '/coach/partidas'
 
@@ -11,6 +12,7 @@ export const COACH_SUB_NAV_ITEMS = [
     { label: 'Importar Partidas', path: '/coach/importar', icon: UploadOutlinedIcon },
     { label: 'Partidas', path: '/coach/partidas', icon: FormatListBulletedOutlinedIcon },
     { label: 'Posición (FEN)', path: '/coach/position', icon: GridOnOutlinedIcon },
+    { label: 'Configuración', path: '/coach/configuracion', icon: SettingsOutlinedIcon },
 ]
 
 export function activeCoachNavPath(pathname) {
@@ -22,6 +24,9 @@ export function activeCoachNavPath(pathname) {
     if (pathname.startsWith('/coach/games/')) return '/coach'
     if (pathname.startsWith('/coach/importar') || pathname === '/coach/import') {
         return '/coach/importar'
+    }
+    if (pathname.startsWith('/coach/configuracion')) {
+        return '/coach/configuracion'
     }
     return '/coach'
 }
