@@ -155,6 +155,12 @@ def _game_json(
             display_title=display_title_from_game(row),
         ),
         "source": row.source,
+        "catalog_source": getattr(row, "catalog_source", None) or row.source,
+        "white_elo": getattr(row, "white_elo", None),
+        "black_elo": getattr(row, "black_elo", None),
+        "eco": getattr(row, "eco", None),
+        "opening": getattr(row, "opening", None),
+        "date_played": getattr(row, "date_played", None),
         "analysis_job_id": row.analysis_job_id,
         "analysis_job_status": (
             row.analysis_job.status if getattr(row, "analysis_job", None) else None

@@ -62,24 +62,24 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-030</td><td></td><td>Menú principal: barra superior → sidebar izquierdo colapsable; Coach como submenú; sin Tablero (redirect <code>/coach/position</code>)</td><td>✅ Done</td><td>HITL OK — <code>feature/11_149_feat_030_coach_sidebar</code> — <code>AppShell</code></td></tr>
 <tr><td>FEAT-031</td><td>FEAT-019 / FEAT-020</td><td>Modificar: al copiar PGN copiar también el encabezado del mismo</td><td>✅ Done</td><td><code>feature/11_156_feat_031_pgn_copy_headers</code> — <code>buildPgnClipboardText</code></td></tr>
 <tr><td>FEAT-032</td><td></td><td>En tabla partidas agregar ritmo (Blitz, Rapid, Classical, Correspondence, Unknown)</td><td>✅ Done</td><td><code>feature/11_147_feat_033_partidas_ritmo</code>; <code>CoachGamesPanel</code> + <code>coachSpeedClassLabel</code></td></tr>
-<tr><td>FEAT-033</td><td>FEAT-027</td><td>Por defecto no migrar: cant. movimientos ≤10 excepto análisis de posiciones que no empiezan desde la inicial; en ese caso marcar Fuente=Estudio</td><td>🔄 WIP</td><td><code>feature/11_150_feat_033_skip_short_games</code></td></tr>
-<tr><td>FEAT-034</td><td></td><td>En tabla partidas agregar campo Fuente (<code>corpus_type</code> de <code>coach_games</code>)</td><td>⬜ Todo</td><td>Id duplicado en borrador — renumerar al implementar</td></tr>
+<tr><td>FEAT-033</td><td>FEAT-027</td><td>Por defecto no migrar: cant. movimientos ≤10 excepto análisis de posiciones que no empiezan desde la inicial; en ese caso marcar Fuente=Estudio</td><td>✅ Done</td><td><code>feature/11_150_feat_033_skip_short_games</code> — <code>coach_import_policy</code></td></tr>
+<tr><td>FEAT-034</td><td></td><td>En tabla partidas agregar campo Fuente (<code>corpus_type</code> de <code>coach_games</code>)</td><td>🔁 Duplicado</td><td>Id duplicado en borrador — renumerar al implementar</td></tr>
 <tr><td>FEAT-035</td><td></td><td>En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-036</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td><code>formatCoachGameDescription</code>; API <code>description</code> + <code>time_control</code></td></tr>
 <tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
 <tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td></td></tr>
-<tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>🔄 WIP</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code>; enlaza <a href="./coach-games-catalog-unify-mini-plan.md">GC UI-G3</a></td></tr>
-<tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>⬜ Todo</td><td><code>feature/11_152_feat_041_deprecate_chess_board_tab</code>; tablero canónico = <code>CoachStudyWorkspace</code></td></tr>
-<tr><td>FEAT-042</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>⬜ Todo</td><td><code>feature/11_153_feat_042_coach_partidas_master_list</code> — entrega <strong>UI-G3</strong> del mini-plan catálogo; filtros corpus (UI-G2) opcional bajo rol admin</td></tr>
+<tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>✅ Done</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — redirect <code>/games</code>, <code>AppShell</code></td></tr>
+<tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>✅ Done</td><td><code>App.tsx</code> redirects <code>/chess-board</code> → <code>/coach/position</code></td></tr>
+<tr><td>FEAT-042</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>✅ Done</td><td><code>coach_games</code> + join <code>master_game</code>; Partidas canónica en Coach</td></tr>
 <tr><td>FEAT-043</td><td>FEAT-045</td><td>Partidas: eliminar selección / icono — confirmación con badge (sin <code>window.confirm</code>)</td><td>✅ Done</td><td><code>feature/11_154_bug_044_feat_043_045_coach_ux</code> — <code>CoachGamesPanel</code></td></tr>
 <tr><td>BUG-044</td><td>FEAT-036</td><td>Correspondencia: reloj en días (<code>1/86400</code>); PGN anotado multilínea = una sola partida</td><td>✅ Done</td><td><code>game_description</code>, <code>normalize_pgn_text_for_parse</code> — HITL OK</td></tr>
 <tr><td>FEAT-045</td><td>FEAT-08 / FEAT-09</td><td>Menú PGN (borrar desde aquí / quitar variante): confirmación con badge, sin <code>window.confirm</code></td><td>✅ Done</td><td><code>CoachConfirmBadge</code>, <code>CoachStudyWorkspace</code></td></tr>
 <tr><td>FEAT-046</td><td></td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema tactico , Estudios etc</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-047</td><td></td><td>En panel de analisis mostrar en gráfico de lineas la variaciónd cp, con el cero en el medio horizontal, -100 a +100 cp</td><td>⬜ Todo</td><td></td></tr>
-<tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>🔄 WIP</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — <code>CoachGamesPanel</code>, PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
+<tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>✅ Done</td><td><code>CoachGamesPanel</code> — PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
 <tr><td>BUG-049</td><td></td><td>A cargar una pgn desde FEN de una posición no iniclal, no da error pero carga parida vacia</td><td>✅ Done</td><td><code>ensure_fen_setup_headers</code>, <code>coachPgnReplay</code> SetUp + replay desde FEN</td></tr>
-<tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code> — API + <code>CoachGamesPanel</code></td></tr>
 <tr><td>FEAT-051</td><td></td><td>En tablas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente,Analisis, Resultado </td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-052</td><td></td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>⬜ Todo</td><td></td></tr>
 </tbody>
@@ -121,10 +121,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…031, FEAT-032/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-033, FEAT-040, FEAT-048</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-034…035, FEAT-038…039, FEAT-041…042, FEAT-046…047, FEAT-050…052, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr><tr><td>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/036/040…042/048/050, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-035, FEAT-038…039, FEAT-046…047, FEAT-051…052, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-033 (no migrar cortas / Fuente=Estudio) → FEAT-031 (PGN + headers) → FEAT-040/041 (deprecar navegador + tablero sueltos) → FEAT-042 (UI-G3 lista unificada).
+**Siguiente sugerido (orden):** FEAT-035 (piezas capturadas) → FEAT-051 (orden en tabla Partidas) → FEAT-038/039 (FEN desde imagen / piezas).
