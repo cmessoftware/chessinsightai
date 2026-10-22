@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
-import { createEmptyRoot } from './coachVariationTree.js'
+import { FEN_STUDY_PGN } from './coachPgnFixtures.js'
+import { buildReplayFromPgn } from './coachPgnReplay.js'
+import { buildTreeFromMainLine, createEmptyRoot } from './coachVariationTree.js'
 import {
     buildPgnClipboardText,
     extractPgnHeadersBlock,
@@ -71,6 +73,14 @@ describe('formatMainLinePgnMovetext', () => {
     it('formats a short main line', () => {
         const root = buildMainLineRoot(['e4', 'e5', 'Nf3', 'Nc6'])
         expect(formatMainLinePgnMovetext(root)).toBe('1. e4 e5 2. Nf3 Nc6')
+    })
+
+    it('numbers from FEN when black moves first', () => {
+        const built = buildReplayFromPgn(FEN_STUDY_PGN)
+        const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
+        const text = formatMainLinePgnMovetext(tree)
+        expect(text.startsWith('1... Re7')).toBe(true)
+        expect(text).toContain('2. Rf1+')
     })
 
     it('appends result when provided', () => {

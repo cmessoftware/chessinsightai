@@ -131,3 +131,37 @@ def test_fen_study_pgn_export_includes_setup_header():
     pgn = result.games[0].pgn
     assert '[SetUp "1"]' in pgn
     assert "4rkn1/p1q4p/1p2Q1p1/4P1N1/b1p4P/2P1P3/6P1/4R1K1" in pgn
+
+
+def test_fen_study_main_line_move_count():
+    import io
+
+    import chess.pgn
+
+    result = parse_games_from_pgn_text(FEN_STUDY)
+    game = chess.pgn.read_game(io.StringIO(result.games[0].pgn))
+    plies = 0
+    node = game
+    while node.variations:
+        node = node.variation(0)
+        plies += 1
+    assert plies == 17
+
+
+def test_fen_study_reimport_keeps_content_game_id_after_setup_header():
+    first = parse_games_from_pgn_text(FEN_STUDY)
+    game_id = first.games[0].content_game_id
+    roundtrip = parse_games_from_pgn_text(first.games[0].pgn)
+    assert roundtrip.games[0].content_game_id == game_id
+
+
+def test_pgn_headers_with_escaped_quotes_parse():
+    pgn = (
+        '[Event "Torneo \\"A\\""]\n'
+        '[White "Alice"]\n'
+        '[Black "Bob"]\n'
+        '[Result "*"]\n\n'
+        "1. e4 e5\n"
+    )
+    result = parse_games_from_pgn_text(pgn)
+    assert result.games[0].white_player == "Alice"

@@ -39,11 +39,18 @@ export default function CoachHomePage() {
                     setGameMeta(detail)
                     if (detail?.pgn) {
                         const built = buildReplayFromPgn(detail.pgn)
-                        const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
-                        setTreeRoot(tree)
-                        const saved = loadCoachAnalysisCursor(detail.id)
-                        const fallback = mainLineEndPath(tree)
-                        setCursorPath(saved && getNodeAtPath(tree, saved) ? saved : fallback)
+                        if (built.error) {
+                            setTreeRoot(createEmptyRoot(built.fens[0]))
+                            setCursorPath([])
+                        } else {
+                            const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
+                            setTreeRoot(tree)
+                            const saved = loadCoachAnalysisCursor(detail.id)
+                            const fallback = mainLineEndPath(tree)
+                            setCursorPath(
+                                saved && getNodeAtPath(tree, saved) ? saved : fallback,
+                            )
+                        }
                     }
                 } else if (!cancelled) {
                     setGameMeta(null)
