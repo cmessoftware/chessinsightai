@@ -47,6 +47,13 @@ import {
 } from '../../utils/coachGameDisplay.js'
 import { sortCoachGames } from '../../utils/coachGamesSort.js'
 import {
+    coachGameMatchesCategoryFilter,
+    listCoachGameCategoryFilters,
+    resolveCoachGameCategory,
+} from '../../utils/coachGameCategory.js'
+import { loadCoachGameCategories } from '../../utils/coachGameCategoriesConfig.js'
+import { COACH_PARTIDAS_CATEGORIES_CHANGED } from '../../utils/coachPartidasCategoriesSync.js'
+import {
     coachGamesTableColSpan,
     loadVisibleCoachGamesColumns,
 } from '../../utils/coachGamesTableColumns.js'
@@ -339,6 +346,8 @@ export default function CoachGamesPanel() {
     const [sortBy, setSortBy] = useState(null)
     const [sortDirection, setSortDirection] = useState('asc')
     const [visibleColumns, setVisibleColumns] = useState(() => loadVisibleCoachGamesColumns())
+    const [categoryFilter, setCategoryFilter] = useState('all')
+    const [gameCategories, setGameCategories] = useState(() => loadCoachGameCategories())
 
     const jobStatusById = useMemo(() => {
         const m = new Map()
@@ -398,10 +407,28 @@ export default function CoachGamesPanel() {
         [jobStatusById],
     )
 
-    const sortedGames = useMemo(
-        () => sortCoachGames(games, sortBy, sortDirection, sortContext),
-        [games, sortBy, sortDirection, sortContext],
+    const categoryOptions = useMemo(
+        () => listCoachGameCategoryFilters(games, gameCategories),
+        [games, gameCategories],
     )
+
+    const filteredGames = useMemo(
+        () => games.filter((g) => coachGameMatchesCategoryFilter(g, categoryFilter, gameCategories)),
+        [games, categoryFilter, gameCategories],
+    )
+
+    const sortedGames = useMemo(
+        () => sortCoachGames(filteredGames, sortBy, sortDirection, sortContext),
+        [filteredGames, sortBy, sortDirection, sortContext],
+    )
+
+    const selectedVisibleCount = useMemo(() => {
+        let n = 0
+        for (const g of filteredGames) {
+            if (selectedIds.has(g.id)) n += 1
+        }
+        return n
+    }, [filteredGames, selectedIds])
 
     const showCol = useCallback((id) => visibleColumns.has(id), [visibleColumns])
 
@@ -409,6 +436,12 @@ export default function CoachGamesPanel() {
         const syncColumns = () => setVisibleColumns(loadVisibleCoachGamesColumns())
         window.addEventListener(COACH_PARTIDAS_COLUMNS_CHANGED, syncColumns)
         return () => window.removeEventListener(COACH_PARTIDAS_COLUMNS_CHANGED, syncColumns)
+    }, [])
+
+    useEffect(() => {
+        const syncCategories = () => setGameCategories(loadCoachGameCategories())
+        window.addEventListener(COACH_PARTIDAS_CATEGORIES_CHANGED, syncCategories)
+        return () => window.removeEventListener(COACH_PARTIDAS_CATEGORIES_CHANGED, syncCategories)
     }, [])
 
     useEffect(() => {
@@ -476,11 +509,18 @@ export default function CoachGamesPanel() {
     }
 
     const toggleAllGames = () => {
-        if (selectedIds.size === games.length) {
-            setSelectedIds(new Set())
-        } else {
-            setSelectedIds(new Set(games.map((g) => g.id)))
-        }
+        if (!filteredGames.length) return
+        const allVisibleSelected =
+            selectedVisibleCount === filteredGames.length && filteredGames.length > 0
+        setSelectedIds((prev) => {
+            const next = new Set(prev)
+            if (allVisibleSelected) {
+                for (const g of filteredGames) next.delete(g.id)
+            } else {
+                for (const g of filteredGames) next.add(g.id)
+            }
+            return next
+        })
     }
 
     const selectedQueueableIds = useMemo(
@@ -685,6 +725,40 @@ export default function CoachGamesPanel() {
             <Typography variant="h6" gutterBottom>
                 Biblioteca de partidas
             </Typography>
+            {games.length > 0 && (
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 1,
+                        alignItems: 'center',
+                        mb: 2,
+                    }}
+                >
+                    <Typography variant="subtitle2" component="span" sx={{ mr: 0.5 }}>
+                        Categoría
+                    </Typography>
+                    <Chip
+                        size="small"
+                        label={`Todas (${games.length})`}
+                        clickable
+                        color={categoryFilter === 'all' ? 'primary' : 'default'}
+                        variant={categoryFilter === 'all' ? 'filled' : 'outlined'}
+                        onClick={() => setCategoryFilter('all')}
+                    />
+                    {categoryOptions.map((cat) => (
+                        <Chip
+                            key={cat.id}
+                            size="small"
+                            label={`${cat.label} (${cat.count})`}
+                            clickable
+                            color={categoryFilter === cat.id ? 'primary' : 'default'}
+                            variant={categoryFilter === cat.id ? 'filled' : 'outlined'}
+                            onClick={() => setCategoryFilter(cat.id)}
+                        />
+                    ))}
+                </Box>
+            )}
             {pendingDelete && (
                 <Box sx={{ mb: 2 }}>
                     <CoachConfirmBadge
@@ -760,14 +834,14 @@ export default function CoachGamesPanel() {
                             <TableCell padding="checkbox">
                                 <Checkbox
                                     indeterminate={
-                                        selectedIds.size > 0 &&
-                                        selectedIds.size < games.length
+                                        selectedVisibleCount > 0 &&
+                                        selectedVisibleCount < filteredGames.length
                                     }
                                     checked={
-                                        games.length > 0 &&
-                                        selectedIds.size === games.length
+                                        filteredGames.length > 0 &&
+                                        selectedVisibleCount === filteredGames.length
                                     }
-                                    disabled={!games.length}
+                                    disabled={!filteredGames.length}
                                     onChange={toggleAllGames}
                                 />
                             </TableCell>
@@ -1000,7 +1074,25 @@ export default function CoachGamesPanel() {
                                         </TableCell>
                                     )}
                                     {showCol('source') && (
-                                        <TableCell>{formatCoachCatalogSource(g)}</TableCell>
+                                        <TableCell>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'flex-start',
+                                                    gap: 0.5,
+                                                }}
+                                            >
+                                                <Typography variant="body2" component="span">
+                                                    {formatCoachCatalogSource(g)}
+                                                </Typography>
+                                                <Chip
+                                                    size="small"
+                                                    label={resolveCoachGameCategory(g, gameCategories).label}
+                                                    variant="outlined"
+                                                />
+                                            </Box>
+                                        </TableCell>
                                     )}
                                     {showCol('analysis') && (
                                         <TableCell>
@@ -1143,6 +1235,13 @@ export default function CoachGamesPanel() {
                             <TableRow>
                                 <TableCell colSpan={coachGamesTableColSpan(visibleColumns)} align="center">
                                     Sin partidas importadas.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {games.length > 0 && !filteredGames.length && (
+                            <TableRow>
+                                <TableCell colSpan={coachGamesTableColSpan(visibleColumns)} align="center">
+                                    Ninguna partida en esta categoría.
                                 </TableCell>
                             </TableRow>
                         )}

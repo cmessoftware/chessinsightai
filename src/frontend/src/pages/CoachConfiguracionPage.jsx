@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { Typography } from '@mui/material'
+import CoachGameCategoriesSettings from '../components/coach/CoachGameCategoriesSettings.jsx'
 import CoachGamesColumnSettings from '../components/coach/CoachGamesColumnSettings.jsx'
 import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import {
@@ -8,10 +9,17 @@ import {
     loadVisibleCoachGamesColumns,
     saveVisibleCoachGamesColumns,
 } from '../utils/coachGamesTableColumns.js'
+import {
+    loadCoachGameCategories,
+    resetCoachGameCategories,
+    saveCoachGameCategories,
+} from '../utils/coachGameCategoriesConfig.js'
+import { notifyCoachPartidasCategoriesChanged } from '../utils/coachPartidasCategoriesSync.js'
 import { notifyCoachPartidasColumnsChanged } from '../utils/coachPartidasColumnsSync.js'
 
 export default function CoachConfiguracionPage() {
     const [visibleColumns, setVisibleColumns] = useState(() => loadVisibleCoachGamesColumns())
+    const [gameCategories, setGameCategories] = useState(() => loadCoachGameCategories())
 
     const toggleColumnVisibility = useCallback((columnId) => {
         const locked = COACH_GAMES_TABLE_COLUMN_DEFS.find((c) => c.id === columnId)?.locked
@@ -38,6 +46,21 @@ export default function CoachConfiguracionPage() {
         notifyCoachPartidasColumnsChanged()
     }, [])
 
+    const handleCategoriesChange = useCallback(
+        (next) => {
+            saveCoachGameCategories(next)
+            setGameCategories(loadCoachGameCategories())
+            notifyCoachPartidasCategoriesChanged()
+        },
+        [],
+    )
+
+    const resetCategories = useCallback(() => {
+        resetCoachGameCategories()
+        setGameCategories(loadCoachGameCategories())
+        notifyCoachPartidasCategoriesChanged()
+    }, [])
+
     return (
         <CoachPageLayout>
             <Typography variant="h5" gutterBottom>
@@ -50,6 +73,11 @@ export default function CoachConfiguracionPage() {
                 visibleColumns={visibleColumns}
                 onToggleColumn={toggleColumnVisibility}
                 onResetColumns={resetColumnVisibility}
+            />
+            <CoachGameCategoriesSettings
+                categories={gameCategories}
+                onChangeCategories={handleCategoriesChange}
+                onResetCategories={resetCategories}
             />
         </CoachPageLayout>
     )
