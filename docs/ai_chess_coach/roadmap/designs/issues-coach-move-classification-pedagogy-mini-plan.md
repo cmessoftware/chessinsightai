@@ -75,8 +75,12 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-043</td><td>FEAT-045</td><td>Partidas: eliminar selección / icono — confirmación con badge (sin <code>window.confirm</code>)</td><td>✅ Done</td><td><code>feature/11_154_bug_044_feat_043_045_coach_ux</code> — <code>CoachGamesPanel</code></td></tr>
 <tr><td>BUG-044</td><td>FEAT-036</td><td>Correspondencia: reloj en días (<code>1/86400</code>); PGN anotado multilínea = una sola partida</td><td>✅ Done</td><td><code>game_description</code>, <code>normalize_pgn_text_for_parse</code> — HITL OK</td></tr>
 <tr><td>FEAT-045</td><td>FEAT-08 / FEAT-09</td><td>Menú PGN (borrar desde aquí / quitar variante): confirmación con badge, sin <code>window.confirm</code></td><td>✅ Done</td><td><code>CoachConfirmBadge</code>, <code>CoachStudyWorkspace</code></td></tr>
-<tr><td>FEAT-046</td><td></td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema tactico , Estudios etc</td><td>⬜ Todo</td><td></td></tr>
-<tr><td>FEAT-047</td><td></td><td>En panel de analisis mostrar en gráfico de lineas la variaciónd cp, con el cero en el medio horizontal, -100 a +100 cp</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-046</td><td></td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema táctico , Estudios etc</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-047</td><td></td><td>
+1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, -100 a +100 cp. 
+2. En eje x poner numero de jugadas. 
+3. Habilitar opción de mostrar el valor de cada punto como tooltip. 
+4. Habilitar que en click se desplace el tablero al movimiento correspondiente.</td><td>✅ Done</td><td>HITL OK — <code>CoachEvalCpChart</code></td></tr>
 <tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>✅ Done</td><td><code>CoachGamesPanel</code> — PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
 <tr><td>BUG-049</td><td></td><td>A cargar una pgn desde FEN de una posición no iniclal, no da error pero carga parida vacia</td><td>✅ Done</td><td><code>ensure_fen_setup_headers</code>, <code>coachPgnReplay</code> SetUp + replay desde FEN</td></tr>
 <tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code></td></tr>
@@ -84,7 +88,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-052</td><td>FEAT-054</td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>✅ Done</td><td>HITL OK — Coach → Configuración</td></tr>
 <tr><td>FEAT-054</td><td></td><td>Menú Configuración en Coach; primer ítem: columnas Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code></td></tr>
 <tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code></td></tr>
-<tr><td>FEAT-056</td><td>FEAT-052</td><td>Agegar a tabla y configuracion campo Ritmo</td><td>🔄 WIP</td><td><code>feature/11_162_feat_056_ritmo_column</code></td></tr>
+<tr><td>FEAT-056</td><td>FEAT-052</td><td>Agegar a tabla y configuracion campo Ritmo</td><td>✅ Done</td><td>HITL OK — PR #193</td></tr>
 </tbody>
 </table>
 
@@ -122,11 +126,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/048/050/051/052/054/055, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-056</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046…047, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/047/048/050/051/052/054/055/056, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-056 → FEAT-038/039 → FEAT-046.
+**Siguiente sugerido (orden):** FEAT-038/039 → FEAT-046 → FEAT-053.

@@ -29,6 +29,8 @@ import Mental1600Panel from './Mental1600Panel.jsx'
 import EngineMultipvPanel from './EngineMultipvPanel.jsx'
 import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
+import CoachEvalCpChart from './CoachEvalCpChart.jsx'
+import { buildMainLineEvalCpSeries, mainLinePlyFromCursorPath } from '../../utils/coachEvalCpSeries.js'
 import { useLiveStockfishAnalysis } from '../../hooks/useLiveStockfishAnalysis.js'
 import { usePgnEvalCache } from '../../hooks/usePgnEvalCache.js'
 import { usePgnMoveClassification } from '../../hooks/usePgnMoveClassification.js'
@@ -293,7 +295,7 @@ export default function CoachStudyWorkspace({
         setPendingPgnAction(null)
     }, [])
 
-    const { evalByFen, setEvalForFen } = usePgnEvalCache(treeRoot, playerColor, {
+    const { evalByFen, scoreByFen, setEvalForFen } = usePgnEvalCache(treeRoot, playerColor, {
         prefetchDepth: 10,
         prefetchEnabled: tab === 0 && lightClassificationOn,
     })
@@ -354,6 +356,12 @@ export default function CoachStudyWorkspace({
             setEvalForFen(boardFen, liveEngine.lines[0].player_score)
         }
     }, [liveEngine.status, liveEngine.lines, boardFen, setEvalForFen])
+
+    const evalCpSeries = useMemo(
+        () => buildMainLineEvalCpSeries(treeRoot, scoreByFen),
+        [treeRoot, scoreByFen],
+    )
+    const evalChartCursorPly = useMemo(() => mainLinePlyFromCursorPath(cursorPath), [cursorPath])
 
     const pgnResultLabel = useMemo(() => {
         if (!gameMeta?.result) return null
@@ -608,11 +616,18 @@ export default function CoachStudyWorkspace({
                                     </Tooltip>
                                 </Box>
                                 {lightClassificationOn && (
-                                    <LiveEnginePanel
-                                        liveState={liveEngine}
-                                        targetDepth={liveDepth}
-                                        multipv={liveMultipv}
-                                    />
+                                    <>
+                                        <CoachEvalCpChart
+                                            series={evalCpSeries}
+                                            cursorPly={evalChartCursorPly}
+                                            onSelectPath={goToPath}
+                                        />
+                                        <LiveEnginePanel
+                                            liveState={liveEngine}
+                                            targetDepth={liveDepth}
+                                            multipv={liveMultipv}
+                                        />
+                                    </>
                                 )}
                                 {pack && criticalMode && (
                                     <>
