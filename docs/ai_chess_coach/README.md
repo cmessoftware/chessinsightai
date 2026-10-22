@@ -16,7 +16,8 @@ The architecture baseline is **Core + Extensions**:
 - [`modules/`](modules/) — module taxonomy, labels, aliases, and implementation-domain references
 - [`roadmap/`](roadmap/) — phased delivery planning and future work sequencing
 - [`testing/`](testing/) — testing strategy and release quality gates
-- [`devops/`](devops/) — delivery, deployment, rollback, and operational constraints
+- [`devops/`](devops/) — delivery, deployment, rollback, and operational constraints  
+  - [Tutorial UI Render + PostgreSQL Neon](./devops/02-tutorial-render-neon-coach-ui.md)
 - [`observability/`](observability/) — metrics, logging, alerting, and traceability strategy
 - [`research/`](research/) — research boundaries and experiment-to-production promotion rules
 

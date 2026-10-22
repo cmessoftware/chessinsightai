@@ -2,6 +2,8 @@
 
 Guía completa para desplegar chess_trainer con AI Coach (Ollama + LLM) en Render.
 
+> **Coach UI + Neon (sin Ollama):** ver [docs/ai_chess_coach/devops/02-tutorial-render-neon-coach-ui.md](../docs/ai_chess_coach/devops/02-tutorial-render-neon-coach-ui.md).
+
 ---
 
 ## 📋 Requisitos Previos
