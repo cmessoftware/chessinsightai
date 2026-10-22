@@ -116,3 +116,18 @@ def test_parse_annotated_pgn_with_blank_lines_between_moves_is_one_game():
     assert g.white_player == "manuelfrp79"
     assert g.black_player == "cmess1315"
     assert g.speed_class == "daily"
+
+
+FEN_STUDY = """
+[FEN "4rkn1/p1q4p/1p2Q1p1/4P1N1/b1p4P/2P1P3/6P1/4R1K1 b - - 0 1"]
+
+1... Re7 2. Rf1+ Kg7 3. h5 Be8 4. h6+ Kh8 5. Qd6 Qc5 6. Qd4 Rxe5 7. Rf7 Nxh6 8. Rf8+ Qxf8 9. Qxe5+ Kg8
+"""
+
+
+def test_fen_study_pgn_export_includes_setup_header():
+    result = parse_games_from_pgn_text(FEN_STUDY)
+    assert len(result.games) == 1
+    pgn = result.games[0].pgn
+    assert '[SetUp "1"]' in pgn
+    assert "4rkn1/p1q4p/1p2Q1p1/4P1N1/b1p4P/2P1P3/6P1/4R1K1" in pgn

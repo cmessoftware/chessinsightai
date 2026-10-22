@@ -78,6 +78,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-046</td><td></td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema tactico , Estudios etc</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-047</td><td></td><td>En panel de analisis mostrar en gráfico de lineas la variaciónd cp, con el cero en el medio horizontal, -100 a +100 cp</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>🔄 WIP</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — <code>CoachGamesPanel</code>, PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
+<tr><td>BUG-049</td><td></td><td>A cargar una pgn desde FEN de una posición no iniclal, no da error pero carga parida vacia</td><td>✅ Done</td><td><code>ensure_fen_setup_headers</code>, <code>coachPgnReplay</code> SetUp + replay desde FEN</td></tr>
+<tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-051</td><td></td><td>PEn talbas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente, Resultado </td><td>⬜ Todo</td><td></td></tr>
 </tbody>
 </table>
 
@@ -115,9 +118,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044, FEAT-08…11, FEAT-014/017…030, FEAT-032/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…030, FEAT-032/036, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-033, FEAT-040, FEAT-048</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-031, FEAT-034…035, FEAT-038…039, FEAT-041…042, FEAT-046…047, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-031, FEAT-034…035, FEAT-038…039, FEAT-041…042, FEAT-046…047, FEAT-050…051, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 </tbody>
 </table>
 

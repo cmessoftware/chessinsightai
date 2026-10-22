@@ -35,4 +35,16 @@ describe('buildReplayFromPgn', () => {
         expect(built.moveCount).toBe(2)
         expect(built.moves[0]?.san).toBe('e4')
     })
+
+    it('starts from a FEN study even without SetUp header', () => {
+        const study = `[FEN "4rkn1/p1q4p/1p2Q1p1/4P1N1/b1p4P/2P1P3/6P1/4R1K1 b - - 0 1"]
+
+1... Re7 2. Rf1+ Kg7 3. h5 Be8 4. h6+ Kh8 5. Qd6 Qc5 6. Qd4 Rxe5 7. Rf7 Nxh6 8. Rf8+ Qxf8 9. Qxe5+ Kg8
+`
+        const built = buildReplayFromPgn(study)
+        expect(built.fens[0]).toContain('4rkn1/p1q4p/1p2Q1p1/4P1N1/b1p4P/2P1P3/6P1/4R1K1')
+        expect(built.moves[0]?.san).toBe('Re7')
+        expect(built.moveCount).toBeGreaterThan(0)
+        expect(built.fens[0]).not.toMatch(/^rnbqkbnr\/pppppppp/)
+    })
 })
