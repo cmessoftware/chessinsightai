@@ -78,6 +78,7 @@ export default function CoachStudyWorkspace({
     persistClassification = true,
     embedded = false,
     rootPositionLabel = 'Posición inicial',
+    sourcePgn = null,
 }) {
     const [boardOrientationOverride, setBoardOrientationOverride] = useState(null)
     const orientation = boardOrientationOverride ?? boardOrientation ?? playerColor
@@ -668,6 +669,7 @@ export default function CoachStudyWorkspace({
                         mainLineResult={gameMeta?.result ?? null}
                         maxHeight={320}
                         rootPositionLabel={rootPositionLabel}
+                        sourcePgn={sourcePgn ?? gameMeta?.pgn ?? null}
                     />
 
                     {decisionsPanel}

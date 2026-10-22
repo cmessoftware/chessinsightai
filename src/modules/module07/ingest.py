@@ -24,13 +24,24 @@ class ParsedModule07Game:
     speed_class: str
 
 
+def ensure_fen_setup_headers(game: chess.pgn.Game) -> None:
+    """chess.js needs ``SetUp 1`` to honor a ``FEN`` header."""
+    fen = (game.headers.get("FEN") or "").strip()
+    if not fen:
+        return
+    game.headers["SetUp"] = "1"
+    game.headers["FEN"] = fen
+
+
 def _content_game_id(game: chess.pgn.Game) -> str:
+    ensure_fen_setup_headers(game)
     exporter = chess.pgn.StringExporter(headers=True, variations=False, comments=False)
     pgn_str = game.accept(exporter)
     return hashlib.sha256(pgn_str.encode("utf-8")).hexdigest()
 
 
 def _export_game_pgn(game: chess.pgn.Game) -> str:
+    ensure_fen_setup_headers(game)
     exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
     return game.accept(exporter)
 

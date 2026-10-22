@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js'
+import { fullmoveNumberAtPly, sideToMoveAtPly } from './pgnMoveNumber.js'
 
 export const ROOT_ID = 'root'
 
@@ -77,15 +78,17 @@ export function mainLineMovesFromTree(root) {
     const moves = []
     let node = root
     let ply = 0
+    const rootFen = root.fen
     while (node.children?.length > 0) {
         const child = node.children[0]
+        const plyBefore = ply
         ply += 1
-        const stm = node.fen.split(/\s+/)[1] || 'w'
+        const stm = sideToMoveAtPly(rootFen, plyBefore)
         moves.push({
             ply,
             san: child.san,
             color: stm,
-            moveNumber: Math.floor((ply - 1) / 2) + 1,
+            moveNumber: fullmoveNumberAtPly(rootFen, plyBefore),
         })
         node = child
     }

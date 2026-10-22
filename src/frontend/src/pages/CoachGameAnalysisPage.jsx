@@ -61,13 +61,18 @@ export default function CoachGameAnalysisPage() {
                 setGameMeta(g)
                 if (g?.pgn) {
                     const built = buildReplayFromPgn(g.pgn)
-                    const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
-                    setTreeRoot(tree)
-                    const saved = loadCoachAnalysisCursor(gameId)
-                    const fallback = mainLineEndPath(tree)
-                    const restored =
-                        saved && getNodeAtPath(tree, saved) ? saved : fallback
-                    setCursorPath(restored)
+                    if (built.error) {
+                        setTreeRoot(createEmptyRoot(built.fens[0]))
+                        setCursorPath([])
+                    } else {
+                        const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
+                        setTreeRoot(tree)
+                        const saved = loadCoachAnalysisCursor(gameId)
+                        const fallback = mainLineEndPath(tree)
+                        const restored =
+                            saved && getNodeAtPath(tree, saved) ? saved : fallback
+                        setCursorPath(restored)
+                    }
                 }
             })
             .catch(() => {
