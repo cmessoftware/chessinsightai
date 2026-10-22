@@ -105,3 +105,23 @@ export function formatCoachGameDescription(game) {
     }
     return line
 }
+
+/** PGN ``YYYY.MM.DD`` or ISO-ish strings for Partidas table. */
+export function formatCoachDatePlayed(raw) {
+    const s = String(raw ?? '').trim()
+    if (!s) return '—'
+    const pgn = s.match(/^(\d{4})\.(\d{2})\.(\d{2})/)
+    if (pgn) {
+        return `${pgn[3]}/${pgn[2]}/${pgn[1]}`
+    }
+    const parsed = Date.parse(s)
+    if (!Number.isNaN(parsed)) {
+        return new Date(parsed).toLocaleDateString()
+    }
+    return s
+}
+
+export function formatCoachCatalogSource(game) {
+    const value = game?.catalog_source || game?.source
+    return value ? String(value) : '—'
+}

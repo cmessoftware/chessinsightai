@@ -39,6 +39,8 @@ import {
 } from './coachPanelStatus.jsx'
 import {
     coachGamePlayersLabel,
+    formatCoachCatalogSource,
+    formatCoachDatePlayed,
     formatCoachGameDescription,
 } from '../../utils/coachGameDisplay.js'
 
@@ -695,6 +697,12 @@ export default function CoachGamesPanel() {
                             </TableCell>
                             <TableCell>Partida</TableCell>
                             <TableCell>Jugador POV</TableCell>
+                            <TableCell>ECO</TableCell>
+                            <TableCell>Elo B</TableCell>
+                            <TableCell>Elo N</TableCell>
+                            <TableCell>Apertura</TableCell>
+                            <TableCell>Fecha</TableCell>
+                            <TableCell>Fuente</TableCell>
                             <TableCell>Análisis</TableCell>
                             <TableCell>Resultado</TableCell>
                             <TableCell>Acciones</TableCell>
@@ -743,6 +751,25 @@ export default function CoachGamesPanel() {
                                             ? `${g.player_username} (${g.player_color || '?'})`
                                             : '—'}
                                     </TableCell>
+                                    <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>
+                                        {g.eco || '—'}
+                                    </TableCell>
+                                    <TableCell>{g.white_elo || '—'}</TableCell>
+                                    <TableCell>{g.black_elo || '—'}</TableCell>
+                                    <TableCell
+                                        sx={{
+                                            maxWidth: 160,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        {g.opening || '—'}
+                                    </TableCell>
+                                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                                        {formatCoachDatePlayed(g.date_played)}
+                                    </TableCell>
+                                    <TableCell>{formatCoachCatalogSource(g)}</TableCell>
                                     <TableCell>
                                         <Box
                                             sx={{

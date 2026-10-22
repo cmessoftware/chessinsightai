@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
     coachGamePlayersLabel,
+    formatCoachCatalogSource,
+    formatCoachDatePlayed,
     formatCoachGameDescription,
     formatTimeControlDisplay,
 } from './coachGameDisplay.js'
@@ -62,5 +64,10 @@ describe('coachGameDisplay', () => {
                 display_title: 'Torneo A: Alice vs Bob',
             }),
         ).toBe('Torneo A: Alice vs Bob')
+    })
+
+    it('formats PGN dates and catalog source', () => {
+        expect(formatCoachDatePlayed('2024.03.15')).toBe('15/03/2024')
+        expect(formatCoachCatalogSource({ catalog_source: 'lichess' })).toBe('lichess')
     })
 })

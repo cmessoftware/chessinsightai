@@ -127,6 +127,43 @@ class CoachGame(Base):
             return None
         return (self.master_game.time_control or "").strip() or None
 
+    @property
+    def white_elo(self) -> str | None:
+        if not self.master_game:
+            return None
+        return (self.master_game.white_elo or "").strip() or None
+
+    @property
+    def black_elo(self) -> str | None:
+        if not self.master_game:
+            return None
+        return (self.master_game.black_elo or "").strip() or None
+
+    @property
+    def eco(self) -> str | None:
+        if not self.master_game:
+            return None
+        return (self.master_game.eco or "").strip() or None
+
+    @property
+    def opening(self) -> str | None:
+        if not self.master_game:
+            return None
+        return (self.master_game.opening or "").strip() or None
+
+    @property
+    def date_played(self) -> str | None:
+        if not self.master_game:
+            return None
+        return (self.master_game.date_played or "").strip() or None
+
+    @property
+    def catalog_source(self) -> str | None:
+        """Master ``games.source`` when set; else Coach import ``source``."""
+        if self.master_game and (self.master_game.source or "").strip():
+            return (self.master_game.source or "").strip()
+        return (self.source or "").strip() or None
+
 
 # Backward-compatible alias (API package name module07 until GC-4).
 Module07Game = CoachGame
