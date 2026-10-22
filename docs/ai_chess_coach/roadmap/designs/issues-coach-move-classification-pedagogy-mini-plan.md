@@ -64,7 +64,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-032</td><td></td><td>En tabla partidas agregar ritmo (Blitz, Rapid, Classical, Correspondence, Unknown)</td><td>✅ Done</td><td><code>feature/11_147_feat_033_partidas_ritmo</code>; <code>CoachGamesPanel</code> + <code>coachSpeedClassLabel</code></td></tr>
 <tr><td>FEAT-033</td><td>FEAT-027</td><td>Por defecto no migrar: cant. movimientos ≤10 excepto análisis de posiciones que no empiezan desde la inicial; en ese caso marcar Fuente=Estudio</td><td>✅ Done</td><td><code>feature/11_150_feat_033_skip_short_games</code> — <code>coach_import_policy</code></td></tr>
 <tr><td>FEAT-034</td><td></td><td>En tabla partidas agregar campo Fuente (<code>corpus_type</code> de <code>coach_games</code>)</td><td>🔁 Duplicado</td><td>Id duplicado en borrador — renumerar al implementar</td></tr>
-<tr><td>FEAT-035</td><td></td><td>En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-035</td><td></td><td>En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero</td><td>✅ Done</td><td><code>feature/11_157_feat_035_captured_pieces</code> — <code>CoachCapturedPiecesStack</code></td></tr>
 <tr><td>FEAT-036</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td><code>formatCoachGameDescription</code>; API <code>description</code> + <code>time_control</code></td></tr>
 <tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
 <tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>⬜ Todo</td><td></td></tr>
@@ -118,11 +118,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/036/040…042/048/050/051, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/048/050/051, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-035, FEAT-038…039, FEAT-046…047, FEAT-052, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046…047, FEAT-052, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-035 (piezas capturadas) → FEAT-052 (columnas visibles) → FEAT-038/039.
+**Siguiente sugerido (orden):** FEAT-052 (columnas visibles) → FEAT-038/039.
