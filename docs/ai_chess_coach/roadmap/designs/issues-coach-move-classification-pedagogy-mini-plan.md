@@ -84,6 +84,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-052</td><td>FEAT-054</td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>✅ Done</td><td>HITL OK — Coach → Configuración</td></tr>
 <tr><td>FEAT-054</td><td></td><td>Menú Configuración en Coach; primer ítem: columnas Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code></td></tr>
 <tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code></td></tr>
+<tr><td>FEAT-056</td><td>FEAT-052</td><td>Agegar a tabla y configuracion campo Ritmo</td><td>🔄 WIP</td><td><code>feature/11_162_feat_056_ritmo_column</code></td></tr>
 </tbody>
 </table>
 
@@ -122,8 +123,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 </thead>
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/048/050/051/052/054/055, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046…047, FEAT-053, FEAT-056, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-056</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046…047, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>

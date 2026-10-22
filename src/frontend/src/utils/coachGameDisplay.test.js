@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
     coachGamePlayersLabel,
     formatCoachPartidaTableLabel,
+    formatCoachRhythmDisplay,
     formatCoachCatalogSource,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
@@ -56,6 +57,15 @@ describe('coachGameDisplay', () => {
                     'cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)',
             }),
         ).toBe('cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)')
+    })
+
+    it('formats rhythm column from speed class and time control', () => {
+        expect(
+            formatCoachRhythmDisplay({
+                speed_class: 'rapid',
+                time_control: '900+10',
+            }),
+        ).toBe('Rapid 15+10')
     })
 
     it('Partida table label ignores description and POV extras', () => {
