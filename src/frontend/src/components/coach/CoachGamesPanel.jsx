@@ -16,6 +16,7 @@ import {
     TableCell,
     TableHead,
     TableRow,
+    TableSortLabel,
     Tooltip,
     Typography,
 } from '@mui/material'
@@ -44,6 +45,7 @@ import {
     formatCoachEcoForDisplay,
     formatCoachGameDescription,
 } from '../../utils/coachGameDisplay.js'
+import { sortCoachGames } from '../../utils/coachGamesSort.js'
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -130,6 +132,28 @@ const ecoTableColSx = {
     textOverflow: 'ellipsis',
     fontFamily: 'monospace',
     fontSize: 12,
+}
+
+const playerNameColSx = {
+    maxWidth: 120,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+}
+
+function SortableGamesHeader({ children, field, sortBy, sortDirection, onSort, sx }) {
+    const active = sortBy === field
+    return (
+        <TableCell sx={sx} sortDirection={active ? sortDirection : false}>
+            <TableSortLabel
+                active={active}
+                direction={active ? sortDirection : 'asc'}
+                onClick={() => onSort(field)}
+            >
+                {children}
+            </TableSortLabel>
+        </TableCell>
+    )
 }
 
 function ResultadoCell({ game, onSaved, onError }) {
@@ -307,6 +331,8 @@ export default function CoachGamesPanel() {
     const [deleting, setDeleting] = useState(false)
     const [pendingDelete, setPendingDelete] = useState(null)
     const [refreshing, setRefreshing] = useState(false)
+    const [sortBy, setSortBy] = useState(null)
+    const [sortDirection, setSortDirection] = useState('asc')
 
     const jobStatusById = useMemo(() => {
         const m = new Map()
@@ -345,6 +371,30 @@ export default function CoachGamesPanel() {
     const playerOptions = useMemo(
         () => namesForGameIds(games, targetGameIds),
         [games, targetGameIds],
+    )
+
+    const handleRequestSort = useCallback(
+        (field) => {
+            if (sortBy === field) {
+                setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+            } else {
+                setSortBy(field)
+                setSortDirection('asc')
+            }
+        },
+        [sortBy],
+    )
+
+    const sortContext = useMemo(
+        () => ({
+            jobStatusForGame: (game) => jobStatusForGame(game, jobStatusById),
+        }),
+        [jobStatusById],
+    )
+
+    const sortedGames = useMemo(
+        () => sortCoachGames(games, sortBy, sortDirection, sortContext),
+        [games, sortBy, sortDirection, sortContext],
     )
 
     useEffect(() => {
@@ -708,20 +758,97 @@ export default function CoachGamesPanel() {
                                 />
                             </TableCell>
                             <TableCell>Partida</TableCell>
+                            <SortableGamesHeader
+                                field="white_player"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                                sx={playerNameColSx}
+                            >
+                                Blancas
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="black_player"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                                sx={playerNameColSx}
+                            >
+                                Negras
+                            </SortableGamesHeader>
                             <TableCell>Jugador POV</TableCell>
-                            <TableCell sx={compactTableColSx}>ECO</TableCell>
-                            <TableCell sx={compactTableColSx}>Elo B</TableCell>
-                            <TableCell sx={compactTableColSx}>Elo N</TableCell>
-                            <TableCell>Apertura</TableCell>
-                            <TableCell>Fecha</TableCell>
-                            <TableCell>Fuente</TableCell>
-                            <TableCell>Análisis</TableCell>
-                            <TableCell>Resultado</TableCell>
+                            <SortableGamesHeader
+                                field="eco"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                                sx={compactTableColSx}
+                            >
+                                ECO
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="white_elo"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                                sx={compactTableColSx}
+                            >
+                                Elo B
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="black_elo"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                                sx={compactTableColSx}
+                            >
+                                Elo N
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="opening"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                            >
+                                Apertura
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="date_played"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                            >
+                                Fecha
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="source"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                            >
+                                Fuente
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="analysis"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                            >
+                                Análisis
+                            </SortableGamesHeader>
+                            <SortableGamesHeader
+                                field="result"
+                                sortBy={sortBy}
+                                sortDirection={sortDirection}
+                                onSort={handleRequestSort}
+                            >
+                                Resultado
+                            </SortableGamesHeader>
                             <TableCell>Acciones</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {games.map((g) => {
+                        {sortedGames.map((g) => {
                             const queueable = canQueueAnalysis(g, jobStatusById)
                             const serverStatus = serverStatusLabel(g, jobStatusById)
                             const clientDone = isClientAnalyzed(g)
@@ -757,6 +884,12 @@ export default function CoachGamesPanel() {
                                             }}
                                             onError={setError}
                                         />
+                                    </TableCell>
+                                    <TableCell sx={playerNameColSx}>
+                                        {g.white_player || '—'}
+                                    </TableCell>
+                                    <TableCell sx={playerNameColSx}>
+                                        {g.black_player || '—'}
                                     </TableCell>
                                     <TableCell>
                                         {g.player_username
@@ -933,7 +1066,7 @@ export default function CoachGamesPanel() {
                         })}
                         {!games.length && (
                             <TableRow>
-                                <TableCell colSpan={12} align="center">
+                                <TableCell colSpan={14} align="center">
                                     Sin partidas importadas.
                                 </TableCell>
                             </TableRow>

@@ -80,7 +80,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>✅ Done</td><td><code>CoachGamesPanel</code> — PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
 <tr><td>BUG-049</td><td></td><td>A cargar una pgn desde FEN de una posición no iniclal, no da error pero carga parida vacia</td><td>✅ Done</td><td><code>ensure_fen_setup_headers</code>, <code>coachPgnReplay</code> SetUp + replay desde FEN</td></tr>
 <tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code></td></tr>
-<tr><td>FEAT-051</td><td></td><td>PEn talbas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente, Resultado </td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-051</td><td></td><td>PEn talbas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente, Resultado </td><td>✅ Done</td><td><code>feature/11_159_feat_051_partidas_sort</code></td></tr>
 </tbody>
 </table>
 
@@ -118,11 +118,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/036/040…042/048/050, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/036/040…042/048/050/051, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-035, FEAT-038…039, FEAT-046…047, FEAT-051, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-035, FEAT-038…039, FEAT-046…047, FEAT-052, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-035 (piezas capturadas) → FEAT-051 (orden en tabla Partidas) → FEAT-038/039.
+**Siguiente sugerido (orden):** FEAT-035 (piezas capturadas) → FEAT-052 (columnas visibles) → FEAT-038/039.
