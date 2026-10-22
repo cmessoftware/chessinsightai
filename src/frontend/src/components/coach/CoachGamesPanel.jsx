@@ -39,11 +39,10 @@ import {
     CoachStatusBadgeRow,
 } from './coachPanelStatus.jsx'
 import {
-    coachGamePlayersLabel,
     formatCoachCatalogSource,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
-    formatCoachGameDescription,
+    formatCoachPartidaTableLabel,
 } from '../../utils/coachGameDisplay.js'
 import { sortCoachGames } from '../../utils/coachGamesSort.js'
 import {
@@ -235,11 +234,11 @@ function ResultadoCell({ game, onSaved, onError }) {
 
 function PartidaTitleCell({ game, importTag, onSaved, onError }) {
     const [editing, setEditing] = useState(false)
-    const [draft, setDraft] = useState(() => coachGamePlayersLabel(game))
+    const [draft, setDraft] = useState(() => formatCoachPartidaTableLabel(game))
     const [saving, setSaving] = useState(false)
 
     useEffect(() => {
-        if (!editing) setDraft(coachGamePlayersLabel(game))
+        if (!editing) setDraft(formatCoachPartidaTableLabel(game))
     }, [game, editing])
 
     const save = async () => {
@@ -294,13 +293,13 @@ function PartidaTitleCell({ game, importTag, onSaved, onError }) {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography variant="body2" component="span">
-                {formatCoachGameDescription(game)}
+                {formatCoachPartidaTableLabel(game)}
             </Typography>
             <Tooltip title="Cambiar descripción">
                 <IconButton
                     size="small"
                     onClick={() => {
-                        setDraft(coachGamePlayersLabel(game))
+                        setDraft(formatCoachPartidaTableLabel(game))
                         setEditing(true)
                     }}
                     aria-label="Editar descripción de la partida"

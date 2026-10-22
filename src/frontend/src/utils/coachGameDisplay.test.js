@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
     coachGamePlayersLabel,
+    formatCoachPartidaTableLabel,
     formatCoachCatalogSource,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
@@ -55,6 +56,17 @@ describe('coachGameDisplay', () => {
                     'cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)',
             }),
         ).toBe('cmess4401 vs Ejemplo: RajaDogor16 · POV cmess4401 (Correspondencia 1s+0)')
+    })
+
+    it('Partida table label ignores description and POV extras', () => {
+        expect(
+            formatCoachPartidaTableLabel({
+                white_player: 'Alice',
+                black_player: 'Bob',
+                description: 'Alice vs Bob · POV Alice (Rapid 15+10)',
+                display_title: 'Torneo custom',
+            }),
+        ).toBe('Alice vs Bob')
     })
 
     it('uses custom display_title for players label', () => {

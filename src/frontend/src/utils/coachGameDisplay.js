@@ -83,6 +83,13 @@ export function coachGamePlayersLabel(game) {
     return `${white} vs ${black}`
 }
 
+/** Partidas table «Partida» column (FEAT-055): white vs black only, no POV/ritmo. */
+export function formatCoachPartidaTableLabel(game) {
+    const white = String(game?.white_player || '').trim() || 'Blancas'
+    const black = String(game?.black_player || '').trim() || 'Negras'
+    return `${white} vs ${black}`
+}
+
 /** @param {Record<string, unknown>} game */
 export function formatCoachGameDescription(game) {
     if (game?.description) {
