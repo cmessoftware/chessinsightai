@@ -75,7 +75,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-043</td><td>FEAT-045</td><td>Partidas: eliminar selección / icono — confirmación con badge (sin <code>window.confirm</code>)</td><td>✅ Done</td><td><code>feature/11_154_bug_044_feat_043_045_coach_ux</code> — <code>CoachGamesPanel</code></td></tr>
 <tr><td>BUG-044</td><td>FEAT-036</td><td>Correspondencia: reloj en días (<code>1/86400</code>); PGN anotado multilínea = una sola partida</td><td>✅ Done</td><td><code>game_description</code>, <code>normalize_pgn_text_for_parse</code> — HITL OK</td></tr>
 <tr><td>FEAT-045</td><td>FEAT-08 / FEAT-09</td><td>Menú PGN (borrar desde aquí / quitar variante): confirmación con badge, sin <code>window.confirm</code></td><td>✅ Done</td><td><code>CoachConfirmBadge</code>, <code>CoachStudyWorkspace</code></td></tr>
-<tr><td>FEAT-046</td><td></td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema táctico , Estudios etc</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-046</td><td>FEAT-054</td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema táctico , Estudios etc</td><td>🔄 WIP</td><td>Configuración: crear/editar categorías incluidas</td></tr>
 <tr><td>FEAT-047</td><td></td><td>
 1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, -100 a +100 cp. 
 2. En eje x poner numero de jugadas. 
@@ -89,8 +89,10 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-054</td><td></td><td>Menú Configuración en Coach; primer ítem: columnas Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code></td></tr>
 <tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code></td></tr>
 <tr><td>FEAT-056</td><td>FEAT-052</td><td>Agegar a tabla y configuracion campo Ritmo</td><td>✅ Done</td><td>HITL OK — PR #193</td></tr>
+<tr><td>FEAT-057</td><td>FEAT-054</td><td>En paginas Configuración poner cada grupo como tablas apilables y colapsables.</td><td>🔄 WIP</td><td><code>CoachConfigSectionAccordion</code></td></tr>
 </tbody>
 </table>
+
 
 ## Features y bugs de login
 
@@ -127,8 +129,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 </thead>
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/047/048/050/051/052/054/055/056, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-046, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-046, FEAT-057</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>

@@ -55,15 +55,21 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configuración CORS
+# Configuración CORS (prod: CORS_ALLOW_ORIGINS=https://ui.onrender.com,...)
+_default_cors = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:3000",
+]
+_extra = [
+    o.strip()
+    for o in os.environ.get("CORS_ALLOW_ORIGINS", "").split(",")
+    if o.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://localhost:3000",
-    ],  # Vite y React dev servers (múltiples puertos)
+    allow_origins=_extra + _default_cors,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

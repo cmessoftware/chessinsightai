@@ -1,0 +1,107 @@
+import { defaultCoachGameCategories, loadCoachGameCategories } from './coachGameCategoriesConfig.js'
+
+function combinedText(game) {
+    return [
+        game?.description,
+        game?.display_title,
+        game?.opening,
+        game?.catalog_source,
+        game?.source,
+    ]
+        .filter(Boolean)
+        .join(' ')
+}
+
+function normalizedSource(game) {
+    return String(game?.catalog_source || game?.source || '')
+        .trim()
+        .toLowerCase()
+}
+
+function keywordsMatch(text, rawKeywords) {
+    const hay = String(text || '').toLowerCase()
+    const parts = String(rawKeywords || '')
+        .split(/[,;]+/)
+        .map((p) => p.trim().toLowerCase())
+        .filter(Boolean)
+    return parts.some((kw) => {
+        if (kw.includes(' ')) return hay.includes(kw)
+        const re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+        return re.test(hay)
+    })
+}
+
+/** @param {object} game @param {{ type: string, value: string }} rule */
+function ruleMatches(game, rule) {
+    const source = normalizedSource(game)
+    const text = combinedText(game)
+    const corpus = String(game?.corpus_type || 'personal').trim().toLowerCase()
+    const value = String(rule.value || '').trim().toLowerCase()
+
+    switch (rule.type) {
+        case 'source_contains':
+            return Boolean(value) && source.includes(value)
+        case 'corpus_type':
+            return Boolean(value) && corpus === value
+        case 'text_keywords':
+            return keywordsMatch(text, rule.value)
+        default:
+            return false
+    }
+}
+
+/** @param {object} game @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef} cat */
+function categoryMatches(game, cat) {
+    if (cat.enabled === false) return false
+    if (cat.fallback) return false
+    if (!cat.rules?.length) return false
+    return cat.rules.some((r) => ruleMatches(game, r))
+}
+
+/**
+ * @param {object | null | undefined} game
+ * @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories
+ */
+export function resolveCoachGameCategory(game, categories) {
+    const list = (categories?.length ? categories : loadCoachGameCategories()).filter(
+        (c) => c.enabled !== false,
+    )
+    const sorted = [...list].sort((a, b) => a.priority - b.priority)
+
+    for (const cat of sorted) {
+        if (categoryMatches(game, cat)) {
+            return { id: cat.id, label: cat.label }
+        }
+    }
+
+    const fallback =
+        sorted.find((c) => c.fallback) ||
+        sorted.find((c) => c.id === 'pgn') ||
+        defaultCoachGameCategories().find((c) => c.fallback)
+    return { id: fallback?.id || 'pgn', label: fallback?.label || 'Importación PGN' }
+}
+
+/**
+ * @param {object[]} games
+ * @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories
+ */
+export function listCoachGameCategoryFilters(games, categories) {
+    /** @type {Map<string, { id: string, label: string, count: number }>} */
+    const byId = new Map()
+    for (const game of games || []) {
+        const cat = resolveCoachGameCategory(game, categories)
+        const prev = byId.get(cat.id)
+        if (prev) {
+            prev.count += 1
+        } else {
+            byId.set(cat.id, { ...cat, count: 1 })
+        }
+    }
+    return [...byId.values()].sort((a, b) => a.label.localeCompare(b.label, 'es'))
+}
+
+/** @param {object} game @param {string | null} filterId @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories */
+export function coachGameMatchesCategoryFilter(game, filterId, categories) {
+    if (!filterId || filterId === 'all') return true
+    return resolveCoachGameCategory(game, categories).id === filterId
+}

@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { Typography } from '@mui/material'
+import CoachConfigSectionAccordion from '../components/coach/CoachConfigSectionAccordion.jsx'
+import CoachGameCategoriesSettings from '../components/coach/CoachGameCategoriesSettings.jsx'
 import CoachGamesColumnSettings from '../components/coach/CoachGamesColumnSettings.jsx'
 import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import {
@@ -8,10 +10,17 @@ import {
     loadVisibleCoachGamesColumns,
     saveVisibleCoachGamesColumns,
 } from '../utils/coachGamesTableColumns.js'
+import {
+    loadCoachGameCategories,
+    resetCoachGameCategories,
+    saveCoachGameCategories,
+} from '../utils/coachGameCategoriesConfig.js'
+import { notifyCoachPartidasCategoriesChanged } from '../utils/coachPartidasCategoriesSync.js'
 import { notifyCoachPartidasColumnsChanged } from '../utils/coachPartidasColumnsSync.js'
 
 export default function CoachConfiguracionPage() {
     const [visibleColumns, setVisibleColumns] = useState(() => loadVisibleCoachGamesColumns())
+    const [gameCategories, setGameCategories] = useState(() => loadCoachGameCategories())
 
     const toggleColumnVisibility = useCallback((columnId) => {
         const locked = COACH_GAMES_TABLE_COLUMN_DEFS.find((c) => c.id === columnId)?.locked
@@ -38,6 +47,21 @@ export default function CoachConfiguracionPage() {
         notifyCoachPartidasColumnsChanged()
     }, [])
 
+    const handleCategoriesChange = useCallback(
+        (next) => {
+            saveCoachGameCategories(next)
+            setGameCategories(loadCoachGameCategories())
+            notifyCoachPartidasCategoriesChanged()
+        },
+        [],
+    )
+
+    const resetCategories = useCallback(() => {
+        resetCoachGameCategories()
+        setGameCategories(loadCoachGameCategories())
+        notifyCoachPartidasCategoriesChanged()
+    }, [])
+
     return (
         <CoachPageLayout>
             <Typography variant="h5" gutterBottom>
@@ -46,11 +70,22 @@ export default function CoachConfiguracionPage() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Preferencias del módulo Coach en este dispositivo.
             </Typography>
-            <CoachGamesColumnSettings
-                visibleColumns={visibleColumns}
-                onToggleColumn={toggleColumnVisibility}
-                onResetColumns={resetColumnVisibility}
-            />
+            <CoachConfigSectionAccordion id="partidas-columns" title="Columnas en la tabla Partidas">
+                <CoachGamesColumnSettings
+                    embedded
+                    visibleColumns={visibleColumns}
+                    onToggleColumn={toggleColumnVisibility}
+                    onResetColumns={resetColumnVisibility}
+                />
+            </CoachConfigSectionAccordion>
+            <CoachConfigSectionAccordion id="partidas-categories" title="Categorías de partidas">
+                <CoachGameCategoriesSettings
+                    embedded
+                    categories={gameCategories}
+                    onChangeCategories={handleCategoriesChange}
+                    onResetCategories={resetCategories}
+                />
+            </CoachConfigSectionAccordion>
         </CoachPageLayout>
     )
 }
