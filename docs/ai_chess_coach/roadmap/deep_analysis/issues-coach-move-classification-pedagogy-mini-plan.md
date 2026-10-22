@@ -90,6 +90,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-054</td><td></td><td>Menú <strong>Configuración</strong> en Coach (subnav) para preferencias de UI; primer ítem: columnas visibles en Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code>, <code>CoachConfiguracionPage</code></td></tr>
 <tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code> — <code>formatCoachPartidaTableLabel</code></td></tr>
 <tr><td>FEAT-056</td><td>FEAT-052</td><td>Agegar a tabla y configuracion campo "Ritmo"</td><td>✅ Done</td><td>HITL OK — PR #193</td></tr>
+<tr><td>FEAT-057</td><td>FEAT-054</td><td>En paginas Configuración poner cada grupo como tablas apilables y colapsables.</td><td>🔄 WIP</td><td><code>feature/11_165_feat_057_config_accordion</code> — <code>CoachConfigSectionAccordion</code></td></tr>
 </tbody>
 </table>
 
@@ -130,7 +131,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 </thead>
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/047/048/050/051/052/054/055/056, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-046</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-046, FEAT-057</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>

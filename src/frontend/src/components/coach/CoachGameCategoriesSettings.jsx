@@ -85,6 +85,7 @@ export default function CoachGameCategoriesSettings({
     categories,
     onChangeCategories,
     onResetCategories,
+    embedded = false,
 }) {
     const [dialogOpen, setDialogOpen] = useState(false)
     const [form, setForm] = useState(emptyForm)
@@ -169,11 +170,13 @@ export default function CoachGameCategoriesSettings({
         setDialogOpen(false)
     }
 
-    return (
-        <Paper variant="outlined" sx={{ p: 2, mt: 3 }}>
-            <Typography variant="subtitle1" gutterBottom>
-                Categorías de partidas
-            </Typography>
+    const body = (
+        <>
+            {!embedded && (
+                <Typography variant="subtitle1" gutterBottom>
+                    Categorías de partidas
+                </Typography>
+            )}
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Definí cómo se clasifican las partidas en Coach → Partidas. Menor prioridad se
                 evalúa primero. Las reglas usan fuente, corpus (tipo al importar) y palabras en
@@ -319,6 +322,12 @@ export default function CoachGameCategoriesSettings({
                     </Button>
                 </DialogActions>
             </Dialog>
+        </>
+    )
+    if (embedded) return body
+    return (
+        <Paper variant="outlined" sx={{ p: 2, mt: 3 }}>
+            {body}
         </Paper>
     )
 }

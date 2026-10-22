@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { Typography } from '@mui/material'
+import CoachConfigSectionAccordion from '../components/coach/CoachConfigSectionAccordion.jsx'
 import CoachGameCategoriesSettings from '../components/coach/CoachGameCategoriesSettings.jsx'
 import CoachGamesColumnSettings from '../components/coach/CoachGamesColumnSettings.jsx'
 import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
@@ -69,16 +70,22 @@ export default function CoachConfiguracionPage() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Preferencias del módulo Coach en este dispositivo.
             </Typography>
-            <CoachGamesColumnSettings
-                visibleColumns={visibleColumns}
-                onToggleColumn={toggleColumnVisibility}
-                onResetColumns={resetColumnVisibility}
-            />
-            <CoachGameCategoriesSettings
-                categories={gameCategories}
-                onChangeCategories={handleCategoriesChange}
-                onResetCategories={resetCategories}
-            />
+            <CoachConfigSectionAccordion id="partidas-columns" title="Columnas en la tabla Partidas">
+                <CoachGamesColumnSettings
+                    embedded
+                    visibleColumns={visibleColumns}
+                    onToggleColumn={toggleColumnVisibility}
+                    onResetColumns={resetColumnVisibility}
+                />
+            </CoachConfigSectionAccordion>
+            <CoachConfigSectionAccordion id="partidas-categories" title="Categorías de partidas">
+                <CoachGameCategoriesSettings
+                    embedded
+                    categories={gameCategories}
+                    onChangeCategories={handleCategoriesChange}
+                    onResetCategories={resetCategories}
+                />
+            </CoachConfigSectionAccordion>
         </CoachPageLayout>
     )
 }

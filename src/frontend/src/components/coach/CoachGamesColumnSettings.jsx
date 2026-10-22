@@ -7,12 +7,15 @@ export default function CoachGamesColumnSettings({
     visibleColumns,
     onToggleColumn,
     onResetColumns,
+    embedded = false,
 }) {
-    return (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-                Columnas en la tabla Partidas
-            </Typography>
+    const body = (
+        <>
+            {!embedded && (
+                <Typography variant="subtitle1" gutterBottom>
+                    Columnas en la tabla Partidas
+                </Typography>
+            )}
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Elegí qué campos mostrar en la biblioteca de partidas. La preferencia se guarda en
                 este navegador.
@@ -40,6 +43,12 @@ export default function CoachGamesColumnSettings({
                     Restaurar todas las columnas
                 </Button>
             </Box>
+        </>
+    )
+    if (embedded) return body
+    return (
+        <Paper variant="outlined" sx={{ p: 2 }}>
+            {body}
         </Paper>
     )
 }
