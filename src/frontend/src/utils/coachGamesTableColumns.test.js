@@ -19,4 +19,8 @@ describe('coachGamesTableColumns', () => {
         expect(next.has('eco')).toBe(true)
         expect(next.has('opening')).toBe(false)
     })
+
+    it('includes rhythm column in defaults', () => {
+        expect(defaultVisibleCoachGamesColumns().has('rhythm')).toBe(true)
+    })
 })

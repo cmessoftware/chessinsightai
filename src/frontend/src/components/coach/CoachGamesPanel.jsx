@@ -43,6 +43,7 @@ import {
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
     formatCoachPartidaTableLabel,
+    formatCoachRhythmDisplay,
 } from '../../utils/coachGameDisplay.js'
 import { sortCoachGames } from '../../utils/coachGamesSort.js'
 import {
@@ -794,6 +795,16 @@ export default function CoachGamesPanel() {
                                 </SortableGamesHeader>
                             )}
                             {showCol('player_pov') && <TableCell>Jugador POV</TableCell>}
+                            {showCol('rhythm') && (
+                                <SortableGamesHeader
+                                    field="rhythm"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Ritmo
+                                </SortableGamesHeader>
+                            )}
                             {showCol('eco') && (
                                 <SortableGamesHeader
                                     field="eco"
@@ -935,6 +946,11 @@ export default function CoachGamesPanel() {
                                             {g.player_username
                                                 ? `${g.player_username} (${g.player_color || '?'})`
                                                 : '—'}
+                                        </TableCell>
+                                    )}
+                                    {showCol('rhythm') && (
+                                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                                            {formatCoachRhythmDisplay(g)}
                                         </TableCell>
                                     )}
                                     {showCol('eco') && (

@@ -90,6 +90,18 @@ export function formatCoachPartidaTableLabel(game) {
     return `${white} vs ${black}`
 }
 
+/** Ritmo column: speed class + numeric clock (FEAT-056). */
+export function formatCoachRhythmDisplay(game) {
+    const parts = []
+    const speedTitle = speedClassTitle(game?.speed_class)
+    const clock =
+        game?.time_control_display ||
+        formatTimeControlDisplay(game?.time_control, game?.speed_class)
+    if (speedTitle) parts.push(speedTitle)
+    if (clock) parts.push(clock)
+    return parts.length ? parts.join(' ') : '—'
+}
+
 /** @param {Record<string, unknown>} game */
 export function formatCoachGameDescription(game) {
     if (game?.description) {
