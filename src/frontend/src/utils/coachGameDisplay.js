@@ -125,3 +125,21 @@ export function formatCoachCatalogSource(game) {
     const value = game?.catalog_source || game?.source
     return value ? String(value) : '—'
 }
+
+/** Standard ECO codes (e.g. C55, B90); some sources store opening URLs in ``eco``. */
+const ECO_CODE_RE = /^[A-E]\d{2}(?:\/\d+)?$/i
+
+/**
+ * @returns {{ display: string, tooltip: string | null }}
+ */
+export function formatCoachEcoForDisplay(raw) {
+    const s = String(raw ?? '').trim()
+    if (!s) return { display: '—', tooltip: null }
+    if (ECO_CODE_RE.test(s)) {
+        return { display: s.toUpperCase(), tooltip: null }
+    }
+    if (/^https?:\/\//i.test(s) || s.length > 8) {
+        return { display: '—', tooltip: s }
+    }
+    return { display: s, tooltip: null }
+}
