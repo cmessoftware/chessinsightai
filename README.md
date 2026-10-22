@@ -1,4 +1,4 @@
-# CHESS TRAINER - Versión: v0.1.545-7df27c7
+# CHESS TRAINER - Versión: v0.1.548-27ff924
 
 # chessinsightai
 
@@ -102,6 +102,8 @@ python -m uvicorn main:app --reload --port 8000
 La API carga `CHESS_TRAINER_DB_URL` desde el `.env` en la **raíz del repo** (misma URL que `alembic upgrade head`). Si migraste pero la UI sigue pidiendo una tabla, reiniciá uvicorn y comprobá que no estés apuntando a otro puerto (p. ej. 5432 vs 5434).
 
 Frontend: `cd src/frontend`, `npm run dev` → pestaña **Coach**. Roadmap: [00-roadmap-index.md](./docs/ai_chess_coach/roadmap/00-roadmap-index.md) · Phase 1 web slice: [02-phase-01-coach-web-slice.md](./docs/ai_chess_coach/roadmap/02-phase-01-coach-web-slice.md) · catálogo (ref. curso): [08_mvp_product_roadmap.md](./docs/ai_chess_coach_course/08_mvp_product_roadmap.md).
+
+**Deploy staging/prod (UI Render + Postgres Neon):** [02-tutorial-render-neon-coach-ui.md](./docs/ai_chess_coach/devops/02-tutorial-render-neon-coach-ui.md).
 
 **CI / tests (Coach MVP, P0-1):** `pip install -r requirements-ci.txt` then `pytest tests/mvp tests/docs_courses tests/chess_statistics -q` (set `PYTHONPATH=src:src/api` on Linux/macOS).
 
