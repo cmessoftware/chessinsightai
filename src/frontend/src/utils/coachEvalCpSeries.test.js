@@ -7,9 +7,9 @@ import {
 } from './coachEvalCpSeries.js'
 
 describe('coachEvalCpSeries', () => {
-    it('computeChartCpSpan expands when eval exceeds ±100 cp', () => {
-        expect(computeChartCpSpan([{ cp: 40 }, { cp: -30 }])).toBe(100)
-        expect(computeChartCpSpan([{ cp: -149 }, { cp: -690 }, { cp: -1100 }])).toBe(1200)
+    it('computeChartCpSpan is fixed at 2000 cp', () => {
+        expect(computeChartCpSpan([{ cp: 40 }, { cp: -30 }])).toBe(2000)
+        expect(computeChartCpSpan([{ cp: -149 }, { cp: -690 }])).toBe(2000)
     })
 
     it('builds series along main line', () => {

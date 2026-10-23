@@ -1,33 +1,25 @@
 import { collectMainLinePlies } from './coachPlyClassification.js'
 import { moveNumberFromPlyCount } from './coachVariationTree.js'
-import { formatStandardEval, playerScoreToCp, toWhiteStandardScore } from './engineEval.js'
+import {
+    CP_CHART_MAX_CP,
+    formatStandardEval,
+    playerScoreToChartCp,
+    toWhiteStandardScore,
+} from './engineEval.js'
 
-/** Escala mínima del gráfico (±100 cp) cuando la partida no se aleja del equilibrio. */
-export const CP_CHART_DEFAULT_SPAN = 100
-/** Tope de escala para no aplastar evals moderadas en partidas con mate en cp. */
-export const CP_CHART_ABSOLUTE_MAX_SPAN = 2000
+/** Eje Y fijo ±2000 cp (≈ ±20 peones); evals y mates se mapean dentro de ese rango. */
+export const CP_CHART_ABSOLUTE_MAX_SPAN = CP_CHART_MAX_CP
 
-/** @deprecated use CP_CHART_DEFAULT_SPAN */
-export const CP_CHART_MIN = -CP_CHART_DEFAULT_SPAN
-/** @deprecated use CP_CHART_DEFAULT_SPAN */
-export const CP_CHART_MAX = CP_CHART_DEFAULT_SPAN
+/** @deprecated */
+export const CP_CHART_DEFAULT_SPAN = CP_CHART_MAX_CP
+/** @deprecated */
+export const CP_CHART_MIN = -CP_CHART_MAX_CP
+/** @deprecated */
+export const CP_CHART_MAX = CP_CHART_MAX_CP
 
-/**
- * BUG-060: escala Y simétrica según el máximo |cp| de la serie (evita saturar en ±100).
- * @param {{ cp?: number | null }[]} series
- */
-export function computeChartCpSpan(series) {
-    let maxAbs = CP_CHART_DEFAULT_SPAN
-    for (const pt of series || []) {
-        const cp = pt?.cp
-        if (cp == null || !Number.isFinite(cp)) continue
-        maxAbs = Math.max(maxAbs, Math.abs(cp))
-    }
-    if (maxAbs <= CP_CHART_DEFAULT_SPAN) return CP_CHART_DEFAULT_SPAN
-    if (maxAbs <= 250) return Math.ceil(maxAbs / 50) * 50
-    if (maxAbs <= 600) return Math.ceil(maxAbs / 100) * 100
-    if (maxAbs <= 1200) return Math.ceil(maxAbs / 200) * 200
-    return Math.min(CP_CHART_ABSOLUTE_MAX_SPAN, Math.ceil(maxAbs / 500) * 500)
+/** Escala Y del gráfico (siempre ±2000 cp). */
+export function computeChartCpSpan(_series) {
+    return CP_CHART_MAX_CP
 }
 
 /** Tree path along main line (all child index 0). */
@@ -78,7 +70,7 @@ export function buildMainLineEvalCpSeries(treeRoot, scoreByFen) {
             moveNumber: 0,
             path: mainLinePathForPly(0),
             fen: treeRoot.fen,
-            cp: playerScoreToCp(rootScore),
+            cp: playerScoreToChartCp(rootScore),
             evalLabel: formatStandardEval(rootScore),
         },
     ]
@@ -89,7 +81,7 @@ export function buildMainLineEvalCpSeries(treeRoot, scoreByFen) {
             moveNumber: moveNumberFromPlyCount(job.ply),
             path: mainLinePathForPly(job.ply),
             fen: job.fenAfter,
-            cp: playerScoreToCp(score),
+            cp: playerScoreToChartCp(score),
             evalLabel: formatStandardEval(score),
         }
         point.tooltip = formatEvalChartTooltip(point)

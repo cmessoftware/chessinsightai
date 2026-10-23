@@ -82,7 +82,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 4. Asignación masiva: selector «Asignar a selección» para las filas marcadas.
 5. Opción <strong>Automática (reglas)</strong> quita la asignación manual (override en <code>localStorage</code>).</td><td>✅ Done</td><td>HITL OK — <code>feature/11_166_feat_046_category_assign</code> — overrides + bulk</td></tr>
 <tr><td>FEAT-047</td><td></td><td>
-1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, -100 a +100 cp. 
+1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, escala ±2000 cp (≈ ±20 peones). 
 2. En eje x poner numero de jugadas. 
 3. Habilitar opción de mostrar el valor de cada punto como tooltip. 
 4. Habilitar que en click se desplace el tablero al movimiento correspondiente.
@@ -99,7 +99,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-057</td><td>FEAT-054</td><td>En paginas Configuración poner cada grupo como tablas apilables y colapsables.</td><td>✅ Done</td><td>HITL OK — <code>feature/11_165_feat_057_config_accordion</code> — <code>CoachConfigSectionAccordion</code></td></tr>
 <tr><td>FEAT-058</td><td></td><td>Incluir la lista de Jobs en un panel colapsable y paginar a 5 items por página</td><td>✅ Done</td><td>HITL OK — <code>feature/11_167_feat_058_059_partidas_pagination</code></td></tr>
 <tr><td>FEAT-059</td><td></td><td>Paginar lista de partidas a 20 items por página</td><td>✅ Done</td><td>HITL OK — selección entre páginas</td></tr>
-<tr><td>BUG-060</td><td>FEAT-047</td><td>Gráfico cp saturado en ±100: evals distintas (p. ej. −1,49 vs −11) se superponen</td><td>✅ Done</td><td><code>computeChartCpSpan</code></td></tr>
+<tr><td>BUG-060</td><td>FEAT-047</td><td>Gráfico cp saturado en ±100; mates (M1…) cerca de 0; escala ±2000 cp y <code>mateScoreToChartCp</code></td><td>✅ Done</td><td><code>playerScoreToChartCp</code></td></tr>
 </tbody>
 </table>
 
