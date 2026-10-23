@@ -30,6 +30,7 @@ import EngineMultipvPanel from './EngineMultipvPanel.jsx'
 import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
 import CoachEvalCpChart from './CoachEvalCpChart.jsx'
+import CoachPlyAnnotationPanel from './CoachPlyAnnotationPanel.jsx'
 import { buildMainLineEvalCpSeries, mainLinePlyFromCursorPath } from '../../utils/coachEvalCpSeries.js'
 import { useLiveStockfishAnalysis } from '../../hooks/useLiveStockfishAnalysis.js'
 import { usePgnEvalCache } from '../../hooks/usePgnEvalCache.js'
@@ -529,6 +530,15 @@ export default function CoachStudyWorkspace({
                             returnTo={returnTo}
                         />
                         {!criticalMode && (
+                            <CoachPlyAnnotationPanel
+                                width={boardWidth}
+                                cursorPath={cursorPath}
+                                cursorSan={cursorSan}
+                                plyUserByPathKey={plyUserByPathKey}
+                                onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
+                            />
+                        )}
+                        {!criticalMode && (
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -732,7 +742,6 @@ export default function CoachStudyWorkspace({
                         rootPositionLabel={rootPositionLabel}
                         sourcePgn={sourcePgn ?? gameMeta?.pgn ?? null}
                         plyUserByPathKey={plyUserByPathKey}
-                        onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
                     />
 
                     {decisionsPanel}

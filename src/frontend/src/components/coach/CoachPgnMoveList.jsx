@@ -1,21 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-    Box,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    IconButton,
-    Menu,
-    MenuItem,
-    Paper,
-    TextField,
-    Tooltip,
-    Typography,
-} from '@mui/material'
-import ChatBubbleOutline from '@mui/icons-material/ChatBubbleOutline'
+import { Box, IconButton, Menu, MenuItem, Paper, Tooltip, Typography } from '@mui/material'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import {
@@ -37,10 +21,7 @@ import {
     pgnMoveTextSx,
     tokenizeVariationChain,
 } from '../../utils/coachPgnDisplay.js'
-import {
-    getPlyUserAnnotation,
-    PLY_USER_NAG_OPTIONS,
-} from '../../utils/coachPlyUserAnnotations.js'
+import { getPlyUserAnnotation } from '../../utils/coachPlyUserAnnotations.js'
 
 /** Scroll only the PGN list panel — avoid moving the document (keeps the board in view). */
 function scrollElementWithinScrollParent(scrollParent, element) {
@@ -502,13 +483,11 @@ export default function CoachPgnMoveList({
     rootPositionLabel = 'Posición inicial',
     sourcePgn = null,
     plyUserByPathKey = null,
-    onPlyUserAnnotationChange = null,
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
     const scrollContainerRef = useRef(null)
     const [moveMenu, setMoveMenu] = useState(null)
-    const [commentEditor, setCommentEditor] = useState(null)
 
     useEffect(() => {
         scrollElementWithinScrollParent(scrollContainerRef.current, activeRef.current)
@@ -584,13 +563,6 @@ export default function CoachPgnMoveList({
         }
         closeMoveMenu()
     }, [treeRoot, mainLineResult, sourcePgn, plyUserByPathKey])
-
-    const menuTargetHalf = moveMenu?.half
-    const menuCanAnnotate =
-        Boolean(onPlyUserAnnotationChange && menuTargetHalf?.path?.length)
-    const menuCurrentNag = menuCanAnnotate
-        ? getPlyUserAnnotation(plyUserByPathKey, menuTargetHalf.path)?.nag || ''
-        : ''
 
     const menuCanTruncate = moveMenu?.canTruncate
     const menuCanDeleteBranch = moveMenu?.canDeleteBranch
@@ -825,86 +797,7 @@ export default function CoachPgnMoveList({
                         Quitar variante
                     </MenuItem>
                 )}
-                {menuCanAnnotate && (canCopyMainLine || menuCanTruncate || menuCanDeleteBranch) && (
-                    <Divider />
-                )}
-                {menuCanAnnotate &&
-                    PLY_USER_NAG_OPTIONS.map((opt) => (
-                        <MenuItem
-                            key={opt.value || 'none'}
-                            selected={menuCurrentNag === opt.value}
-                            sx={(theme) => pgnMoveTextSx(theme)}
-                            onClick={() => {
-                                onPlyUserAnnotationChange(menuTargetHalf.path, {
-                                    nag: opt.value || null,
-                                })
-                                closeMoveMenu()
-                            }}
-                        >
-                            {opt.label}
-                        </MenuItem>
-                    ))}
-                {menuCanAnnotate && (
-                    <MenuItem
-                        sx={(theme) => pgnMoveTextSx(theme)}
-                        onClick={() => {
-                            const existing = getPlyUserAnnotation(
-                                plyUserByPathKey,
-                                menuTargetHalf.path,
-                            )
-                            setCommentEditor({
-                                path: menuTargetHalf.path,
-                                san: menuTargetHalf.san,
-                                text: existing?.comment || '',
-                            })
-                            closeMoveMenu()
-                        }}
-                    >
-                        <ChatBubbleOutline fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />
-                        Comentario…
-                    </MenuItem>
-                )}
             </Menu>
-            <Dialog
-                open={Boolean(commentEditor)}
-                onClose={() => setCommentEditor(null)}
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle>
-                    Comentario
-                    {commentEditor?.san ? ` · ${commentEditor.san}` : ''}
-                </DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        multiline
-                        minRows={3}
-                        fullWidth
-                        margin="dense"
-                        label="Texto (PGN)"
-                        value={commentEditor?.text ?? ''}
-                        onChange={(e) =>
-                            setCommentEditor((prev) => (prev ? { ...prev, text: e.target.value } : prev))
-                        }
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setCommentEditor(null)}>Cancelar</Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            if (!commentEditor?.path) return
-                            onPlyUserAnnotationChange?.(commentEditor.path, {
-                                comment: commentEditor.text.trim() || null,
-                            })
-                            setCommentEditor(null)
-                        }}
-                    >
-                        Guardar
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Paper>
     )
 }
