@@ -30,6 +30,7 @@ import EngineMultipvPanel from './EngineMultipvPanel.jsx'
 import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
 import CoachEvalCpChart from './CoachEvalCpChart.jsx'
+import CoachPlyAnnotationPanel from './CoachPlyAnnotationPanel.jsx'
 import { buildMainLineEvalCpSeries, mainLinePlyFromCursorPath } from '../../utils/coachEvalCpSeries.js'
 import { useLiveStockfishAnalysis } from '../../hooks/useLiveStockfishAnalysis.js'
 import { usePgnEvalCache } from '../../hooks/usePgnEvalCache.js'
@@ -41,6 +42,12 @@ import {
 import { useMental1600Assessment } from '../../hooks/useMental1600Assessment.js'
 import { usePgnKeyboardNav } from '../../hooks/usePgnKeyboardNav.js'
 import { parseMoverEloFromGame } from '../../utils/coachPlayerElo.js'
+import { mainLineSignature } from '../../utils/coachClassificationSessionCache.js'
+import {
+    applyPlyUserAnnotationPatch,
+    loadPlyUserAnnotationsForScope,
+    savePlyUserAnnotationsForScope,
+} from '../../utils/coachPlyUserAnnotations.js'
 import { saveCoachAnalysisCursor } from '../../utils/coachLastGameSession.js'
 import { computeCapturedPiecesFromTree } from '../../utils/coachCapturedPieces.js'
 import {
@@ -92,6 +99,33 @@ export default function CoachStudyWorkspace({
     const boardKeyboardRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(420)
     const [pendingPgnAction, setPendingPgnAction] = useState(null)
+    const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
+
+    const plyUserAnnotationScopeKey = useMemo(() => {
+        if (gameId) return String(gameId)
+        if (!treeRoot?.fen) return null
+        return `local:${mainLineSignature(treeRoot)}`
+    }, [gameId, treeRoot])
+
+    useEffect(() => {
+        if (!plyUserAnnotationScopeKey) {
+            setPlyUserByPathKey({})
+            return
+        }
+        setPlyUserByPathKey(loadPlyUserAnnotationsForScope(plyUserAnnotationScopeKey))
+    }, [plyUserAnnotationScopeKey])
+
+    const handlePlyUserAnnotationChange = useCallback(
+        (path, patch) => {
+            if (!plyUserAnnotationScopeKey || !path?.length) return
+            setPlyUserByPathKey((prev) => {
+                const next = applyPlyUserAnnotationPatch(prev, path, patch)
+                savePlyUserAnnotationsForScope(plyUserAnnotationScopeKey, next)
+                return next
+            })
+        },
+        [plyUserAnnotationScopeKey],
+    )
 
     const pack = reviewCritical?.pack
     const criticalMode = Boolean(reviewCritical?.detail?.fen_before)
@@ -496,6 +530,15 @@ export default function CoachStudyWorkspace({
                             returnTo={returnTo}
                         />
                         {!criticalMode && (
+                            <CoachPlyAnnotationPanel
+                                width={boardWidth}
+                                cursorPath={cursorPath}
+                                cursorSan={cursorSan}
+                                plyUserByPathKey={plyUserByPathKey}
+                                onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
+                            />
+                        )}
+                        {!criticalMode && (
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -698,6 +741,7 @@ export default function CoachStudyWorkspace({
                         maxHeight={320}
                         rootPositionLabel={rootPositionLabel}
                         sourcePgn={sourcePgn ?? gameMeta?.pgn ?? null}
+                        plyUserByPathKey={plyUserByPathKey}
                     />
 
                     {decisionsPanel}
