@@ -75,12 +75,18 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-043</td><td>FEAT-045</td><td>Partidas: eliminar selección / icono — confirmación con badge (sin <code>window.confirm</code>)</td><td>✅ Done</td><td><code>feature/11_154_bug_044_feat_043_045_coach_ux</code> — <code>CoachGamesPanel</code></td></tr>
 <tr><td>BUG-044</td><td>FEAT-036</td><td>Correspondencia: reloj en días (<code>1/86400</code>); PGN anotado multilínea = una sola partida</td><td>✅ Done</td><td><code>game_description</code>, <code>normalize_pgn_text_for_parse</code> — HITL OK</td></tr>
 <tr><td>FEAT-045</td><td>FEAT-08 / FEAT-09</td><td>Menú PGN (borrar desde aquí / quitar variante): confirmación con badge, sin <code>window.confirm</code></td><td>✅ Done</td><td><code>CoachConfirmBadge</code>, <code>CoachStudyWorkspace</code></td></tr>
-<tr><td>FEAT-046</td><td>FEAT-054</td><td>Agregar soporte para organizar partidas por categoria (sub categorias de fuentes), por ejemplo, por Torneo, Tema tactico , Estudios etc</td><td>🔄 WIP</td><td><code>feature/11_164_feat_046_partidas_categories</code> — Partidas + Configuración (<code>CoachGameCategoriesSettings</code>)</td></tr>
+<tr><td>FEAT-046</td><td>FEAT-054</td><td>
+1. Categorías por reglas (fuente, corpus, palabras clave) y chips de filtro en Partidas.
+2. Configuración: crear/editar categorías y reglas (<code>CoachGameCategoriesSettings</code>).
+3. Desde Partidas: asignar o cambiar categoría por fila (selector en columna Fuente).
+4. Asignación masiva: selector «Asignar a selección» para las filas marcadas.
+5. Opción <strong>Automática (reglas)</strong> quita la asignación manual (override en <code>localStorage</code>).</td><td>✅ Done</td><td>HITL OK — <code>feature/11_166_feat_046_category_assign</code> — overrides + bulk</td></tr>
 <tr><td>FEAT-047</td><td></td><td>
-1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, -100 a +100 cp. 
+1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, escala ±2000 cp (≈ ±20 peones). 
 2. En eje x poner numero de jugadas. 
 3. Habilitar opción de mostrar el valor de cada punto como tooltip. 
-4. Habilitar que en click se desplace el tablero al movimiento correspondiente.</td><td>✅ Done</td><td>HITL OK — <code>feature/11_163_feat_047_cp_eval_chart</code> — <code>CoachEvalCpChart</code></td></tr>
+4. Habilitar que en click se desplace el tablero al movimiento correspondiente.
+5. Eval en UI (gráfico, PGN, motor WASM, MultiPV): convención estándar + blancas / − negras (como Lichess), sin invertir por POV del jugador; la clasificación CA sigue en POV jugador.</td><td>✅ Done</td><td><code>CoachEvalCpChart</code>, <code>formatStandardEval</code></td></tr>
 <tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>✅ Done</td><td><code>CoachGamesPanel</code> — PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
 <tr><td>BUG-049</td><td></td><td>A cargar una pgn desde FEN de una posición no iniclal, no da error pero carga parida vacia</td><td>✅ Done</td><td><code>ensure_fen_setup_headers</code>, <code>coachPgnReplay</code> SetUp + replay desde FEN</td></tr>
 <tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code> — API + <code>CoachGamesPanel</code></td></tr>
@@ -90,7 +96,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-054</td><td></td><td>Menú <strong>Configuración</strong> en Coach (subnav) para preferencias de UI; primer ítem: columnas visibles en Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code>, <code>CoachConfiguracionPage</code></td></tr>
 <tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code> — <code>formatCoachPartidaTableLabel</code></td></tr>
 <tr><td>FEAT-056</td><td>FEAT-052</td><td>Agegar a tabla y configuracion campo "Ritmo"</td><td>✅ Done</td><td>HITL OK — PR #193</td></tr>
-<tr><td>FEAT-057</td><td>FEAT-054</td><td>En paginas Configuración poner cada grupo como tablas apilables y colapsables.</td><td>🔄 WIP</td><td><code>feature/11_165_feat_057_config_accordion</code> — <code>CoachConfigSectionAccordion</code></td></tr>
+<tr><td>FEAT-057</td><td>FEAT-054</td><td>En paginas Configuración poner cada grupo como tablas apilables y colapsables.</td><td>✅ Done</td><td>HITL OK — <code>feature/11_165_feat_057_config_accordion</code> — <code>CoachConfigSectionAccordion</code></td></tr>
+<tr><td>FEAT-058</td><td></td><td>Incluir la lista de Jobs en un panel colapsable y paginar a 5 items por página</td><td>✅ Done</td><td>HITL OK — <code>feature/11_167_feat_058_059_partidas_pagination</code></td></tr>
+<tr><td>FEAT-059</td><td></td><td>Paginar lista de partidas a 20 items por página</td><td>✅ Done</td><td>HITL OK — selección entre páginas</td></tr>
+<tr><td>BUG-060</td><td>FEAT-047</td><td>Gráfico cp saturado en ±100; mates (M1…) cerca de 0; escala ±2000 cp y <code>mateScoreToChartCp</code></td><td>✅ Done</td><td><code>playerScoreToChartCp</code></td></tr>
+<tr><td>FEAT-061</td><td></td><td>Agrera soporte para agregar comentarios por movida, incluida opcion para etieutar la movida (?,??,!!,!?,?!,-+,+-,==)</td><td>⬜ Todo</td><td></td></tr>
 </tbody>
 </table>
 
@@ -130,11 +140,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/047/048/050/051/052/054/055/056, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-046, FEAT-057</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-038/039 → FEAT-046 → FEAT-053.
+**Siguiente sugerido (orden):** FEAT-038/039 → FEAT-053.

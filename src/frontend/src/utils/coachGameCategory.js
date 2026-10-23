@@ -58,19 +58,12 @@ function categoryMatches(game, cat) {
     return cat.rules.some((r) => ruleMatches(game, r))
 }
 
-/**
- * @param {object | null | undefined} game
- * @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories
- */
-export function resolveCoachGameCategory(game, categories) {
-    const list = (categories?.length ? categories : loadCoachGameCategories()).filter(
-        (c) => c.enabled !== false,
-    )
+function resolveFromRules(game, list) {
     const sorted = [...list].sort((a, b) => a.priority - b.priority)
 
     for (const cat of sorted) {
         if (categoryMatches(game, cat)) {
-            return { id: cat.id, label: cat.label }
+            return { id: cat.id, label: cat.label, manual: false }
         }
     }
 
@@ -78,18 +71,41 @@ export function resolveCoachGameCategory(game, categories) {
         sorted.find((c) => c.fallback) ||
         sorted.find((c) => c.id === 'pgn') ||
         defaultCoachGameCategories().find((c) => c.fallback)
-    return { id: fallback?.id || 'pgn', label: fallback?.label || 'Importación PGN' }
+    return { id: fallback?.id || 'pgn', label: fallback?.label || 'Importación PGN', manual: false }
+}
+
+/**
+ * @param {object | null | undefined} game
+ * @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories
+ * @param {Record<string, string> | null | undefined} overrides
+ * @returns {{ id: string, label: string, manual: boolean }}
+ */
+export function resolveCoachGameCategory(game, categories, overrides) {
+    const list = (categories?.length ? categories : loadCoachGameCategories()).filter(
+        (c) => c.enabled !== false,
+    )
+    const gameId = game?.id != null ? String(game.id) : ''
+    const overrideId = gameId && overrides ? overrides[gameId] : undefined
+    if (overrideId) {
+        const match = list.find((c) => c.id === overrideId)
+        if (match) {
+            return { id: match.id, label: match.label, manual: true }
+        }
+    }
+
+    return resolveFromRules(game, list)
 }
 
 /**
  * @param {object[]} games
  * @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories
+ * @param {Record<string, string> | null | undefined} overrides
  */
-export function listCoachGameCategoryFilters(games, categories) {
+export function listCoachGameCategoryFilters(games, categories, overrides) {
     /** @type {Map<string, { id: string, label: string, count: number }>} */
     const byId = new Map()
     for (const game of games || []) {
-        const cat = resolveCoachGameCategory(game, categories)
+        const cat = resolveCoachGameCategory(game, categories, overrides)
         const prev = byId.get(cat.id)
         if (prev) {
             prev.count += 1
@@ -100,8 +116,8 @@ export function listCoachGameCategoryFilters(games, categories) {
     return [...byId.values()].sort((a, b) => a.label.localeCompare(b.label, 'es'))
 }
 
-/** @param {object} game @param {string | null} filterId @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories */
-export function coachGameMatchesCategoryFilter(game, filterId, categories) {
+/** @param {object} game @param {string | null} filterId @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories @param {Record<string, string> | null | undefined} overrides */
+export function coachGameMatchesCategoryFilter(game, filterId, categories, overrides) {
     if (!filterId || filterId === 'all') return true
-    return resolveCoachGameCategory(game, categories).id === filterId
+    return resolveCoachGameCategory(game, categories, overrides).id === filterId
 }

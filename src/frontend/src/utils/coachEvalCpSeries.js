@@ -1,14 +1,62 @@
 import { collectMainLinePlies } from './coachPlyClassification.js'
 import { moveNumberFromPlyCount } from './coachVariationTree.js'
-import { formatPlayerEval, playerScoreToCp } from './engineEval.js'
+import {
+    CP_CHART_MAX_CP,
+    formatStandardEval,
+    playerScoreToChartCp,
+    toWhiteStandardScore,
+} from './engineEval.js'
 
-export const CP_CHART_MIN = -100
-export const CP_CHART_MAX = 100
+/** Eje Y fijo ±2000 cp (≈ ±20 peones); evals y mates se mapean dentro de ese rango. */
+export const CP_CHART_ABSOLUTE_MAX_SPAN = CP_CHART_MAX_CP
 
-/** @param {number | null} cp */
-export function clampCpForChart(cp) {
+/** @deprecated */
+export const CP_CHART_DEFAULT_SPAN = CP_CHART_MAX_CP
+/** @deprecated */
+export const CP_CHART_MIN = -CP_CHART_MAX_CP
+/** @deprecated */
+export const CP_CHART_MAX = CP_CHART_MAX_CP
+
+/** Escala Y del gráfico (siempre ±2000 cp). */
+export function computeChartCpSpan(_series) {
+    return CP_CHART_MAX_CP
+}
+
+/**
+ * Escala tipo Lucas Chess: casi lineal cerca de 0, compresión suave hacia ±2000 / mate (asinh).
+ */
+export const CP_CHART_ASINH_K = 85
+
+/** @param {number | null | undefined} cp @returns {number | null} en [-1, 1] */
+export function cpToChartNormalizedY(cp) {
     if (cp == null || !Number.isFinite(cp)) return null
-    return Math.max(CP_CHART_MIN, Math.min(CP_CHART_MAX, cp))
+    const edge = Math.asinh(CP_CHART_MAX_CP / CP_CHART_ASINH_K)
+    return Math.asinh(cp / CP_CHART_ASINH_K) / edge
+}
+
+/** Rejilla Y (cp reales); etiquetas ≈ peones en Lucas. */
+export function chartYGridTickCpValues() {
+    return [1000, 500, 250, 0, -250, -500, -1000]
+}
+
+/** @param {number} cp */
+export function formatChartYGridLabel(cp) {
+    if (cp === 0) return '0'
+    const pawns = cp / 100
+    return Number.isInteger(pawns) ? String(pawns) : pawns.toFixed(1)
+}
+
+/** Color del último movimiento en el punto (ply impar = blancas). */
+export function chartPointMoverColor(ply) {
+    if (!ply) return null
+    return ply % 2 === 1 ? 'white' : 'black'
+}
+
+/** Posición Y en SVG (cp real → curva asinh). */
+export function chartYFromCp(cp, midY, halfSpan) {
+    const t = cpToChartNormalizedY(cp)
+    if (t == null) return null
+    return midY - t * halfSpan
 }
 
 /** Tree path along main line (all child index 0). */
@@ -45,13 +93,13 @@ export function selectMoveNumberAxisTicks(series, maxLabels = 12) {
 }
 
 /**
- * Main-line eval series for FEAT-047 (player POV cp after each position).
+ * Main-line eval series for FEAT-047 (standard white POV cp after each position).
  * @param {object | null} treeRoot
- * @param {Record<string, object>} scoreByFen fen → player_score
+ * @param {Record<string, object>} scoreByFen fen → score (white POV in cache)
  */
 export function buildMainLineEvalCpSeries(treeRoot, scoreByFen) {
     if (!treeRoot?.fen) return []
-    const rootScore = scoreByFen?.[treeRoot.fen]
+    const rootScore = toWhiteStandardScore(scoreByFen?.[treeRoot.fen])
     /** @type {ReturnType<typeof buildMainLineEvalCpSeries>} */
     const out = [
         {
@@ -59,19 +107,19 @@ export function buildMainLineEvalCpSeries(treeRoot, scoreByFen) {
             moveNumber: 0,
             path: mainLinePathForPly(0),
             fen: treeRoot.fen,
-            cp: clampCpForChart(playerScoreToCp(rootScore)),
-            evalLabel: formatPlayerEval(rootScore),
+            cp: playerScoreToChartCp(rootScore),
+            evalLabel: formatStandardEval(rootScore),
         },
     ]
     for (const job of collectMainLinePlies(treeRoot)) {
-        const score = scoreByFen?.[job.fenAfter]
+        const score = toWhiteStandardScore(scoreByFen?.[job.fenAfter])
         const point = {
             ply: job.ply,
             moveNumber: moveNumberFromPlyCount(job.ply),
             path: mainLinePathForPly(job.ply),
             fen: job.fenAfter,
-            cp: clampCpForChart(playerScoreToCp(score)),
-            evalLabel: formatPlayerEval(score),
+            cp: playerScoreToChartCp(score),
+            evalLabel: formatStandardEval(score),
         }
         point.tooltip = formatEvalChartTooltip(point)
         out.push(point)

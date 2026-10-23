@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, CircularProgress, Paper, Typography } from '@mui/material'
 import { formatStockfishWasmCaption } from '../../utils/coachEngineLabels.js'
-import { formatPlayerEval, formatPvOneLine } from '../../utils/engineEval.js'
+import { formatPvOneLine, formatStandardEval } from '../../utils/engineEval.js'
 
 function LineRow({ rank, evalText, lineSan }) {
     return (
@@ -62,6 +62,8 @@ export default function LiveEnginePanel({ liveState, targetDepth, multipv }) {
             </Box>
             <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
                 {formatStockfishWasmCaption({ targetDepth, multipv, depthReached })}
+                {' · '}
+                Eval estándar (+ blancas, − negras)
             </Typography>
             {error && (
                 <Typography variant="body2" color="error" sx={{ mb: 1 }}>
@@ -77,7 +79,7 @@ export default function LiveEnginePanel({ liveState, targetDepth, multipv }) {
                 <LineRow
                     key={c.rank}
                     rank={c.rank}
-                    evalText={formatPlayerEval(c.player_score)}
+                    evalText={formatStandardEval(c.player_score)}
                     lineSan={formatPvOneLine(c)}
                 />
             ))}

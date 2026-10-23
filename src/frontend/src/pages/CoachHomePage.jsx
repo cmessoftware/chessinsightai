@@ -6,6 +6,7 @@ import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import { getGame, listGames } from '../services/module07Service.js'
 import { createStudyRootFromFen } from '../utils/coachStudyFromFen.js'
 import { loadCoachAnalysisCursor, loadCoachLastGameId } from '../utils/coachLastGameSession.js'
+import { resolveCoachPlayerColor } from '../utils/coachPlayerColor.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
 import { STARTING_FEN } from '../utils/parseFenInput.js'
 import {
@@ -83,8 +84,7 @@ export default function CoachHomePage() {
         )
     }
 
-    const playerColor =
-        (gameMeta?.player_color || 'white').toLowerCase() === 'black' ? 'black' : 'white'
+    const playerColor = resolveCoachPlayerColor(gameMeta)
 
     return (
         <CoachStudyWorkspace

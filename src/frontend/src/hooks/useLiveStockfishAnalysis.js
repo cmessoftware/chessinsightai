@@ -10,7 +10,7 @@ import {
  */
 export function useLiveStockfishAnalysis(
     fen,
-    { enabled = true, depth = 14, multipv = 2, debounceMs = 150, playerColor = 'white' } = {},
+    { enabled = true, depth = 14, multipv = 2, debounceMs = 150 } = {},
 ) {
     const [state, setState] = useState({
         status: 'idle',
@@ -35,7 +35,7 @@ export function useLiveStockfishAnalysis(
                 engineRef = engine
                 const raw = await engine.analyze({ fen, depth, multipv }, { priority: 'live' })
                 if (cancelled) return
-                const lines = mapLiveLinesToDisplay(raw, fen, playerColor)
+                const lines = mapLiveLinesToDisplay(raw, fen)
                 const depthReached = raw.reduce((max, l) => Math.max(max, l.depth || 0), 0)
                 setState({ status: 'ready', lines, depthReached, error: null })
             } catch (err) {
@@ -54,7 +54,7 @@ export function useLiveStockfishAnalysis(
             clearTimeout(timer)
             engineRef?.stop()
         }
-    }, [fen, enabled, depth, multipv, debounceMs, playerColor])
+    }, [fen, enabled, depth, multipv, debounceMs])
 
     return state
 }

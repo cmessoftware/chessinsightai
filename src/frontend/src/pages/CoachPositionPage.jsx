@@ -153,10 +153,10 @@ export default function CoachPositionPage() {
                         </Select>
                     </FormControl>
                     <FormControl size="small" sx={{ minWidth: 160 }}>
-                        <InputLabel id="pov-label">Eval (POV)</InputLabel>
+                        <InputLabel id="pov-label">Clasificación (jugador)</InputLabel>
                         <Select
                             labelId="pov-label"
-                            label="Eval (POV)"
+                            label="Clasificación (jugador)"
                             value={coachPov}
                             onChange={(e) => setCoachPov(e.target.value)}
                         >

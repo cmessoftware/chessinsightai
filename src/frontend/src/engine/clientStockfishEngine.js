@@ -141,13 +141,14 @@ export function getStockfishBrowserEngine() {
     return enginePromise
 }
 
-export function mapLiveLinesToDisplay(rawLines, fen, playerColor) {
+/** MultiPV lines for UI — eval always standard white POV (Lichess-style). */
+export function mapLiveLinesToDisplay(rawLines, fen) {
     return rawLines.map((line) => {
         const player_score = scoreFromEngineLine({
             cp: line.cp,
             mate: line.mate,
             fen,
-            playerColor,
+            playerColor: 'white',
         })
         const pvSan = uciPvToSan(fen, line.pvUci)
         const headUci = line.pvUci?.[0] || ''

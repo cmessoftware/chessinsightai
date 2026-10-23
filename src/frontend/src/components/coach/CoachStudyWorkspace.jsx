@@ -298,6 +298,7 @@ export default function CoachStudyWorkspace({
     const { evalByFen, scoreByFen, setEvalForFen } = usePgnEvalCache(treeRoot, playerColor, {
         prefetchDepth: 10,
         prefetchEnabled: tab === 0 && lightClassificationOn,
+        gameId,
     })
 
     const classificationDepth = 12
@@ -348,7 +349,6 @@ export default function CoachStudyWorkspace({
         enabled: tab === 0 && Boolean(boardFen) && lightClassificationOn,
         depth: liveDepth,
         multipv: liveMultipv,
-        playerColor,
     })
 
     useEffect(() => {
