@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Paper, Typography } from '@mui/material'
-import { formatPlayerEval, formatPvOneLine } from '../../utils/engineEval.js'
+import { formatPvOneLine, formatStandardEval } from '../../utils/engineEval.js'
 
 function LineRow({ rank, evalText, lineSan, highlight, suffix }) {
     return (
@@ -72,6 +72,10 @@ export default function EngineMultipvPanel({ pack, depth, multipv }) {
 
     const metaDepth = depth ?? pack.evidence?.depth
     const metaMultipv = multipv ?? pack.evidence?.multipv ?? candidates.length
+    const packPlayerColor = pack.player_color || 'white'
+
+    const formatPackEval = (score) =>
+        formatStandardEval(score ? { ...score, playerColor: packPlayerColor } : score)
 
     return (
         <Paper variant="outlined" sx={{ p: 1.5, bgcolor: 'grey.50' }}>
@@ -86,7 +90,7 @@ export default function EngineMultipvPanel({ pack, depth, multipv }) {
                 <LineRow
                     key={c.rank ?? c.uci ?? c.san}
                     rank={c.rank}
-                    evalText={formatPlayerEval(c.player_score)}
+                    evalText={formatPackEval(c.player_score)}
                     lineSan={formatPvOneLine(c)}
                     highlight={c.same_move || c.san === playedSan}
                     suffix={
@@ -101,7 +105,7 @@ export default function EngineMultipvPanel({ pack, depth, multipv }) {
             {played && !playedInLines && (
                 <LineRow
                     rank="—"
-                    evalText={formatPlayerEval(played.player_score)}
+                    evalText={formatPackEval(played.player_score)}
                     lineSan={formatPvOneLine({ san: played.san, pv_san: played.pv_san })}
                     highlight
                     suffix="(jugada en partida, fuera del MultiPV)"

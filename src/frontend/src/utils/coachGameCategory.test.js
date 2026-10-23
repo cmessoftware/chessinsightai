@@ -41,4 +41,17 @@ describe('coachGameCategory', () => {
         expect(coachGameMatchesCategoryFilter(games[0], 'lichess', DEFAULTS)).toBe(true)
         expect(coachGameMatchesCategoryFilter(games[2], 'lichess', DEFAULTS)).toBe(false)
     })
+
+    it('applies manual override before rules', () => {
+        const game = { id: 'g1', catalog_source: 'lichess' }
+        const overrides = { g1: 'torneo' }
+        expect(resolveCoachGameCategory(game, DEFAULTS, overrides).id).toBe('torneo')
+        expect(resolveCoachGameCategory(game, DEFAULTS, overrides).manual).toBe(true)
+        expect(
+            coachGameMatchesCategoryFilter(game, 'torneo', DEFAULTS, overrides),
+        ).toBe(true)
+        expect(
+            coachGameMatchesCategoryFilter(game, 'lichess', DEFAULTS, overrides),
+        ).toBe(false)
+    })
 })

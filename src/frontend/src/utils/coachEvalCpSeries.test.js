@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
     buildMainLineEvalCpSeries,
-    clampCpForChart,
+    computeChartCpSpan,
     mainLinePathForPly,
     selectMoveNumberAxisTicks,
 } from './coachEvalCpSeries.js'
 
 describe('coachEvalCpSeries', () => {
-    it('clamps cp to chart range', () => {
-        expect(clampCpForChart(150)).toBe(100)
-        expect(clampCpForChart(-200)).toBe(-100)
-        expect(clampCpForChart(40)).toBe(40)
+    it('computeChartCpSpan expands when eval exceeds ±100 cp', () => {
+        expect(computeChartCpSpan([{ cp: 40 }, { cp: -30 }])).toBe(100)
+        expect(computeChartCpSpan([{ cp: -149 }, { cp: -690 }, { cp: -1100 }])).toBe(1200)
     })
 
     it('builds series along main line', () => {

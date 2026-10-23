@@ -22,6 +22,18 @@ import {
     tokenizeVariationChain,
 } from '../../utils/coachPgnDisplay.js'
 
+/** Scroll only the PGN list panel — avoid moving the document (keeps the board in view). */
+function scrollElementWithinScrollParent(scrollParent, element) {
+    if (!scrollParent || !element) return
+    const parentRect = scrollParent.getBoundingClientRect()
+    const elRect = element.getBoundingClientRect()
+    if (elRect.top < parentRect.top) {
+        scrollParent.scrollTop -= parentRect.top - elRect.top
+    } else if (elRect.bottom > parentRect.bottom) {
+        scrollParent.scrollTop += elRect.bottom - parentRect.bottom
+    }
+}
+
 function PgnLegend() {
     return (
         <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5, lineHeight: 1.8 }}>
@@ -431,10 +443,11 @@ export default function CoachPgnMoveList({
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
+    const scrollContainerRef = useRef(null)
     const [moveMenu, setMoveMenu] = useState(null)
 
     useEffect(() => {
-        activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+        scrollElementWithinScrollParent(scrollContainerRef.current, activeRef.current)
     }, [cursorPath])
 
     const openPgnContextMenu = useCallback((event, half = null, contextMeta = {}) => {
@@ -540,6 +553,7 @@ export default function CoachPgnMoveList({
                 {showLegend && <PgnLegend />}
             </Box>
             <Box
+                ref={scrollContainerRef}
                 onContextMenu={handlePanelContextMenu}
                 sx={(theme) => ({
                     overflowY: 'auto',

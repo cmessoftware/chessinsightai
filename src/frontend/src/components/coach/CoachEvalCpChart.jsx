@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react'
 import { Box, Paper, Tooltip, Typography, useTheme } from '@mui/material'
 import {
-    CP_CHART_MAX,
-    CP_CHART_MIN,
+    computeChartCpSpan,
     selectMoveNumberAxisTicks,
 } from '../../utils/coachEvalCpSeries.js'
 
@@ -12,11 +11,11 @@ const AXIS_H = 18
 const VIEW_H = CHART_H + AXIS_H
 const PAD = 6
 
-function yForCp(cp, midY, halfSpan) {
-    return midY - (cp / CP_CHART_MAX) * halfSpan
+function yForCp(cp, midY, halfSpan, cpSpan) {
+    return midY - (cp / cpSpan) * halfSpan
 }
 
-function buildChartLayout(series) {
+function buildChartLayout(series, cpSpan) {
     /** @type {{ x: number, y: number }[][]} */
     const segments = []
     /** @type {{ index: number, x: number, y: number, cp: number, path: number[], tooltip: string }[]} */
@@ -36,7 +35,7 @@ function buildChartLayout(series) {
             }
             return
         }
-        const y = yForCp(pt.cp, midY, halfSpan)
+        const y = yForCp(pt.cp, midY, halfSpan, cpSpan)
         current.push({ x, y })
         markers.push({
             index: i,
@@ -44,7 +43,7 @@ function buildChartLayout(series) {
             y,
             cp: pt.cp,
             path: pt.path ?? [],
-            tooltip: pt.tooltip || `${pt.cp > 0 ? '+' : ''}${pt.cp} cp`,
+            tooltip: pt.tooltip || `${pt.cp > 0 ? '+' : ''}${(pt.cp / 100).toFixed(2)}`,
         })
     })
     if (current.length > 0) segments.push(current)
@@ -68,9 +67,10 @@ export default function CoachEvalCpChart({
     const theme = useTheme()
     const lineColor = theme.palette.error.main
     const hasAny = series.some((p) => p.cp != null)
+    const cpSpan = useMemo(() => computeChartCpSpan(series), [series])
     const { segments, midY, innerW, n, markers, axisTicks } = useMemo(
-        () => buildChartLayout(series),
-        [series],
+        () => buildChartLayout(series, cpSpan),
+        [series, cpSpan],
     )
 
     const cursorX = useMemo(() => {
@@ -117,8 +117,10 @@ export default function CoachEvalCpChart({
         <Paper variant="outlined" sx={{ p: 1.5, mb: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 0.5 }}>
                 <Typography variant="subtitle2">Evaluación (cp)</Typography>
-                <Typography variant="caption" color="text.secondary">
-                    {CP_CHART_MIN} … 0 … +{CP_CHART_MAX}
+                <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right' }}>
+                    + blancas / − negras
+                    <br />
+                    −{cpSpan} … 0 … +{cpSpan} cp
                 </Typography>
             </Box>
             <Box

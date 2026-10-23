@@ -7,7 +7,7 @@ import {
     formatStockfishWasmCaption,
     parsePlayerColor,
 } from '../../utils/coachEngineLabels.js'
-import { formatPlayerEval } from '../../utils/engineEval.js'
+import { formatStandardEval } from '../../utils/engineEval.js'
 import { lookupClassification } from '../../utils/coachPgnDisplay.js'
 import { formatCpPawnsShort } from '../../utils/coachPedagogicalImpact.js'
 import { pathKeyFromPath } from '../../utils/coachPlyClassification.js'
@@ -123,9 +123,9 @@ export default function AdvancedMoveAnalysisPanel({
     const coachPov = parsePlayerColor(coachPlayerColor)
     const moverPov = parsePlayerColor(row.moverColor)
     const isCoachMove = moverPov === coachPov
-    const positionAfterEval = formatPlayerEval(row.positionAfterScore)
-    const playedEval = formatPlayerEval(row.playedScore)
-    const bestEval = formatPlayerEval(row.bestScore)
+    const positionAfterEval = formatStandardEval(row.positionAfterScore)
+    const playedEval = formatStandardEval(row.playedScore)
+    const bestEval = formatStandardEval(row.bestScore)
     const labelName = engineLabelDisplayName(row.engineLabel)
     const stmAfter = sideToMoveLabel(row.fenAfter)
     const cpLossText =
@@ -182,7 +182,7 @@ export default function AdvancedMoveAnalysisPanel({
 
             <Block title="1. Posición tras la jugada">
                 <Typography variant="body2" component="div">
-                    Tu eval (POV {colorLabel(coachPov)}): <strong>{positionAfterEval}</strong>
+                    Eval (estándar): <strong>{positionAfterEval}</strong>
                 </Typography>
                 {row.fenAfter && (
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>

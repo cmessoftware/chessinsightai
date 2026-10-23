@@ -15,6 +15,7 @@ import {
     TableBody,
     TableCell,
     TableHead,
+    TablePagination,
     TableRow,
     TableSortLabel,
     Tooltip,
@@ -52,12 +53,24 @@ import {
     resolveCoachGameCategory,
 } from '../../utils/coachGameCategory.js'
 import { loadCoachGameCategories } from '../../utils/coachGameCategoriesConfig.js'
+import {
+    loadCoachGameCategoryOverrides,
+    setCoachGameCategoryOverride,
+    setCoachGameCategoryOverridesBulk,
+} from '../../utils/coachGameCategoryOverrides.js'
 import { COACH_PARTIDAS_CATEGORIES_CHANGED } from '../../utils/coachPartidasCategoriesSync.js'
 import {
     coachGamesTableColSpan,
     loadVisibleCoachGamesColumns,
 } from '../../utils/coachGamesTableColumns.js'
 import { COACH_PARTIDAS_COLUMNS_CHANGED } from '../../utils/coachPartidasColumnsSync.js'
+import CoachConfigSectionAccordion from './CoachConfigSectionAccordion.jsx'
+
+const COACH_JOBS_PAGE_SIZE = 5
+const COACH_GAMES_PAGE_SIZE = 20
+
+const paginationLabelRows = ({ from, to, count }) =>
+    `${from}-${to} de ${count !== -1 ? count : `más de ${to}`}`
 
 const statusColor = (status) => {
     if (status === 'completed') return 'success'
@@ -127,6 +140,8 @@ function formatResult(result) {
     if (!result || result === '*') return 'Sin resultado'
     return result
 }
+
+const COACH_CATEGORY_AUTO = '__auto__'
 
 const RESULT_OPTIONS = [
     { value: '1-0', label: '1-0' },
@@ -240,6 +255,50 @@ function ResultadoCell({ game, onSaved, onError }) {
     )
 }
 
+function PartidaCategoryCell({ game, categories, overrides, onOverridesChange }) {
+    const effective = resolveCoachGameCategory(game, categories, overrides)
+    const automatic = resolveCoachGameCategory(game, categories, {})
+    const selectValue = effective.manual ? effective.id : COACH_CATEGORY_AUTO
+    const enabledCategories = useMemo(
+        () =>
+            [...(categories || [])]
+                .filter((c) => c.enabled !== false)
+                .sort((a, b) => a.label.localeCompare(b.label, 'es')),
+        [categories],
+    )
+
+    const apply = (value) => {
+        const next = setCoachGameCategoryOverride(
+            game.id,
+            value === COACH_CATEGORY_AUTO ? null : value,
+            overrides,
+        )
+        onOverridesChange(next)
+    }
+
+    return (
+        <Select
+            size="small"
+            value={selectValue}
+            onChange={(e) => apply(e.target.value)}
+            displayEmpty
+            sx={{ minWidth: 148, maxWidth: 200 }}
+            renderValue={(v) => {
+                if (v === COACH_CATEGORY_AUTO) return effective.label
+                const cat = enabledCategories.find((c) => c.id === v)
+                return cat?.label || effective.label
+            }}
+        >
+            <MenuItem value={COACH_CATEGORY_AUTO}>Automática ({automatic.label})</MenuItem>
+            {enabledCategories.map((cat) => (
+                <MenuItem key={cat.id} value={cat.id}>
+                    {cat.label}
+                </MenuItem>
+            ))}
+        </Select>
+    )
+}
+
 function PartidaTitleCell({ game, importTag, onSaved, onError }) {
     const [editing, setEditing] = useState(false)
     const [draft, setDraft] = useState(() => formatCoachPartidaTableLabel(game))
@@ -348,6 +407,12 @@ export default function CoachGamesPanel() {
     const [visibleColumns, setVisibleColumns] = useState(() => loadVisibleCoachGamesColumns())
     const [categoryFilter, setCategoryFilter] = useState('all')
     const [gameCategories, setGameCategories] = useState(() => loadCoachGameCategories())
+    const [categoryOverrides, setCategoryOverrides] = useState(() =>
+        loadCoachGameCategoryOverrides(),
+    )
+    const [bulkCategoryAssign, setBulkCategoryAssign] = useState('')
+    const [jobsPage, setJobsPage] = useState(0)
+    const [gamesPage, setGamesPage] = useState(0)
 
     const jobStatusById = useMemo(() => {
         const m = new Map()
@@ -407,14 +472,25 @@ export default function CoachGamesPanel() {
         [jobStatusById],
     )
 
+    const assignableCategories = useMemo(
+        () =>
+            [...gameCategories]
+                .filter((c) => c.enabled !== false)
+                .sort((a, b) => a.label.localeCompare(b.label, 'es')),
+        [gameCategories],
+    )
+
     const categoryOptions = useMemo(
-        () => listCoachGameCategoryFilters(games, gameCategories),
-        [games, gameCategories],
+        () => listCoachGameCategoryFilters(games, gameCategories, categoryOverrides),
+        [games, gameCategories, categoryOverrides],
     )
 
     const filteredGames = useMemo(
-        () => games.filter((g) => coachGameMatchesCategoryFilter(g, categoryFilter, gameCategories)),
-        [games, categoryFilter, gameCategories],
+        () =>
+            games.filter((g) =>
+                coachGameMatchesCategoryFilter(g, categoryFilter, gameCategories, categoryOverrides),
+            ),
+        [games, categoryFilter, gameCategories, categoryOverrides],
     )
 
     const sortedGames = useMemo(
@@ -422,13 +498,41 @@ export default function CoachGamesPanel() {
         [filteredGames, sortBy, sortDirection, sortContext],
     )
 
-    const selectedVisibleCount = useMemo(() => {
+    const paginatedJobs = useMemo(() => {
+        const start = jobsPage * COACH_JOBS_PAGE_SIZE
+        return jobs.slice(start, start + COACH_JOBS_PAGE_SIZE)
+    }, [jobs, jobsPage])
+
+    const paginatedGames = useMemo(() => {
+        const start = gamesPage * COACH_GAMES_PAGE_SIZE
+        return sortedGames.slice(start, start + COACH_GAMES_PAGE_SIZE)
+    }, [sortedGames, gamesPage])
+
+    const selectedOnPageCount = useMemo(() => {
         let n = 0
-        for (const g of filteredGames) {
+        for (const g of paginatedGames) {
             if (selectedIds.has(g.id)) n += 1
         }
         return n
-    }, [filteredGames, selectedIds])
+    }, [paginatedGames, selectedIds])
+
+    useEffect(() => {
+        setJobsPage(0)
+    }, [jobs.length])
+
+    useEffect(() => {
+        setGamesPage(0)
+    }, [categoryFilter, sortBy, sortDirection, games.length, filteredGames.length])
+
+    useEffect(() => {
+        const maxPage = Math.max(0, Math.ceil(sortedGames.length / COACH_GAMES_PAGE_SIZE) - 1)
+        if (gamesPage > maxPage) setGamesPage(maxPage)
+    }, [sortedGames.length, gamesPage])
+
+    useEffect(() => {
+        const maxPage = Math.max(0, Math.ceil(jobs.length / COACH_JOBS_PAGE_SIZE) - 1)
+        if (jobsPage > maxPage) setJobsPage(maxPage)
+    }, [jobs.length, jobsPage])
 
     const showCol = useCallback((id) => visibleColumns.has(id), [visibleColumns])
 
@@ -439,10 +543,27 @@ export default function CoachGamesPanel() {
     }, [])
 
     useEffect(() => {
-        const syncCategories = () => setGameCategories(loadCoachGameCategories())
+        const syncCategories = () => {
+            setGameCategories(loadCoachGameCategories())
+            setCategoryOverrides(loadCoachGameCategoryOverrides())
+        }
         window.addEventListener(COACH_PARTIDAS_CATEGORIES_CHANGED, syncCategories)
         return () => window.removeEventListener(COACH_PARTIDAS_CATEGORIES_CHANGED, syncCategories)
     }, [])
+
+    const applyBulkCategoryAssign = (value) => {
+        if (!value || selectedIds.size === 0) return
+        const ids = [...selectedIds]
+        const categoryId = value === COACH_CATEGORY_AUTO ? null : value
+        const next = setCoachGameCategoryOverridesBulk(ids, categoryId, categoryOverrides)
+        setCategoryOverrides(next)
+        setBulkCategoryAssign('')
+        setInfo(
+            categoryId
+                ? `Categoría asignada a ${ids.length} partida(s).`
+                : `Categoría automática restaurada en ${ids.length} partida(s).`,
+        )
+    }
 
     useEffect(() => {
         if (playerHandle && playerOptions.includes(playerHandle)) return
@@ -508,16 +629,16 @@ export default function CoachGamesPanel() {
         })
     }
 
-    const toggleAllGames = () => {
-        if (!filteredGames.length) return
-        const allVisibleSelected =
-            selectedVisibleCount === filteredGames.length && filteredGames.length > 0
+    const toggleAllGamesOnPage = () => {
+        if (!paginatedGames.length) return
+        const allPageSelected =
+            selectedOnPageCount === paginatedGames.length && paginatedGames.length > 0
         setSelectedIds((prev) => {
             const next = new Set(prev)
-            if (allVisibleSelected) {
-                for (const g of filteredGames) next.delete(g.id)
+            if (allPageSelected) {
+                for (const g of paginatedGames) next.delete(g.id)
             } else {
-                for (const g of filteredGames) next.add(g.id)
+                for (const g of paginatedGames) next.add(g.id)
             }
             return next
         })
@@ -679,7 +800,12 @@ export default function CoachGamesPanel() {
                     {refreshing ? 'Actualizando…' : 'Actualizar'}
                 </Button>
             </Box>
-            <Paper sx={{ mb: 3 }}>
+            <Box sx={{ mb: 3 }}>
+            <CoachConfigSectionAccordion
+                id="coach-analysis-jobs"
+                title={`Cola de jobs Stockfish (${jobs.length})`}
+                defaultExpanded={false}
+            >
                 <Table size="small">
                     <TableHead>
                         <TableRow>
@@ -692,7 +818,7 @@ export default function CoachGamesPanel() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {jobs.map((job) => (
+                        {paginatedJobs.map((job) => (
                             <TableRow key={job.id}>
                                 <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>
                                     {job.id.slice(0, 8)}…
@@ -721,7 +847,20 @@ export default function CoachGamesPanel() {
                         )}
                     </TableBody>
                 </Table>
-            </Paper>
+                {jobs.length > 0 && (
+                    <TablePagination
+                        component="div"
+                        count={jobs.length}
+                        page={jobsPage}
+                        onPageChange={(_, p) => setJobsPage(p)}
+                        rowsPerPage={COACH_JOBS_PAGE_SIZE}
+                        rowsPerPageOptions={[COACH_JOBS_PAGE_SIZE]}
+                        labelDisplayedRows={paginationLabelRows}
+                        labelRowsPerPage="Jobs por página:"
+                    />
+                )}
+            </CoachConfigSectionAccordion>
+            </Box>
             <Typography variant="h6" gutterBottom>
                 Biblioteca de partidas
             </Typography>
@@ -826,6 +965,50 @@ export default function CoachGamesPanel() {
                             : `Eliminar selección (${selectedIds.size})`}
                     </Button>
                 </Box>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 2,
+                        alignItems: 'center',
+                        mt: 2,
+                        pt: 2,
+                        borderTop: 1,
+                        borderColor: 'divider',
+                    }}
+                >
+                    <Typography variant="subtitle2" component="span">
+                        Categoría de partidas
+                    </Typography>
+                    <FormControl size="small" sx={{ minWidth: 260 }} disabled={selectedIds.size === 0}>
+                        <InputLabel id="coach-bulk-category-label">Asignar a selección</InputLabel>
+                        <Select
+                            labelId="coach-bulk-category-label"
+                            label="Asignar a selección"
+                            value={bulkCategoryAssign}
+                            onChange={(e) => {
+                                const v = e.target.value
+                                setBulkCategoryAssign(v)
+                                applyBulkCategoryAssign(v)
+                            }}
+                        >
+                            <MenuItem value="">
+                                <em>Elegir categoría…</em>
+                            </MenuItem>
+                            <MenuItem value={COACH_CATEGORY_AUTO}>Automática (reglas)</MenuItem>
+                            {assignableCategories.map((cat) => (
+                                <MenuItem key={cat.id} value={cat.id}>
+                                    {cat.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <Typography variant="body2" color="text.secondary">
+                        {selectedIds.size === 0
+                            ? 'Seleccioná filas en la tabla.'
+                            : `${selectedIds.size} partida(s) seleccionada(s).`}
+                    </Typography>
+                </Box>
             </Paper>
             <Paper>
                 <Table size="small">
@@ -834,15 +1017,15 @@ export default function CoachGamesPanel() {
                             <TableCell padding="checkbox">
                                 <Checkbox
                                     indeterminate={
-                                        selectedVisibleCount > 0 &&
-                                        selectedVisibleCount < filteredGames.length
+                                        selectedOnPageCount > 0 &&
+                                        selectedOnPageCount < paginatedGames.length
                                     }
                                     checked={
-                                        filteredGames.length > 0 &&
-                                        selectedVisibleCount === filteredGames.length
+                                        paginatedGames.length > 0 &&
+                                        selectedOnPageCount === paginatedGames.length
                                     }
-                                    disabled={!filteredGames.length}
-                                    onChange={toggleAllGames}
+                                    disabled={!paginatedGames.length}
+                                    onChange={toggleAllGamesOnPage}
                                 />
                             </TableCell>
                             {showCol('partida') && <TableCell>Partida</TableCell>}
@@ -966,7 +1149,7 @@ export default function CoachGamesPanel() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {sortedGames.map((g) => {
+                        {paginatedGames.map((g) => {
                             const queueable = canQueueAnalysis(g, jobStatusById)
                             const serverStatus = serverStatusLabel(g, jobStatusById)
                             const clientDone = isClientAnalyzed(g)
@@ -1086,11 +1269,21 @@ export default function CoachGamesPanel() {
                                                 <Typography variant="body2" component="span">
                                                     {formatCoachCatalogSource(g)}
                                                 </Typography>
-                                                <Chip
-                                                    size="small"
-                                                    label={resolveCoachGameCategory(g, gameCategories).label}
-                                                    variant="outlined"
+                                                <PartidaCategoryCell
+                                                    game={g}
+                                                    categories={gameCategories}
+                                                    overrides={categoryOverrides}
+                                                    onOverridesChange={setCategoryOverrides}
                                                 />
+                                                {resolveCoachGameCategory(g, gameCategories, categoryOverrides)
+                                                    .manual && (
+                                                    <Chip
+                                                        size="small"
+                                                        label="Manual"
+                                                        variant="outlined"
+                                                        color="primary"
+                                                    />
+                                                )}
                                             </Box>
                                         </TableCell>
                                     )}
@@ -1247,6 +1440,18 @@ export default function CoachGamesPanel() {
                         )}
                     </TableBody>
                 </Table>
+                {sortedGames.length > 0 && (
+                    <TablePagination
+                        component="div"
+                        count={sortedGames.length}
+                        page={gamesPage}
+                        onPageChange={(_, p) => setGamesPage(p)}
+                        rowsPerPage={COACH_GAMES_PAGE_SIZE}
+                        rowsPerPageOptions={[COACH_GAMES_PAGE_SIZE]}
+                        labelDisplayedRows={paginationLabelRows}
+                        labelRowsPerPage="Partidas por página:"
+                    />
+                )}
             </Paper>
         </Box>
     )

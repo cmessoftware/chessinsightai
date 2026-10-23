@@ -14,6 +14,7 @@ import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { COACH_RETURN_PARTIDAS } from '../components/coach/CoachSubNav.jsx'
 import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
+import { resolveCoachPlayerColor } from '../utils/coachPlayerColor.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
 import { loadCoachAnalysisCursor, saveCoachLastGameId } from '../utils/coachLastGameSession.js'
 import {
@@ -123,10 +124,7 @@ export default function CoachGameAnalysisPage() {
     }, [selectedId])
 
     const pack = detail?.review_pack
-    const playerColor =
-        (pack?.player_color || gameMeta?.player_color || 'white').toLowerCase() === 'black'
-            ? 'black'
-            : 'white'
+    const playerColor = resolveCoachPlayerColor(gameMeta, pack)
 
     const topAlerts = (
         <>

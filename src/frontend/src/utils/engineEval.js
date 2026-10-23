@@ -1,4 +1,6 @@
-/** Centipawns from player POV (mate → signed magnitude for charts). */
+import { parsePlayerColor } from './coachEngineLabels.js'
+
+/** Centipawns from score object (mate → signed magnitude for charts). */
 export function playerScoreToCp(playerScore) {
     if (!playerScore) return null
     if (playerScore.kind === 'mate' || playerScore.mate != null) {
@@ -15,7 +17,41 @@ export function playerScoreToCp(playerScore) {
     return cp != null && Number.isFinite(cp) ? cp : null
 }
 
-/** Format F07 review_pack player_score for display (player POV). */
+/**
+ * Lichess-style eval: + = blancas, − = negras (independiente del jugador analizado).
+ * @param {import('./coachEngineLabels.js').PlayerScore | null | undefined} playerScore
+ */
+export function toWhiteStandardScore(playerScore) {
+    if (!playerScore) return null
+    const pov =
+        playerScore.playerColor != null ? parsePlayerColor(playerScore.playerColor) : 'white'
+    if (pov === 'white') {
+        return { ...playerScore, playerColor: 'white' }
+    }
+    if (playerScore.kind === 'mate' || playerScore.mate != null) {
+        const m = playerScore.mate
+        return {
+            playerColor: 'white',
+            kind: 'mate',
+            cp: null,
+            mate: m != null ? -m : null,
+        }
+    }
+    const cp = playerScoreToCp(playerScore)
+    return {
+        playerColor: 'white',
+        kind: 'cp',
+        cp: cp != null ? -cp : null,
+        mate: null,
+    }
+}
+
+/** UI / PGN / gráfico: eval estándar (+ blancas, − negras). */
+export function formatStandardEval(playerScore) {
+    return formatPlayerEval(toWhiteStandardScore(playerScore))
+}
+
+/** Format numeric score (cp already in chosen POV). */
 export function formatPlayerEval(playerScore) {
     if (!playerScore) return '—'
     if (playerScore.kind === 'mate' || playerScore.mate != null) {
