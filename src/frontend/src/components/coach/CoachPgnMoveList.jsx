@@ -1,5 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Box, IconButton, Menu, MenuItem, Paper, Tooltip, Typography } from '@mui/material'
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    IconButton,
+    Menu,
+    MenuItem,
+    Paper,
+    TextField,
+    Tooltip,
+    Typography,
+} from '@mui/material'
+import ChatBubbleOutline from '@mui/icons-material/ChatBubbleOutline'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import {
@@ -21,6 +37,10 @@ import {
     pgnMoveTextSx,
     tokenizeVariationChain,
 } from '../../utils/coachPgnDisplay.js'
+import {
+    getPlyUserAnnotation,
+    PLY_USER_NAG_OPTIONS,
+} from '../../utils/coachPlyUserAnnotations.js'
 
 /** Scroll only the PGN list panel — avoid moving the document (keeps the board in view). */
 function scrollElementWithinScrollParent(scrollParent, element) {
@@ -160,9 +180,18 @@ function MoveMetrics({ fen, evalByFen }) {
     )
 }
 
-function InlineMove({ half, selected, onSelectPath, moveRef, italic, onMoveContextMenu, contextMeta }) {
+function InlineMove({
+    half,
+    selected,
+    onSelectPath,
+    moveRef,
+    italic,
+    onMoveContextMenu,
+    contextMeta,
+    commentTip = null,
+}) {
     if (!half?.san) return null
-    return (
+    const button = (
         <Box
             ref={selected ? moveRef : undefined}
             component="button"
@@ -195,6 +224,25 @@ function InlineMove({ half, selected, onSelectPath, moveRef, italic, onMoveConte
             {half.san}
         </Box>
     )
+    if (!commentTip) return button
+    return (
+        <Tooltip title={commentTip} enterDelay={400}>
+            {button}
+        </Tooltip>
+    )
+}
+
+function UserNagSuffix({ nag }) {
+    if (!nag) return null
+    return (
+        <Typography
+            component="span"
+            variant="body2"
+            sx={{ mx: 0.1, fontWeight: 600, userSelect: 'none' }}
+        >
+            {nag}
+        </Typography>
+    )
 }
 
 function moveNumAfterHalf(half, moveNum) {
@@ -211,8 +259,10 @@ function VariationMoveToken({
     evalByFen,
     activeRef,
     isBranchHead,
+    plyUserByPathKey,
 }) {
     const selected = isPathSelected(cursorPath, tok.half.path)
+    const userAnn = getPlyUserAnnotation(plyUserByPathKey, tok.half.path)
     return (
         <>
             <Typography
@@ -231,7 +281,9 @@ function VariationMoveToken({
                 italic={!tok.half.fromGame}
                 onMoveContextMenu={onMoveContextMenu}
                 contextMeta={{ isBranchHead }}
+                commentTip={userAnn?.comment || null}
             />
+            <UserNagSuffix nag={userAnn?.nag} />
             <EvalChip fen={tok.half.fen} evalByFen={evalByFen} />
             {!tok.half.fromGame && isBranchHead && onDeleteVariation && (
                 <Tooltip title="Quitar variante">
@@ -263,6 +315,7 @@ function VariationBranch({
     evalByFen,
     activeRef,
     layout = 'inline',
+    plyUserByPathKey,
 }) {
     const steps = branch.steps || (branch.chain || []).map((half) => ({ half, nested: [] }))
     let moveNum = startMoveNum
@@ -318,6 +371,7 @@ function VariationBranch({
                                 evalByFen={evalByFen}
                                 activeRef={activeRef}
                                 isBranchHead={stepIdx === 0}
+                                plyUserByPathKey={plyUserByPathKey}
                             />
                             {(step.nested || []).map((sub) => (
                                 <VariationBranch
@@ -332,6 +386,7 @@ function VariationBranch({
                                     evalByFen={evalByFen}
                                     activeRef={activeRef}
                                     layout={layout}
+                                    plyUserByPathKey={plyUserByPathKey}
                                 />
                             ))}
                         </React.Fragment>
@@ -355,6 +410,7 @@ function InlineVariations({
     evalByFen,
     activeRef,
     layout = 'inline',
+    plyUserByPathKey,
 }) {
     if (!branches?.length) return null
     return (
@@ -372,6 +428,7 @@ function InlineVariations({
                     evalByFen={evalByFen}
                     activeRef={activeRef}
                     layout={layout}
+                    plyUserByPathKey={plyUserByPathKey}
                 />
             ))}
         </>
@@ -397,10 +454,12 @@ function MoveHalfBlock({
     evalByFen,
     classificationByPathKey,
     onMoveContextMenu,
+    plyUserByPathKey,
 }) {
     if (!half) return null
     const classification = lookupClassification(classificationByPathKey, half.path)
     const showError = classification && isErrorEngineLabel(classification.engineLabel)
+    const userAnn = getPlyUserAnnotation(plyUserByPathKey, half.path)
     return (
         <Box
             component="span"
@@ -413,7 +472,9 @@ function MoveHalfBlock({
                 moveRef={moveRef}
                 onMoveContextMenu={onMoveContextMenu}
                 contextMeta={{ isBranchHead: false }}
+                commentTip={userAnn?.comment || null}
             />
+            <UserNagSuffix nag={userAnn?.nag} />
             {showError ? (
                 <Box component="span" sx={{ mx: 0.2, verticalAlign: 'middle', lineHeight: 0 }}>
                     <LabelBadge classification={classification} />
@@ -440,11 +501,14 @@ export default function CoachPgnMoveList({
     pathHasContinuations = null,
     rootPositionLabel = 'Posición inicial',
     sourcePgn = null,
+    plyUserByPathKey = null,
+    onPlyUserAnnotationChange = null,
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
     const scrollContainerRef = useRef(null)
     const [moveMenu, setMoveMenu] = useState(null)
+    const [commentEditor, setCommentEditor] = useState(null)
 
     useEffect(() => {
         scrollElementWithinScrollParent(scrollContainerRef.current, activeRef.current)
@@ -486,7 +550,10 @@ export default function CoachPgnMoveList({
     const closeMoveMenu = () => setMoveMenu(null)
 
     const handleCopyMainLine = useCallback(async () => {
-        const movetext = formatMainLinePgnMovetext(treeRoot, { result: mainLineResult })
+        const movetext = formatMainLinePgnMovetext(treeRoot, {
+            result: mainLineResult,
+            plyUserByPathKey,
+        })
         const text = buildPgnClipboardText(movetext, sourcePgn)
         if (!text) {
             closeMoveMenu()
@@ -498,10 +565,13 @@ export default function CoachPgnMoveList({
             /* clipboard denied — silent */
         }
         closeMoveMenu()
-    }, [treeRoot, mainLineResult, sourcePgn])
+    }, [treeRoot, mainLineResult, sourcePgn, plyUserByPathKey])
 
     const handleCopyWithVariations = useCallback(async () => {
-        const movetext = formatTreePgnMovetext(treeRoot, { result: mainLineResult })
+        const movetext = formatTreePgnMovetext(treeRoot, {
+            result: mainLineResult,
+            plyUserByPathKey,
+        })
         const text = buildPgnClipboardText(movetext, sourcePgn)
         if (!text) {
             closeMoveMenu()
@@ -513,7 +583,14 @@ export default function CoachPgnMoveList({
             /* clipboard denied */
         }
         closeMoveMenu()
-    }, [treeRoot, mainLineResult, sourcePgn])
+    }, [treeRoot, mainLineResult, sourcePgn, plyUserByPathKey])
+
+    const menuTargetHalf = moveMenu?.half
+    const menuCanAnnotate =
+        Boolean(onPlyUserAnnotationChange && menuTargetHalf?.path?.length)
+    const menuCurrentNag = menuCanAnnotate
+        ? getPlyUserAnnotation(plyUserByPathKey, menuTargetHalf.path)?.nag || ''
+        : ''
 
     const menuCanTruncate = moveMenu?.canTruncate
     const menuCanDeleteBranch = moveMenu?.canDeleteBranch
@@ -647,6 +724,7 @@ export default function CoachPgnMoveList({
                                             evalByFen={evalByFen}
                                             classificationByPathKey={classificationByPathKey}
                                             onMoveContextMenu={handleMoveContextMenu}
+                                            plyUserByPathKey={plyUserByPathKey}
                                         />
                                     )}
                                     <InlineVariations
@@ -658,6 +736,7 @@ export default function CoachPgnMoveList({
                                         onMoveContextMenu={handleMoveContextMenu}
                                         evalByFen={evalByFen}
                                         activeRef={activeRef}
+                                        plyUserByPathKey={plyUserByPathKey}
                                     />
                                     {row.black && (
                                         <MoveHalfBlock
@@ -668,6 +747,7 @@ export default function CoachPgnMoveList({
                                             evalByFen={evalByFen}
                                             classificationByPathKey={classificationByPathKey}
                                             onMoveContextMenu={handleMoveContextMenu}
+                                            plyUserByPathKey={plyUserByPathKey}
                                         />
                                     )}
                                     <InlineVariations
@@ -679,6 +759,7 @@ export default function CoachPgnMoveList({
                                         onMoveContextMenu={handleMoveContextMenu}
                                         evalByFen={evalByFen}
                                         activeRef={activeRef}
+                                        plyUserByPathKey={plyUserByPathKey}
                                     />
                                 </Box>
                             </Box>
@@ -744,7 +825,86 @@ export default function CoachPgnMoveList({
                         Quitar variante
                     </MenuItem>
                 )}
+                {menuCanAnnotate && (canCopyMainLine || menuCanTruncate || menuCanDeleteBranch) && (
+                    <Divider />
+                )}
+                {menuCanAnnotate &&
+                    PLY_USER_NAG_OPTIONS.map((opt) => (
+                        <MenuItem
+                            key={opt.value || 'none'}
+                            selected={menuCurrentNag === opt.value}
+                            sx={(theme) => pgnMoveTextSx(theme)}
+                            onClick={() => {
+                                onPlyUserAnnotationChange(menuTargetHalf.path, {
+                                    nag: opt.value || null,
+                                })
+                                closeMoveMenu()
+                            }}
+                        >
+                            {opt.label}
+                        </MenuItem>
+                    ))}
+                {menuCanAnnotate && (
+                    <MenuItem
+                        sx={(theme) => pgnMoveTextSx(theme)}
+                        onClick={() => {
+                            const existing = getPlyUserAnnotation(
+                                plyUserByPathKey,
+                                menuTargetHalf.path,
+                            )
+                            setCommentEditor({
+                                path: menuTargetHalf.path,
+                                san: menuTargetHalf.san,
+                                text: existing?.comment || '',
+                            })
+                            closeMoveMenu()
+                        }}
+                    >
+                        <ChatBubbleOutline fontSize="small" sx={{ mr: 1, opacity: 0.7 }} />
+                        Comentario…
+                    </MenuItem>
+                )}
             </Menu>
+            <Dialog
+                open={Boolean(commentEditor)}
+                onClose={() => setCommentEditor(null)}
+                fullWidth
+                maxWidth="sm"
+            >
+                <DialogTitle>
+                    Comentario
+                    {commentEditor?.san ? ` · ${commentEditor.san}` : ''}
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        multiline
+                        minRows={3}
+                        fullWidth
+                        margin="dense"
+                        label="Texto (PGN)"
+                        value={commentEditor?.text ?? ''}
+                        onChange={(e) =>
+                            setCommentEditor((prev) => (prev ? { ...prev, text: e.target.value } : prev))
+                        }
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setCommentEditor(null)}>Cancelar</Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            if (!commentEditor?.path) return
+                            onPlyUserAnnotationChange?.(commentEditor.path, {
+                                comment: commentEditor.text.trim() || null,
+                            })
+                            setCommentEditor(null)
+                        }}
+                    >
+                        Guardar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Paper>
     )
 }

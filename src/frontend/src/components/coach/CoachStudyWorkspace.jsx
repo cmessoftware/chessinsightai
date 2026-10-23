@@ -41,6 +41,12 @@ import {
 import { useMental1600Assessment } from '../../hooks/useMental1600Assessment.js'
 import { usePgnKeyboardNav } from '../../hooks/usePgnKeyboardNav.js'
 import { parseMoverEloFromGame } from '../../utils/coachPlayerElo.js'
+import { mainLineSignature } from '../../utils/coachClassificationSessionCache.js'
+import {
+    applyPlyUserAnnotationPatch,
+    loadPlyUserAnnotationsForScope,
+    savePlyUserAnnotationsForScope,
+} from '../../utils/coachPlyUserAnnotations.js'
 import { saveCoachAnalysisCursor } from '../../utils/coachLastGameSession.js'
 import { computeCapturedPiecesFromTree } from '../../utils/coachCapturedPieces.js'
 import {
@@ -92,6 +98,33 @@ export default function CoachStudyWorkspace({
     const boardKeyboardRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(420)
     const [pendingPgnAction, setPendingPgnAction] = useState(null)
+    const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
+
+    const plyUserAnnotationScopeKey = useMemo(() => {
+        if (gameId) return String(gameId)
+        if (!treeRoot?.fen) return null
+        return `local:${mainLineSignature(treeRoot)}`
+    }, [gameId, treeRoot])
+
+    useEffect(() => {
+        if (!plyUserAnnotationScopeKey) {
+            setPlyUserByPathKey({})
+            return
+        }
+        setPlyUserByPathKey(loadPlyUserAnnotationsForScope(plyUserAnnotationScopeKey))
+    }, [plyUserAnnotationScopeKey])
+
+    const handlePlyUserAnnotationChange = useCallback(
+        (path, patch) => {
+            if (!plyUserAnnotationScopeKey || !path?.length) return
+            setPlyUserByPathKey((prev) => {
+                const next = applyPlyUserAnnotationPatch(prev, path, patch)
+                savePlyUserAnnotationsForScope(plyUserAnnotationScopeKey, next)
+                return next
+            })
+        },
+        [plyUserAnnotationScopeKey],
+    )
 
     const pack = reviewCritical?.pack
     const criticalMode = Boolean(reviewCritical?.detail?.fen_before)
@@ -698,6 +731,8 @@ export default function CoachStudyWorkspace({
                         maxHeight={320}
                         rootPositionLabel={rootPositionLabel}
                         sourcePgn={sourcePgn ?? gameMeta?.pgn ?? null}
+                        plyUserByPathKey={plyUserByPathKey}
+                        onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
                     />
 
                     {decisionsPanel}
