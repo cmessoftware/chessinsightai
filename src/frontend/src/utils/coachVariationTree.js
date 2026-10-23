@@ -174,13 +174,16 @@ export function truncateLineForward(root, path) {
  * Play move from current path; reuses existing child or adds user variation.
  * Returns { tree, path, lastUci } or null if illegal.
  */
-export function applyMoveAtPath(root, path, { from, to, promotion = 'q' }) {
+export function applyMoveAtPath(root, path, { from, to, promotion } = {}) {
     const tree = cloneTree(root)
     const node = getNodeAtPath(tree, path)
     const chess = new Chess(node.fen)
     let played
     try {
-        played = chess.move({ from, to, promotion })
+        played =
+            promotion != null && promotion !== ''
+                ? chess.move({ from, to, promotion })
+                : chess.move({ from, to })
     } catch {
         return null
     }
