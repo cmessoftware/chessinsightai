@@ -102,6 +102,7 @@ export default function CoachStudyWorkspace({
     const [boardWidth, setBoardWidth] = useState(420)
     const [pendingPgnAction, setPendingPgnAction] = useState(null)
     const [pendingPromotion, setPendingPromotion] = useState(null)
+    const pendingPromotionRef = useRef(null)
     const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
 
     const plyUserAnnotationScopeKey = useMemo(() => {
@@ -265,7 +266,9 @@ export default function CoachStudyWorkspace({
             if (criticalMode) return false
             const choices = promotionChoicesForMove(boardFen, from, to)
             if (choices.length > 0) {
-                setPendingPromotion({ from, to, choices })
+                const pending = { from, to, choices }
+                pendingPromotionRef.current = pending
+                setPendingPromotion(pending)
                 return false
             }
             return applyBoardMove(from, to)
@@ -275,16 +278,24 @@ export default function CoachStudyWorkspace({
 
     const handlePromotionSelect = useCallback(
         (piece) => {
-            if (!pendingPromotion) return
-            applyBoardMove(pendingPromotion.from, pendingPromotion.to, piece)
+            const pending = pendingPromotionRef.current
+            if (!pending) return
+            applyBoardMove(pending.from, pending.to, piece)
+            pendingPromotionRef.current = null
             setPendingPromotion(null)
         },
-        [pendingPromotion, applyBoardMove],
+        [applyBoardMove],
     )
 
-    useEffect(() => {
+    const cancelPendingPromotion = useCallback(() => {
+        pendingPromotionRef.current = null
         setPendingPromotion(null)
-    }, [cursorPath, gameId, boardFen])
+    }, [])
+
+    useEffect(() => {
+        pendingPromotionRef.current = null
+        setPendingPromotion(null)
+    }, [cursorPath, gameId])
 
     const executeDeleteVariation = useCallback(
         (path) => {
@@ -547,7 +558,7 @@ export default function CoachStudyWorkspace({
                                             boardFen.split(/\s+/)[1] === 'b' ? 'black' : 'white'
                                         }
                                         onSelect={handlePromotionSelect}
-                                        onCancel={() => setPendingPromotion(null)}
+                                        onCancel={cancelPendingPromotion}
                                     />
                                 )}
                             </Box>
