@@ -235,6 +235,123 @@ Generación: `queued/running/completed/partial/failed/cancelled`. Validación: `
 
 Análisis/contratos → generador táctico → propuestas posicionales + Maia opcional.
 
+
+### 5.8 CI-STRAT-PLAY-05 — Ejercicios estratégicos con continuación (DRAFT)
+
+**Estado:** borrador de producto · 2026-10-25 · **Entrega posterior a la implementación del sparring CI-SPAR-01**. Extensión de CI-STRAT-02, no sustitución del generador táctico. Público inicial orientativo: jugadores de aproximadamente 1600+ Lichess, registrando plataforma y ritmo; no equivalencia con FIDE ni requisito rígido. Este apartado no autoriza implementar todo el módulo junto al sparring.
+
+#### 5.8.1 Problema y objetivo
+
+Una posición puede admitir varias continuaciones sólidas con evaluaciones cercanas. Acertar la primera del motor o reproducir la jugada de una partida no prueba que el alumno comprenda un plan. Entrenar una secuencia de decisiones: **contexto → diagnóstico/objetivo → candidatas → ejecución contra Maia → adaptación → revisión**.
+
+Distinguir contexto de la posición (estructura, actividad, recursos) del contexto del jugador (intención previa y expectativas). El historial permite reconstruir el primero y la evolución de la partida, pero no demuestra por sí solo qué pensaba su autor. Intenciones desconocidas permanecen desconocidas.
+
+No afirmar que posiciones aisladas, sintéticas o ejercicios tácticos carecen de utilidad. Esta modalidad aporta práctica de continuidad estratégica y transferencia, sin intentar duplicar una biblioteca masiva de tácticas. Antecedentes funcionales: cursos estratégicos con continuación contra computadora (Chess King), cursos de planes (ChessBase) y partidas recorridas por decisiones (ChessTempo). No se afirma novedad exclusiva ni evaluación semántica automática resuelta.
+
+#### 5.8.2 Modalidades y consignas
+
+| Modalidad | Consigna | Dimensiones de revisión |
+|---|---|---|
+| Ejecución de plan dado | El autor proporciona objetivo y restricciones; el alumno prepara y ejecuta | Coherencia de acciones, recursos rivales y adaptación; no atribuirle la elección inicial del objetivo |
+| Elección de plan | Diagnosticar y proponer objetivo antes de jugar | Diagnóstico, prioridades y justificación, además de ejecución |
+| Comparación de planes | Proponer dos caminos viables y justificar una elección | Concesiones, riesgos, posiciones resultantes y adecuación práctica |
+| Generación de candidatas | Aplicar un método indicado o elegido, comparar y descartar | Pertinencia, variedad útil, cálculo y razones de selección |
+| Revisión de plan | Tras una respuesta rival, mantener, modificar o abandonar la idea | Reconocimiento del cambio y justificación de la adaptación |
+
+Familias: ataque, simplificación, resistencia, profilaxis, mejora de piezas y conversión. Ejemplos: preparar líneas y piezas para atacar; elegir qué cambiar y qué conservar para un final favorable; buscar defensa activa en inferioridad; limitar un plan rival; mejorar una pieza sin conceder contrajuego. Condiciones y objetivos específicos por ejercicio, no reglas universales.
+
+Métodos de candidatas: acciones dirigidas al objetivo, mejora de la peor pieza, prevención del plan rival y exploración de jugadas forzantes. Registrar método declarado por candidata; no inferirlo por su notación. No exigir un número fijo si la posición no lo justifica. Solidez táctica y pertinencia al plan se evalúan por separado.
+
+#### 5.8.3 Contexto y autoría inicial
+
+Primera entrega con **selección y curación manual**; el sistema ayuda a conservar, ejecutar y revisar la actividad. Un autor define:
+- Fuente autorizada (partida propia, colección o sparring), posición raíz, bando y tramo previo visible.
+- Historial UCI/PGN desde FEN inicial y `history_complete`; marcar límites si falta historia.
+- Consigna, modalidad, objetivos/intermedios, restricciones, rúbrica y criterios de cierre.
+- Contexto público y comentarios privados/soluciones separados. Ocultar continuación histórica y análisis antes de la exposición permitida.
+- Horizonte breve configurable en jugadas propias (propuesta inicial 5–10, no umbral pedagógico validado), ritmo y configuración Maia.
+
+Permitir reproducir el tramo anterior y volver a la raíz sin ver el futuro. La continuación original es material de contraste posterior, nunca respuesta obligatoria. Desde una posición fija pueden existir varios planes aceptables. Seleccionar inicialmente casos sin remate táctico dominante en el horizonte analizado, con comprobación de motor y revisión humana; esto no garantiza ausencia absoluta de táctica.
+
+Reutilizar `PlanRevision` de la spec de planes/HITL; mapear la referencia conceptual `PlanVersion` de este documento, sin crear otro sistema de planes. Si falta ese módulo, guardar un snapshot mínimo compatible según §2.6.
+
+#### 5.8.4 Flujo de práctica
+
+1. Presentar contexto, consigna y ayudas disponibles; registrar exposición previa al ejercicio.
+2. Alumno registra objetivo (si no viene dado), candidatas, método y una justificación breve, antes del motor. Campos mínimos, sin obligar a redactar un ensayo por turno.
+3. Crear una sesión de sparring vinculada al intento y a la versión inmutable del ejercicio.
+4. Jugar contra Maia sin imponer la continuación histórica ni reemplazar sus respuestas con Stockfish. Configuración del rival estable y registrada.
+5. En checkpoints definidos por el autor (o solicitados por el alumno), registrar qué esperaba del rival y si mantiene/modifica/abandona el plan; crear revisión, no sobrescribir la intención inicial. Recordar una intención después de ver la respuesta se etiqueta como retrospectivo.
+6. Cerrar por horizonte, fin real de partida o interrupción. Fin de actividad por horizonte no equivale a victoria ni éxito estratégico; si sigue jugando, conservar el punto de cierre para la evaluación.
+7. Analizar decisiones y respuestas rivales; mostrar evidencia y solicitar autoevaluación. Revisión humana valora plan y adaptación, con estado pendiente si no se realiza.
+8. Permitir reintento como actividad vinculada con nueva exposición, no como primer intento autónomo.
+
+Política de reloj/checkpoints elegida antes de empezar y registrada; separar reflexión, pausa pedagógica y espera técnica. Tutor y antiimpulsividad, si están disponibles, siguen siendo independientes y opcionales; guardar su configuración y cada ayuda. No son dependencia de esta modalidad y no mezclar intentos asistidos con autónomos. Sus especificaciones se desarrollan por separado en PR #199.
+
+#### 5.8.5 Evaluación: evidencia automática y criterio humano
+
+| Aspecto | Responsable y límite |
+|---|---|
+| Legalidad, historial, tiempos y ayudas | Sistema |
+| Errores tácticos, candidatas y estabilidad de evaluación | Stockfish; presupuesto/perspectiva explícitos |
+| Segunda opinión de variantes | Lc0 opcional; no mezclar scores ni atribuirle comprensión del plan |
+| Plausibilidad de respuestas y rival de práctica | Maia; no árbitro de corrección |
+| Adecuación del plan, concesiones, adaptación y calidad de justificación | Revisión humana con rúbrica contextual |
+
+Rúbrica humana reutilizable 0–3 + null: diagnóstico, elección del objetivo, candidatas, recursos rivales, ejecución, adaptación y justificación; activar solo dimensiones pertinentes. Anclas: 0 incorrecto/ausente cuando era exigido; 1 parcial; 2 adecuado; 3 sólido según criterios del ejercicio. No evaluado = null; no mezclar con cero. Sin nota estratégica global automática.
+
+Aceptar varias candidatas sólidas; no marcar error solo por ranking o por no coincidir con el profesor. Una alternativa nueva puede requerir análisis/revisión, no rechazo inmediato. El autor no necesita enumerar todas las continuaciones posibles.
+
+Cambiar de plan justificadamente puede ser éxito. Una refutación de una ejecución no refuta automáticamente el objetivo completo. Ganar contra un error de Maia no valida el plan; perder una posición inferior no demuestra mala resistencia. Separar resultado, mérito del alumno, regalos del rival y dificultad observada.
+
+Presentación: plan original → decisiones ancladas al tablero → respuesta rival → revisiones → evidencia automática → dictamen humano. Evaluación de texto libre pendiente, sin LLM calificador, coincidencia por palabras clave ni equivalencia entre cp y comprensión.
+
+#### 5.8.6 Contratos conceptuales y trazabilidad
+
+Extender las entidades de §5.5; no crear un generador ni registro de alumnos paralelo:
+- `ExerciseVersion`: modalidad `strategic_playout`, contexto visible, referencia raíz/historial, plan dado opcional, métodos de candidatas, rúbrica, horizonte, checkpoints, política de reloj y política de ayudas.
+- `Attempt`: diagnóstico previo, candidatas/razones/métodos, revisión inicial del plan, sparring_session_id, exposición/ayudas y motivo/punto de cierre.
+- `DecisionCheckpoint`: attempt_id, session_id, ply/context_hash, expected_response?, plan_revision_before/after, decisión mantener/modificar/abandonar, razón, timestamps y marca de registro previo/retrospectivo.
+- `Assessment`: automático/humano, dimensión, rúbrica, evidencia, autor y estado; revisiones auditables según §§5–7.
+
+Reutilizar API de ejercicios, intentos y sesiones. Inicio de continuación idempotente: un reintento de la misma solicitud no crea otra sesión; nuevo reintento pedagógico crea nuevo Attempt enlazado. Validar que sesión, ejercicio, plan y posición correspondan al mismo intento/contexto. DTO alumno excluye respuestas futuras, rúbricas privadas y notas del autor. Permisos y vínculo instructor-alumno según §2.5 y §6.
+
+Práctica y registro propios BASE; autoría/asignación/revisión docente gestionada conserva política PRO de §6. Permitir notas propias identificadas como autoevaluación; no presentarlas como revisión experta. La ausencia de Instructor PRO no bloquea jugar un ejercicio disponible, pero tampoco fabrica un dictamen.
+
+#### 5.8.7 Generación y aprendizaje progresivos
+
+Sparring aporta dos roles: fuente de casos contextualizados (historial, decisiones, tiempos y planes registrados) y entorno de continuación. Tras validar la primera entrega manual, un selector determinista puede proponer momentos de cambio de plan o errores recurrentes **para curación**; señales de motor no generan automáticamente una interpretación estratégica cierta.
+
+Métricas iniciales: intentos completados/interrumpidos, ayudas, errores tácticos y evaluaciones humanas por dimensión con cobertura. Ganancias de cp, acierto de primera jugada y resultado de partida no sustituyen comprensión. Panel longitudinal PRO, si existe, añade retención/transferencia.
+
+Comparar progresivamente práctica desde la misma raíz, otras posiciones de la estructura y partidas completas. Marcar familiaridad/exposición; éxito repetido en una posición no prueba generalización. Sin obligación de A/B formal para probar utilidad en casos concretos.
+
+#### 5.8.8 Aceptación, dependencias y roadmap
+
+Precondiciones: sparring implementado con inicio por FEN/PGN, historial, persistencia/reanudación, cierre y análisis posterior; contratos de ejercicios/intentos y referencia compatible de planes. Lc0, tutor, antiimpulsividad, generación automática y panel PRO no son precondiciones.
+
+| Entrega | Alcance | Estado |
+|---|---|---|
+| STRAT-PLAY-01 | Curación manual, contexto y consignas; acordar rúbrica/ejemplos con experto | Draft post-sparring |
+| STRAT-PLAY-02 | Intento previo, candidatas y continuación Maia vinculada | Draft |
+| STRAT-PLAY-03 | Checkpoints y revisiones del plan, cierre y revisión con evidencia | Draft |
+| STRAT-PLAY-04 | Validación pedagógica en casos concretos; selector de casos y transferencia posteriores | Futuro condicionado |
+
+Criterios antes de considerar implementada la primera modalidad:
+1. Dos jugadas sólidas con planes distintos no se penalizan por ranking ni por diferir de la partida fuente.
+2. Contexto previo visible y continuación original oculta hasta revisión; historia incompleta explícita.
+3. Plan dado y elegido activan dimensiones diferentes; método/candidatas originales se conservan.
+4. Continuación Maia legal y reconstruible; reintento de API no duplica sesiones.
+5. Adaptación justificada es admisible; una revisión no borra el plan inicial.
+6. Horizonte agotado no produce victoria; error del rival no acredita comprensión.
+7. Texto/plan sin revisión permanece pendiente; fallo de motor no falla al alumno.
+8. Exposiciones, tutor/pausas y anotaciones retrospectivas quedan identificadas.
+9. Notas privadas y datos ajenos no se filtran; revisiones quedan ligadas al contexto correcto.
+10. Reintentos pedagógicos se distinguen de primera exposición.
+
+**Fuera de alcance inicial:** interpretación automática completa de planes, puntuación estratégica por motor, generación masiva sin curación, equivalencia Elo y promesas de mejora. El software modela primero una actividad observable y revisable; su utilidad debe comprobarse con alumnos y un instructor.
+
+
 ---
 
 ## 6. CI-INST-03 — Instructor (PRO)
@@ -375,6 +492,7 @@ Diccionario métricas → normalización → agregaciones → permisos → panel
 | 2 | CI-STRAT-02 contratos + generación táctica | EngineAnalysis compartido |
 | 3 | CI-SPAR-01 análisis post-partida | Jobs async existentes |
 | 4 | CI-STRAT-02 posicional + Maia señales | pending_human_review |
+| Post-sparring (draft) | CI-STRAT-PLAY-05, §5.8 | Ejercicios estratégicos con continuación; STRAT-PLAY-01…04; primero curación y revisión humana |
 | 5 | CI-INST-03 PRO | Puede adelantarse a métricas |
 | 6 | CI-PROGRESS-04 PRO | Consume eventos de 2–5 |
 
