@@ -85,7 +85,7 @@ Con top-k parcial: guardar cobertura; **no** normalizar como probabilidad comple
 
 Referencias: [Maia-3](https://github.com/CSSLab/maia3), [Maia-2](https://github.com/CSSLab/maia2) — verificar versión instalada.
 
-### 3.2 EngineAnalysis (Stockfish)
+### 3.2 EngineAnalysis (Stockfish / Lc0)
 
 Campos mínimos: `id`, `position_context_hash`, `provider`, `version`, `config`, `score_type`, `perspective`, `candidates`, `stability`, `status` (`pending` / `running` / `completed` / `uncertain` / `failed`).
 
@@ -95,7 +95,7 @@ Campos mínimos: `id`, `position_context_hash`, `provider`, `version`, `config`,
 
 ### 4.1 Objetivo
 
-Partidas completas o continuación desde posición contra Maia (nivel configurable). En modalidad sin tutor, Stockfish analiza **después** del juego. Con tutor opcional (§4.7), también revisa propuestas del alumno durante la partida; nunca altera las jugadas de Maia. Modos: partida normal, conversión, resistencia, ejecución de plan (plan versionado opcional). Independiente del generador de ejercicios; puede recibir posiciones de ejercicios y exportar sesiones como fuente de análisis.
+Partidas completas o continuación desde posición contra Maia (nivel configurable). En modalidad sin tutor, Stockfish analiza **después** del juego. Con tutor opcional (§4.7), el proveedor seleccionado (Stockfish/Lc0) revisa propuestas del alumno durante la partida; nunca altera las jugadas de Maia. Modos: partida normal, conversión, resistencia, ejecución de plan (plan versionado opcional). Independiente del generador de ejercicios; puede recibir posiciones de ejercicios y exportar sesiones como fuente de análisis.
 
 Excluye: entrenar modelos, adaptación de nivel en vivo, corrección automática de planes, equivalencia Elo entre plataformas.
 
@@ -157,7 +157,7 @@ Adaptador Maia → sesiones → tablero/fallos → análisis posterior → event
 
 ### 4.7 Tutor opcional durante la partida (BASE, ampliación posterior al MVP core)
 
-**Objetivo:** ofrecer asistencia durante el sparring: detectar una propuesta problemática del alumno, avisarle y permitirle reconsiderarla antes de que Maia responda. No requiere LLM ni el módulo Instructor PRO. Maia sigue siendo el rival; Stockfish es el tutor del alumno. Esta es una excepción explícita y acotada al análisis exclusivamente posterior de la modalidad sin tutor.
+**Objetivo:** ofrecer asistencia durante el sparring: detectar una propuesta problemática del alumno, avisarle y permitirle reconsiderarla antes de que Maia responda. No requiere LLM ni el módulo Instructor PRO. Maia sigue siendo el rival; Stockfish o Lc0 es el tutor del alumno según la configuración (§4.7.6). Esta es una excepción explícita y acotada al análisis exclusivamente posterior de la modalidad sin tutor.
 
 #### 4.7.1 Configuración
 
@@ -166,6 +166,7 @@ Configuración versionada, elegida al crear sesión y conservada en `tutor_confi
 | Opción | Comportamiento |
 |---|---|
 | Tutor activado | Desactivado por defecto; independiente del modo normal/conversión/resistencia/plan |
+| Proveedor | `stockfish` (default), `lc0` o `auto_context`; configuración y fallback explícitos según §4.7.6 |
 | Umbral de aviso | `loss_cp_threshold`, entero positivo configurable; propuesta inicial 150 cp, ajustable y no calibrada por Elo |
 | Eventos de mate | Política separada: avisar si la propuesta permite mate evitable o pierde un mate forzado detectado; no convertir mate a cp ni avisar solo por variar la distancia al mate |
 | Ayuda máxima | Solo aviso; aviso + evidencia; aviso + evidencia + alternativa. Por defecto solo aviso |
@@ -178,8 +179,8 @@ Los valores iniciales son decisiones de producto ajustables, no evidencia de fue
 #### 4.7.2 Flujo y ayudas
 
 1. Alumno propone una jugada legal. Queda **pendiente**, sin incorporarse al historial oficial ni activar Maia.
-2. Stockfish compara mejor candidata y propuesta desde la misma raíz, perspectiva y presupuesto. El backend conserva toda la evidencia; el cliente recibe solo lo autorizado.
-3. Sin disparador estable: confirmar automáticamente la propuesta. Con disparador: aviso neutral («Esta jugada puede perder ventaja. Revisá tu decisión»), inicialmente sin mostrar mejor jugada, evaluación ni variante.
+2. El proveedor efectivo compara mejor candidata y propuesta desde la misma raíz, perspectiva y presupuesto, usando sus propias unidades y umbrales (§4.7.6). El backend conserva toda la evidencia; el cliente recibe solo lo autorizado.
+3. Sin disparador estable: confirmar automáticamente la propuesta una vez satisfecho el control antiimpulsividad, si está habilitado (§4.8). Con disparador: aviso neutral («Esta jugada puede perder ventaja. Revisá tu decisión»), inicialmente sin mostrar mejor jugada, evaluación ni variante.
 4. Acciones: **mantener jugada**, **reconsiderar** si quedan intentos, o **pedir ayuda** hasta el nivel configurado. Mantener siempre es válido aunque el motor discrepe.
 5. Ayuda escalonada y a pedido: evidencia concreta mediante variante verificada y evaluación; luego alternativa del motor con continuación corta. Sin explicaciones estratégicas inventadas. Registrar cada nivel revelado.
 6. Reconsiderar vuelve a la posición anterior a la propuesta; guardar propuesta original y nuevas propuestas, aun si el alumno repite la misma jugada. No es un retroceso de una jugada ya confirmada.
@@ -192,7 +193,7 @@ Sin análisis disponible (timeout/fallo/inestabilidad): informar estado y permit
 
 Extender `SparringSession` con `tutor_config_snapshot` y `assistance_used`. Tutor habilitado y ayuda efectivamente recibida son indicadores diferentes; el modo asistido se distingue siempre en comparaciones.
 
-Añadir `TutorDecision`: id, session_id, expected_ply, position_context_hash, proposal_version, proposed_uci, attempt_index, analysis_ref, status, trigger_reason?, revealed_help_level, selected_action?, committed_move_ref?, request_id, timestamps y tiempos separados de reflexión/espera/diálogo. Preservar intentos inmutables; enlazar reemplazos, no sobrescribir la primera intención.
+Añadir `TutorDecision`: id, session_id, expected_ply, position_context_hash, proposal_version, proposed_uci, attempt_index, analysis_ref, secondary_analysis_refs?, requested_provider, effective_provider, routing_reason, fallback_reason?, status, trigger_reason?, revealed_help_level, selected_action?, committed_move_ref?, request_id, timestamps y tiempos separados de reflexión/espera/diálogo. Preservar intentos inmutables; enlazar reemplazos, no sobrescribir la primera intención.
 
 Contrato conceptual, adaptable al router existente:
 
@@ -225,6 +226,77 @@ Mostrar primera propuesta, jugada final, avisos recibidos, reconsideraciones y n
 9. Presupuesto y estabilidad se prueban con posiciones tácticas, sacrificios y scores de mate; sin afirmar certeza fuera del horizonte analizado.
 
 Entrega posterior al núcleo SPAR-01…12: contrato/configuración → evaluación de propuesta → diálogo y reloj → persistencia/eventos → revisión y pruebas. El plan de implementación vigente describe el MVP sin tutor; esta sección añade una fase posterior pendiente de desglosar en entregas. No implica funcionalidad ya implementada.
+
+
+#### 4.7.6 Selección de Stockfish o Lc0 como tutor
+
+| Selección | Uso y alcance |
+|---|---|
+| `stockfish` | Tutor general con comparación de candidatas y avisos tácticos; predeterminado |
+| `lc0` | Tutor elegido explícitamente para explorar decisiones posicionales/estratégicas; también compara jugadas y variantes, sin calificar automáticamente un plan |
+| `auto_context` | Stockfish por defecto; Lc0 cuando la sesión/ejercicio está etiquetada explícitamente como estratégica o ejecución de plan. Una alerta táctica estable de un chequeo Stockfish, si está disponible, tiene prioridad. Sin etiqueta, usar Stockfish |
+
+Enrutamiento determinista y versionado, sin inferir que una posición es estratégica solo porque no se detectó táctica. Seleccionar Lc0 no implica que sea superior en toda posición estratégica. Sus variantes son evidencia de motor, no una explicación ni validación del razonamiento del alumno; planes/texto conservan revisión humana según §2.6.
+
+- Guardar proveedor solicitado/efectivo, motivo de selección, versión de motor, hash de red/pesos, backend, presupuesto y contexto histórico. Reutilizar adaptador, cola y contratos Lc0 de la plataforma de análisis existente.
+- No promediar ni restar scores de motores distintos. Comparar propuesta y mejor candidata **dentro de cada proveedor** con igual perfil. `loss_cp_threshold` aplica al perfil Stockfish; Lc0 usa `loss_expected_score_threshold` configurable (propuesta inicial 0.10 en escala 0–1), con `E = P(win) + 0.5 * P(draw)` y `loss = max(0, E(best) - E(propuesta))`, desde el bando que mueve. Las probabilidades deben proceder de salidas WDL documentadas del adaptador y misma configuración. No derivarlas arbitrariamente de cp. Sin WDL comparable, no emitir aviso cuantitativo Lc0; informar análisis no disponible o aplicar fallback.
+- Preservar la política de mate tipada. Si el proveedor no informa mate, registrar esa capacidad como no disponible; no inferir mate de una probabilidad alta.
+- `tactical_guard_enabled` opcional añade chequeo Stockfish cuando el tutor efectivo es Lc0. Guardar evidencia separada. Alertas tácticas requieren evidencia estable; discrepancia entre motores sin refutación verificada → «motores discrepan», no condenar automáticamente el plan. El guard nunca modifica jugadas de Maia.
+- `fallback_provider = none | stockfish`, elegido antes de iniciar (default `none`). Lc0 sin red, recursos o timeout: informar indisponibilidad y aplicar solo el fallback autorizado, con proveedor efectivo visible. Sin fallback rige §4.7.2. No sustituir silenciosamente.
+- Perfiles de presupuesto por ritmo, con límites de latencia configurables y pausas de infraestructura separadas del tiempo de reflexión. Una consulta tardía no modifica una jugada confirmada. API rechaza configuraciones inválidas y muestra capacidades antes de iniciar.
+
+Aceptación adicional: selección manual Lc0, enrutamiento por etiqueta, prioridad táctica, fallback autorizado/no autorizado, perspectiva WDL para ambos colores, capacidades ausentes y desacuerdo sin mezcla de scores. Verificar con proveedor simulado y smoke Lc0 real; medir latencia y recursos antes de habilitarlo.
+
+### 4.8 Control antiimpulsividad configurable por ritmo (BASE)
+
+**Objetivo:** ayudar al alumno a realizar un chequeo antes de confirmar jugadas demasiado rápidas. Funciona con o sin tutor y sin motor: rapidez no equivale a error ni demuestra impulsividad. Desactivado por defecto; configuración independiente de §4.7.
+
+La búsqueda documental encontró antecedentes de clasificación temporal en `src/scripts/extract_move_times.py` y chequeos anti-blunder en `docs/ai_chess_coach_course/analysis/mental_model/anti_blunder.py` y `src/frontend/src/utils/coachMental1600.js`, pero no una especificación vigente del control preventivo por ritmo en sparring. Revisar su reutilización antes de implementar; no trasladar umbrales históricos sin validación.
+
+#### 4.8.1 Configuración y presets
+
+`anti_impulse_config_snapshot`: enabled, profile_version, mode (`reminder | enforced_pause`), min_think_ms, low_clock_ms, cooldown_plies, max_prompts_per_game, forced_move_exemption, checklist_enabled, time_control_snapshot y regla de selección del perfil. Campos temporales no negativos; límites enteros; rechazar valores inválidos.
+
+Presets iniciales de producto, editables y **no validados empíricamente**. Regla interna de selección: `T = base_seconds + 40 * increment_seconds`; no representa una clasificación oficial. Configuración exacta por ritmo (p. ej. 900+10) tiene prioridad sobre la banda; luego overrides explícitos del usuario.
+
+| Presupuesto T | Ejemplo | Tiempo mínimo de reflexión | Desactivar bloqueo/avisos si reloj ≤ | Modo inicial al habilitar |
+|---|---|---:|---:|---|
+| T < 180 s | 1+0 | 0 s | 15 s | Solo registro |
+| 180 ≤ T < 600 s | 5+0 | 2 s | 20 s | Recordatorio |
+| 600 ≤ T < 1800 s | 10+0; 15+10 | 5 s | 45 s | Recordatorio |
+| T ≥ 1800 s | 30+0 | 8 s | 60 s | Recordatorio |
+| Sin reloj | Práctica libre | 5 s | No aplica | Recordatorio |
+
+Default adicional: cooldown de 4 plies desde el último aviso, máximo 6 avisos por sesión; exención cuando solo existe una jugada legal. Cero segundos desactiva la intervención temporal. Ritmos con demoras, múltiples períodos o formato desconocido requieren perfil explícito; no interpretarlos como incremento Fischer.
+
+#### 4.8.2 Flujo, reloj e integración
+
+1. Medir tiempo activo de reflexión desde que el turno/tablero está disponible al alumno hasta la propuesta, sin tiempo del bot ni esperas de infraestructura. Backend controla reloj, presupuesto y unicidad; timestamp del cliente solo es telemetría auxiliar.
+2. Si el tiempo es menor al mínimo y no aplica exención, mostrar recordatorio genérico: «Revisá la amenaza rival, tus piezas expuestas y la respuesta a tu jugada». No señalar una amenaza concreta ni revelar evaluación.
+3. `reminder`: permitir confirmar inmediatamente o volver al tablero. `enforced_pause`: habilitar confirmación al completar el mínimo de **tiempo activo**, sin reiniciar el contador al cambiar candidata. El alumno puede reconsiderar mientras transcurre.
+4. El reloj sigue corriendo durante este control: es reflexión, no espera de motor. Si alcanza `low_clock_ms`, liberar inmediatamente cualquier bloqueo y suprimir nuevos avisos. Terminación por tiempo siempre prevalece.
+5. Solo una jugada legal, cooldown o límite agotado: omitir intervención y guardar motivo. Jaque o recaptura no son exenciones automáticas. Premoves, si existen, cuentan como propuesta rápida y pasan por la misma política.
+6. Orden obligatorio: propuesta legal → control antiimpulsividad → evaluación tutor si está habilitado → confirmación única → Maia. No lanzar motor ni pausar reloj del tutor antes de resolver el control temporal. Un reintento del tutor no reinicia el control antiimpulsividad del mismo turno.
+7. Checklist opcional de autodeclaración («amenaza rival», «piezas expuestas», «respuesta rival»); completarla no demuestra comprensión ni autoriza una calificación estratégica. No usar los detectores anti-blunder para filtrar avisos de este modo sin motor; eso constituiría ayuda posicional y pertenecería al tutor.
+8. Reconexión no reinicia contadores ni regala tiempo; conservar deadline/estado del reloj de servidor. Tiempo activo no instrumentado se marca desconocido, no cero. Sin telemetría fiable, no bloquear; registrar cobertura incompleta.
+
+#### 4.8.3 Persistencia, métricas y aceptación
+
+Reutilizar el pipeline de propuestas de §4.7.3 aun con tutor apagado; `/moves` tampoco puede eludir el control antiimpulsividad. Añadir estado `awaiting_self_check` y resolución `acknowledge_self_check`; servidor valida mínimo/exenciones antes de avanzar. Mantener una propuesta activa, versión e idempotencia. No crear un segundo historial de jugadas.
+
+Registrar `SelfCheckEvent`: session_id, ply, proposal_ref, config_version, active_think_ms?, clock_remaining_ms, prompt_shown, action, exemption_reason?, clock_policy, timestamps. Evento outbox `sparring.self_check_resolved`. Pausas/avisos se distinguen de ayudas de motor mediante `self_check_used`; etiquetar práctica con apoyo de proceso aunque no haya pistas ajedrecísticas.
+
+Métricas descriptivas: propuestas rápidas / turnos elegibles medidos; avisos aceptados/omitidos; cambios de candidata; error posterior de primera propuesta y de jugada final cuando haya análisis comparable. Separar por ritmo, perfil, apuro de tiempo y tutor. No contar esperar como éxito ni inferir mejora causal de la mera reducción de jugadas rápidas.
+
+Criterios de aceptación:
+1. Apagado no altera flujo; presets seleccionados correctamente en límites T=180/600/1800 y overrides 5+0, 10+0, 15+10.
+2. Recordatorio no obliga a esperar; pausa obligatoria respeta tiempo activo y se libera en apuro sin regalar tiempo.
+3. Única legal, cooldown y máximo de avisos se respetan; recaptura/jaque no omiten chequeo por sí solos.
+4. Tutor apagado funciona sin motores ni soluciones en payload; tutor encendido no duplica pausa, confirmación, incremento ni respuesta de Maia.
+5. Reconexión, doble clic, sustitución de candidata, reloj agotado y respuestas obsoletas mantienen consistencia.
+6. Cobertura desconocida no se trata como impulsividad; métricas separan apoyo de proceso y evidencia de motor.
+
+Entrega posterior al núcleo de sparring: presets/configuración → pipeline de propuestas y reloj → UI de autochequeo → eventos/métricas → pruebas. Puede entregarse antes del tutor y de Lc0.
 
 ---
 
@@ -450,7 +522,7 @@ Diccionario métricas → normalización → agregaciones → permisos → panel
 | 5 | CI-INST-03 PRO | Puede adelantarse a métricas |
 | 6 | CI-PROGRESS-04 PRO | Consume eventos de 2–5 |
 
-Paralelo posible: INST antes de PROGRESS; STRAT base no requiere PRO. Tutor opcional (§4.7): ampliación BASE posterior al núcleo de sparring, con evaluación Stockfish de propuestas; independiente de INST/PROGRESS.
+Paralelo posible: INST antes de PROGRESS; STRAT base no requiere PRO. Tutor opcional (§4.7): ampliación BASE posterior al núcleo de sparring, con evaluación Stockfish/Lc0 de propuestas y control antiimpulsividad (§4.8); independiente de INST/PROGRESS.
 
 ---
 
