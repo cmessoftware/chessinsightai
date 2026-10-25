@@ -1,11 +1,11 @@
 # ChessInsight — Sparring, ejercicios, instructor y progreso (Maia + Stockfish)
 
-**Documento unificado** · Fecha: 2026-10-18  
+**Documento unificado** · Fecha: 2026-10-18 · Actualizado: 2026-10-24  
 Reemplaza las fuentes Sparring (copias en [roadmap/deep_analysis/sources/](./roadmap/deep_analysis/sources/)) y los borradores 03/04 no restaurados.
 
 | ID | Edición | Contenido |
 |---|---|---|
-| **CI-SPAR-01** | BASE | Sparring con Maia; validación posterior con Stockfish |
+| **CI-SPAR-01** | BASE | Sparring con Maia; validación posterior con Stockfish; tutor opcional durante la partida (§4.7) |
 | **CI-STRAT-02** | BASE | Análisis estratégico y generación de ejercicios (táctico + posicional) |
 | **CI-INST-03** | PRO | Instructor: autoría, asignación, revisión |
 | **CI-PROGRESS-04** | PRO | Métricas longitudinales de progreso |
@@ -95,7 +95,7 @@ Campos mínimos: `id`, `position_context_hash`, `provider`, `version`, `config`,
 
 ### 4.1 Objetivo
 
-Partidas completas o continuación desde posición contra Maia (nivel configurable). Stockfish analiza **después** del juego; no altera jugadas del sparring. Modos: partida normal, conversión, resistencia, ejecución de plan (plan versionado opcional). Independiente del generador de ejercicios; puede recibir posiciones de ejercicios y exportar sesiones como fuente de análisis.
+Partidas completas o continuación desde posición contra Maia (nivel configurable). En modalidad sin tutor, Stockfish analiza **después** del juego. Con tutor opcional (§4.7), también revisa propuestas del alumno durante la partida; nunca altera las jugadas de Maia. Modos: partida normal, conversión, resistencia, ejecución de plan (plan versionado opcional). Independiente del generador de ejercicios; puede recibir posiciones de ejercicios y exportar sesiones como fuente de análisis.
 
 Excluye: entrenar modelos, adaptación de nivel en vivo, corrección automática de planes, equivalencia Elo entre plataformas.
 
@@ -103,7 +103,7 @@ Excluye: entrenar modelos, adaptación de nivel en vivo, corrección automática
 
 1. Origen: inicio, PGN/FEN, ejercicio.  
 2. Color, nivel, modo, ritmo, plan opcional → snapshot de config.  
-3. Jugar sin motor/probabilidades/soluciones; ayudas explícitas registradas.  
+3. Sin tutor: jugar sin motor/probabilidades/soluciones. Con tutor: revisar propuestas antes de confirmarlas según §4.7; ayudas explícitas registradas.  
 4. Jugadas + tiempo transaccionales.  
 5. Al terminar/cerrar → análisis Stockfish **asíncrono**.  
 6. Revisión: decisiones relevantes, evidencia, enlace a análisis. Horizonte de práctica agotado ≠ resultado de partida.
@@ -135,7 +135,7 @@ Eventos: `sparring.session_started`, `sparring.move_committed`, `sparring.sessio
 
 ### 4.4 UI
 
-Configuración, tablero, revisión posterior. Nivel solicitado/efectivo; no prometer Elo certificado.
+Configuración, tablero, revisión posterior. Nivel solicitado/efectivo; no prometer Elo certificado. Selector «Tutor» desactivado por defecto; configuración e interacción según §4.7.
 
 ### 4.5 Aceptación (SPAR)
 
@@ -146,13 +146,85 @@ Configuración, tablero, revisión posterior. Nivel solicitado/efectivo; no prom
 5. Perspectiva y mate/cp correctos.  
 6. Config rival estable en sesión.  
 7. Finales/repeticiones con historial; marcar incompleto.  
-8. Sin fuga de análisis durante juego.  
+8. Sin tutor: sin fuga de análisis durante juego. Con tutor: solo ayudas autorizadas por §4.7, registradas y sin revelar información adicional en los DTO.  
 9. Acceso ajeno denegado.  
 10. Proveedor simulado + smoke checkpoint real; medir latencia/memoria.
 
 ### 4.6 Entrega
 
 Adaptador Maia → sesiones → tablero/fallos → análisis posterior → eventos. Documentar config, pesos, licencias; no descargar pesos por turno; GPU opcional medida.
+
+
+### 4.7 Tutor opcional durante la partida (BASE, ampliación posterior al MVP core)
+
+**Objetivo:** ofrecer asistencia durante el sparring: detectar una propuesta problemática del alumno, avisarle y permitirle reconsiderarla antes de que Maia responda. No requiere LLM ni el módulo Instructor PRO. Maia sigue siendo el rival; Stockfish es el tutor del alumno. Esta es una excepción explícita y acotada al análisis exclusivamente posterior de la modalidad sin tutor.
+
+#### 4.7.1 Configuración
+
+Configuración versionada, elegida al crear sesión y conservada en `tutor_config_snapshot`; no cambiarla silenciosamente durante la partida.
+
+| Opción | Comportamiento |
+|---|---|
+| Tutor activado | Desactivado por defecto; independiente del modo normal/conversión/resistencia/plan |
+| Umbral de aviso | `loss_cp_threshold`, entero positivo configurable; propuesta inicial 150 cp, ajustable y no calibrada por Elo |
+| Eventos de mate | Política separada: avisar si la propuesta permite mate evitable o pierde un mate forzado detectado; no convertir mate a cp ni avisar solo por variar la distancia al mate |
+| Ayuda máxima | Solo aviso; aviso + evidencia; aviso + evidencia + alternativa. Por defecto solo aviso |
+| Reconsideraciones | `max_retries_per_turn`, entero ≥ 0; propuesta inicial 1. Agotado: confirmar o abandonar; nunca sustitución automática |
+| Presupuesto motor | Perfil versionado con timeout y comprobación de estabilidad; reutiliza `EngineAnalysis` |
+| Reloj | Pausa por análisis/diálogo del tutor; durante la elección inicial y reconsideración corre el reloj del alumno. Sesión etiquetada como entrenamiento asistido |
+
+Los valores iniciales son decisiones de producto ajustables, no evidencia de fuerza de juego. No penalizar por no elegir la primera del motor si la pérdida queda por debajo del umbral. Un sacrificio no activa un aviso por material entregado: se compara la evaluación de las candidatas bajo §2.1. Evidencia inestable → «análisis no concluyente», sin declarar error.
+
+#### 4.7.2 Flujo y ayudas
+
+1. Alumno propone una jugada legal. Queda **pendiente**, sin incorporarse al historial oficial ni activar Maia.
+2. Stockfish compara mejor candidata y propuesta desde la misma raíz, perspectiva y presupuesto. El backend conserva toda la evidencia; el cliente recibe solo lo autorizado.
+3. Sin disparador estable: confirmar automáticamente la propuesta. Con disparador: aviso neutral («Esta jugada puede perder ventaja. Revisá tu decisión»), inicialmente sin mostrar mejor jugada, evaluación ni variante.
+4. Acciones: **mantener jugada**, **reconsiderar** si quedan intentos, o **pedir ayuda** hasta el nivel configurado. Mantener siempre es válido aunque el motor discrepe.
+5. Ayuda escalonada y a pedido: evidencia concreta mediante variante verificada y evaluación; luego alternativa del motor con continuación corta. Sin explicaciones estratégicas inventadas. Registrar cada nivel revelado.
+6. Reconsiderar vuelve a la posición anterior a la propuesta; guardar propuesta original y nuevas propuestas, aun si el alumno repite la misma jugada. No es un retroceso de una jugada ya confirmada.
+7. Confirmación única y transaccional: incorporar únicamente la jugada elegida, aplicar incremento una sola vez y activar el turno de Maia. El tutor nunca modifica su selección.
+8. Al finalizar, análisis completo habitual y revisión que diferencia primera intención, correcciones y ayudas.
+
+Sin análisis disponible (timeout/fallo/inestabilidad): informar estado y permitir confirmar sin validación o cancelar la propuesta y reconsiderar dentro del límite. No marcarla como buena, no bloquear indefinidamente ni descontar espera de infraestructura. Preservar estado pendiente y reloj al reconectar; una sesión terminada invalida propuestas y respuestas tardías. Si se agota el reloj antes de una propuesta válida, prevalece la terminación por tiempo.
+
+#### 4.7.3 Datos y contrato
+
+Extender `SparringSession` con `tutor_config_snapshot` y `assistance_used`. Tutor habilitado y ayuda efectivamente recibida son indicadores diferentes; el modo asistido se distingue siempre en comparaciones.
+
+Añadir `TutorDecision`: id, session_id, expected_ply, position_context_hash, proposal_version, proposed_uci, attempt_index, analysis_ref, status, trigger_reason?, revealed_help_level, selected_action?, committed_move_ref?, request_id, timestamps y tiempos separados de reflexión/espera/diálogo. Preservar intentos inmutables; enlazar reemplazos, no sobrescribir la primera intención.
+
+Contrato conceptual, adaptable al router existente:
+
+```text
+POST /sparring/sessions/{id}/move-proposals
+GET  /sparring/sessions/{id}/move-proposals/{proposal_id}
+POST /sparring/sessions/{id}/move-proposals/{proposal_id}/resolve
+# resolve: keep | reconsider | request_help
+# writes: expected_ply + proposal_version + request_id
+```
+
+Una propuesta activa por turno; comprobar propietario, estado, versión y legalidad en backend. Reintentos idempotentes; conflictos obsoletos rechazados. `/moves` no puede saltarse el flujo cuando el tutor está habilitado: debe delegar o rechazar la escritura directa. El caso sin aviso confirma por el mismo mecanismo transaccional que `keep`.
+
+Eventos versionados: `sparring.tutor_warning_shown`, `sparring.tutor_help_revealed`, `sparring.tutor_decision_resolved`; reutilizar outbox. `sparring.move_committed` se emite una sola vez por jugada oficial.
+
+#### 4.7.4 Revisión y métricas
+
+Mostrar primera propuesta, jugada final, avisos recibidos, reconsideraciones y nivel de ayuda. Un aviso ya es ayuda aunque no revele solución. La corrección posterior no cuenta como acierto autónomo inicial. Separar sesiones con/sin tutor y, dentro de las asistidas, decisiones con/sin aviso. Conservar disponibilidad/cobertura del análisis: ausencia de aviso no prueba corrección si hubo fallo o incertidumbre. PGN principal contiene solo jugadas confirmadas; intentos y ayudas permanecen en el registro de sesión.
+
+#### 4.7.5 Criterios de aceptación y entrega
+
+1. Tutor apagado mantiene el flujo sin análisis en vivo ni filtración de soluciones.
+2. Pérdida estable por encima del umbral y eventos de mate activan el aviso correcto para ambos colores; debajo del umbral no hay aviso por mero ranking.
+3. Mantener confirma la propuesta original; reconsiderar conserva ambas intenciones y respeta el límite de intentos.
+4. Ayudas se revelan solo a pedido y dentro del límite; payload inicial no incluye soluciones ocultas.
+5. Maia responde solo después de confirmar; Stockfish nunca repara sus jugadas.
+6. Timeout/incertidumbre no se interpreta como corrección ni consume tiempo por espera; reconexión restaura propuesta y reloj.
+7. Doble clic, respuestas tardías, finalización concurrente y acceso ajeno no duplican jugadas/incrementos/eventos ni alteran la sesión.
+8. Métricas distinguen primera intención, decisión asistida y jugada final; fallo del tutor queda identificado.
+9. Presupuesto y estabilidad se prueban con posiciones tácticas, sacrificios y scores de mate; sin afirmar certeza fuera del horizonte analizado.
+
+Entrega posterior al núcleo SPAR-01…12: contrato/configuración → evaluación de propuesta → diálogo y reloj → persistencia/eventos → revisión y pruebas. El plan de implementación vigente describe el MVP sin tutor; esta sección añade una fase posterior pendiente de desglosar en entregas. No implica funcionalidad ya implementada.
 
 ---
 
@@ -341,7 +413,7 @@ Rúbrica versionada: distribución, mediana, n evaluado, n pendiente; **no** not
 
 ### 7.5 Partidas y sparring
 
-Oportunidades aprovechadas, recurrencia de errores (solo con denominador fiable), ejecución/adaptación de plan (valoración humana), conversión/resistencia separada de resultado y regalos del bot. Separar humano vs Maia, ritmo, nivel rival. CP auxiliar, no estrategia.
+Oportunidades aprovechadas, recurrencia de errores (solo con denominador fiable), ejecución/adaptación de plan (valoración humana), conversión/resistencia separada de resultado y regalos del bot. Separar humano vs Maia, ritmo, nivel rival. CP auxiliar, no estrategia. Para tutor opcional, aplicar §4.7.4: separar primera intención, ayudas y jugada final; no mezclar resultados asistidos con autónomos.
 
 ### 7.6 Temporal y UI
 
@@ -378,7 +450,7 @@ Diccionario métricas → normalización → agregaciones → permisos → panel
 | 5 | CI-INST-03 PRO | Puede adelantarse a métricas |
 | 6 | CI-PROGRESS-04 PRO | Consume eventos de 2–5 |
 
-Paralelo posible: INST antes de PROGRESS; STRAT base no requiere PRO.
+Paralelo posible: INST antes de PROGRESS; STRAT base no requiere PRO. Tutor opcional (§4.7): ampliación BASE posterior al núcleo de sparring, con evaluación Stockfish de propuestas; independiente de INST/PROGRESS.
 
 ---
 
