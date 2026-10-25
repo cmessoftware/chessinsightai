@@ -1,6 +1,6 @@
 # ChessInsight — Sparring, ejercicios, instructor y progreso (Maia + Stockfish)
 
-**Documento unificado** · Fecha: 2026-10-18 · Actualizado: 2026-10-24  
+**Documento unificado** · Fecha: 2026-10-18 · Actualizado: 2026-10-25  
 Reemplaza las fuentes Sparring (copias en [roadmap/deep_analysis/sources/](./roadmap/deep_analysis/sources/)) y los borradores 03/04 no restaurados.
 
 | ID | Edición | Contenido |
@@ -225,7 +225,7 @@ Mostrar primera propuesta, jugada final, avisos recibidos, reconsideraciones y n
 8. Métricas distinguen primera intención, decisión asistida y jugada final; fallo del tutor queda identificado.
 9. Presupuesto y estabilidad se prueban con posiciones tácticas, sacrificios y scores de mate; sin afirmar certeza fuera del horizonte analizado.
 
-Entrega posterior al núcleo SPAR-01…12: contrato/configuración → evaluación de propuesta → diálogo y reloj → persistencia/eventos → revisión y pruebas. El plan de implementación vigente describe el MVP sin tutor; esta sección añade una fase posterior pendiente de desglosar en entregas. No implica funcionalidad ya implementada.
+Entrega posterior al núcleo SPAR-01…12: contrato/configuración → evaluación de propuesta → diálogo y reloj → persistencia/eventos → revisión y pruebas. El plan de implementación distingue el MVP core sin tutor de las ampliaciones SPAR-16…20. No implica funcionalidad ya implementada.
 
 
 #### 4.7.6 Selección de Stockfish o Lc0 como tutor
@@ -282,22 +282,22 @@ Presets iniciales de producto, editables y **no validados empíricamente**. Regl
 | T ≥ 1800 s | 30+0 | 8 s | 60 s | Recordatorio |
 | Sin reloj | Práctica libre | 5 s | No aplica | Recordatorio |
 
-Default adicional: cooldown de 4 plies desde el último aviso, máximo 6 avisos por sesión; exención cuando solo existe una jugada legal. Cero segundos desactiva la intervención temporal. Ritmos con demoras, múltiples períodos o formato desconocido requieren perfil explícito; no interpretarlos como incremento Fischer.
+Default adicional en `reminder`: cooldown de 4 plies desde el último aviso y máximo 6 avisos por sesión. En `enforced_pause`, estos límites solo reducen recordatorios visuales: el mínimo sigue aplicándose a cada turno elegible. Exención configurable cuando solo existe una jugada legal. Cero segundos desactiva la intervención temporal. Ritmos con demoras, múltiples períodos o formato desconocido requieren perfil explícito; no interpretarlos como incremento Fischer.
 
 #### 4.8.2 Flujo, reloj e integración
 
 1. Medir tiempo activo de reflexión desde que el turno/tablero está disponible al alumno hasta la propuesta, sin tiempo del bot ni esperas de infraestructura. Backend controla reloj, presupuesto y unicidad; timestamp del cliente solo es telemetría auxiliar.
 2. Si el tiempo es menor al mínimo y no aplica exención, mostrar recordatorio genérico: «Revisá la amenaza rival, tus piezas expuestas y la respuesta a tu jugada». No señalar una amenaza concreta ni revelar evaluación.
-3. `reminder`: permitir confirmar inmediatamente o volver al tablero. `enforced_pause`: habilitar confirmación al completar el mínimo de **tiempo activo**, sin reiniciar el contador al cambiar candidata. El alumno puede reconsiderar mientras transcurre.
+3. `reminder`: permitir confirmar inmediatamente o volver al tablero. `enforced_pause`: conservar una propuesta pendiente editable/cancelable y ejecutarla automáticamente al completar N segundos totales de tiempo activo desde el inicio del turno, no N segundos adicionales desde cada intento. Si no hay propuesta al vencer el mínimo, ejecutar la siguiente propuesta legal sin demora adicional. Con tutor habilitado, al vencer el mínimo se envía primero al tutor y la ejecución queda sujeta a §4.7. El tablero mantiene la posición oficial y muestra por separado candidata y cuenta regresiva; Maia no responde a propuestas pendientes.
 4. El reloj sigue corriendo durante este control: es reflexión, no espera de motor. Si alcanza `low_clock_ms`, liberar inmediatamente cualquier bloqueo y suprimir nuevos avisos. Terminación por tiempo siempre prevalece.
-5. Solo una jugada legal, cooldown o límite agotado: omitir intervención y guardar motivo. Jaque o recaptura no son exenciones automáticas. Premoves, si existen, cuentan como propuesta rápida y pasan por la misma política.
+5. Solo una jugada legal con exención habilitada: omitir pausa y guardar motivo. Cooldown/límite de avisos solo omiten intervención en `reminder`; no eliminan la pausa obligatoria. Jaque o recaptura no son exenciones automáticas. Premoves, si existen, cuentan como propuesta rápida y pasan por la misma política.
 6. Orden obligatorio: propuesta legal → control antiimpulsividad → evaluación tutor si está habilitado → confirmación única → Maia. No lanzar motor ni pausar reloj del tutor antes de resolver el control temporal. Un reintento del tutor no reinicia el control antiimpulsividad del mismo turno.
 7. Checklist opcional de autodeclaración («amenaza rival», «piezas expuestas», «respuesta rival»); completarla no demuestra comprensión ni autoriza una calificación estratégica. No usar los detectores anti-blunder para filtrar avisos de este modo sin motor; eso constituiría ayuda posicional y pertenecería al tutor.
 8. Reconexión no reinicia contadores ni regala tiempo; conservar deadline/estado del reloj de servidor. Tiempo activo no instrumentado se marca desconocido, no cero. Sin telemetría fiable, no bloquear; registrar cobertura incompleta.
 
 #### 4.8.3 Persistencia, métricas y aceptación
 
-Reutilizar el pipeline de propuestas de §4.7.3 aun con tutor apagado; `/moves` tampoco puede eludir el control antiimpulsividad. Añadir estado `awaiting_self_check` y resolución `acknowledge_self_check`; servidor valida mínimo/exenciones antes de avanzar. Mantener una propuesta activa, versión e idempotencia. No crear un segundo historial de jugadas.
+Reutilizar el pipeline de propuestas de §4.7.3 aun con tutor apagado; `/moves` tampoco puede eludir el control antiimpulsividad. Añadir estado `awaiting_self_check` y resolución `acknowledge_self_check` para recordatorio. En pausa obligatoria, el servidor avanza automáticamente al vencer el mínimo y valida exenciones; un ack no permite eludirlo. Admitir actualización/cancelación versionada de propuesta. El timer de servidor usa la última propuesta vigente; carrera entre vencimiento y edición se resuelve transaccionalmente, rechazando cambios posteriores al commit. Desconexión explícita pausa ejecución automática hasta reanudar, sin congelar gratuitamente el reloj de partida; no ejecutar tras terminación. Mantener una propuesta activa, versión e idempotencia. No crear un segundo historial de jugadas.
 
 Registrar `SelfCheckEvent`: session_id, ply, proposal_ref, config_version, active_think_ms?, clock_remaining_ms, prompt_shown, action, exemption_reason?, clock_policy, timestamps. Evento outbox `sparring.self_check_resolved`. Pausas/avisos se distinguen de ayudas de motor mediante `self_check_used`; etiquetar práctica con apoyo de proceso aunque no haya pistas ajedrecísticas.
 
@@ -306,12 +306,57 @@ Métricas descriptivas: propuestas rápidas / turnos elegibles medidos; avisos a
 Criterios de aceptación:
 1. Apagado no altera flujo; presets seleccionados correctamente en límites T=180/600/1800 y overrides 5+0, 10+0, 15+10.
 2. Recordatorio no obliga a esperar; pausa obligatoria respeta tiempo activo y se libera en apuro sin regalar tiempo.
-3. Única legal, cooldown y máximo de avisos se respetan; recaptura/jaque no omiten chequeo por sí solos.
+3. Única legal y límites visuales se respetan; cooldown/máximo no eliminan el mínimo en `enforced_pause`. Recaptura/jaque no omiten chequeo por sí solos.
 4. Tutor apagado funciona sin motores ni soluciones en payload; tutor encendido no duplica pausa, confirmación, incremento ni respuesta de Maia.
 5. Reconexión, doble clic, sustitución de candidata, reloj agotado y respuestas obsoletas mantienen consistencia.
 6. Cobertura desconocida no se trata como impulsividad; métricas separan apoyo de proceso y evidencia de motor.
 
 Entrega posterior al núcleo de sparring: presets/configuración → pipeline de propuestas y reloj → UI de autochequeo → eventos/métricas → pruebas. Puede entregarse antes del tutor y de Lc0.
+
+
+#### 4.8.4 MVP de utilidad individual desde posiciones de apertura
+
+**Pregunta:** para este jugador, esta posición inicial y este ritmo, ¿exigir un mínimo de reflexión ayuda a reducir errores? Alcance descriptivo por casos concretos; no requiere experimento A/B formal, asignación aleatoria, significación estadística ni el módulo longitudinal PRO.
+
+Permitir crear un bloque de práctica reutilizable y lanzar varias sesiones contra Maia desde la misma posición de una variante a estudiar. Guardar `PracticeSetupVersion`: id/version, nombre de apertura/variante opcional, FEN de origen, secuencia UCI/PGN previa cuando exista, FEN resultante validada, history_complete, bando del alumno, ritmo, configuración Maia y perfil de análisis posterior. Cada sesión referencia esa versión y guarda sus snapshots de tutor y antiimpulsividad, incluido N efectivo y excepciones. Si solo se aporta FEN, explicitar historia incompleta. Las continuaciones de Maia pueden variar; no prometer partidas idénticas.
+
+Tutor y antiimpulsividad siguen siendo independientes en ambos sentidos (§4.8.0). Para observar específicamente la pausa, comparar sesiones del mismo alumno sin tutor; si lo usa, agruparlas por separado y mostrar ayudas. No mezclar alumno de 700 con otro nivel como si fueran un único caso.
+
+**Registro de propuestas:** conservar cada intento legal inmutable, timestamp, tiempo activo acumulado, reloj restante, orden/versión, sustitución/cancelación y motivo de resolución, incluso con tutor apagado. Una propuesta vigente por turno; referenciar la ejecutada. Registrar tiempo a primera propuesta y tiempo a ejecución por separado. Guardar eventos fuera del PGN principal: este incluye solo jugadas efectivamente ejecutadas. Análisis posterior puede evaluar primera y última propuesta desde la misma raíz; propuestas alternativas no se incorporan como jugadas reales.
+
+**Comparación mínima BASE:** tabla por sesión y agrupación por configuración, no un panel estadístico general:
+
+| Indicador | Definición |
+|---|---|
+| Blunders, errores e inexactitudes | Conteos separados, mutuamente excluyentes, y tasa = 100 × conteo / jugadas propias efectivamente evaluadas |
+| Precisión | Fórmula existente identificada y versionada; mismo motor/perfil. Si no está definida o no es comparable, mostrar no disponible |
+| Decisiones rápidas con tiempo disponible | Primera propuesta con tiempo activo < N de referencia y reloj > umbral de apuro; usar el mismo N de referencia para comparar pausa activada/desactivada |
+| Cambios de intención | Primera propuesta vs jugada final; comparar calidad solo si ambas tienen análisis estable comparable |
+| Coste temporal | Tiempo de reflexión/espera, apuros y terminaciones por tiempo |
+| Cobertura | Partidas, jugadas elegibles/evaluadas y casos inciertos/fallidos; nunca tratarlos como aciertos |
+
+Excluir del denominador las jugadas precargadas de apertura y las de Maia. Versionar umbrales de clasificación y análisis, mantenerlos iguales entre grupos; cambios de configuración generan grupos distintos. Agregar tasas a partir de conteos/denominadores, no promediar porcentajes de partidas con tamaños diferentes. Priorizar blunders/errores en niveles iniciales; inexactitudes como medida más sensible cuando disminuyan errores graves, sin cambiar silenciosamente la clasificación por Elo.
+
+Mostrar por separado posiciones/colores/ritmos/configuraciones Maia y tutor; ordenar sesiones por fecha para observar familiarización. Repetir posición reduce variabilidad pero también entrena esa variante: la comparación no demuestra causalidad ni generalización. No etiquetar toda jugada rápida como impulsiva. Éxito práctico = menos errores evitables sin coste excesivo de reloj, no solo esperar N segundos.
+
+Aceptación adicional:
+1. N=5 s, propuestas en segundos 1 y 3: solo se ejecuta la última al segundo 5; una cancelación deja el tablero sin jugada. Propuesta inicial después de N se ejecuta sin espera añadida.
+2. Ambos controles activos: vencimiento inicia tutor, nunca salta su revisión. Tutor apagado: ejecución sin consulta de motores.
+3. Conflicto timer/edición, reconexión, terminación por tiempo y reintentos no duplican commit, incremento ni turno Maia.
+4. Bloque PGN/FEN se reconstruye; prefijo no cuenta en métricas. Primera propuesta y ejecución quedan distinguibles aun sin tutor.
+5. Tasas usan solo decisiones propias evaluadas, datos incompletos se muestran aparte y grupos incompatibles no se mezclan.
+
+### 4.9 Evaluación de conceptos de apertura — futura, fuera del MVP
+
+Extensión de roadmap para evaluar aplicación contextual de principios, no memorización exacta de variantes ni coincidencia con la primera jugada del motor.
+
+Conceptos iniciales: desarrollo de piezas, control central, seguridad del rey, movimientos repetidos sin necesidad y exposición prematura de dama a ganancias de tiempo. Son señales que requieren contexto: maniobras necesarias, respuestas a amenazas, recapturas y retrasos justificados del enroque no son infracciones automáticas.
+
+Diseño futuro: catálogo/rúbrica versionados, oportunidades evaluables y evidencia por posición; separar observaciones automáticas de valoración humana. Usar estados `observed / needs_review / justified / not_applicable`; un conteo de movimientos de pieza no equivale a un error ni a comprensión conceptual. Sin evidencia suficiente o revisión requerida, mostrar pendiente. Reutilizar planes/HITL e Instructor donde aplique; no añadir un motor de calificación estratégica por cp o palabras clave.
+
+Progresión de validación: posición fija → otras posiciones de la misma apertura → partidas completas/otras estructuras. Registrar etapa para distinguir familiaridad local y transferencia. Delimitar la ventana de apertura de cada ejercicio o sesión explícitamente; no imponer un número universal de jugada.
+
+Entrega futura: definir rúbrica con experto → curar ejemplos y contraejemplos → prototipo de indicadores → revisión humana y prueba de transferencia. Criterios antes de activar: excepciones justificadas no penalizadas, no exigir libro, evidencia trazable y estados no evaluados distintos de cero. Sin fecha ni eficacia prometida.
 
 ---
 
@@ -536,6 +581,8 @@ Diccionario métricas → normalización → agregaciones → permisos → panel
 | 4 | CI-STRAT-02 posicional + Maia señales | pending_human_review |
 | 5 | CI-INST-03 PRO | Puede adelantarse a métricas |
 | 6 | CI-PROGRESS-04 PRO | Consume eventos de 2–5 |
+| Extensión BASE | Utilidad individual de pausa (§4.8.4) | Bloques desde apertura fija, intentos y comparación descriptiva; no depende de PRO |
+| Futuro | Conceptos de apertura (§4.9) | Rúbricas contextuales y transferencia; fuera del MVP |
 
 Paralelo posible: INST antes de PROGRESS; STRAT base no requiere PRO. Tutor opcional (§4.7): ampliación BASE posterior al núcleo de sparring, con evaluación Stockfish/Lc0 de propuestas y control antiimpulsividad (§4.8); independiente de INST/PROGRESS.
 
