@@ -576,15 +576,6 @@ export default function CoachStudyWorkspace({
                             returnTo={returnTo}
                         />
                         {!criticalMode && (
-                            <CoachPlyAnnotationPanel
-                                width={boardWidth}
-                                cursorPath={cursorPath}
-                                cursorSan={cursorSan}
-                                plyUserByPathKey={plyUserByPathKey}
-                                onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
-                            />
-                        )}
-                        {!criticalMode && (
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -634,6 +625,15 @@ export default function CoachStudyWorkspace({
                                     <LastPage />
                                 </IconButton>
                             </Box>
+                        )}
+                        {!criticalMode && (
+                            <CoachPlyAnnotationPanel
+                                width={boardWidth}
+                                cursorPath={cursorPath}
+                                cursorSan={cursorSan}
+                                plyUserByPathKey={plyUserByPathKey}
+                                onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
+                            />
                         )}
                         </Box>
                         {criticalMode && (
