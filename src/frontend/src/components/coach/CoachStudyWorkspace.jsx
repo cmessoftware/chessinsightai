@@ -31,6 +31,8 @@ import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
 import CoachEvalCpChart from './CoachEvalCpChart.jsx'
 import CoachPlyAnnotationPanel from './CoachPlyAnnotationPanel.jsx'
+import CoachPromotionPicker from './CoachPromotionPicker.jsx'
+import { promotionChoicesForMove } from '../../utils/coachPromotion.js'
 import { buildMainLineEvalCpSeries, mainLinePlyFromCursorPath } from '../../utils/coachEvalCpSeries.js'
 import { useLiveStockfishAnalysis } from '../../hooks/useLiveStockfishAnalysis.js'
 import { usePgnEvalCache } from '../../hooks/usePgnEvalCache.js'
@@ -99,6 +101,7 @@ export default function CoachStudyWorkspace({
     const boardKeyboardRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(420)
     const [pendingPgnAction, setPendingPgnAction] = useState(null)
+    const [pendingPromotion, setPendingPromotion] = useState(null)
     const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
 
     const plyUserAnnotationScopeKey = useMemo(() => {
@@ -245,20 +248,43 @@ export default function CoachStudyWorkspace({
         boardKeyboardRef.current?.focus({ preventScroll: true })
     }, [])
 
-    const handleBoardMove = useCallback(
-        ({ from, to }) => {
-            if (criticalMode) return false
-            const result = applyMoveAtPath(treeRoot, cursorPath, { from, to })
-            if (!result) {
-                return false
-            }
+    const applyBoardMove = useCallback(
+        (from, to, promotion) => {
+            const result = applyMoveAtPath(treeRoot, cursorPath, { from, to, promotion })
+            if (!result) return false
             exitCritical()
             setTreeRoot(result.tree)
             setCursorPath(result.path)
             return true
         },
-        [treeRoot, cursorPath, criticalMode, exitCritical, setTreeRoot, setCursorPath],
+        [treeRoot, cursorPath, exitCritical, setTreeRoot, setCursorPath],
     )
+
+    const handleBoardMove = useCallback(
+        ({ from, to }) => {
+            if (criticalMode) return false
+            const choices = promotionChoicesForMove(boardFen, from, to)
+            if (choices.length > 0) {
+                setPendingPromotion({ from, to, choices })
+                return false
+            }
+            return applyBoardMove(from, to)
+        },
+        [boardFen, criticalMode, applyBoardMove],
+    )
+
+    const handlePromotionSelect = useCallback(
+        (piece) => {
+            if (!pendingPromotion) return
+            applyBoardMove(pendingPromotion.from, pendingPromotion.to, piece)
+            setPendingPromotion(null)
+        },
+        [pendingPromotion, applyBoardMove],
+    )
+
+    useEffect(() => {
+        setPendingPromotion(null)
+    }, [cursorPath, gameId, boardFen])
 
     const executeDeleteVariation = useCallback(
         (path) => {
@@ -497,14 +523,34 @@ export default function CoachStudyWorkspace({
                             capturedByBlack={capturedPieces.capturedByBlack}
                             boardWidth={boardWidth}
                         >
-                            <ChessinsightBoard
-                                fen={boardFen}
-                                orientation={orientation}
-                                lastMove={lastMove}
-                                viewOnly={criticalMode}
-                                onMove={handleBoardMove}
-                                boardWidth={boardWidth}
-                            />
+                            <Box
+                                sx={{
+                                    position: 'relative',
+                                    width: boardWidth,
+                                    maxWidth: '100%',
+                                }}
+                            >
+                                <ChessinsightBoard
+                                    fen={boardFen}
+                                    orientation={orientation}
+                                    lastMove={lastMove}
+                                    viewOnly={criticalMode}
+                                    onMove={handleBoardMove}
+                                    boardWidth={boardWidth}
+                                />
+                                {pendingPromotion && !criticalMode && (
+                                    <CoachPromotionPicker
+                                        pending={pendingPromotion}
+                                        boardWidth={boardWidth}
+                                        orientation={orientation}
+                                        moverColor={
+                                            boardFen.split(/\s+/)[1] === 'b' ? 'black' : 'white'
+                                        }
+                                        onSelect={handlePromotionSelect}
+                                        onCancel={() => setPendingPromotion(null)}
+                                    />
+                                )}
+                            </Box>
                         </CoachCapturedPiecesStack>
                         <Box
                             sx={{
@@ -530,21 +576,12 @@ export default function CoachStudyWorkspace({
                             returnTo={returnTo}
                         />
                         {!criticalMode && (
-                            <CoachPlyAnnotationPanel
-                                width={boardWidth}
-                                cursorPath={cursorPath}
-                                cursorSan={cursorSan}
-                                plyUserByPathKey={plyUserByPathKey}
-                                onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
-                            />
-                        )}
-                        {!criticalMode && (
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
                                 sx={{ mt: 1, textAlign: 'center' }}
                             >
-                                Arrastrá piezas para probar variantes (solo esta sesión). Coronar: dama.
+                                Arrastrá piezas para probar variantes (solo esta sesión). Al coronar, elegí pieza en el tablero.
                             </Typography>
                         )}
                         {!criticalMode && (
@@ -588,6 +625,15 @@ export default function CoachStudyWorkspace({
                                     <LastPage />
                                 </IconButton>
                             </Box>
+                        )}
+                        {!criticalMode && (
+                            <CoachPlyAnnotationPanel
+                                width={boardWidth}
+                                cursorPath={cursorPath}
+                                cursorSan={cursorSan}
+                                plyUserByPathKey={plyUserByPathKey}
+                                onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
+                            />
                         )}
                         </Box>
                         {criticalMode && (
