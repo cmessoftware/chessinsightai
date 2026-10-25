@@ -253,6 +253,21 @@ Aceptación adicional: selección manual Lc0, enrutamiento por etiqueta, priorid
 
 La búsqueda documental encontró antecedentes de clasificación temporal en `src/scripts/extract_move_times.py` y chequeos anti-blunder en `docs/ai_chess_coach_course/analysis/mental_model/anti_blunder.py` y `src/frontend/src/utils/coachMental1600.js`, pero no una especificación vigente del control preventivo por ritmo en sparring. Revisar su reutilización antes de implementar; no trasladar umbrales históricos sin validación.
 
+#### 4.8.0 Tutor opcional e independiente
+
+Activar antiimpulsividad **no activa ni exige el tutor**. La UI muestra dos controles independientes: «Control antiimpulsividad» y «Tutor». Ambos se guardan por separado en la configuración de sesión.
+
+| Antiimpulsividad | Tutor | Comportamiento |
+|---|---|---|
+| Desactivada | Desactivado | Sparring normal; análisis posterior |
+| Activada | Desactivado | Solo control temporal y autochequeo genérico; sin consultas a motores durante el juego |
+| Desactivada | Activado | Revisión de propuestas por Stockfish/Lc0 según §4.7; sin pausa antiimpulsividad |
+| Activada | Activado | Primero control temporal; luego tutor Stockfish/Lc0 según §4.7.6 |
+
+El selector de proveedor aparece únicamente al habilitar el tutor. Deshabilitarlo no cambia los parámetros antiimpulsividad; habilitar antiimpulsividad no cambia el valor del control Tutor. El backend admite las cuatro combinaciones y no exige disponibilidad/configuración de Stockfish o Lc0 para iniciar o jugar con antiimpulsividad sin tutor. El análisis posterior conserva su ciclo independiente.
+
+Aceptación específica: crear y reanudar las cuatro combinaciones; con antiimpulsividad activa y tutor apagado, verificar cero llamadas de análisis a motores durante el juego, ausencia de pistas posicionales en respuestas y funcionamiento aunque ambos proveedores de tutor estén indisponibles. Con ambos activos, aplicar el orden y las reglas de reloj de §4.8.2.
+
 #### 4.8.1 Configuración y presets
 
 `anti_impulse_config_snapshot`: enabled, profile_version, mode (`reminder | enforced_pause`), min_think_ms, low_clock_ms, cooldown_plies, max_prompts_per_game, forced_move_exemption, checklist_enabled, time_control_snapshot y regla de selección del perfil. Campos temporales no negativos; límites enteros; rechazar valores inválidos.
