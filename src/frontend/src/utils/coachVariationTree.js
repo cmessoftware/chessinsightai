@@ -79,8 +79,11 @@ export function mainLineMovesFromTree(root) {
     let node = root
     let ply = 0
     const rootFen = root.fen
+    /** @type {number[]} */
+    let path = []
     while (node.children?.length > 0) {
         const child = node.children[0]
+        path = [...path, 0]
         const plyBefore = ply
         ply += 1
         const stm = sideToMoveAtPly(rootFen, plyBefore)
@@ -89,6 +92,7 @@ export function mainLineMovesFromTree(root) {
             san: child.san,
             color: stm,
             moveNumber: fullmoveNumberAtPly(rootFen, plyBefore),
+            path: [...path],
         })
         node = child
     }
