@@ -1,11 +1,11 @@
 # Issues · Plan de implementación — Sparring Maia (CI-SPAR-01)
 
 **Estado:** Planificación activa (post Phase 2 mínimo)  
-**Actualizado:** 2026-10-19  
+**Actualizado:** 2026-10-25  
 **Spec:** [spec_sparring_maia_stockfish_unificado.md](../../spec_sparring_maia_stockfish_unificado.md) §4 (BASE sparring)  
 **Arquitectura:** [architecture-sparring-maia-module.md](./architecture-sparring-maia-module.md) · [architecture-shared-analysis-platform.md](./architecture-shared-analysis-platform.md)
 
-**Estrategia (vigente):** MVP **solo sparring en vivo** (Maia servidor) + **Stockfish después** del `finish` (job async, procedencia `sparring`); sin SF corrigiendo jugadas Maia; sin LLM. Reutilizar cola/jobs y contrato `EngineAnalysis` de la plataforma compartida. Ejercicios (§5), instructor PRO (§6) y métricas (§7) **fuera** de este plan salvo hooks de eventos. Ramas: `feature/07_*` API/worker/Maia, `feature/11_*` UI tablero sparring.
+**Estrategia (núcleo MVP):** MVP **solo sparring en vivo** (Maia servidor) + **Stockfish después** del `finish` (job async, procedencia `sparring`); sin SF corrigiendo jugadas Maia; sin LLM. Reutilizar cola/jobs y contrato `EngineAnalysis` de la plataforma compartida. Ejercicios (§5), instructor PRO (§6) y métricas (§7) **fuera** de este plan salvo hooks de eventos. Ramas: `feature/07_*` API/worker/Maia, `feature/11_*` UI tablero sparring.
 
 **Superficie código esperada:** nuevo router `sparring` (o módulo Coach), adaptador Maia UCI, tablas sesión/movimiento, integración `module07` para análisis post-partida, componentes React tablero + config, eventos outbox.
 
@@ -38,6 +38,24 @@
 </tbody>
 </table>
 
+## Ampliaciones posteriores al núcleo MVP
+
+Tutor y antiimpulsividad son opcionales e independientes. Estas entregas son planificación, no funcionalidad implementada; la comparación básica BASE no requiere el panel longitudinal PRO.
+
+| ID | Dependencias | Entrega | Estado |
+|---|---|---|---|
+| SPAR-16 | SPAR-05, SPAR-07, SPAR-08 | Pipeline de propuestas versionadas: primera intención, sustitución/cancelación, timer servidor, ejecución única; sin depender del tutor | Todo |
+| SPAR-17 | SPAR-16 | Antiimpulsividad por ritmo (§4.8): recordatorio o mínimo N desde inicio de turno, ejecución diferida, apuro, reloj y excepciones; tutor independiente | Todo |
+| SPAR-18 | SPAR-16, SPAR-09 | Tutor opcional (§4.7): Stockfish/Lc0/auto_context, ayudas, fallback explícito y evidencia separada; sin modificar Maia | Todo |
+| SPAR-19 | SPAR-13, SPAR-17, SPAR-09, SPAR-10 | MVP utilidad individual (§4.8.4): bloque versionado desde apertura fija, análisis de intentos, tasas/precisión/cobertura por condición y coste temporal; sin A/B formal ni PRO | Todo |
+| SPAR-20 | SPAR-19; rúbrica experta | Futuro: conceptos de apertura (§4.9), indicadores contextuales, excepciones, revisión y transferencia a otras posiciones/partidas | Backlog futuro |
+
+SPAR-17 funciona sin SPAR-18. SPAR-18 puede funcionar sin SPAR-17. Sus pruebas deben cubrir las cuatro combinaciones, sin dependencia implícita entre controles.
+
+SPAR-19 compara dentro de cada jugador y de configuraciones equivalentes; registra aprendizaje por repetición y no promete causalidad/generalización. El PGN conserva la partida efectiva; eventos preservan intentos y tiempos. Las jugadas de apertura precargadas no entran en métricas.
+
+SPAR-20 evalúa desarrollo, centro, seguridad del rey, movimientos repetidos y exposición de dama **según contexto**, sin exigir repertorio memorizado ni inferir comprensión desde cp. Primero rúbrica/ejemplos/contraejemplos; después indicadores y revisión humana. Fuera del MVP y sin fecha comprometida.
+
 ### Resumen backlog
 
 <table>
@@ -45,12 +63,12 @@
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>⬜ Todo</td><td>SPAR-01…15</td></tr>
+<tr><td>⬜ Todo</td><td>SPAR-01…19</td></tr>
 </tbody>
 </table>
 
 **Orden sugerido (MVP):** SPAR-01 → SPAR-02 → SPAR-03 → SPAR-04 → SPAR-05 → SPAR-06 → SPAR-07 → SPAR-08 → SPAR-09 → SPAR-10 → SPAR-11 → SPAR-12 → SPAR-13.
 
-**Después del MVP:** SPAR-14 (modos avanzados) → integración STRAT/INST (spec §5–6) en planes separados → SPAR-15 si DEEP **C** está en prod.
+**Después del MVP:** SPAR-16 → SPAR-17 → SPAR-19 (con SPAR-13 y análisis posterior). SPAR-18 es independiente de la pausa. SPAR-20 queda en backlog futuro tras validar casos concretos. SPAR-14 (modos avanzados), integración STRAT/INST (spec §5–6) y SPAR-15 (si DEEP **C** está en prod) conservan sus dependencias propias.
 
 **Dependencia crítica:** SPAR-09 requiere pipeline Stockfish servidor estable (mínimo job partida o análisis críticas persistido).
