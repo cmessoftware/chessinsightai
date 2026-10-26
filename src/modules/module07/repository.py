@@ -22,6 +22,10 @@ from models.module07_models import (
     Module07PlyAnnotation,
 )
 from modules.game_import.master_games import master_game_id_from_pgn
+from modules.module07.coach_game_list_filters import (
+    CoachGameListFilters,
+    apply_coach_game_list_filters,
+)
 
 _TITLE_VS = re.compile(r"^(.+?)\s+vs\s+(.+)$", re.IGNORECASE)
 
@@ -253,17 +257,57 @@ def get_job(db: Session, job_id: str, owner_user_id: int) -> Module07AnalysisJob
     )
 
 
-def list_games(db: Session, owner_user_id: int) -> list[CoachGame]:
-    return (
+def list_games(
+    db: Session,
+    owner_user_id: int,
+    *,
+    filters: CoachGameListFilters | None = None,
+) -> list[CoachGame]:
+    query = (
         db.query(CoachGame)
+        .join(Games, CoachGame.master_game_id == Games.game_id)
         .options(
             joinedload(CoachGame.analysis_job),
             joinedload(CoachGame.master_game),
         )
         .filter(CoachGame.owner_user_id == owner_user_id)
-        .order_by(CoachGame.last_imported_at.desc(), CoachGame.created_at.desc())
+    )
+    if filters is not None and filters.has_any():
+        query = apply_coach_game_list_filters(query, filters=filters)
+    query = query.order_by(
+        CoachGame.last_imported_at.desc(), CoachGame.created_at.desc()
+    )
+    if filters is not None and filters.limit is not None:
+        query = query.offset(filters.offset).limit(filters.limit)
+    return query.all()
+
+
+def count_games(
+    db: Session,
+    owner_user_id: int,
+    *,
+    filters: CoachGameListFilters | None = None,
+) -> int:
+    query = (
+        db.query(CoachGame)
+        .join(Games, CoachGame.master_game_id == Games.game_id)
+        .filter(CoachGame.owner_user_id == owner_user_id)
+    )
+    if filters is not None and filters.has_any():
+        query = apply_coach_game_list_filters(query, filters=filters)
+    return int(query.count())
+
+
+def list_coach_corpus_types(db: Session, owner_user_id: int) -> list[str]:
+    """Distinct ``coach_games.corpus_type`` for advanced filter Fuente (FEAT-064)."""
+    rows = (
+        db.query(CoachGame.corpus_type)
+        .filter(CoachGame.owner_user_id == owner_user_id)
+        .distinct()
         .all()
     )
+    values = sorted({(r[0] or "").strip().lower() for r in rows if (r[0] or "").strip()})
+    return values
 
 
 def get_game(db: Session, game_id: str, owner_user_id: int) -> CoachGame | None:

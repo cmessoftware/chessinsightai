@@ -1,7 +1,9 @@
 # Mini-plan · Catálogo maestro `games`, naming Coach y navegador de partidas
 
-**Estado:** ✅ GC-1 … GC-3 en repo (migración GC-2: `alembic upgrade head` desde la raíz del repo)  
-**Última actualización catálogo:** 2026-10-09  
+> **Sync:** espejo en [`../designs/coach-games-catalog-unify-mini-plan.md`](../designs/coach-games-catalog-unify-mini-plan.md) (mismo contenido; enlaces desde el tracker).
+
+**Estado:** ✅ GC-1 … GC-3 en repo; **UI-G3** cubierto por FEAT-042 + FEAT-040 (Navegador legacy retirado). **UI-G2** → tracker **FEAT-063** en Coach → Partidas.  
+**Última actualización catálogo:** 2026-10-26  
 **Relacionado:** [06-phase-05-coach-ui-complete.md](../06-phase-05-coach-ui-complete.md) (UI-104+), [02-phase-01-coach-web-slice.md](../02-phase-01-coach-web-slice.md), [architecture-shared-analysis-platform.md](./architecture-shared-analysis-platform.md)  
 **Regla ramas:** un ítem por branch — [roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc)
 
@@ -49,9 +51,9 @@ Rutas y paquetes de producto hablan **Coach**; tablas SQL pueden migrarse por fa
 | **GC-3** | Cierre slim Coach: docs/código sin `module07_games`; datos huérfanos | P1 | ✅ Hecho | 2026-10-09 | `feature/11_132_coach_slim_game_row` | GC-2 |
 | **GC-4** | Renombre API/rutas/código: `module07` → `coach` (alias 1 release) | P1 | ⏳ Pendiente | — | `feature/11_133_coach_api_rename` | GC-2 |
 | **GC-5** | Renombre tablas SQL `module07_*` → `coach_*` (Alembic) | P2 | ⏳ Pendiente | — | `feature/11_134_coach_tables_rename` | GC-3, GC-4 |
-| **UI-G1** | Borrar partida(s) desde Navegador de Partidas | P1 | ⏳ Pendiente | — | `feature/11_135_games_delete` | GC-1 |
-| **UI-G2** | Filtros avanzados en Navegador (ver § Filtros) | P1 | ⏳ Pendiente | — | `feature/11_136_games_filters` | GC-1 |
-| **UI-G3** | Unificar UX: Coach → Partidas lista desde `games` (+ badge análisis) | P2 | ⏳ Pendiente | — | `feature/11_137_coach_list_master_games` | GC-2, UI-G2 |
+| **UI-G1** | Borrar partida(s) desde listado Partidas | P1 | ✅ Hecho (Coach) | 2026-10 | FEAT-017 / FEAT-043 | GC-1 |
+| **UI-G2** | Filtros avanzados (ver § Filtros) | P1 | ➡️ **FEAT-063** | 2026-10-26 | `feature/11_063_partidas_advanced_filters` | GC-2, FEAT-042 |
+| **UI-G3** | Unificar UX: Coach → Partidas lista desde `games` (+ badge análisis) | P2 | ✅ Hecho | 2026-10 | FEAT-042, FEAT-040 | GC-2 |
 
 **Leyenda estado:** ✅ Hecho · 🔄 En progreso · ⏳ Pendiente · 🚫 Bloqueado
 
@@ -154,13 +156,17 @@ Rutas y paquetes de producto hablan **Coach**; tablas SQL pueden migrarse por fa
 
 ---
 
+<a id="ui-g2"></a>
+
 ## UI-G2 — Filtros avanzados (Navegador de Partidas)
+
+> **2026-10:** El menú **Navegador de Partidas** (`GamesPage`, `/games`) quedó deprecado (FEAT-040). La spec de filtros se implementa en **Coach → Partidas** como **FEAT-063** (`CoachGamesPanel` + listado `/api/v1/module07/games` con query params). Los chips/categorías (FEAT-046) siguen siendo filtros rápidos; FEAT-063 añade panel de búsqueda avanzada.
 
 ### Campos UI
 
 | Filtro | Comportamiento |
 |--------|----------------|
-| **Fuente** | Select / multi-select; incluye **ANALYSIS** |
+| **Fuente** | Multi-select sobre **`coach_games.corpus_type`** (personal, fide, elite, …); FEAT-064 — no `games.source` |
 | **Jugador blancas** | Texto; wildcard `*` → SQL `ILIKE` |
 | **Jugador negras** | Idem |
 | **ECO** | Exacto o prefijo (ej. `B9*`) |
@@ -179,14 +185,16 @@ Rutas y paquetes de producto hablan **Coach**; tablas SQL pueden migrarse por fa
 
 ### API
 
-- Extender `GET /api/chess/games` query params (documentar en OpenAPI).
-- Paginación existente (`limit`/`offset`) sin cambios.
+- **Objetivo FEAT-063:** extender el listado Coach Partidas (`GET /api/v1/module07/games` → alias Coach) con query params; filtros sobre join `coach_games` + `games` maestro.
+- Referencia legacy (admin/corpus): `GET /api/chess/games` — misma semántica de params si se mantiene.
+- Paginación: alinear con FEAT-059 (`limit`/`offset` opcionales).
 
 ### Criterios de aceptación
 
-- [ ] Combinación fuente=ANALYSIS + ECO muestra subconjunto correcto.
+- [ ] Combinación fuente/corpus + ECO muestra subconjunto correcto en Coach Partidas.
 - [ ] Wildcard apertura `*gambit*` funciona.
-- [ ] Tests servicio `chess_service.get_games_list` con matrices mínimas AND/OR jugadores.
+- [ ] Tests backend listado Coach + Vitest filtros UI (mock API).
+- [ ] Coexiste con chips FEAT-046 (AND entre chip categoría y filtros avanzados activos).
 
 ---
 
@@ -222,8 +230,8 @@ Rutas y paquetes de producto hablan **Coach**; tablas SQL pueden migrarse por fa
 | Área | Hoy | Tras GC-* |
 |------|-----|-----------|
 | Ingest | `modules/module07/ingest.py`, `repository.py`, `game_import/coach_catalog.py` | + write `games`, `modules/coach/` (GC-4) |
-| Listado legacy | `services/chess_service.py`, `GamesPage.tsx` | GC-1, UI-G1, UI-G2 |
-| Listado Coach | `CoachGamesPanel.jsx`, `module07Service.js` | UI-G3, GC-4 |
+| Listado legacy | `services/chess_service.py`, `GamesPage.tsx` | Deprecado (FEAT-040); filtros admin opcional |
+| Listado Coach | `CoachGamesPanel.jsx`, `module07Service.js` | UI-G3 ✅, **FEAT-063** (UI-G2), GC-4 |
 
 ---
 

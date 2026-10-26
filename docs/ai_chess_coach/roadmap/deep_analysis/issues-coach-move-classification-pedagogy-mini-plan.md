@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)  
-**Actualizado:** 2026-10-19  
+**Actualizado:** 2026-10-26  
 
 > **Sync (obligatorio):** **Espejo** del canónico en [`../designs/issues-coach-move-classification-pedagogy-mini-plan.md`](../designs/issues-coach-move-classification-pedagogy-mini-plan.md). Cuerpo del tracker idéntico a `designs/`; mismo commit.
 
@@ -100,7 +100,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-058</td><td></td><td>Incluir la lista de Jobs en un panel colapsable y paginar a 5 items por página</td><td>✅ Done</td><td>HITL OK — <code>feature/11_167_feat_058_059_partidas_pagination</code></td></tr>
 <tr><td>FEAT-059</td><td></td><td>Paginar lista de partidas a 20 items por página</td><td>✅ Done</td><td>HITL OK — selección entre páginas</td></tr>
 <tr><td>BUG-060</td><td>FEAT-047</td><td>Gráfico cp saturado en ±100; mates (M1…) cerca de 0; escala ±2000 cp y <code>mateScoreToChartCp</code></td><td>✅ Done</td><td><code>playerScoreToChartCp</code></td></tr>
-<tr><td>FEAT-061</td><td></td><td>Agrera soporte para agregar comentarios por movida, incluida opcion para etieutar la movida (?,??,!!,!?,?!,-+,+-,==)</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-061</td><td></td><td>Agregar soporte para agregar comentarios por movida, incluida opción para etiquetar la movida (?,??,!!,!?,?!,-+,+-,==)</td><td>✅ Done</td><td>HITL OK — <code>CoachPlyAnnotationPanel</code> — <a href="https://github.com/cmessoftware/chessinsightai/pull/197">#197</a></td></tr>
+<tr><td>FEAT-062</td><td></td><td>Agregar soporte gráfico para elegir qué pieza coronar; desplegar menú con piezas sobre la casilla de coronación</td><td>✅ Done</td><td>HITL OK — <code>CoachPromotionPicker</code> — <a href="https://github.com/cmessoftware/chessinsightai/pull/198">#198</a></td></tr>
+<tr><td>FEAT-063</td><td>UI-G2</td><td>Filtros avanzados en <strong>Coach → Partidas</strong> (fuente, jugadores con <code>*</code>, ECO, apertura, fecha, resultado); AND/OR según [UI-G2](./coach-games-catalog-unify-mini-plan.md#ui-g2); API listado Coach con query params; complementa chips FEAT-046</td><td>✅ Done</td><td>HITL OK — <code>feature/11_065_partidas_opening_combo</code> (063–065); ver también FEAT-064/065</td></tr>
+<tr><td>FEAT-064</td><td>FEAT-063</td><td>Filtro <strong>Fuente</strong> en Partidas: usar <code>coach_games.corpus_type</code> (no <code>games.source</code>); API <code>corpus_types</code> + <code>GET …/games/corpus-types</code></td><td>✅ Done</td><td>HITL OK — <code>feature/11_064_partidas_fuente_corpus_type</code>; etiquetas corpus sin traducción</td></tr>
+<tr><td>FEAT-065</td><td>FEAT-063</td><td>Catálogo ECO+nombre; combo <strong>Aperturas</strong> (<code>ECO — name</code>); wildcards en ECO y descripción; al elegir fila filtrar <code>games.eco</code> <strong>o</strong> <code>games.opening</code> (OR); ECO manual opcional sin catálogo</td><td>✅ Done</td><td>HITL OK — <code>feature/11_065_partidas_opening_combo</code>; JSON Lichess CC0 + <code>opening_eco_or</code></td></tr>
 </tbody>
 </table>
 

@@ -145,6 +145,12 @@ export function formatCoachCatalogSource(game) {
     return value ? String(value) : '—'
 }
 
+/** Display ``coach_games.corpus_type`` as stored (no UI translation). */
+export function formatCoachCorpusType(raw) {
+    const value = String(raw ?? '').trim()
+    return value || '—'
+}
+
 /** Standard ECO codes (e.g. C55, B90); some sources store opening URLs in ``eco``. */
 const ECO_CODE_RE = /^[A-E]\d{2}(?:\/\d+)?$/i
 
