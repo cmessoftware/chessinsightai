@@ -100,8 +100,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-058</td><td></td><td>Incluir la lista de Jobs en un panel colapsable y paginar a 5 items por página</td><td>✅ Done</td><td>HITL OK — <code>feature/11_167_feat_058_059_partidas_pagination</code></td></tr>
 <tr><td>FEAT-059</td><td></td><td>Paginar lista de partidas a 20 items por página</td><td>✅ Done</td><td>HITL OK — selección entre páginas</td></tr>
 <tr><td>BUG-060</td><td>FEAT-047</td><td>Gráfico cp saturado en ±100; mates (M1…) cerca de 0; escala ±2000 cp y <code>mateScoreToChartCp</code></td><td>✅ Done</td><td><code>playerScoreToChartCp</code></td></tr>
-<tr><td>FEAT-061</td><td></td><td>Agregar soporte para agregar comentarios por movida, incluida opcion para etieutar la movida (?,??,!!,!?,?!,-+,+-,==)</td><td>✅ Done</td><td>HITL OK — <code>CoachPlyAnnotationPanel</code></td></tr>
-<tr><td>FEAT-062</td><td></td><td>Agregar soporte grafico para elegir que pieza coronar, deplezar menu con piezas a elegir sobre la casilla de conronación</td><td>✅ Done</td><td>HITL OK — <code>CoachPromotionPicker</code></td></tr>
+<tr><td>FEAT-061</td><td></td><td>Agrera soporte para agregar comentarios por movida, incluida opcion para etieutar la movida (?,??,!!,!?,?!,-+,+-,==)</td><td>✅ Done</td><td>HITL OK — <code>CoachPlyAnnotationPanel</code></td></tr>
 </tbody>
 </table>
 
