@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from pydantic import field_validator
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -48,6 +48,8 @@ from modules.module07.repository import (
     get_game,
     get_job,
     list_decisions_for_game,
+    count_games,
+    list_coach_corpus_types,
     list_games,
     list_jobs,
     list_ply_annotations_for_game,
@@ -70,6 +72,7 @@ from modules.game_import.coach_catalog import (
 )
 from modules.game_import.master_games import master_game_id_from_pgn
 from modules.game_import.metadata import resolve_corpus_type
+from modules.module07.coach_game_list_filters import CoachGameListFilters
 
 router = APIRouter(prefix="/api/v1/module07", tags=["module07"])
 
@@ -355,10 +358,83 @@ def repair_coach_catalog(request: Request, db: Session = Depends(get_db)):
     }
 
 
-@router.get("/games")
-def get_games(request: Request, db: Session = Depends(get_db)):
+@router.get("/games/corpus-types")
+def get_coach_corpus_types(request: Request, db: Session = Depends(get_db)):
+    """Distinct ``coach_games.corpus_type`` for Fuente filter (FEAT-064)."""
     owner = _owner_id(request)
-    return {"games": [_game_json(r) for r in list_games(db, owner)]}
+    return {"corpus_types": list_coach_corpus_types(db, owner)}
+
+
+@router.get("/games")
+def get_games(
+    request: Request,
+    db: Session = Depends(get_db),
+    corpus_type: Optional[str] = Query(None, description="Single corpus_type (Fuente)."),
+    corpus_types: Optional[list[str]] = Query(
+        None, description="Multi corpus_type; repeat param or comma-separated."
+    ),
+    source: Optional[str] = Query(None, description="Deprecated alias of corpus_type."),
+    sources: Optional[list[str]] = Query(
+        None, description="Deprecated alias of corpus_types."
+    ),
+    white_player: Optional[str] = Query(None),
+    black_player: Optional[str] = Query(None),
+    eco: Optional[str] = Query(None),
+    opening: Optional[str] = Query(None),
+    opening_eco_or: bool = Query(
+        False,
+        description="When eco and opening are both set, match either column (FEAT-065).",
+    ),
+    date_from: Optional[str] = Query(None, description="YYYY-MM-DD or YYYY.MM.DD"),
+    date_to: Optional[str] = Query(None),
+    result: Optional[list[str]] = Query(None, alias="result"),
+    results: Optional[list[str]] = Query(None),
+    limit: Optional[int] = Query(None, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+):
+    owner = _owner_id(request)
+    expanded_corpus: list[str] = []
+    if corpus_types:
+        for item in corpus_types:
+            expanded_corpus.extend(
+                part.strip() for part in str(item).split(",") if part.strip()
+            )
+    expanded_sources: list[str] = []
+    if sources:
+        for item in sources:
+            expanded_sources.extend(
+                part.strip() for part in str(item).split(",") if part.strip()
+            )
+    filters = CoachGameListFilters.from_query(
+        corpus_types=expanded_corpus or None,
+        corpus_type=corpus_type,
+        sources=expanded_sources or None,
+        source=source,
+        white_player=white_player,
+        black_player=black_player,
+        eco=eco,
+        opening=opening,
+        opening_eco_or=opening_eco_or,
+        date_from=date_from,
+        date_to=date_to,
+        result=result,
+        results=results,
+        limit=limit,
+        offset=offset,
+    )
+    rows = list_games(db, owner, filters=filters)
+    if filters.has_any() or filters.limit is not None:
+        total = count_games(db, owner, filters=filters)
+    else:
+        total = len(rows)
+    payload: dict[str, Any] = {
+        "games": [_game_json(r) for r in rows],
+        "total": total,
+        "offset": filters.offset,
+    }
+    if filters.limit is not None:
+        payload["limit"] = filters.limit
+    return payload
 
 
 class BulkDeleteGamesBody(BaseModel):

@@ -21,6 +21,7 @@ import {
     pgnMoveTextSx,
     tokenizeVariationChain,
 } from '../../utils/coachPgnDisplay.js'
+import { getPlyUserAnnotation } from '../../utils/coachPlyUserAnnotations.js'
 
 /** Scroll only the PGN list panel — avoid moving the document (keeps the board in view). */
 function scrollElementWithinScrollParent(scrollParent, element) {
@@ -160,9 +161,18 @@ function MoveMetrics({ fen, evalByFen }) {
     )
 }
 
-function InlineMove({ half, selected, onSelectPath, moveRef, italic, onMoveContextMenu, contextMeta }) {
+function InlineMove({
+    half,
+    selected,
+    onSelectPath,
+    moveRef,
+    italic,
+    onMoveContextMenu,
+    contextMeta,
+    commentTip = null,
+}) {
     if (!half?.san) return null
-    return (
+    const button = (
         <Box
             ref={selected ? moveRef : undefined}
             component="button"
@@ -195,6 +205,25 @@ function InlineMove({ half, selected, onSelectPath, moveRef, italic, onMoveConte
             {half.san}
         </Box>
     )
+    if (!commentTip) return button
+    return (
+        <Tooltip title={commentTip} enterDelay={400}>
+            {button}
+        </Tooltip>
+    )
+}
+
+function UserNagSuffix({ nag }) {
+    if (!nag) return null
+    return (
+        <Typography
+            component="span"
+            variant="body2"
+            sx={{ mx: 0.1, fontWeight: 600, userSelect: 'none' }}
+        >
+            {nag}
+        </Typography>
+    )
 }
 
 function moveNumAfterHalf(half, moveNum) {
@@ -211,8 +240,10 @@ function VariationMoveToken({
     evalByFen,
     activeRef,
     isBranchHead,
+    plyUserByPathKey,
 }) {
     const selected = isPathSelected(cursorPath, tok.half.path)
+    const userAnn = getPlyUserAnnotation(plyUserByPathKey, tok.half.path)
     return (
         <>
             <Typography
@@ -231,7 +262,9 @@ function VariationMoveToken({
                 italic={!tok.half.fromGame}
                 onMoveContextMenu={onMoveContextMenu}
                 contextMeta={{ isBranchHead }}
+                commentTip={userAnn?.comment || null}
             />
+            <UserNagSuffix nag={userAnn?.nag} />
             <EvalChip fen={tok.half.fen} evalByFen={evalByFen} />
             {!tok.half.fromGame && isBranchHead && onDeleteVariation && (
                 <Tooltip title="Quitar variante">
@@ -263,6 +296,7 @@ function VariationBranch({
     evalByFen,
     activeRef,
     layout = 'inline',
+    plyUserByPathKey,
 }) {
     const steps = branch.steps || (branch.chain || []).map((half) => ({ half, nested: [] }))
     let moveNum = startMoveNum
@@ -318,6 +352,7 @@ function VariationBranch({
                                 evalByFen={evalByFen}
                                 activeRef={activeRef}
                                 isBranchHead={stepIdx === 0}
+                                plyUserByPathKey={plyUserByPathKey}
                             />
                             {(step.nested || []).map((sub) => (
                                 <VariationBranch
@@ -332,6 +367,7 @@ function VariationBranch({
                                     evalByFen={evalByFen}
                                     activeRef={activeRef}
                                     layout={layout}
+                                    plyUserByPathKey={plyUserByPathKey}
                                 />
                             ))}
                         </React.Fragment>
@@ -355,6 +391,7 @@ function InlineVariations({
     evalByFen,
     activeRef,
     layout = 'inline',
+    plyUserByPathKey,
 }) {
     if (!branches?.length) return null
     return (
@@ -372,6 +409,7 @@ function InlineVariations({
                     evalByFen={evalByFen}
                     activeRef={activeRef}
                     layout={layout}
+                    plyUserByPathKey={plyUserByPathKey}
                 />
             ))}
         </>
@@ -397,10 +435,12 @@ function MoveHalfBlock({
     evalByFen,
     classificationByPathKey,
     onMoveContextMenu,
+    plyUserByPathKey,
 }) {
     if (!half) return null
     const classification = lookupClassification(classificationByPathKey, half.path)
     const showError = classification && isErrorEngineLabel(classification.engineLabel)
+    const userAnn = getPlyUserAnnotation(plyUserByPathKey, half.path)
     return (
         <Box
             component="span"
@@ -413,7 +453,9 @@ function MoveHalfBlock({
                 moveRef={moveRef}
                 onMoveContextMenu={onMoveContextMenu}
                 contextMeta={{ isBranchHead: false }}
+                commentTip={userAnn?.comment || null}
             />
+            <UserNagSuffix nag={userAnn?.nag} />
             {showError ? (
                 <Box component="span" sx={{ mx: 0.2, verticalAlign: 'middle', lineHeight: 0 }}>
                     <LabelBadge classification={classification} />
@@ -440,6 +482,7 @@ export default function CoachPgnMoveList({
     pathHasContinuations = null,
     rootPositionLabel = 'Posición inicial',
     sourcePgn = null,
+    plyUserByPathKey = null,
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
@@ -486,7 +529,10 @@ export default function CoachPgnMoveList({
     const closeMoveMenu = () => setMoveMenu(null)
 
     const handleCopyMainLine = useCallback(async () => {
-        const movetext = formatMainLinePgnMovetext(treeRoot, { result: mainLineResult })
+        const movetext = formatMainLinePgnMovetext(treeRoot, {
+            result: mainLineResult,
+            plyUserByPathKey,
+        })
         const text = buildPgnClipboardText(movetext, sourcePgn)
         if (!text) {
             closeMoveMenu()
@@ -498,10 +544,13 @@ export default function CoachPgnMoveList({
             /* clipboard denied — silent */
         }
         closeMoveMenu()
-    }, [treeRoot, mainLineResult, sourcePgn])
+    }, [treeRoot, mainLineResult, sourcePgn, plyUserByPathKey])
 
     const handleCopyWithVariations = useCallback(async () => {
-        const movetext = formatTreePgnMovetext(treeRoot, { result: mainLineResult })
+        const movetext = formatTreePgnMovetext(treeRoot, {
+            result: mainLineResult,
+            plyUserByPathKey,
+        })
         const text = buildPgnClipboardText(movetext, sourcePgn)
         if (!text) {
             closeMoveMenu()
@@ -513,7 +562,7 @@ export default function CoachPgnMoveList({
             /* clipboard denied */
         }
         closeMoveMenu()
-    }, [treeRoot, mainLineResult, sourcePgn])
+    }, [treeRoot, mainLineResult, sourcePgn, plyUserByPathKey])
 
     const menuCanTruncate = moveMenu?.canTruncate
     const menuCanDeleteBranch = moveMenu?.canDeleteBranch
@@ -647,6 +696,7 @@ export default function CoachPgnMoveList({
                                             evalByFen={evalByFen}
                                             classificationByPathKey={classificationByPathKey}
                                             onMoveContextMenu={handleMoveContextMenu}
+                                            plyUserByPathKey={plyUserByPathKey}
                                         />
                                     )}
                                     <InlineVariations
@@ -658,6 +708,7 @@ export default function CoachPgnMoveList({
                                         onMoveContextMenu={handleMoveContextMenu}
                                         evalByFen={evalByFen}
                                         activeRef={activeRef}
+                                        plyUserByPathKey={plyUserByPathKey}
                                     />
                                     {row.black && (
                                         <MoveHalfBlock
@@ -668,6 +719,7 @@ export default function CoachPgnMoveList({
                                             evalByFen={evalByFen}
                                             classificationByPathKey={classificationByPathKey}
                                             onMoveContextMenu={handleMoveContextMenu}
+                                            plyUserByPathKey={plyUserByPathKey}
                                         />
                                     )}
                                     <InlineVariations
@@ -679,6 +731,7 @@ export default function CoachPgnMoveList({
                                         onMoveContextMenu={handleMoveContextMenu}
                                         evalByFen={evalByFen}
                                         activeRef={activeRef}
+                                        plyUserByPathKey={plyUserByPathKey}
                                     />
                                 </Box>
                             </Box>

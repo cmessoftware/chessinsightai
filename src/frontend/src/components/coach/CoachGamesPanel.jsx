@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
+    Autocomplete,
     Box,
     Button,
     Checkbox,
@@ -27,6 +28,7 @@ import {
     createAnalysisJob,
     deleteCoachGame,
     deleteCoachGames,
+    listCoachCorpusTypes,
     listGames,
     listJobs,
     parseApiDetail,
@@ -41,6 +43,7 @@ import {
 } from './coachPanelStatus.jsx'
 import {
     formatCoachCatalogSource,
+    formatCoachCorpusType,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
     formatCoachPartidaTableLabel,
@@ -65,6 +68,17 @@ import {
 } from '../../utils/coachGamesTableColumns.js'
 import { COACH_PARTIDAS_COLUMNS_CHANGED } from '../../utils/coachPartidasColumnsSync.js'
 import CoachConfigSectionAccordion from './CoachConfigSectionAccordion.jsx'
+import {
+    buildCoachPartidasListQuery,
+    COACH_RESULT_FILTER_OPTIONS,
+    coachPartidasAdvancedFiltersActive,
+    EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+} from '../../utils/coachPartidasAdvancedFilters.js'
+import {
+    formatOpeningCatalogLabel,
+    loadEcoOpeningsCatalog,
+    searchEcoOpeningsCatalog,
+} from '../../utils/coachOpeningCatalog.js'
 
 const COACH_JOBS_PAGE_SIZE = 5
 const COACH_GAMES_PAGE_SIZE = 20
@@ -413,6 +427,20 @@ export default function CoachGamesPanel() {
     const [bulkCategoryAssign, setBulkCategoryAssign] = useState('')
     const [jobsPage, setJobsPage] = useState(0)
     const [gamesPage, setGamesPage] = useState(0)
+    const [advancedDraft, setAdvancedDraft] = useState(() => ({
+        ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+    }))
+    const [advancedApplied, setAdvancedApplied] = useState(() => ({
+        ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+    }))
+    const [corpusTypeOptions, setCorpusTypeOptions] = useState([])
+    const [ecoOpeningsCatalog, setEcoOpeningsCatalog] = useState([])
+    const [openingCatalogSearch, setOpeningCatalogSearch] = useState('')
+
+    const advancedListQuery = useMemo(
+        () => buildCoachPartidasListQuery(advancedApplied),
+        [advancedApplied],
+    )
 
     const jobStatusById = useMemo(() => {
         const m = new Map()
@@ -522,7 +550,7 @@ export default function CoachGamesPanel() {
 
     useEffect(() => {
         setGamesPage(0)
-    }, [categoryFilter, sortBy, sortDirection, games.length, filteredGames.length])
+    }, [categoryFilter, sortBy, sortDirection, games.length, filteredGames.length, advancedApplied])
 
     useEffect(() => {
         const maxPage = Math.max(0, Math.ceil(sortedGames.length / COACH_GAMES_PAGE_SIZE) - 1)
@@ -575,7 +603,7 @@ export default function CoachGamesPanel() {
     const refresh = useCallback(async () => {
         setRefreshing(true)
         try {
-            const [j, g] = await Promise.all([listJobs(), listGames()])
+            const [j, g] = await Promise.all([listJobs(), listGames(advancedListQuery)])
             setJobs(j)
             setGames(g)
             setError(null)
@@ -584,13 +612,48 @@ export default function CoachGamesPanel() {
         } finally {
             setRefreshing(false)
         }
-    }, [])
+    }, [advancedListQuery])
 
     useEffect(() => {
         refresh()
         const timer = setInterval(refresh, 5000)
         return () => clearInterval(timer)
     }, [refresh])
+
+    useEffect(() => {
+        let cancelled = false
+        listCoachCorpusTypes()
+            .then((types) => {
+                if (!cancelled) setCorpusTypeOptions(types)
+            })
+            .catch(() => {})
+        loadEcoOpeningsCatalog()
+            .then(({ openings }) => {
+                if (!cancelled) setEcoOpeningsCatalog(openings)
+            })
+            .catch(() => {})
+        return () => {
+            cancelled = true
+        }
+    }, [])
+
+    const openingCatalogOptions = useMemo(
+        () => searchEcoOpeningsCatalog(ecoOpeningsCatalog, openingCatalogSearch, 50),
+        [ecoOpeningsCatalog, openingCatalogSearch],
+    )
+
+    const applyAdvancedFilters = () => {
+        setAdvancedApplied({ ...advancedDraft })
+        setGamesPage(0)
+    }
+
+    const clearAdvancedFilters = () => {
+        const empty = { ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS }
+        setAdvancedDraft(empty)
+        setAdvancedApplied(empty)
+        setOpeningCatalogSearch('')
+        setGamesPage(0)
+    }
 
     const initialSelectionDone = useRef(false)
     const importHighlightKey = useRef(null)
@@ -864,6 +927,204 @@ export default function CoachGamesPanel() {
             <Typography variant="h6" gutterBottom>
                 Biblioteca de partidas
             </Typography>
+            <CoachConfigSectionAccordion
+                id="coach-partidas-advanced-filters"
+                title={
+                    coachPartidasAdvancedFiltersActive(advancedApplied)
+                        ? 'Filtros avanzados (activos)'
+                        : 'Filtros avanzados'
+                }
+                defaultExpanded={coachPartidasAdvancedFiltersActive(advancedApplied)}
+            >
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                        gap: 2,
+                    }}
+                >
+                    <FormControl size="small" fullWidth>
+                        <InputLabel id="coach-adv-corpus-label">Fuente (corpus)</InputLabel>
+                        <Select
+                            labelId="coach-adv-corpus-label"
+                            multiple
+                            label="Fuente (corpus)"
+                            value={advancedDraft.corpusTypes}
+                            onChange={(e) => {
+                                const value = e.target.value
+                                setAdvancedDraft((prev) => ({
+                                    ...prev,
+                                    corpusTypes:
+                                        typeof value === 'string' ? value.split(',') : value,
+                                }))
+                            }}
+                            renderValue={(selected) =>
+                                selected.length
+                                    ? selected.map((v) => formatCoachCorpusType(v)).join(', ')
+                                    : 'Todas'
+                            }
+                        >
+                            {corpusTypeOptions.map((corpus) => (
+                                <MenuItem key={corpus} value={corpus}>
+                                    <Checkbox
+                                        checked={advancedDraft.corpusTypes.indexOf(corpus) > -1}
+                                    />
+                                    {formatCoachCorpusType(corpus)}
+                                </MenuItem>
+                            ))}
+                            {!corpusTypeOptions.length && (
+                                <MenuItem disabled value="">
+                                    Sin corpus en biblioteca
+                                </MenuItem>
+                            )}
+                        </Select>
+                    </FormControl>
+                    <FormControl size="small" fullWidth>
+                        <InputLabel id="coach-adv-results-label">Resultado</InputLabel>
+                        <Select
+                            labelId="coach-adv-results-label"
+                            multiple
+                            label="Resultado"
+                            value={advancedDraft.results}
+                            onChange={(e) => {
+                                const value = e.target.value
+                                setAdvancedDraft((prev) => ({
+                                    ...prev,
+                                    results:
+                                        typeof value === 'string' ? value.split(',') : value,
+                                }))
+                            }}
+                            renderValue={(selected) =>
+                                selected.length ? selected.join(', ') : 'Cualquiera'
+                            }
+                        >
+                            {COACH_RESULT_FILTER_OPTIONS.map((res) => (
+                                <MenuItem key={res} value={res}>
+                                    <Checkbox checked={advancedDraft.results.indexOf(res) > -1} />
+                                    {res}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        size="small"
+                        label="Jugador blancas"
+                        placeholder="Ej. Carlsen o *club*"
+                        value={advancedDraft.whitePlayer}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({
+                                ...prev,
+                                whitePlayer: e.target.value,
+                            }))
+                        }
+                        fullWidth
+                    />
+                    <TextField
+                        size="small"
+                        label="Jugador negras"
+                        placeholder="Comodín *"
+                        value={advancedDraft.blackPlayer}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({
+                                ...prev,
+                                blackPlayer: e.target.value,
+                            }))
+                        }
+                        fullWidth
+                    />
+                    <Autocomplete
+                        size="small"
+                        sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
+                        options={openingCatalogOptions}
+                        value={advancedDraft.openingCatalog}
+                        inputValue={openingCatalogSearch}
+                        onInputChange={(_, value) => setOpeningCatalogSearch(value)}
+                        onChange={(_, value) => {
+                            setAdvancedDraft((prev) => ({
+                                ...prev,
+                                openingCatalog: value,
+                                eco: value ? '' : prev.eco,
+                            }))
+                            if (value) {
+                                setOpeningCatalogSearch(formatOpeningCatalogLabel(value))
+                            }
+                        }}
+                        getOptionLabel={(option) => formatOpeningCatalogLabel(option)}
+                        isOptionEqualToValue={(a, b) =>
+                            a?.eco === b?.eco && a?.name === b?.name
+                        }
+                        filterOptions={(options) => options}
+                        noOptionsText={
+                            ecoOpeningsCatalog.length
+                                ? 'Sin coincidencias'
+                                : 'Cargando catálogo…'
+                        }
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Apertura (catálogo ECO — nombre)"
+                                placeholder="B90 o *sicilian*"
+                            />
+                        )}
+                    />
+                    <TextField
+                        size="small"
+                        label="ECO (manual)"
+                        placeholder="B90 o C5*"
+                        value={advancedDraft.eco}
+                        disabled={Boolean(advancedDraft.openingCatalog)}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({
+                                ...prev,
+                                eco: e.target.value,
+                                openingCatalog: null,
+                            }))
+                        }
+                        fullWidth
+                    />
+                    <TextField
+                        size="small"
+                        label="Fecha desde"
+                        placeholder="2024-01-01"
+                        value={advancedDraft.dateFrom}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({ ...prev, dateFrom: e.target.value }))
+                        }
+                        fullWidth
+                    />
+                    <TextField
+                        size="small"
+                        label="Fecha hasta"
+                        placeholder="2024-12-31"
+                        value={advancedDraft.dateTo}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({ ...prev, dateTo: e.target.value }))
+                        }
+                        fullWidth
+                    />
+                </Box>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
+                    <Button variant="contained" size="small" onClick={applyAdvancedFilters}>
+                        Aplicar filtros
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={clearAdvancedFilters}
+                        disabled={
+                            !coachPartidasAdvancedFiltersActive(advancedDraft) &&
+                            !coachPartidasAdvancedFiltersActive(advancedApplied)
+                        }
+                    >
+                        Limpiar
+                    </Button>
+                    {coachPartidasAdvancedFiltersActive(advancedApplied) && (
+                        <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'center' }}>
+                            Los chips de categoría se aplican además (AND).
+                        </Typography>
+                    )}
+                </Box>
+            </CoachConfigSectionAccordion>
             {games.length > 0 && (
                 <Box
                     sx={{

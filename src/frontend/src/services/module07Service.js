@@ -94,9 +94,40 @@ export async function listJobs() {
     return data.jobs || []
 }
 
-export async function listGames() {
-    const { data } = await api.get('/api/v1/module07/games')
+/**
+ * @typedef {Object} CoachPartidasListQuery
+ * @property {string[]} [corpus_types]
+ * @property {boolean} [opening_eco_or]
+ * @property {string} [white_player]
+ * @property {string} [black_player]
+ * @property {string} [eco]
+ * @property {string} [opening]
+ * @property {string} [date_from]
+ * @property {string} [date_to]
+ * @property {string[]} [results]
+ * @property {number} [limit]
+ * @property {number} [offset]
+ */
+
+/** @param {CoachPartidasListQuery} [query] */
+export async function listGames(query = {}) {
+    const params = {}
+    for (const [key, value] of Object.entries(query)) {
+        if (value === undefined || value === null || value === '') continue
+        if (Array.isArray(value)) {
+            if (!value.length) continue
+            params[key] = value
+            continue
+        }
+        params[key] = value
+    }
+    const { data } = await api.get('/api/v1/module07/games', { params })
     return data.games || []
+}
+
+export async function listCoachCorpusTypes() {
+    const { data } = await api.get('/api/v1/module07/games/corpus-types')
+    return data.corpus_types || []
 }
 
 export async function patchCoachGameTitle(gameId, displayTitle) {

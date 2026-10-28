@@ -1,3 +1,4 @@
+import { formatPgnUserAnnotationSuffix } from './coachPlyUserAnnotations.js'
 import { mainLineMovesFromTree } from './coachVariationTree.js'
 import {
     extractPgnHeadersBlock,
@@ -42,26 +43,32 @@ function formatMoveToken(rootFen, plyBefore, san, { variationStart = false } = {
     return san
 }
 
-function serializeFromChild(rootFen, parent, childIndex, plyBefore) {
+function serializeFromChild(rootFen, parent, childIndex, plyBefore, parentPath = [], plyUserByPathKey = null) {
     const child = parent?.children?.[childIndex]
     if (!child) return ''
 
+    const path = [...parentPath, childIndex]
     const chunks = []
     let cur = child
     let ply = plyBefore + 1
+    let curPath = path
     chunks.push(
         formatMoveToken(rootFen, plyBefore, cur.san, {
             variationStart: childIndex !== 0,
-        }),
+        }) + formatPgnUserAnnotationSuffix(plyUserByPathKey, curPath),
     )
 
     while (cur.children?.length > 0) {
         for (let i = 1; i < cur.children.length; i += 1) {
-            const nested = serializeFromChild(rootFen, cur, i, ply)
+            const nested = serializeFromChild(rootFen, cur, i, ply, curPath, plyUserByPathKey)
             if (nested) chunks.push(`(${nested})`)
         }
         const next = cur.children[0]
-        chunks.push(formatMoveToken(rootFen, ply, next.san))
+        curPath = [...curPath, 0]
+        chunks.push(
+            formatMoveToken(rootFen, ply, next.san)
+                + formatPgnUserAnnotationSuffix(plyUserByPathKey, curPath),
+        )
         cur = next
         ply += 1
     }
@@ -70,13 +77,16 @@ function serializeFromChild(rootFen, parent, childIndex, plyBefore) {
 }
 
 /** Movetext with nested `( )` variations (all branches in the tree). */
-export function formatTreePgnMovetext(root, { result = null } = {}) {
+export function formatTreePgnMovetext(root, { result = null, plyUserByPathKey = null } = {}) {
     if (!root?.children?.length) return ''
-    return appendResult(serializeFromChild(root.fen, root, 0, 0), result)
+    return appendResult(
+        serializeFromChild(root.fen, root, 0, 0, [], plyUserByPathKey),
+        result,
+    )
 }
 
 /** Standard movetext for the main line (children[0] only), e.g. `1. e4 e5 2. Nf3`. */
-export function formatMainLinePgnMovetext(root, { result = null } = {}) {
+export function formatMainLinePgnMovetext(root, { result = null, plyUserByPathKey = null } = {}) {
     if (!root) return ''
     const moves = mainLineMovesFromTree(root)
     if (!moves.length) return ''
@@ -84,17 +94,18 @@ export function formatMainLinePgnMovetext(root, { result = null } = {}) {
     const parts = []
     const rootFen = root.fen
     for (const m of moves) {
+        const suffix = formatPgnUserAnnotationSuffix(plyUserByPathKey, m.path)
         const plyBefore = m.ply - 1
         const stm = sideToMoveAtPly(rootFen, plyBefore)
         if (stm === 'w') {
-            parts.push(`${m.moveNumber}. ${m.san}`)
+            parts.push(`${m.moveNumber}. ${m.san}${suffix}`)
         } else if (
             plyBefore === 0 ||
             sideToMoveAtPly(rootFen, plyBefore - 1) !== 'w'
         ) {
-            parts.push(`${m.moveNumber}... ${m.san}`)
+            parts.push(`${m.moveNumber}... ${m.san}${suffix}`)
         } else {
-            parts.push(m.san)
+            parts.push(`${m.san}${suffix}`)
         }
     }
 

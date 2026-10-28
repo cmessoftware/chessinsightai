@@ -17,6 +17,7 @@ google_token.json
 stockfish*
 games/
 data/
+.tmp_eco/
 
 # Module 07 lab fixtures (tracked despite *.pgn / data / games)
 !docs/ai_chess_coach_course/data/

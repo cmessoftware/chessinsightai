@@ -79,8 +79,11 @@ export function mainLineMovesFromTree(root) {
     let node = root
     let ply = 0
     const rootFen = root.fen
+    /** @type {number[]} */
+    let path = []
     while (node.children?.length > 0) {
         const child = node.children[0]
+        path = [...path, 0]
         const plyBefore = ply
         ply += 1
         const stm = sideToMoveAtPly(rootFen, plyBefore)
@@ -89,6 +92,7 @@ export function mainLineMovesFromTree(root) {
             san: child.san,
             color: stm,
             moveNumber: fullmoveNumberAtPly(rootFen, plyBefore),
+            path: [...path],
         })
         node = child
     }
@@ -170,13 +174,16 @@ export function truncateLineForward(root, path) {
  * Play move from current path; reuses existing child or adds user variation.
  * Returns { tree, path, lastUci } or null if illegal.
  */
-export function applyMoveAtPath(root, path, { from, to, promotion = 'q' }) {
+export function applyMoveAtPath(root, path, { from, to, promotion } = {}) {
     const tree = cloneTree(root)
     const node = getNodeAtPath(tree, path)
     const chess = new Chess(node.fen)
     let played
     try {
-        played = chess.move({ from, to, promotion })
+        played =
+            promotion != null && promotion !== ''
+                ? chess.move({ from, to, promotion })
+                : chess.move({ from, to })
     } catch {
         return null
     }
