@@ -1,6 +1,7 @@
 # Arquitectura · Módulo sparring Maia (+ Stockfish posterior)
 
-**Spec:** [spec_sparring_maia_stockfish_unificado.md](../../spec_sparring_maia_stockfish_unificado.md)
+**Spec:** [spec_sparring_maia_stockfish_unificado.md](../../spec_sparring_maia_stockfish_unificado.md)  
+**SPAR-01 OpenSpec:** [spar-01-openspec-maia3.md](../../devops/spar-01-openspec-maia3.md) · config `modules.sparring.maia_settings`
 
 **Plataforma compartida:** [architecture-shared-analysis-platform.md](./architecture-shared-analysis-platform.md)
 
