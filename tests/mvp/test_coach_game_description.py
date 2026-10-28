@@ -65,6 +65,16 @@ def test_correspondence_chesscom_days_not_live_clock():
     assert "1s+0" not in text
 
 
+def test_display_speed_follows_lichess_not_event_rapid_label():
+    text = format_coach_game_description(
+        white_player="A",
+        black_player="B",
+        speed_class="rapid",
+        time_control="300+0",
+    )
+    assert text == "A vs B (Blitz 5+0)"
+
+
 def test_custom_display_title_prefix():
     text = format_coach_game_description(
         white_player="Alice",

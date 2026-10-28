@@ -28,17 +28,43 @@ def test_resolve_corpus_admin_only():
         resolve_corpus_type("elite", ["basic_gamer"])
 
 
-def test_infer_speed_blitz_from_timecontrol():
+def test_infer_speed_bullet_from_timecontrol():
     assert (
         infer_speed_class_from_headers({"TimeControl": "120+2"})
+        == "bullet"
+    )
+
+
+def test_infer_speed_rapid_lichess():
+    assert (
+        infer_speed_class_from_headers({"TimeControl": "900+10"})
+        == "rapid"
+    )
+
+
+def test_infer_speed_blitz_when_event_says_rapid():
+    assert (
+        infer_speed_class_from_headers(
+            {
+                "Event": "Rated Rapid game",
+                "TimeControl": "300+0",
+            }
+        )
         == "blitz"
     )
 
 
-def test_infer_speed_classical():
+def test_infer_speed_classical_lichess():
     assert (
-        infer_speed_class_from_headers({"TimeControl": "900+10"})
+        infer_speed_class_from_headers({"TimeControl": "1500+0"})
         == "classical"
+    )
+
+
+def test_infer_speed_ultrabullet_lichess():
+    assert (
+        infer_speed_class_from_headers({"TimeControl": "15+0"})
+        == "ultrabullet"
     )
 
 

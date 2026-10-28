@@ -4,8 +4,10 @@ import {
     canAddVariationSibling,
     createEmptyRoot,
     moveNumberFromPlyCount,
+    deleteLeafMoveAtPath,
     truncateLineForward,
     truncateTouchesImportedMoves,
+    variationBranchHeadPath,
     variationNestDepth,
 } from './coachVariationTree.js'
 
@@ -50,6 +52,30 @@ describe('variationNestDepth', () => {
     it('counts non-zero path indices', () => {
         expect(variationNestDepth([0, 0, 1, 0])).toBe(1)
         expect(variationNestDepth([0, 0, 1, 0, 2])).toBe(2)
+    })
+})
+
+describe('variationBranchHeadPath', () => {
+    it('returns path to branch head', () => {
+        expect(variationBranchHeadPath([0, 0, 1, 0, 2])).toEqual([0, 0, 1])
+    })
+})
+
+describe('deleteLeafMoveAtPath', () => {
+    it('removes user leaf in a variation', () => {
+        const root = buildSimpleMainLine(['e4', 'e5'])
+        const afterE4 = root.children[0]
+        afterE4.children.push({
+            id: 'v1',
+            san: 'c5',
+            uci: 'c7c5',
+            fen: 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
+            fromGame: false,
+            children: [],
+        })
+        const out = deleteLeafMoveAtPath(root, [0, 1])
+        expect(out.tree.children[0].children).toHaveLength(1)
+        expect(out.tree.children[0].children[0].san).toBe('e5')
     })
 })
 

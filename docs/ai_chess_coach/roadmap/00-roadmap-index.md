@@ -15,26 +15,30 @@
 
 ## Mapa de documentos
 
-| Si necesitás… | Abrí | IDs |
-|---------------|------|-----|
-| **Orden de entrega web (1–6)** | [01-phase-roadmap.md](./01-phase-roadmap.md) | phases 1–6 |
-| **Seguimiento vivo (Phase 1)** | [02-phase-01-coach-web-slice.md](./02-phase-01-coach-web-slice.md) | P0, UI-10x slice, M07 mínimo |
-| **Diseños UI Coach** | [designs/README.md](./designs/README.md) | UI-110, MA, Mental |
-| **Layout análisis partida** | [designs/coach-game-analysis-layout-pgn.md](./designs/coach-game-analysis-layout-pgn.md) | UI-110 |
-| **Maia WASM · Análisis avanzado** | [designs/coach-maia-advanced-analysis-mini-plan.md](./designs/coach-maia-advanced-analysis-mini-plan.md) | CA-9, MA-1…MA-5 |
-| **F07 en producto / análisis servidor** | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) | AS-A/B, SV-*, gates |
-| **Análisis profundo + sparring (índice)** | [deep_analysis/index.md](./deep_analysis/index.md) | Specs, arq., AS, LZ |
-| **Clasificación jugadas + pedagogía** | [deep_analysis/coach-move-classification-pedagogy-mini-plan.md](./deep_analysis/coach-move-classification-pedagogy-mini-plan.md) | CA-1…CA-9, SV-* |
-| **Mini-plan servidor MVP** | [deep_analysis/coach-async-analysis-server-mini-plan.md](./deep_analysis/coach-async-analysis-server-mini-plan.md) | AS-1…AS-11 |
-| **Lc0 kibitzer (críticas, server)** | [deep_analysis/coach-lc0-strategic-kibitzer-mini-plan.md](./deep_analysis/coach-lc0-strategic-kibitzer-mini-plan.md) | LZ-1…LZ-8 |
-| **Catálogo `games` + Coach + navegador** | [deep_analysis/coach-games-catalog-unify-mini-plan.md](./deep_analysis/coach-games-catalog-unify-mini-plan.md) | GC-1…GC-5, UI-G1…UI-G3 |
-| **M08 entrenamiento** | [04-phase-03-training-diagnosis.md](./04-phase-03-training-diagnosis.md) | F08-* |
-| **M09 corpus** | [05-phase-04-reference-corpus.md](./05-phase-04-reference-corpus.md) | F09-* |
-| **UI restante** | [06-phase-05-coach-ui-complete.md](./06-phase-05-coach-ui-complete.md) | UI-105+ |
-| **LS01 en web** | [07-phase-06-statistics-in-web.md](./07-phase-06-statistics-in-web.md) | LS01-*, UI-404+ |
-| **Plataforma (7–16)** | [01-phase-roadmap.md](./01-phase-roadmap.md) § plataforma | 01-FEAT-* … |
-| **Detalle catálogo (curso)** | [07](../../ai_chess_coach_course/07_module_implementation_plan.md) · [08](../../ai_chess_coach_course/08_mvp_product_roadmap.md) · [11 UI](../../ai_chess_coach_course/11_ui_improvements_roadmap.md) | F07/F08/F09/UI |
-| **Issues / épicas** | [issue-template.md](./templates/issue-template.md) | alias, `phase: 1`…`6` |
+Estados: [leyenda § abajo](#leyenda-de-estados). **Vigente** = doc de referencia activo (no implica gate ✅).
+
+| Si necesitás… | Abrí | IDs | Estado |
+|---------------|------|-----|--------|
+| **Orden de entrega web (1–6)** | [01-phase-roadmap.md](./01-phase-roadmap.md) | phases 1–6 | Vigente |
+| **Feature list Phase 1–2 (resumen)** | [02-phase-1-2-feature-list.md](./02-phase-1-2-feature-list.md) | P0, FEAT-061…065, AS-A, backlog UI | Vigente |
+| **Seguimiento vivo (Phase 1)** | [02-phase-01-coach-web-slice.md](./02-phase-01-coach-web-slice.md) | P0, UI-10x slice, M07 mínimo | **🧪** |
+| **Diseños UI Coach** | [designs/README.md](./designs/README.md) | UI-110, MA, Mental | **🧪** |
+| **Layout análisis partida** | [designs/coach-game-analysis-layout-pgn.md](./designs/coach-game-analysis-layout-pgn.md) | UI-110 | **⬜** |
+| **Maia WASM · Análisis avanzado** | [designs/coach-maia-advanced-analysis-mini-plan.md](./designs/coach-maia-advanced-analysis-mini-plan.md) | CA-9, MA-1…MA-5 | **🧪** |
+| **F07 en producto / análisis servidor** | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) | AS-A/B, SV-*, gates | **🧪** |
+| **Análisis profundo + sparring (índice)** | [deep_analysis/index.md](./deep_analysis/index.md) | Specs, arq., AS, LZ | Vigente |
+| **Clasificación jugadas + pedagogía** | [deep_analysis/coach-move-classification-pedagogy-mini-plan.md](./deep_analysis/coach-move-classification-pedagogy-mini-plan.md) | CA-1…CA-9, SV-* | **🧪** |
+| **Tracker UI (`FEAT-*`, espejo)** | [designs/issues-coach-move-classification-pedagogy-mini-plan.md](./designs/issues-coach-move-classification-pedagogy-mini-plan.md) | FEAT-01…065 | **🧪** |
+| **Mini-plan servidor MVP** | [deep_analysis/coach-async-analysis-server-mini-plan.md](./deep_analysis/coach-async-analysis-server-mini-plan.md) | AS-1…AS-11 | **⬜ / 🟡** |
+| **Lc0 kibitzer (críticas, server)** | [deep_analysis/coach-lc0-strategic-kibitzer-mini-plan.md](./deep_analysis/coach-lc0-strategic-kibitzer-mini-plan.md) | LZ-1…LZ-8 | **⬜** |
+| **Catálogo `games` + Coach + navegador** | [deep_analysis/coach-games-catalog-unify-mini-plan.md](./deep_analysis/coach-games-catalog-unify-mini-plan.md) | GC-1…GC-5, UI-G1…UI-G3 | **🧪** |
+| **M08 entrenamiento** | [04-phase-03-training-diagnosis.md](./04-phase-03-training-diagnosis.md) | F08-* | **⬜** |
+| **M09 corpus** | [05-phase-04-reference-corpus.md](./05-phase-04-reference-corpus.md) | F09-* | **⬜** |
+| **UI restante** | [06-phase-05-coach-ui-complete.md](./06-phase-05-coach-ui-complete.md) | UI-105+ | **⬜** |
+| **LS01 en web** | [07-phase-06-statistics-in-web.md](./07-phase-06-statistics-in-web.md) | LS01-*, UI-404+ | **⬜** |
+| **Plataforma (7–16)** | [01-phase-roadmap.md](./01-phase-roadmap.md) § plataforma | 01-FEAT-* … | **⬜** |
+| **Detalle catálogo (curso)** | [07](../../ai_chess_coach_course/07_module_implementation_plan.md) · [08](../../ai_chess_coach_course/08_mvp_product_roadmap.md) · [11 UI](../../ai_chess_coach_course/11_ui_improvements_roadmap.md) | F07/F08/F09/UI | Suspendido |
+| **Issues / épicas** | [issue-template.md](./templates/issue-template.md) | alias, `phase: 1`…`6` | Vigente |
 
 ```text
 00-roadmap-index
@@ -67,6 +71,8 @@
 | **🔧 Tech accepted** | CI, migraciones, E2E | No (falta ajedrez) |
 | **♟ Chess review** | Golden / experto | Parcial |
 | **✅ Accepted** | Gate cerrado | Sí |
+| **Vigente** | Doc índice / plantilla; se mantiene al día | — |
+| **Suspendido** | Referencia histórica; no es entrega activa | — |
 
 ---
 
@@ -141,4 +147,4 @@
 
 ---
 
-**Última revisión:** 2026-09-29 · Reemplaza hub en `ai_chess_coach_course/00_roadmap_index.md`.
+**Última revisión:** 2026-10-26 · Reemplaza hub en `ai_chess_coach_course/00_roadmap_index.md`.

@@ -16,7 +16,9 @@ import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
 import { resolveCoachPlayerColor } from '../utils/coachPlayerColor.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
+import { buildTreeFromPgn } from '../utils/coachPgnTreeParse.js'
 import { loadCoachAnalysisCursor, saveCoachLastGameId } from '../utils/coachLastGameSession.js'
+import { loadCoachStudyDraft } from '../utils/coachStudyDraftSession.js'
 import {
     buildTreeFromMainLine,
     createEmptyRoot,
@@ -61,18 +63,65 @@ export default function CoachGameAnalysisPage() {
             .then((g) => {
                 setGameMeta(g)
                 if (g?.pgn) {
-                    const built = buildReplayFromPgn(g.pgn)
-                    if (built.error) {
-                        setTreeRoot(createEmptyRoot(built.fens[0]))
-                        setCursorPath([])
-                    } else {
-                        const tree = buildTreeFromMainLine(built.fens, built.ucis, built.moves)
+                    const draft = loadCoachStudyDraft(gameId)
+                    const serverPgn = g.pgn
+                    const pgnForTree =
+                        draft?.trim() && draft.trim() !== serverPgn.trim()
+                            ? draft
+                            : serverPgn
+
+                    const applyTree = (tree) => {
                         setTreeRoot(tree)
                         const saved = loadCoachAnalysisCursor(gameId)
                         const fallback = mainLineEndPath(tree)
                         const restored =
                             saved && getNodeAtPath(tree, saved) ? saved : fallback
                         setCursorPath(restored)
+                    }
+
+                    const fromTree = buildTreeFromPgn(pgnForTree)
+                    if (!fromTree.error && fromTree.tree?.children?.length) {
+                        applyTree(fromTree.tree)
+                    } else if (pgnForTree !== serverPgn) {
+                        const fromServer = buildTreeFromPgn(serverPgn)
+                        if (
+                            !fromServer.error &&
+                            fromServer.tree?.children?.length
+                        ) {
+                            applyTree(fromServer.tree)
+                        } else {
+                            const built = buildReplayFromPgn(serverPgn)
+                            if (built.error) {
+                                setTreeRoot(createEmptyRoot(built.fens[0]))
+                                setCursorPath([])
+                            } else {
+                                applyTree(
+                                    buildTreeFromMainLine(
+                                        built.fens,
+                                        built.ucis,
+                                        built.moves,
+                                    ),
+                                )
+                            }
+                        }
+                    } else {
+                        const built = buildReplayFromPgn(g.pgn)
+                        if (built.error) {
+                            setTreeRoot(createEmptyRoot(built.fens[0]))
+                            setCursorPath([])
+                        } else {
+                            const tree = buildTreeFromMainLine(
+                                built.fens,
+                                built.ucis,
+                                built.moves,
+                            )
+                            setTreeRoot(tree)
+                            const saved = loadCoachAnalysisCursor(gameId)
+                            const fallback = mainLineEndPath(tree)
+                            const restored =
+                                saved && getNodeAtPath(tree, saved) ? saved : fallback
+                            setCursorPath(restored)
+                        }
                     }
                 }
             })
@@ -207,6 +256,7 @@ export default function CoachGameAnalysisPage() {
             setCursorPath={setCursorPath}
             playerColor={playerColor}
             gameMeta={gameMeta}
+            onGameMetaChange={setGameMeta}
             gameId={gameId}
             returnTo={returnTo}
             backLabel="← Volver a Coach — Partidas"

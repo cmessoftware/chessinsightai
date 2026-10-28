@@ -1,22 +1,6 @@
 import { defaultCoachGameCategories, loadCoachGameCategories } from './coachGameCategoriesConfig.js'
-
-function combinedText(game) {
-    return [
-        game?.description,
-        game?.display_title,
-        game?.opening,
-        game?.catalog_source,
-        game?.source,
-    ]
-        .filter(Boolean)
-        .join(' ')
-}
-
-function normalizedSource(game) {
-    return String(game?.catalog_source || game?.source || '')
-        .trim()
-        .toLowerCase()
-}
+import { coachRhythmLabelForGame } from './coachRhythmLabel.js'
+import { resolveDisplaySpeedClass } from './coachSpeedClassLichess.js'
 
 function keywordsMatch(text, rawKeywords) {
     const hay = String(text || '').toLowerCase()
@@ -33,8 +17,23 @@ function keywordsMatch(text, rawKeywords) {
 
 /** @param {object} game @param {{ type: string, value: string }} rule */
 function ruleMatches(game, rule) {
-    const source = normalizedSource(game)
-    const text = combinedText(game)
+    const source = String(game?.catalog_source || game?.source || '')
+        .trim()
+        .toLowerCase()
+    const textParts = [
+        game?.display_title,
+        game?.opening,
+        game?.catalog_source,
+        game?.source,
+    ]
+    const tc = String(game?.time_control ?? '').trim()
+    if (tc) {
+        const rhythm = coachRhythmLabelForGame(game)
+        if (rhythm) textParts.push(rhythm)
+    } else if (game?.description) {
+        textParts.push(game.description)
+    }
+    const text = textParts.filter(Boolean).join(' ')
     const corpus = String(game?.corpus_type || 'personal').trim().toLowerCase()
     const value = String(rule.value || '').trim().toLowerCase()
 
@@ -43,6 +42,10 @@ function ruleMatches(game, rule) {
             return Boolean(value) && source.includes(value)
         case 'corpus_type':
             return Boolean(value) && corpus === value
+        case 'speed_class': {
+            const effective = resolveDisplaySpeedClass(game?.speed_class, game?.time_control)
+            return Boolean(value) && String(effective || '').toLowerCase() === value
+        }
         case 'text_keywords':
             return keywordsMatch(text, rule.value)
         default:

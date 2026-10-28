@@ -68,6 +68,15 @@ describe('coachGameDisplay', () => {
         ).toBe('Rapid 15+10')
     })
 
+    it('uses Lichess Blitz for 5+0 even when speed_class is rapid', () => {
+        expect(
+            formatCoachRhythmDisplay({
+                speed_class: 'rapid',
+                time_control: '300+0',
+            }),
+        ).toBe('Blitz 5+0')
+    })
+
     it('Partida table label ignores description and POV extras', () => {
         expect(
             formatCoachPartidaTableLabel({

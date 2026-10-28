@@ -10,8 +10,17 @@ from typing import Any
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.orm.attributes import flag_modified
 
-from modules.game_import.master_games import upsert_master_game_from_coach_item
-from modules.module07.ingest import parse_allowed_result, resolve_player_color, rewrite_pgn_result
+from modules.game_import.master_games import (
+    _header_fields,
+    upsert_master_game_from_coach_item,
+)
+from modules.game_import.metadata import infer_speed_class_from_time_control
+from modules.module07.ingest import (
+    parse_allowed_result,
+    parse_games_from_pgn_text,
+    resolve_player_color,
+    rewrite_pgn_result,
+)
 from models.database_models import Games
 from models.module07_models import (
     CoachGame,
@@ -116,6 +125,10 @@ def create_games_from_ingest(
         speed = getattr(item, "speed_class", "unknown")
         if prov and prov.get("speed_class"):
             speed = str(prov["speed_class"])
+        tc = _header_fields(item.pgn).get("time_control")
+        from_clock = infer_speed_class_from_time_control(tc)
+        if from_clock:
+            speed = from_clock
         keep_title = None
         if existing and isinstance(existing.import_provenance, dict):
             keep_title = str(existing.import_provenance.get("display_title") or "").strip() or None
@@ -347,6 +360,41 @@ def update_coach_game_display_title(
     if match and game.master_game is not None:
         game.master_game.white_player = match.group(1).strip()[:255]
         game.master_game.black_player = match.group(2).strip()[:255]
+    db.commit()
+    db.refresh(game)
+    return game
+
+
+STUDY_PGN_MAX_CHARS = 400_000
+
+
+def update_coach_game_study_pgn(
+    db: Session,
+    game_id: str,
+    owner_user_id: int,
+    pgn_text: str,
+) -> CoachGame | None:
+    """Persist full study PGN (main line + RAV) on the master catalog row."""
+    game = get_game(db, game_id, owner_user_id)
+    if game is None:
+        return None
+    text = (pgn_text or "").strip()
+    if not text:
+        raise ValueError("pgn_text cannot be blank")
+    if len(text) > STUDY_PGN_MAX_CHARS:
+        raise ValueError("pgn_text too large")
+    parsed = parse_games_from_pgn_text(text, max_games=1)
+    if not parsed.games:
+        raise ValueError("invalid_pgn")
+    if parsed.total_games_in_pgn > 1:
+        raise ValueError("single_game_only")
+    item = parsed.games[0]
+    master = game.master_game
+    if master is None:
+        raise ValueError("game has no master row")
+    master.pgn = item.pgn
+    if item.result:
+        master.result = parse_allowed_result(item.result)
     db.commit()
     db.refresh(game)
     return game

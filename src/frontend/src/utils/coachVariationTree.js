@@ -73,6 +73,18 @@ export function isMainLinePath(path) {
     return path.every((idx) => idx === 0)
 }
 
+/** Path to the first move of the variation branch containing `path`. */
+export function variationBranchHeadPath(path) {
+    if (!path?.length) return []
+    const headLen = path.findIndex((idx) => idx > 0)
+    if (headLen < 0) return []
+    return path.slice(0, headLen + 1)
+}
+
+export function isVariationPath(path) {
+    return Boolean(path?.some((idx) => idx > 0))
+}
+
 /** Moves along children[0] for the classic PGN table (linea principal). */
 export function mainLineMovesFromTree(root) {
     const moves = []
@@ -168,6 +180,24 @@ export function truncateLineForward(root, path) {
     if (!node) return null
     node.children = []
     return { tree, path: [...path] }
+}
+
+/** Quita la jugada hoja en `path` (solo ramas de usuario, sin continuación). */
+export function deleteLeafMoveAtPath(root, path) {
+    if (!path?.length) return null
+    const tree = cloneTree(root)
+    const parentPath = path.slice(0, -1)
+    const index = path[path.length - 1]
+    const parent = getNodeAtPath(tree, parentPath)
+    const target = parent?.children?.[index]
+    if (!target || target.fromGame) return null
+    if (target.children?.length) return null
+    parent.children.splice(index, 1)
+    const nextPath =
+        parentPath.length === 0
+            ? []
+            : [...parentPath]
+    return { tree, path: nextPath.length ? nextPath : [] }
 }
 
 /**

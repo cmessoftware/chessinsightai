@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Box, IconButton, Menu, MenuItem, Paper, Tooltip, Typography } from '@mui/material'
+import {
+    Box,
+    Button,
+    IconButton,
+    Menu,
+    MenuItem,
+    Paper,
+    Tooltip,
+    Typography,
+} from '@mui/material'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import {
@@ -21,6 +30,11 @@ import {
     pgnMoveTextSx,
     tokenizeVariationChain,
 } from '../../utils/coachPgnDisplay.js'
+import {
+    getNodeAtPath,
+    isVariationPath,
+    variationBranchHeadPath,
+} from '../../utils/coachVariationTree.js'
 import { getPlyUserAnnotation } from '../../utils/coachPlyUserAnnotations.js'
 
 /** Scroll only the PGN list panel — avoid moving the document (keeps the board in view). */
@@ -479,10 +493,15 @@ export default function CoachPgnMoveList({
     mainLineResult = null,
     maxHeight = 520,
     onTruncateForward = null,
+    onDeleteVariationMove = null,
     pathHasContinuations = null,
     rootPositionLabel = 'Posición inicial',
     sourcePgn = null,
     plyUserByPathKey = null,
+    onSaveStudy = null,
+    studyDirty = false,
+    saveStudyBusy = false,
+    saveStudyMessage = null,
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
@@ -498,19 +517,43 @@ export default function CoachPgnMoveList({
         event.stopPropagation()
         const isBranchHead = Boolean(contextMeta.isBranchHead)
         const path = half?.path
+        const inVariation = isVariationPath(path)
+        const node = path?.length ? getNodeAtPath(treeRoot, path) : null
+        const headPath = inVariation ? variationBranchHeadPath(path) : []
+        const headNode = headPath.length ? getNodeAtPath(treeRoot, headPath) : null
         const canTruncate =
             path?.length && pathHasContinuations?.(path) && onTruncateForward
+        const canDeleteLeaf =
+            inVariation &&
+            path?.length &&
+            node &&
+            !node.children?.length &&
+            !half?.fromGame &&
+            onDeleteVariationMove
         const canDeleteBranch =
-            isBranchHead && half && !half.fromGame && onDeleteVariation
+            inVariation &&
+            half &&
+            headNode &&
+            !headNode.fromGame &&
+            onDeleteVariation
         setMoveMenu({
             mouseX: event.clientX,
             mouseY: event.clientY,
             half,
             isBranchHead,
+            inVariation,
+            variationHeadPath: headPath,
             canTruncate,
+            canDeleteLeaf,
             canDeleteBranch,
         })
-    }, [onTruncateForward, onDeleteVariation, pathHasContinuations])
+    }, [
+        treeRoot,
+        onTruncateForward,
+        onDeleteVariation,
+        onDeleteVariationMove,
+        pathHasContinuations,
+    ])
 
     const handleMoveContextMenu = useCallback(
         (event, half, contextMeta = {}) => {
@@ -565,7 +608,9 @@ export default function CoachPgnMoveList({
     }, [treeRoot, mainLineResult, sourcePgn, plyUserByPathKey])
 
     const menuCanTruncate = moveMenu?.canTruncate
+    const menuCanDeleteLeaf = moveMenu?.canDeleteLeaf
     const menuCanDeleteBranch = moveMenu?.canDeleteBranch
+    const menuInVariation = moveMenu?.inVariation
     const canCopyMainLine = Boolean(formatMainLinePgnMovetext(treeRoot))
     const canCopyWithVariations = Boolean(formatTreePgnMovetext(treeRoot))
 
@@ -588,7 +633,37 @@ export default function CoachPgnMoveList({
             }}
         >
             <Box sx={{ px: 1.5, pt: 1.5, pb: 1, borderBottom: 1, borderColor: 'divider' }}>
-                <Typography variant="subtitle2">PGN</Typography>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 1,
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <Typography variant="subtitle2">PGN</Typography>
+                    {onSaveStudy && (
+                        <Button
+                            size="small"
+                            variant={studyDirty ? 'contained' : 'outlined'}
+                            disabled={!studyDirty || saveStudyBusy}
+                            onClick={onSaveStudy}
+                        >
+                            {saveStudyBusy ? 'Guardando…' : 'Guardar estudio'}
+                        </Button>
+                    )}
+                </Box>
+                {saveStudyMessage && (
+                    <Typography
+                        variant="caption"
+                        color={saveStudyMessage.startsWith('Estudio') ? 'success.main' : 'error'}
+                        display="block"
+                        sx={{ mt: 0.5 }}
+                    >
+                        {saveStudyMessage}
+                    </Typography>
+                )}
                 {resultLabel && (
                     <Typography variant="caption" color="text.secondary" display="block">
                         {resultLabel}
@@ -783,18 +858,35 @@ export default function CoachPgnMoveList({
                             closeMoveMenu()
                         }}
                     >
-                        Borrar jugadas desde aquí…
+                        {menuInVariation
+                            ? 'Borrar jugadas desde aquí en la variante…'
+                            : 'Borrar jugadas desde aquí…'}
+                    </MenuItem>
+                )}
+                {menuCanDeleteLeaf && (
+                    <MenuItem
+                        sx={(theme) => pgnMoveTextSx(theme)}
+                        onClick={() => {
+                            onDeleteVariationMove(moveMenu.half.path)
+                            closeMoveMenu()
+                        }}
+                    >
+                        Borrar esta jugada de la variante
                     </MenuItem>
                 )}
                 {menuCanDeleteBranch && (
                     <MenuItem
                         sx={(theme) => pgnMoveTextSx(theme)}
                         onClick={() => {
-                            onDeleteVariation(moveMenu.half.path)
+                            onDeleteVariation(
+                                moveMenu.variationHeadPath?.length
+                                    ? moveMenu.variationHeadPath
+                                    : moveMenu.half.path,
+                            )
                             closeMoveMenu()
                         }}
                     >
-                        Quitar variante
+                        Quitar variante completa
                     </MenuItem>
                 )}
             </Menu>
