@@ -22,7 +22,7 @@
 </thead>
 <tbody>
 <tr><td>SPAR-01</td><td></td><td>OpenSpec: binario Maia, pesos, licencias, variables <code>MAIA_*</code> / GPU opcional</td><td>✅ Done</td><td><a href="../../devops/spar-01-openspec-maia3.md">OpenSpec</a> · runbook · smoke</td></tr>
-<tr><td>SPAR-02</td><td></td><td>Migraciones <code>SparringSession</code>, <code>SparringMove</code>, <code>ModelPrediction</code> (campos spec §4.3)</td><td>⬜ Todo</td><td><code>feature/07_200_sparring_schema</code></td></tr>
+<tr><td>SPAR-02</td><td></td><td>Migraciones <code>SparringSession</code>, <code>SparringMove</code>, <code>ModelPrediction</code> (campos spec §4.3)</td><td>✅ Done</td><td><code>feature/07_200_sparring_schema</code></td></tr>
 <tr><td>SPAR-03</td><td>SPAR-01</td><td>Adaptador Maia servidor: UCI, presets nivel (−100/0/+100), cache key con historial</td><td>⬜ Todo</td><td>Arch §4; no descargar pesos por turno</td></tr>
 <tr><td>SPAR-04</td><td>SPAR-02</td><td>API: <code>POST/GET /sparring/sessions</code>, estados <code>created→active→finished</code></td><td>⬜ Todo</td><td>Spec §4.3; auth owner</td></tr>
 <tr><td>SPAR-05</td><td>SPAR-04</td><td>API moves: <code>expected_ply</code> + <code>request_id</code>, unicidad <code>(session_id, ply)</code></td><td>⬜ Todo</td><td>Idempotencia spec §2.4</td></tr>
@@ -46,8 +46,8 @@
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>SPAR-01</td></tr>
-<tr><td>⬜ Todo</td><td>SPAR-02…15</td></tr>
+<tr><td>✅ Done</td><td>SPAR-01, SPAR-02</td></tr>
+<tr><td>⬜ Todo</td><td>SPAR-03…15</td></tr>
 </tbody>
 </table>
 
