@@ -26,6 +26,7 @@ import CoachReviewPage from './pages/CoachReviewPage.jsx'
 import CoachGameAnalysisPage from './pages/CoachGameAnalysisPage.jsx'
 import CoachPositionPage from './pages/CoachPositionPage.jsx'
 import CoachPositionStudyPage from './pages/CoachPositionStudyPage.jsx'
+import CoachSparringPage from './pages/CoachSparringPage.jsx'
 
 // Utilidades
 import { logger } from './utils/helpers.js'
@@ -173,6 +174,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <CoachPositionPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/coach/sparring"
+                  element={
+                    <ProtectedRoute>
+                      <CoachSparringPage />
                     </ProtectedRoute>
                   }
                 />
