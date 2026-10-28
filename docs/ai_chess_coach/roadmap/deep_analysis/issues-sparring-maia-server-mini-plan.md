@@ -38,7 +38,7 @@
 </thead>
 <tbody>
 <tr><td>SPAR-01</td><td></td><td>OpenSpec: binario Maia, pesos, licencias, variables <code>MAIA_*</code> / GPU opcional</td><td>✅ Done</td><td><a href="../../devops/spar-01-openspec-maia3.md">spar-01-openspec-maia3.md</a> · <a href="../../devops/spar-01-maia-local-windows.md">runbook</a> · <code>maia_settings.py</code> · <a href="./sources/maia_mocktest.md">smoke</a></td></tr>
-<tr><td>SPAR-02</td><td></td><td>Migraciones <code>SparringSession</code>, <code>SparringMove</code>, <code>ModelPrediction</code> (§4.3)</td><td>⬜ Todo</td><td><code>feature/07_200_sparring_schema</code></td></tr>
+<tr><td>SPAR-02</td><td></td><td>Migraciones <code>SparringSession</code>, <code>SparringMove</code>, <code>ModelPrediction</code> (§4.3)</td><td>✅ Done</td><td><code>feature/07_200_sparring_schema</code></td></tr>
 <tr><td>SPAR-03</td><td>SPAR-01</td><td>Adaptador Maia-3: UCI (<code>maia3-5m</code> / <code>python -m maia3.uci</code>), opciones <code>Elo</code>/<code>SelfElo</code>/<code>OppoElo</code>, <code>--use-uci-history</code>, cache key con historial</td><td>⬜ Todo</td><td>Presets consolidación/equilibrado/desafío vía Elo; ver [spar-01-maia-local-windows.md](../../devops/spar-01-maia-local-windows.md)</td></tr>
 <tr><td>SPAR-04</td><td>SPAR-02</td><td>API: <code>POST/GET /sparring/sessions</code>, estados <code>created→active→finished</code></td><td>⬜ Todo</td><td>Auth owner; spec §4.3</td></tr>
 <tr><td>SPAR-05</td><td>SPAR-04</td><td>API moves: <code>expected_ply</code> + <code>request_id</code>; unicidad <code>(session_id, ply)</code></td><td>⬜ Todo</td><td>Idempotencia §2.4</td></tr>
