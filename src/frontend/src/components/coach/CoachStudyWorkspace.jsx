@@ -51,10 +51,18 @@ import {
     savePlyUserAnnotationsForScope,
 } from '../../utils/coachPlyUserAnnotations.js'
 import { saveCoachAnalysisCursor } from '../../utils/coachLastGameSession.js'
+import {
+    buildStudyPgnFromTree,
+    studyPgnMatchesTree,
+} from '../../utils/coachPgnTreeParse.js'
+import { patchCoachGameStudyPgn, parseApiDetail } from '../../services/module07Service.js'
+import { useCoachStudyPersistence } from '../../hooks/useCoachStudyPersistence.js'
+import { clearCoachStudyDraft } from '../../utils/coachStudyDraftSession.js'
 import { computeCapturedPiecesFromTree } from '../../utils/coachCapturedPieces.js'
 import {
     applyMoveAtPath,
     countMainLinePlies,
+    deleteLeafMoveAtPath,
     deleteVariationAtPath,
     getNodeAtPath,
     lastUciForPath,
@@ -92,6 +100,7 @@ export default function CoachStudyWorkspace({
     embedded = false,
     rootPositionLabel = 'Posición inicial',
     sourcePgn = null,
+    onGameMetaChange = null,
 }) {
     const [boardOrientationOverride, setBoardOrientationOverride] = useState(null)
     const orientation = boardOrientationOverride ?? boardOrientation ?? playerColor
@@ -104,6 +113,64 @@ export default function CoachStudyWorkspace({
     const [pendingPromotion, setPendingPromotion] = useState(null)
     const pendingPromotionRef = useRef(null)
     const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
+    const [saveStudyBusy, setSaveStudyBusy] = useState(false)
+    const [saveStudyMessage, setSaveStudyMessage] = useState(null)
+
+    const effectiveSourcePgn = sourcePgn ?? gameMeta?.pgn ?? null
+
+    const studyDirty = useMemo(() => {
+        if (!gameId || !effectiveSourcePgn || !treeRoot?.children?.length) {
+            return false
+        }
+        return !studyPgnMatchesTree(effectiveSourcePgn, treeRoot, effectiveSourcePgn, {
+            result: gameMeta?.result ?? null,
+            plyUserByPathKey,
+        })
+    }, [gameId, effectiveSourcePgn, treeRoot, gameMeta?.result, plyUserByPathKey])
+
+    const handleSaveStudy = useCallback(async () => {
+        if (!gameId || !effectiveSourcePgn || saveStudyBusy) return
+        setSaveStudyBusy(true)
+        setSaveStudyMessage(null)
+        try {
+            const pgnText = buildStudyPgnFromTree(treeRoot, effectiveSourcePgn, {
+                result: gameMeta?.result ?? null,
+                plyUserByPathKey,
+            })
+            const updated = await patchCoachGameStudyPgn(gameId, pgnText)
+            if (onGameMetaChange) {
+                onGameMetaChange({
+                    ...(gameMeta || {}),
+                    ...updated,
+                    pgn: updated?.pgn ?? pgnText,
+                })
+            }
+            clearCoachStudyDraft(gameId)
+            setSaveStudyMessage('Estudio guardado en la partida.')
+        } catch (err) {
+            setSaveStudyMessage(parseApiDetail(err))
+        } finally {
+            setSaveStudyBusy(false)
+        }
+    }, [
+        gameId,
+        effectiveSourcePgn,
+        saveStudyBusy,
+        treeRoot,
+        gameMeta?.result,
+        plyUserByPathKey,
+        onGameMetaChange,
+        gameMeta,
+    ])
+
+    useCoachStudyPersistence({
+        gameId,
+        treeRoot,
+        effectiveSourcePgn,
+        gameMeta,
+        plyUserByPathKey,
+        onGameMetaChange,
+    })
 
     const plyUserAnnotationScopeKey = useMemo(() => {
         if (gameId) return String(gameId)
@@ -340,10 +407,19 @@ export default function CoachStudyWorkspace({
     const requestTruncateForward = useCallback(
         (path) => {
             if (!path?.length || !pathHasContinuations(path)) return
+            const inVariation = path.some((idx) => idx > 0)
             const touchesImport = truncateTouchesImportedMoves(treeRoot, path)
-            const message = touchesImport
-                ? '¿Borrar todas las jugadas desde aquí en adelante? Se eliminará parte de la partida importada y sus variantes.'
-                : '¿Borrar todas las jugadas y subvariantes desde esta posición en adelante?'
+            let message
+            if (inVariation) {
+                message =
+                    '¿Borrar las jugadas restantes de esta rama (y subvariantes) desde aquí?'
+            } else if (touchesImport) {
+                message =
+                    '¿Borrar todas las jugadas desde aquí en adelante? Se eliminará parte de la partida importada y sus variantes.'
+            } else {
+                message =
+                    '¿Borrar todas las jugadas y subvariantes desde esta posición en adelante?'
+            }
             setPendingPgnAction({
                 kind: 'truncate',
                 path,
@@ -354,13 +430,39 @@ export default function CoachStudyWorkspace({
         [treeRoot, pathHasContinuations],
     )
 
+    const executeDeleteVariationMove = useCallback(
+        (path) => {
+            const result = deleteLeafMoveAtPath(treeRoot, path)
+            if (!result) return
+            setTreeRoot(result.tree)
+            setCursorPath(result.path)
+        },
+        [treeRoot, setTreeRoot, setCursorPath],
+    )
+
+    const requestDeleteVariationMove = useCallback((path) => {
+        if (!path?.length) return
+        setPendingPgnAction({
+            kind: 'deleteVariationMove',
+            path,
+            message: '¿Borrar esta jugada de la variante?',
+            confirmLabel: 'Borrar jugada',
+        })
+    }, [])
+
     const confirmPendingPgnAction = useCallback(() => {
         if (!pendingPgnAction) return
         const { kind, path } = pendingPgnAction
         if (kind === 'deleteVariation') executeDeleteVariation(path)
+        else if (kind === 'deleteVariationMove') executeDeleteVariationMove(path)
         else executeTruncateForward(path)
         setPendingPgnAction(null)
-    }, [pendingPgnAction, executeDeleteVariation, executeTruncateForward])
+    }, [
+        pendingPgnAction,
+        executeDeleteVariation,
+        executeDeleteVariationMove,
+        executeTruncateForward,
+    ])
 
     const cancelPendingPgnAction = useCallback(() => {
         setPendingPgnAction(null)
@@ -592,7 +694,9 @@ export default function CoachStudyWorkspace({
                                 color="text.secondary"
                                 sx={{ mt: 1, textAlign: 'center' }}
                             >
-                                Arrastrá piezas para probar variantes (solo esta sesión). Al coronar, elegí pieza en el tablero.
+                                {gameId
+                                    ? 'Arrastrá piezas para probar variantes; se guardan solas en ~1 s (o «Guardar estudio» en el panel PGN).'
+                                    : 'Arrastrá piezas para probar variantes (solo esta sesión). Al coronar, elegí pieza en el tablero.'}
                             </Typography>
                         )}
                         {!criticalMode && (
@@ -788,6 +892,7 @@ export default function CoachStudyWorkspace({
                         onSelectPath={goToPath}
                         onDeleteVariation={requestDeleteVariation}
                         onTruncateForward={requestTruncateForward}
+                        onDeleteVariationMove={requestDeleteVariationMove}
                         pathHasContinuations={pathHasContinuations}
                         evalByFen={evalByFen}
                         classificationByPathKey={classificationByPathKey}
@@ -797,8 +902,12 @@ export default function CoachStudyWorkspace({
                         mainLineResult={gameMeta?.result ?? null}
                         maxHeight={320}
                         rootPositionLabel={rootPositionLabel}
-                        sourcePgn={sourcePgn ?? gameMeta?.pgn ?? null}
+                        sourcePgn={effectiveSourcePgn}
                         plyUserByPathKey={plyUserByPathKey}
+                        onSaveStudy={gameId ? handleSaveStudy : null}
+                        studyDirty={studyDirty}
+                        saveStudyBusy={saveStudyBusy}
+                        saveStudyMessage={saveStudyMessage}
                     />
 
                     {decisionsPanel}

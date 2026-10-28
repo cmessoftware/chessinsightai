@@ -19,6 +19,8 @@ Secuencia **única** para implementar la app (React + FastAPI + Postgres). Los n
 
 **Trabajo activo hoy:** Phase **1** (cerrar P0-2…P0-5 y validación UI).
 
+**Feature list resumido (Phase 1 + 2):** [02-phase-1-2-feature-list.md](./02-phase-1-2-feature-list.md) — enlaza tracker `FEAT-*` y tareas P0 / AS-A.
+
 ```text
 Phase 1  slice UI + module07 mínimo
    ↓

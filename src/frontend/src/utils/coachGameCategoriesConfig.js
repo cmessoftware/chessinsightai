@@ -1,7 +1,7 @@
 export const COACH_GAME_CATEGORIES_STORAGE_KEY = 'coach.partidas.categories.v1'
 
 /**
- * @typedef {{ type: 'source_contains' | 'text_keywords' | 'corpus_type', value: string }} CoachCategoryRule
+ * @typedef {{ type: 'source_contains' | 'text_keywords' | 'corpus_type' | 'speed_class', value: string }} CoachCategoryRule
  * @typedef {{
  *   id: string
  *   label: string
@@ -151,7 +151,9 @@ export function normalizeCoachGameCategories(raw) {
                   }))
                   .filter(
                       (r) =>
-                          ['source_contains', 'text_keywords', 'corpus_type'].includes(r.type) &&
+                          ['source_contains', 'text_keywords', 'corpus_type', 'speed_class'].includes(
+                              r.type,
+                          ) &&
                           r.value,
                   )
             : []
@@ -226,6 +228,7 @@ export function categoryRulesSummary(cat) {
         if (r.type === 'corpus_type') parts.push(`corpus=${r.value}`)
         else if (r.type === 'source_contains') parts.push(`fuente ∋ "${r.value}"`)
         else if (r.type === 'text_keywords') parts.push(`texto: ${r.value}`)
+        else if (r.type === 'speed_class') parts.push(`ritmo Lichess=${r.value}`)
     }
     if (cat.fallback) parts.push('(resto)')
     return parts.length ? parts.join(' · ') : '—'

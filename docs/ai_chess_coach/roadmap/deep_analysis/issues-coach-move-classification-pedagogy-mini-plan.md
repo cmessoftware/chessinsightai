@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)  
-**Actualizado:** 2026-10-26  
+**Actualizado:** 2026-10-28  
 
 > **Sync (obligatorio):** **Espejo** del canónico en [`../designs/issues-coach-move-classification-pedagogy-mini-plan.md`](../designs/issues-coach-move-classification-pedagogy-mini-plan.md). Cuerpo del tracker idéntico a `designs/`; mismo commit.
 
@@ -9,7 +9,7 @@
 **Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
 **Split monolito #158:** integrado en `main` (#159–#164); ver [pr_158_riesgos.md](../../pr_158_riesgos.md).
 
-**Estrategia (vigente):** MVP **Stockfish WASM** + UI de análisis avanzada en cliente. **SV-2** persiste clasificación por ply en Postgres (#159) cuando hay `gameId` y el usuario activa análisis liviano. Análisis profundo servidor → Phase 2 ([deep_analysis index](../deep_analysis/index.md)).
+**Estrategia (vigente):** MVP **Stockfish WASM** + UI de análisis avanzada en cliente. **SV-2** persiste clasificación por ply en Postgres (#159) cuando hay `gameId` y el usuario activa análisis liviano. **Variantes de estudio** (FEAT-066): botón «Guardar estudio» persiste RAV en PGN del catálogo; al reabrir se reconstruye el árbol con <code>buildTreeFromPgn</code>. Análisis profundo servidor → Phase 2 ([deep_analysis index](../deep_analysis/index.md)).
 
 **Superficie UI actual:** `CoachStudyWorkspace.jsx`, `CoachGameAnalysisPage.jsx`, `CoachPgnMoveList.jsx`, `AdvancedMoveAnalysisPanel.jsx`, `LiveEnginePanel.jsx`, hooks `usePgnMoveClassification`, `useSyncPlyClassificationPersistence`.
 
@@ -105,6 +105,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-063</td><td>UI-G2</td><td>Filtros avanzados en <strong>Coach → Partidas</strong> (fuente, jugadores con <code>*</code>, ECO, apertura, fecha, resultado); AND/OR según [UI-G2](./coach-games-catalog-unify-mini-plan.md#ui-g2); API listado Coach con query params; complementa chips FEAT-046</td><td>✅ Done</td><td>HITL OK — <code>feature/11_065_partidas_opening_combo</code> (063–065); ver también FEAT-064/065</td></tr>
 <tr><td>FEAT-064</td><td>FEAT-063</td><td>Filtro <strong>Fuente</strong> en Partidas: usar <code>coach_games.corpus_type</code> (no <code>games.source</code>); API <code>corpus_types</code> + <code>GET …/games/corpus-types</code></td><td>✅ Done</td><td>HITL OK — <code>feature/11_064_partidas_fuente_corpus_type</code>; etiquetas corpus sin traducción</td></tr>
 <tr><td>FEAT-065</td><td>FEAT-063</td><td>Catálogo ECO+nombre; combo <strong>Aperturas</strong> (<code>ECO — name</code>); wildcards en ECO y descripción; al elegir fila filtrar <code>games.eco</code> <strong>o</strong> <code>games.opening</code> (OR); ECO manual opcional sin catálogo</td><td>✅ Done</td><td>HITL OK — <code>feature/11_065_partidas_opening_combo</code>; JSON Lichess CC0 + <code>opening_eco_or</code></td></tr>
+<tr><td>FEAT-066</td><td>FEAT-08 / FEAT-021</td><td><strong>Persistir estudio:</strong> guardar variantes del tablero de análisis en el PGN de la partida del catálogo (<code>PATCH</code> <code>/api/v1/module07/games/{id}</code> o botón «Guardar estudio»). Al reabrir, reconstruir árbol desde PGN con RAV (no solo <code>buildTreeFromMainLine</code>). Comentarios/NAG por ply (FEAT-061) siguen en su tabla aparte.</td><td>✅ Done</td><td><code>coachPgnTreeParse</code>, <code>patchCoachGameStudyPgn</code>, autoguardado <code>useCoachStudyPersistence</code></td></tr>
+<tr><td>BUG-067</td><td>FEAT-09 / FEAT-45</td><td>Menú contextual PGN: no se podían borrar jugadas <strong>dentro</strong> de variantes (solo línea principal o quitar rama en la cabeza)</td><td>✅ Done</td><td><code>deleteLeafMoveAtPath</code>; truncar / borrar hoja / quitar variante completa en <code>CoachPgnMoveList</code></td></tr>
 </tbody>
 </table>
 
@@ -144,7 +146,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>

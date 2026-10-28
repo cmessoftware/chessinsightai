@@ -58,6 +58,7 @@ from modules.module07.repository import (
     delete_coach_games,
     update_coach_game_display_title,
     update_coach_game_result,
+    update_coach_game_study_pgn,
 )
 from modules.module07.pov_bulk import (
     apply_bulk_pov,
@@ -473,6 +474,7 @@ def bulk_delete_games(
 class GameDisplayPatchBody(BaseModel):
     display_title: Optional[str] = Field(default=None, max_length=200)
     result: Optional[str] = None
+    pgn_text: Optional[str] = Field(default=None, max_length=400_000)
 
     @field_validator("display_title")
     @classmethod
@@ -484,6 +486,16 @@ class GameDisplayPatchBody(BaseModel):
             raise ValueError("display_title cannot be blank")
         return text
 
+    @field_validator("pgn_text")
+    @classmethod
+    def strip_pgn_text(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        text = value.strip()
+        if not text:
+            raise ValueError("pgn_text cannot be blank")
+        return text
+
 
 @router.patch("/games/{game_id}")
 def patch_game_by_id(
@@ -493,7 +505,11 @@ def patch_game_by_id(
     db: Session = Depends(get_db),
 ):
     owner = _owner_id(request)
-    if body.display_title is None and body.result is None:
+    if (
+        body.display_title is None
+        and body.result is None
+        and body.pgn_text is None
+    ):
         raise HTTPException(status_code=400, detail="Nada para actualizar")
     try:
         row = None
@@ -503,11 +519,15 @@ def patch_game_by_id(
             )
         if body.result is not None:
             row = update_coach_game_result(db, game_id, owner, body.result)
+        if body.pgn_text is not None:
+            row = update_coach_game_study_pgn(
+                db, game_id, owner, body.pgn_text
+            )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if row is None:
         raise HTTPException(status_code=404, detail="Game not found")
-    return _game_json(row, include_pgn=False)
+    return _game_json(row, include_pgn=body.pgn_text is not None)
 
 
 @router.get("/games/{game_id}")

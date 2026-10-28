@@ -5,7 +5,7 @@
 
 **Objetivo:** vertical slice usable en React: PGN → cola → Stockfish → MultiPV. Cierra infra **P0** antes de Phase 2 (evidencia F07 en producto).
 
-**Catálogo congelado (detalle IDs):** curso [07](../../ai_chess_coach_course/07_module_implementation_plan.md) · [08](../../ai_chess_coach_course/08_mvp_product_roadmap.md) · [11 UI](../../ai_chess_coach_course/11_ui_improvements_roadmap.md) — ver [mapeo curso → fases](./01-phase-roadmap.md#mapeo-curso-07--08--11--fases-web).
+**Catálogo congelado (detalle IDs):** curso [07](../../ai_chess_coach_course/07_module_implementation_plan.md) · [08](../../ai_chess_coach_course/08_mvp_product_roadmap.md) · [11 UI](../../ai_chess_coach_course/11_ui_improvements_roadmap.md) — ver [mapeo curso → fases](./01-phase-roadmap.md#mapeo-curso-07--08--11--fases-web). **Resumen FEAT / P0 (Phase 1–2):** [02-phase-1-2-feature-list.md](./02-phase-1-2-feature-list.md).
 
 ---
 

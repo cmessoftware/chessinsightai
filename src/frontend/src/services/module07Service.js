@@ -144,6 +144,13 @@ export async function patchCoachGameResult(gameId, result) {
     return data
 }
 
+export async function patchCoachGameStudyPgn(gameId, pgnText) {
+    const { data } = await api.patch(`/api/v1/module07/games/${gameId}`, {
+        pgn_text: pgnText,
+    })
+    return data
+}
+
 export async function getGame(gameId) {
     const { data } = await api.get(`/api/v1/module07/games/${gameId}`)
     return data

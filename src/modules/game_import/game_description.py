@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from modules.game_import.metadata import resolve_display_speed_class
+
 _SPEED_TITLES = {
+    "ultrabullet": "UltraBullet",
     "bullet": "Bullet",
     "blitz": "Blitz",
     "rapid": "Rapid",
@@ -126,8 +129,9 @@ def format_coach_game_description(
     if pov:
         line += f" · POV {pov}"
     rhythm: list[str] = []
-    speed_title = speed_class_title(speed_class)
-    clock = format_time_control_display(time_control, speed_class=speed_class)
+    display_speed = resolve_display_speed_class(speed_class, time_control)
+    speed_title = speed_class_title(display_speed)
+    clock = format_time_control_display(time_control, speed_class=display_speed or speed_class)
     if speed_title:
         rhythm.append(speed_title)
     if clock:
