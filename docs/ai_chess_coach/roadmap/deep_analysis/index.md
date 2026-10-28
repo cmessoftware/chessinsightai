@@ -26,7 +26,11 @@ Diseños UI: [../designs/index.md](../designs/index.md) · Roadmap Phase 2: [../
 | Documento | Resumen |
 |-----------|---------|
 | [issues-plan-implementacion-analisis-profundo.md](./issues-plan-implementacion-analisis-profundo.md) | **DEEP-01…19** — catálogo A/B/C, ramas, orden sugerido |
-| [issues-plan-implementacion-sparring-maia.md](./issues-plan-implementacion-sparring-maia.md) | **SPAR-01…15** — sparring Maia MVP + post-análisis SF |
+| [issues-sparring-maia-server-mini-plan.md](./issues-sparring-maia-server-mini-plan.md) | **SPAR-01…20** — sparring Maia servidor, humanización tiempo bot (Lucas Chess), SF posterior |
+| [spar-01-openspec-maia3.md](../devops/spar-01-openspec-maia3.md) | **SPAR-01** ✅ — OpenSpec licencias, `MAIA_*`, cache HF |
+| [spar-01-maia-local-windows.md](../devops/spar-01-maia-local-windows.md) | Runbook Maia-3 UCI, smoke local Windows |
+| [sources/maia_mocktest.md](./sources/maia_mocktest.md) | Evidencia smoke SPAR-01 |
+| [issues-plan-implementacion-sparring-maia.md](./issues-plan-implementacion-sparring-maia.md) | Resumen corto SPAR-01…15 (ver tracker detallado arriba) |
 
 ## Entregas, HITL y datos
 
