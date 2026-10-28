@@ -32,6 +32,7 @@ from routers import (
     notifications,
     analysis,
     module07,
+    sparring,
 )
 
 from middleware.jwt_middleware import JWTMiddleware
@@ -112,6 +113,7 @@ app.include_router(reports.router, tags=["reports"])
 app.include_router(notifications.router, tags=["notifications"])
 app.include_router(analysis.router, tags=["analysis", "ml", "shap"])
 app.include_router(module07.router)
+app.include_router(sparring.router)
 
 
 @app.get("/")

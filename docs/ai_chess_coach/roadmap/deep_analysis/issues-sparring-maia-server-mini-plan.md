@@ -44,7 +44,7 @@
 <tr><td>SPAR-05</td><td>SPAR-04</td><td>API moves: <code>expected_ply</code> + <code>request_id</code>; unicidad <code>(session_id, ply)</code></td><td>⬜ Todo</td><td>Idempotencia §2.4</td></tr>
 <tr><td>SPAR-06</td><td>SPAR-03</td><td>Worker turno bot: latencia real, timeout, pausa si falla Maia (sin sustituto SF)</td><td>⬜ Todo</td><td>Aceptación SPAR #4; registrar <code>ModelPrediction.latency</code></td></tr>
 <tr><td>SPAR-07</td><td>SPAR-05</td><td><code>finish</code> / abandono / reloj: reglas chess.js + terminación registrada</td><td>⬜ Todo</td><td>Modo normal MVP; spec §4.2</td></tr>
-<tr><td>SPAR-08</td><td>SPAR-07</td><td>UI: configuración (color, nivel, modo, ritmo opcional), tablero sin eval en vivo</td><td>⬜ Todo</td><td><code>feature/11_200_sparring_board_ui</code></td></tr>
+<tr><td>SPAR-08</td><td>SPAR-07</td><td>UI: configuración (color, nivel, modo, ritmo opcional), tablero sin eval en vivo</td><td>⬜ Todo</td><td><code>feature/11_200_sparring_board_ui</code>; entrada menú FEAT-068</td></tr>
 <tr><td>SPAR-09</td><td>SPAR-07</td><td>Job post-sesión Stockfish: <code>POST .../analysis</code> idempotente, procedencia sparring</td><td>⬜ Todo</td><td>DEEP-03 / module07; perfil liviano MVP</td></tr>
 <tr><td>SPAR-10</td><td>SPAR-09</td><td>UI revisión: enlace análisis Coach / decisiones post-partida</td><td>⬜ Todo</td><td><a href="../designs/coach-game-analysis-layout-pgn.md">coach-game-analysis-layout-pgn</a></td></tr>
 <tr><td>SPAR-11</td><td>SPAR-04</td><td>Eventos outbox: <code>sparring.session_*</code>, <code>analysis.completed</code></td><td>⬜ Todo</td><td>Schema versionado §4.3</td></tr>
