@@ -90,7 +90,8 @@
 </thead>
 <tbody>
 <tr><td>✅ Done</td><td>SPAR-01</td></tr>
-<tr><td>⬜ Todo</td><td>SPAR-02…20, SPAR-A1, SPAR-A2</td></tr>
+<tr><td>✅ Done</td><td>SPAR-01, SPAR-02</td></tr>
+<tr><td>⬜ Todo</td><td>SPAR-03…20, SPAR-A1, SPAR-A2</td></tr>
 </tbody>
 </table>
 
