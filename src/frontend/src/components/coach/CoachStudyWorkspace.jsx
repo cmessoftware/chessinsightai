@@ -14,11 +14,13 @@ import {
 import {
     FirstPage,
     FlipCameraAndroid,
+    Fullscreen,
     LastPage,
     NavigateBefore,
     NavigateNext,
     PowerSettingsNew,
 } from '@mui/icons-material'
+import CoachBoardFullscreenOverlay from './CoachBoardFullscreenOverlay.jsx'
 import { Link as RouterLink } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachCapturedPiecesStack from './CoachCapturedPiecesBar.jsx'
@@ -115,6 +117,8 @@ export default function CoachStudyWorkspace({
     const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
     const [saveStudyBusy, setSaveStudyBusy] = useState(false)
     const [saveStudyMessage, setSaveStudyMessage] = useState(null)
+    const [boardFullscreen, setBoardFullscreen] = useState(false)
+    const [fullscreenPgnVisible, setFullscreenPgnVisible] = useState(true)
 
     const effectiveSourcePgn = sourcePgn ?? gameMeta?.pgn ?? null
 
@@ -561,6 +565,59 @@ export default function CoachStudyWorkspace({
         ? ['Motor', 'Análisis avanzado', 'Mental 1600']
         : ['Motor', 'Análisis avanzado']
 
+    const pgnMoveListProps = {
+        treeRoot,
+        cursorPath,
+        onSelectPath: goToPath,
+        onDeleteVariation: requestDeleteVariation,
+        onTruncateForward: requestTruncateForward,
+        onDeleteVariationMove: requestDeleteVariationMove,
+        pathHasContinuations,
+        evalByFen,
+        classificationByPathKey,
+        classificationProgress,
+        playerColor,
+        resultLabel: pgnResultLabel,
+        mainLineResult: gameMeta?.result ?? null,
+        rootPositionLabel,
+        sourcePgn: effectiveSourcePgn,
+        plyUserByPathKey,
+        onSaveStudy: gameId ? handleSaveStudy : null,
+        studyDirty,
+        saveStudyBusy,
+        saveStudyMessage,
+    }
+
+    const renderBoardAtWidth = (width) => (
+        <CoachCapturedPiecesStack
+            orientation={orientation}
+            capturedByWhite={capturedPieces.capturedByWhite}
+            capturedByBlack={capturedPieces.capturedByBlack}
+            boardWidth={width}
+        >
+            <Box sx={{ position: 'relative', width, maxWidth: '100%' }}>
+                <ChessinsightBoard
+                    fen={boardFen}
+                    orientation={orientation}
+                    lastMove={lastMove}
+                    viewOnly={criticalMode}
+                    onMove={handleBoardMove}
+                    boardWidth={width}
+                />
+                {pendingPromotion && !criticalMode && (
+                    <CoachPromotionPicker
+                        pending={pendingPromotion}
+                        boardWidth={width}
+                        orientation={orientation}
+                        moverColor={boardFen.split(/\s+/)[1] === 'b' ? 'black' : 'white'}
+                        onSelect={handlePromotionSelect}
+                        onCancel={cancelPendingPromotion}
+                    />
+                )}
+            </Box>
+        </CoachCapturedPiecesStack>
+    )
+
     return (
         <Box>
             {!embedded && title && (
@@ -671,9 +728,21 @@ export default function CoachStudyWorkspace({
                                 maxWidth: '100%',
                                 display: 'flex',
                                 justifyContent: 'flex-end',
+                                gap: 0.5,
                                 mt: 0.5,
                             }}
                         >
+                            {!criticalMode && (
+                                <Tooltip title="Pantalla completa (tablero y PGN)">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setBoardFullscreen(true)}
+                                        aria-label="Pantalla completa del tablero"
+                                    >
+                                        <Fullscreen fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
                             <IconButton
                                 size="small"
                                 onClick={flipBoard}
@@ -886,33 +955,28 @@ export default function CoachStudyWorkspace({
                         </Box>
                     )}
 
-                    <CoachPgnMoveList
-                        treeRoot={treeRoot}
-                        cursorPath={cursorPath}
-                        onSelectPath={goToPath}
-                        onDeleteVariation={requestDeleteVariation}
-                        onTruncateForward={requestTruncateForward}
-                        onDeleteVariationMove={requestDeleteVariationMove}
-                        pathHasContinuations={pathHasContinuations}
-                        evalByFen={evalByFen}
-                        classificationByPathKey={classificationByPathKey}
-                        classificationProgress={classificationProgress}
-                        playerColor={playerColor}
-                        resultLabel={pgnResultLabel}
-                        mainLineResult={gameMeta?.result ?? null}
-                        maxHeight={320}
-                        rootPositionLabel={rootPositionLabel}
-                        sourcePgn={effectiveSourcePgn}
-                        plyUserByPathKey={plyUserByPathKey}
-                        onSaveStudy={gameId ? handleSaveStudy : null}
-                        studyDirty={studyDirty}
-                        saveStudyBusy={saveStudyBusy}
-                        saveStudyMessage={saveStudyMessage}
-                    />
+                    <CoachPgnMoveList {...pgnMoveListProps} maxHeight={320} />
 
                     {decisionsPanel}
                 </Grid>
             </Grid>
+
+            <CoachBoardFullscreenOverlay
+                open={boardFullscreen && !criticalMode}
+                onClose={() => setBoardFullscreen(false)}
+                pgnVisible={fullscreenPgnVisible}
+                onTogglePgn={() => setFullscreenPgnVisible((v) => !v)}
+                onFlipBoard={flipBoard}
+                moveLabel={moveLabel}
+                stepFirst={stepFirst}
+                stepBack={stepBack}
+                stepForward={stepForward}
+                stepLast={stepLast}
+                canStepForward={canStepForward}
+                cursorPathLength={cursorPath.length}
+                board={renderBoardAtWidth}
+                pgnPanel={<CoachPgnMoveList {...pgnMoveListProps} />}
+            />
         </Box>
     )
 }

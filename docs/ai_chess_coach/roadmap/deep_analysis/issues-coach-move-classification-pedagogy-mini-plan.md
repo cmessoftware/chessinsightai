@@ -107,6 +107,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-065</td><td>FEAT-063</td><td>Catálogo ECO+nombre; combo <strong>Aperturas</strong> (<code>ECO — name</code>); wildcards en ECO y descripción; al elegir fila filtrar <code>games.eco</code> <strong>o</strong> <code>games.opening</code> (OR); ECO manual opcional sin catálogo</td><td>✅ Done</td><td>HITL OK — <code>feature/11_065_partidas_opening_combo</code>; JSON Lichess CC0 + <code>opening_eco_or</code></td></tr>
 <tr><td>FEAT-066</td><td>FEAT-08 / FEAT-021</td><td><strong>Persistir estudio:</strong> guardar variantes del tablero de análisis en el PGN de la partida del catálogo (<code>PATCH</code> <code>/api/v1/module07/games/{id}</code> o botón «Guardar estudio»). Al reabrir, reconstruir árbol desde PGN con RAV (no solo <code>buildTreeFromMainLine</code>). Comentarios/NAG por ply (FEAT-061) siguen en su tabla aparte.</td><td>✅ Done</td><td><code>coachPgnTreeParse</code>, <code>patchCoachGameStudyPgn</code>, autoguardado <code>useCoachStudyPersistence</code></td></tr>
 <tr><td>BUG-067</td><td>FEAT-09 / FEAT-45</td><td>Menú contextual PGN: no se podían borrar jugadas <strong>dentro</strong> de variantes (solo línea principal o quitar rama en la cabeza)</td><td>✅ Done</td><td><code>deleteLeafMoveAtPath</code>; truncar / borrar hoja / quitar variante completa en <code>CoachPgnMoveList</code></td></tr>
+<tr><td>FEAT-068</td><td>FEAT-032 / FEAT-036</td><td><strong>Ritmo Lichess:</strong> clasificar y mostrar ritmo desde reloj PGN (UltraBullet &lt;30 s, Bullet &lt;3 min, Blitz, Rapid, Classical); columna/descripción <code>formatCoachRhythmDisplay</code>; regla categoría <code>speed_class</code>; import <code>infer_speed_class_from_time_control</code></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/204">#204</a></td></tr>
+<tr><td>FEAT-070</td><td>FEAT-047</td><td>Panel del <strong>gráfico de evaluación</strong> (pestaña Motor / análisis liviano): colapsable, <strong>expandido por defecto</strong></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/207">#207</a> · <code>CoachEvalChartCollapsible</code></td></tr>
+<tr><td>FEAT-071</td><td>FEAT-08</td><td><strong>Pantalla completa</strong> del tablero en análisis: solo tablero + flechas de navegación; panel <strong>PGN a la derecha</strong> visible por defecto; opción para <strong>ocultar</strong> el PGN</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code> · <code>feature/11_071_board_fullscreen</code></td></tr>
 </tbody>
 </table>
 
@@ -146,7 +149,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066/068/070/071, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
