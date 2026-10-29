@@ -5,7 +5,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.environ.get("CHESS_TRAINER_DB_URL")
+from db.postgres_url import resolve_postgres_url
+
+DATABASE_URL = resolve_postgres_url()
+if not DATABASE_URL:
+    raise RuntimeError(
+        "Set CHESS_TRAINER_DB_URL or run `neon deploy` to populate DATABASE_URL."
+    )
 engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 

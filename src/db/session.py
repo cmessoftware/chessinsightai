@@ -4,8 +4,9 @@ import dotenv
 import os
 dotenv.load_dotenv()
 
+from db.postgres_url import resolve_postgres_url
 
-DATABASE_URL = os.environ.get("CHESS_TRAINER_DB_URL")
+DATABASE_URL = resolve_postgres_url()
 
 if DATABASE_URL and DATABASE_URL.startswith("sqlite"):
     engine = create_engine(DATABASE_URL, connect_args={

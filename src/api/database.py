@@ -9,10 +9,14 @@ _repo_root = os.path.abspath(os.path.join(_api_dir, "..", ".."))
 dotenv.load_dotenv(os.path.join(_repo_root, ".env"))
 dotenv.load_dotenv()
 
+try:
+    from src.db.postgres_url import resolve_postgres_url
+except ModuleNotFoundError:
+    from db.postgres_url import resolve_postgres_url
+
 # URL de la base de datos PostgreSQL (dev: start_db.ps1 → 5434)
-DATABASE_URL = os.environ.get(
-    "CHESS_TRAINER_DB_URL",
-    "postgresql://chess:chess_pass@localhost:5434/chess_trainer_db",
+DATABASE_URL = resolve_postgres_url(
+    default="postgresql://chess:chess_pass@localhost:5434/chess_trainer_db",
 )
 
 # Crear motor de base de datos

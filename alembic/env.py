@@ -18,6 +18,8 @@ _repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 load_dotenv(os.path.join(_repo_root, ".env"))
 load_dotenv()
 
+from src.db.postgres_url import resolve_postgres_url
+
 # Import your Base and models
 
 # Config Alembic
@@ -31,7 +33,7 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline():
-    url = os.getenv("CHESS_TRAINER_DB_URL")
+    url = resolve_postgres_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -43,7 +45,7 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    url = os.getenv("CHESS_TRAINER_DB_URL")
+    url = resolve_postgres_url()
     connectable = engine_from_config(
         {"sqlalchemy.url": url},
         prefix="sqlalchemy.",
