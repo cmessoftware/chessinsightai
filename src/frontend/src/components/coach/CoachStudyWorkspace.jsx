@@ -119,6 +119,7 @@ export default function CoachStudyWorkspace({
     const [saveStudyMessage, setSaveStudyMessage] = useState(null)
     const [boardFullscreen, setBoardFullscreen] = useState(false)
     const [fullscreenPgnVisible, setFullscreenPgnVisible] = useState(true)
+    const [pgnMovetextVisible, setPgnMovetextVisible] = useState(true)
 
     const effectiveSourcePgn = sourcePgn ?? gameMeta?.pgn ?? null
 
@@ -233,7 +234,8 @@ export default function CoachStudyWorkspace({
             const columnW = el.clientWidth
             const vhCap =
                 typeof window !== 'undefined' ? Math.floor(window.innerHeight * 0.52) : 480
-            const w = Math.min(480, columnW - 16, vhCap)
+            const widthCap = pgnMovetextVisible ? 480 : 640
+            const w = Math.min(widthCap, columnW - 16, vhCap)
             setBoardWidth(Math.max(280, w))
         }
         measure()
@@ -244,7 +246,7 @@ export default function CoachStudyWorkspace({
             observer.disconnect()
             window.removeEventListener('resize', measure)
         }
-    }, [])
+    }, [pgnMovetextVisible])
 
     const exitCritical = useCallback(() => {
         reviewCritical?.onExit?.()
@@ -586,6 +588,8 @@ export default function CoachStudyWorkspace({
         studyDirty,
         saveStudyBusy,
         saveStudyMessage,
+        movetextVisible: pgnMovetextVisible,
+        onToggleMovetext: () => setPgnMovetextVisible((v) => !v),
     }
 
     const renderBoardAtWidth = (width) => (
@@ -654,8 +658,8 @@ export default function CoachStudyWorkspace({
                 <Grid
                     item
                     xs={12}
-                    sm={7}
-                    md={7}
+                    sm={pgnMovetextVisible ? 7 : 12}
+                    md={pgnMovetextVisible ? 7 : 8}
                     order={{ xs: 1, sm: 1 }}
                     sx={{ minWidth: 0, flex: { sm: '1 1 0' } }}
                 >
@@ -831,13 +835,15 @@ export default function CoachStudyWorkspace({
                 <Grid
                     item
                     xs={12}
-                    sm={5}
-                    md={5}
+                    sm={pgnMovetextVisible ? 5 : 12}
+                    md={pgnMovetextVisible ? 5 : 4}
                     order={{ xs: 2, sm: 2 }}
                     sx={{
                         minWidth: 0,
                         flex: { sm: '0 0 auto' },
-                        width: { sm: '41.666667%' },
+                        width: {
+                            sm: pgnMovetextVisible ? '41.666667%' : '100%',
+                        },
                         maxWidth: '100%',
                     }}
                 >

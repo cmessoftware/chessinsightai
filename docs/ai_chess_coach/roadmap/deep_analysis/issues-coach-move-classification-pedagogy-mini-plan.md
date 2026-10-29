@@ -111,7 +111,8 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-070</td><td>FEAT-047</td><td>Panel del <strong>gráfico de evaluación</strong> (pestaña Motor / análisis liviano): colapsable, <strong>expandido por defecto</strong></td><td>✅ Done</td><td><code>CoachEvalChartCollapsible</code> · <a href="https://github.com/cmessoftware/chessinsightai/pull/208">#208</a> (incl. #207)</td></tr>
 <tr><td>FEAT-071</td><td>FEAT-08</td><td><strong>Pantalla completa</strong> del tablero en análisis: solo tablero + flechas de navegación; panel <strong>PGN a la derecha</strong> visible por defecto; opción para <strong>ocultar</strong> el PGN</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code> · <a href="https://github.com/cmessoftware/chessinsightai/pull/208">#208</a></td></tr>
 <tr><td>FEAT-072</td><td>FEAT-021</td><td>En lista de <strong>Partidas</strong>, botón para <strong>exportar</strong> el PGN (con variantes guardadas en catálogo) de las partidas seleccionadas</td><td>✅ Done</td><td><code>CoachGamesPanel</code> · <code>coachGamesPgnExport.js</code> · <code>feature/11_072_export_selected_pgn</code></td></tr>
-<tr><td>FEAT-073</td><td>FEAT-072</td><td>Agregar además botón «Ocultar panel PGN» a la izq. del botón «Guardar estudio» dentro del panel</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-073</td><td>FEAT-072</td><td>Agregar además botón «Ocultar panel PGN» a la izq. del botón «Guardar estudio» dentro del panel</td><td>✅ Done</td><td><code>CoachPgnMoveList</code> · <code>CoachStudyWorkspace</code> · #209</td></tr>
+<tr><td>BUG-074</td><td>FEAT-073</td><td>Al ocultar movidas del panel PGN, el contenedor conservaba <code>minHeight</code> vacío y el tablero no ampliaba ancho útil</td><td>✅ Done</td><td>Layout Grid + tope 640 px al colapsar · #209</td></tr>
 </tbody>
 </table>
 
@@ -151,9 +152,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066/068/070/071/072, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066/068/070/071/072/073, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, FEAT-073, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
