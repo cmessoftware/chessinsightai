@@ -691,6 +691,7 @@ export default function CoachPgnMoveList({
                 {movetextVisible && showLegend && <PgnLegend />}
             </Box>
             {movetextVisible && (
+            <>
             <Box
                 ref={scrollContainerRef}
                 onContextMenu={handlePanelContextMenu}
@@ -905,6 +906,7 @@ export default function CoachPgnMoveList({
                     </MenuItem>
                 )}
             </Menu>
+            </>
             )}
         </Paper>
     )
