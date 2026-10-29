@@ -29,7 +29,7 @@ import Mental1600Panel from './Mental1600Panel.jsx'
 import EngineMultipvPanel from './EngineMultipvPanel.jsx'
 import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
-import CoachEvalCpChart from './CoachEvalCpChart.jsx'
+import CoachEvalChartCollapsible from './CoachEvalChartCollapsible.jsx'
 import CoachPlyAnnotationPanel from './CoachPlyAnnotationPanel.jsx'
 import CoachPromotionPicker from './CoachPromotionPicker.jsx'
 import { promotionChoicesForMove } from '../../utils/coachPromotion.js'
@@ -821,7 +821,7 @@ export default function CoachStudyWorkspace({
                                 </Box>
                                 {lightClassificationOn && (
                                     <>
-                                        <CoachEvalCpChart
+                                        <CoachEvalChartCollapsible
                                             series={evalCpSeries}
                                             cursorPly={evalChartCursorPly}
                                             onSelectPath={goToPath}
