@@ -22,12 +22,21 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material'
-import { Analytics, Check, Close, DeleteOutline, EditOutlined, Visibility } from '@mui/icons-material'
+import {
+    Analytics,
+    Check,
+    Close,
+    DeleteOutline,
+    EditOutlined,
+    FileDownload,
+    Visibility,
+} from '@mui/icons-material'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import {
     createAnalysisJob,
     deleteCoachGame,
     deleteCoachGames,
+    getGame,
     listCoachCorpusTypes,
     listGames,
     listJobs,
@@ -79,6 +88,11 @@ import {
     loadEcoOpeningsCatalog,
     searchEcoOpeningsCatalog,
 } from '../../utils/coachOpeningCatalog.js'
+import {
+    coachGamesExportFilename,
+    downloadTextFile,
+    joinGamePgnsForExport,
+} from '../../utils/coachGamesPgnExport.js'
 
 const COACH_JOBS_PAGE_SIZE = 5
 const COACH_GAMES_PAGE_SIZE = 20
@@ -414,6 +428,7 @@ export default function CoachGamesPanel() {
     const [selectedIds, setSelectedIds] = useState(() => new Set())
     const [analyzing, setAnalyzing] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    const [exportingPgns, setExportingPgns] = useState(false)
     const [pendingDelete, setPendingDelete] = useState(null)
     const [refreshing, setRefreshing] = useState(false)
     const [sortBy, setSortBy] = useState(null)
@@ -772,6 +787,45 @@ export default function CoachGamesPanel() {
     }
 
     const cancelPendingDelete = () => setPendingDelete(null)
+
+    const exportSelectedGamesPgns = async () => {
+        const ids = [...selectedIds]
+        if (!ids.length) return
+        setExportingPgns(true)
+        setError(null)
+        try {
+            const rows = await Promise.all(ids.map((id) => getGame(id)))
+            const pgns = []
+            const missing = []
+            for (const row of rows) {
+                const pgn = row?.pgn
+                if (pgn && String(pgn).trim()) pgns.push(pgn)
+                else missing.push(row?.id ?? '?')
+            }
+            if (!pgns.length) {
+                setError('Las partidas seleccionadas no tienen PGN almacenado para exportar.')
+                return
+            }
+            const body = joinGamePgnsForExport(pgns)
+            const filename = coachGamesExportFilename(ids.length === 1 ? ids[0] : null)
+            downloadTextFile(filename, body)
+            if (missing.length) {
+                setInfo(
+                    `Exportadas ${pgns.length} partida(s); sin PGN: ${missing.length} id(s).`,
+                )
+            } else {
+                setInfo(
+                    ids.length === 1
+                        ? 'PGN exportado (incluye variantes guardadas en el catálogo).'
+                        : `${ids.length} partidas exportadas en un archivo PGN.`,
+                )
+            }
+        } catch (err) {
+            setError(parseApiDetail(err) || 'No se pudo exportar el PGN.')
+        } finally {
+            setExportingPgns(false)
+        }
+    }
 
     const runAnalysis = async (gameIds, fallbackHandle = '') => {
         const handle = (playerHandle || fallbackHandle || '').trim()
@@ -1224,6 +1278,16 @@ export default function CoachGamesPanel() {
                         {deleting
                             ? 'Eliminando…'
                             : `Eliminar selección (${selectedIds.size})`}
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<FileDownload />}
+                        disabled={exportingPgns || selectedIds.size === 0}
+                        onClick={exportSelectedGamesPgns}
+                    >
+                        {exportingPgns
+                            ? 'Exportando…'
+                            : `Exportar PGN (${selectedIds.size})`}
                     </Button>
                 </Box>
                 <Box

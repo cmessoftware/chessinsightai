@@ -502,6 +502,8 @@ export default function CoachPgnMoveList({
     studyDirty = false,
     saveStudyBusy = false,
     saveStudyMessage = null,
+    movetextVisible = true,
+    onToggleMovetext = null,
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
@@ -624,8 +626,8 @@ export default function CoachPgnMoveList({
                 p: 0,
                 display: 'flex',
                 flexDirection: 'column',
-                minHeight: 280,
-                maxHeight,
+                minHeight: movetextVisible ? 280 : 0,
+                maxHeight: movetextVisible ? maxHeight : 'none',
                 width: '100%',
                 maxWidth: '100%',
                 minWidth: 0,
@@ -643,16 +645,28 @@ export default function CoachPgnMoveList({
                     }}
                 >
                     <Typography variant="subtitle2">PGN</Typography>
-                    {onSaveStudy && (
-                        <Button
-                            size="small"
-                            variant={studyDirty ? 'contained' : 'outlined'}
-                            disabled={!studyDirty || saveStudyBusy}
-                            onClick={onSaveStudy}
-                        >
-                            {saveStudyBusy ? 'Guardando…' : 'Guardar estudio'}
-                        </Button>
-                    )}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                        {onToggleMovetext && (
+                            <Button
+                                size="small"
+                                variant="text"
+                                onClick={onToggleMovetext}
+                                aria-pressed={movetextVisible}
+                            >
+                                {movetextVisible ? 'Ocultar panel PGN' : 'Mostrar panel PGN'}
+                            </Button>
+                        )}
+                        {onSaveStudy && (
+                            <Button
+                                size="small"
+                                variant={studyDirty ? 'contained' : 'outlined'}
+                                disabled={!studyDirty || saveStudyBusy}
+                                onClick={onSaveStudy}
+                            >
+                                {saveStudyBusy ? 'Guardando…' : 'Guardar estudio'}
+                            </Button>
+                        )}
+                    </Box>
                 </Box>
                 {saveStudyMessage && (
                     <Typography
@@ -674,8 +688,10 @@ export default function CoachPgnMoveList({
                         {formatClassificationProgressLabel(classificationProgress)}
                     </Typography>
                 )}
-                {showLegend && <PgnLegend />}
+                {movetextVisible && showLegend && <PgnLegend />}
             </Box>
+            {movetextVisible && (
+            <>
             <Box
                 ref={scrollContainerRef}
                 onContextMenu={handlePanelContextMenu}
@@ -890,6 +906,8 @@ export default function CoachPgnMoveList({
                     </MenuItem>
                 )}
             </Menu>
+            </>
+            )}
         </Paper>
     )
 }

@@ -14,11 +14,13 @@ import {
 import {
     FirstPage,
     FlipCameraAndroid,
+    Fullscreen,
     LastPage,
     NavigateBefore,
     NavigateNext,
     PowerSettingsNew,
 } from '@mui/icons-material'
+import CoachBoardFullscreenOverlay from './CoachBoardFullscreenOverlay.jsx'
 import { Link as RouterLink } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachCapturedPiecesStack from './CoachCapturedPiecesBar.jsx'
@@ -29,7 +31,7 @@ import Mental1600Panel from './Mental1600Panel.jsx'
 import EngineMultipvPanel from './EngineMultipvPanel.jsx'
 import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
-import CoachEvalCpChart from './CoachEvalCpChart.jsx'
+import CoachEvalChartCollapsible from './CoachEvalChartCollapsible.jsx'
 import CoachPlyAnnotationPanel from './CoachPlyAnnotationPanel.jsx'
 import CoachPromotionPicker from './CoachPromotionPicker.jsx'
 import { promotionChoicesForMove } from '../../utils/coachPromotion.js'
@@ -115,6 +117,9 @@ export default function CoachStudyWorkspace({
     const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
     const [saveStudyBusy, setSaveStudyBusy] = useState(false)
     const [saveStudyMessage, setSaveStudyMessage] = useState(null)
+    const [boardFullscreen, setBoardFullscreen] = useState(false)
+    const [fullscreenPgnVisible, setFullscreenPgnVisible] = useState(true)
+    const [pgnMovetextVisible, setPgnMovetextVisible] = useState(true)
 
     const effectiveSourcePgn = sourcePgn ?? gameMeta?.pgn ?? null
 
@@ -229,7 +234,8 @@ export default function CoachStudyWorkspace({
             const columnW = el.clientWidth
             const vhCap =
                 typeof window !== 'undefined' ? Math.floor(window.innerHeight * 0.52) : 480
-            const w = Math.min(480, columnW - 16, vhCap)
+            const widthCap = pgnMovetextVisible ? 480 : 640
+            const w = Math.min(widthCap, columnW - 16, vhCap)
             setBoardWidth(Math.max(280, w))
         }
         measure()
@@ -240,7 +246,7 @@ export default function CoachStudyWorkspace({
             observer.disconnect()
             window.removeEventListener('resize', measure)
         }
-    }, [])
+    }, [pgnMovetextVisible])
 
     const exitCritical = useCallback(() => {
         reviewCritical?.onExit?.()
@@ -561,6 +567,61 @@ export default function CoachStudyWorkspace({
         ? ['Motor', 'Análisis avanzado', 'Mental 1600']
         : ['Motor', 'Análisis avanzado']
 
+    const pgnMoveListProps = {
+        treeRoot,
+        cursorPath,
+        onSelectPath: goToPath,
+        onDeleteVariation: requestDeleteVariation,
+        onTruncateForward: requestTruncateForward,
+        onDeleteVariationMove: requestDeleteVariationMove,
+        pathHasContinuations,
+        evalByFen,
+        classificationByPathKey,
+        classificationProgress,
+        playerColor,
+        resultLabel: pgnResultLabel,
+        mainLineResult: gameMeta?.result ?? null,
+        rootPositionLabel,
+        sourcePgn: effectiveSourcePgn,
+        plyUserByPathKey,
+        onSaveStudy: gameId ? handleSaveStudy : null,
+        studyDirty,
+        saveStudyBusy,
+        saveStudyMessage,
+        movetextVisible: pgnMovetextVisible,
+        onToggleMovetext: () => setPgnMovetextVisible((v) => !v),
+    }
+
+    const renderBoardAtWidth = (width) => (
+        <CoachCapturedPiecesStack
+            orientation={orientation}
+            capturedByWhite={capturedPieces.capturedByWhite}
+            capturedByBlack={capturedPieces.capturedByBlack}
+            boardWidth={width}
+        >
+            <Box sx={{ position: 'relative', width, maxWidth: '100%' }}>
+                <ChessinsightBoard
+                    fen={boardFen}
+                    orientation={orientation}
+                    lastMove={lastMove}
+                    viewOnly={criticalMode}
+                    onMove={handleBoardMove}
+                    boardWidth={width}
+                />
+                {pendingPromotion && !criticalMode && (
+                    <CoachPromotionPicker
+                        pending={pendingPromotion}
+                        boardWidth={width}
+                        orientation={orientation}
+                        moverColor={boardFen.split(/\s+/)[1] === 'b' ? 'black' : 'white'}
+                        onSelect={handlePromotionSelect}
+                        onCancel={cancelPendingPromotion}
+                    />
+                )}
+            </Box>
+        </CoachCapturedPiecesStack>
+    )
+
     return (
         <Box>
             {!embedded && title && (
@@ -597,8 +658,8 @@ export default function CoachStudyWorkspace({
                 <Grid
                     item
                     xs={12}
-                    sm={7}
-                    md={7}
+                    sm={pgnMovetextVisible ? 7 : 12}
+                    md={pgnMovetextVisible ? 7 : 8}
                     order={{ xs: 1, sm: 1 }}
                     sx={{ minWidth: 0, flex: { sm: '1 1 0' } }}
                 >
@@ -671,9 +732,21 @@ export default function CoachStudyWorkspace({
                                 maxWidth: '100%',
                                 display: 'flex',
                                 justifyContent: 'flex-end',
+                                gap: 0.5,
                                 mt: 0.5,
                             }}
                         >
+                            {!criticalMode && (
+                                <Tooltip title="Pantalla completa (tablero y PGN)">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setBoardFullscreen(true)}
+                                        aria-label="Pantalla completa del tablero"
+                                    >
+                                        <Fullscreen fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
                             <IconButton
                                 size="small"
                                 onClick={flipBoard}
@@ -762,13 +835,15 @@ export default function CoachStudyWorkspace({
                 <Grid
                     item
                     xs={12}
-                    sm={5}
-                    md={5}
+                    sm={pgnMovetextVisible ? 5 : 12}
+                    md={pgnMovetextVisible ? 5 : 4}
                     order={{ xs: 2, sm: 2 }}
                     sx={{
                         minWidth: 0,
                         flex: { sm: '0 0 auto' },
-                        width: { sm: '41.666667%' },
+                        width: {
+                            sm: pgnMovetextVisible ? '41.666667%' : '100%',
+                        },
                         maxWidth: '100%',
                     }}
                 >
@@ -821,7 +896,7 @@ export default function CoachStudyWorkspace({
                                 </Box>
                                 {lightClassificationOn && (
                                     <>
-                                        <CoachEvalCpChart
+                                        <CoachEvalChartCollapsible
                                             series={evalCpSeries}
                                             cursorPly={evalChartCursorPly}
                                             onSelectPath={goToPath}
@@ -886,33 +961,28 @@ export default function CoachStudyWorkspace({
                         </Box>
                     )}
 
-                    <CoachPgnMoveList
-                        treeRoot={treeRoot}
-                        cursorPath={cursorPath}
-                        onSelectPath={goToPath}
-                        onDeleteVariation={requestDeleteVariation}
-                        onTruncateForward={requestTruncateForward}
-                        onDeleteVariationMove={requestDeleteVariationMove}
-                        pathHasContinuations={pathHasContinuations}
-                        evalByFen={evalByFen}
-                        classificationByPathKey={classificationByPathKey}
-                        classificationProgress={classificationProgress}
-                        playerColor={playerColor}
-                        resultLabel={pgnResultLabel}
-                        mainLineResult={gameMeta?.result ?? null}
-                        maxHeight={320}
-                        rootPositionLabel={rootPositionLabel}
-                        sourcePgn={effectiveSourcePgn}
-                        plyUserByPathKey={plyUserByPathKey}
-                        onSaveStudy={gameId ? handleSaveStudy : null}
-                        studyDirty={studyDirty}
-                        saveStudyBusy={saveStudyBusy}
-                        saveStudyMessage={saveStudyMessage}
-                    />
+                    <CoachPgnMoveList {...pgnMoveListProps} maxHeight={320} />
 
                     {decisionsPanel}
                 </Grid>
             </Grid>
+
+            <CoachBoardFullscreenOverlay
+                open={boardFullscreen && !criticalMode}
+                onClose={() => setBoardFullscreen(false)}
+                pgnVisible={fullscreenPgnVisible}
+                onTogglePgn={() => setFullscreenPgnVisible((v) => !v)}
+                onFlipBoard={flipBoard}
+                moveLabel={moveLabel}
+                stepFirst={stepFirst}
+                stepBack={stepBack}
+                stepForward={stepForward}
+                stepLast={stepLast}
+                canStepForward={canStepForward}
+                cursorPathLength={cursorPath.length}
+                board={renderBoardAtWidth}
+                pgnPanel={<CoachPgnMoveList {...pgnMoveListProps} />}
+            />
         </Box>
     )
 }

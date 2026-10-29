@@ -254,3 +254,4 @@ docs/ai_chess_coach_course/course_data.sqlite
 backups/
 backups/*.sql
 backups/*.dump
+.neon
