@@ -17,15 +17,55 @@ export function extractPgnHeadersBlock(pgnText) {
     return lines.join('\n')
 }
 
+function unescapePgnHeaderValue(raw) {
+    return String(raw || '').replace(/\\"/g, '"').replace(/\\\\/g, '\\')
+}
+
+/** Spanish names for common PGN tags. Unknown tags keep their key. */
+export const PGN_HEADER_LABELS = {
+    Event: 'Evento',
+    Site: 'Sitio',
+    Date: 'Fecha',
+    Round: 'Ronda',
+    White: 'Blancas',
+    Black: 'Negras',
+    Result: 'Resultado',
+    WhiteElo: 'Elo blancas',
+    BlackElo: 'Elo negras',
+    ECO: 'ECO',
+    Opening: 'Apertura',
+    Annotator: 'Anotador',
+    StudyCategory: 'Categoría',
+    TimeControl: 'Control de tiempo',
+    Termination: 'Terminación',
+    FEN: 'FEN',
+    SetUp: 'SetUp',
+}
+
 export function parsePgnHeaderTags(pgnText) {
     const tags = {}
     for (const line of extractPgnHeadersBlock(pgnText).split('\n')) {
         const m = line.match(TAG_LINE)
         if (!m) continue
-        const value = m[2].replace(/\\"/g, '"').replace(/\\\\/g, '\\')
-        tags[m[1]] = value
+        tags[m[1]] = unescapePgnHeaderValue(m[2])
     }
     return tags
+}
+
+/** Header tags in file order: `{ tag, label, value }`. */
+export function listPgnHeaderRows(pgnText) {
+    const rows = []
+    for (const line of extractPgnHeadersBlock(pgnText).split('\n')) {
+        const m = line.match(TAG_LINE)
+        if (!m) continue
+        const tag = m[1]
+        rows.push({
+            tag,
+            label: PGN_HEADER_LABELS[tag] || tag,
+            value: unescapePgnHeaderValue(m[2]),
+        })
+    }
+    return rows
 }
 
 export function upsertPgnHeaderBlock(headersBlock, tag, value) {

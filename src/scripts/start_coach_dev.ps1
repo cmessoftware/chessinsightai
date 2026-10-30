@@ -103,8 +103,11 @@ function Start-ApiWindow {
         return
     }
     Write-Host "Python: $python" -ForegroundColor DarkGray
+    $repoRootForPath = (Resolve-Path (Join-Path $RepoRoot "..")).Path
+    $pyPath = "$repoRootForPath\src;$repoRootForPath\src\api"
     $cmd = @"
 Set-Location '$ApiDir'
+`$env:PYTHONPATH = '$pyPath'
 `$Host.UI.RawUI.WindowTitle = 'Coach API :$ApiPort'
 Write-Host 'Docs: http://127.0.0.1:$ApiPort/docs' -ForegroundColor Green
 & '$python' -m uvicorn main:app --host 127.0.0.1 --port $ApiPort --reload

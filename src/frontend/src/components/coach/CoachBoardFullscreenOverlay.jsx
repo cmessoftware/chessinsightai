@@ -19,6 +19,7 @@ import {
     NavigateBefore,
     NavigateNext,
 } from '@mui/icons-material'
+import { usePgnKeyboardNav } from '../../hooks/usePgnKeyboardNav.js'
 
 /** FEAT-071: pantalla completa tablero + flechas de navegación; PGN lateral (visible por defecto, ocultable). */
 export default function CoachBoardFullscreenOverlay({
@@ -36,9 +37,14 @@ export default function CoachBoardFullscreenOverlay({
     cursorPathLength,
     board,
     pgnPanel,
+    annotationPanel = null,
 }) {
-    const boardAreaRef = useRef(null)
-    const [boardWidth, setBoardWidth] = useState(560)
+    const panelRef = useRef(null)
+    const columnRef = useRef(null)
+    const slotRef = useRef(null)
+    const arrowsRef = useRef(null)
+    const annotationRef = useRef(null)
+    const [boardWidth, setBoardWidth] = useState(480)
 
     useEffect(() => {
         if (!open) return undefined
@@ -52,21 +58,48 @@ export default function CoachBoardFullscreenOverlay({
         return () => window.removeEventListener('keydown', onKey)
     }, [open, onClose])
 
+    usePgnKeyboardNav({
+        enabled: open,
+        targetRef: panelRef,
+        onPrev: stepBack,
+        onNext: stepForward,
+        onFirst: stepFirst,
+        onLast: stepLast,
+    })
+
     useEffect(() => {
         if (!open) return undefined
-        const el = boardAreaRef.current
-        if (!el || typeof ResizeObserver === 'undefined') return undefined
+        const id = window.requestAnimationFrame(() => {
+            slotRef.current?.focus({ preventScroll: true })
+        })
+        return () => window.cancelAnimationFrame(id)
+    }, [open])
+
+    useEffect(() => {
+        if (!open) return undefined
+        const column = columnRef.current
+        const slot = slotRef.current
+        if (!column || !slot || typeof ResizeObserver === 'undefined') return undefined
         const measure = () => {
-            const { clientWidth, clientHeight } = el
-            const sidePad = 24
-            const wByWidth = clientWidth - sidePad
-            const wByHeight = clientHeight - 120
-            const w = Math.min(720, wByWidth, wByHeight)
-            setBoardWidth(Math.max(280, Math.floor(w)))
+            const arrowsH = arrowsRef.current?.offsetHeight ?? 40
+            const noteH = annotationRef.current?.offsetHeight ?? 0
+            const slotStyle = window.getComputedStyle(slot)
+            const padTop = Number.parseFloat(slotStyle.paddingTop) || 0
+            const padBottom = Number.parseFloat(slotStyle.paddingBottom) || 0
+            // Strips above and below the square. Padding on the slot is the visible margin.
+            const captures = 44
+            const fromSlot = slot.clientHeight - padTop - padBottom - captures - 12
+            const fromViewport = window.innerHeight - arrowsH - noteH - captures - padTop - padBottom - 80
+            const w = Math.min(720, slot.clientWidth - 16, fromSlot, fromViewport)
+            if (!Number.isFinite(w) || w < 160) return
+            setBoardWidth(Math.floor(w))
         }
         measure()
         const observer = new ResizeObserver(measure)
-        observer.observe(el)
+        observer.observe(column)
+        observer.observe(slot)
+        if (arrowsRef.current) observer.observe(arrowsRef.current)
+        if (annotationRef.current) observer.observe(annotationRef.current)
         window.addEventListener('resize', measure)
         return () => {
             observer.disconnect()
@@ -77,6 +110,8 @@ export default function CoachBoardFullscreenOverlay({
     return (
         <Modal open={open} onClose={onClose} aria-labelledby="coach-board-fullscreen-title">
             <Box
+                ref={panelRef}
+                tabIndex={-1}
                 sx={{
                     position: 'fixed',
                     inset: 0,
@@ -134,51 +169,102 @@ export default function CoachBoardFullscreenOverlay({
                     </Typography>
                 </Stack>
 
-                <Box sx={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' }}>
+                <Box sx={{ flex: '1 1 0px', display: 'flex', minHeight: 0, overflow: 'hidden' }}>
                     <Box
-                        ref={boardAreaRef}
+                        ref={columnRef}
                         sx={{
-                            flex: 1,
+                            flex: '1 1 0px',
                             display: 'flex',
                             flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            p: 2,
                             minWidth: 0,
+                            minHeight: 0,
+                            overflow: 'hidden',
                         }}
                     >
-                        {typeof board === 'function' ? board(boardWidth) : board}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 2 }}>
-                            <IconButton size="small" onClick={stepFirst} aria-label="Primera posición">
-                                <FirstPage />
-                            </IconButton>
-                            <IconButton
-                                size="small"
-                                onClick={stepBack}
-                                disabled={cursorPathLength <= 0}
-                                aria-label="Jugada anterior"
-                            >
-                                <NavigateBefore />
-                            </IconButton>
-                            <Typography
-                                variant="body2"
-                                component="span"
-                                sx={{ mx: 1, minWidth: 100, textAlign: 'center', userSelect: 'none' }}
-                            >
-                                {moveLabel}
-                            </Typography>
-                            <IconButton
-                                size="small"
-                                onClick={stepForward}
-                                disabled={!canStepForward}
-                                aria-label="Jugada siguiente"
-                            >
-                                <NavigateNext />
-                            </IconButton>
-                            <IconButton size="small" onClick={stepLast} aria-label="Última posición de la rama">
-                                <LastPage />
-                            </IconButton>
+                        <Box
+                            ref={slotRef}
+                            tabIndex={0}
+                            role="group"
+                            aria-label="Tablero. Flechas izquierda y derecha para retroceder o avanzar en la línea."
+                            onPointerDown={() => {
+                                slotRef.current?.focus({ preventScroll: true })
+                            }}
+                            sx={{
+                                flex: '1 1 0px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'flex-start',
+                                minWidth: 0,
+                                minHeight: 0,
+                                overflow: 'hidden',
+                                px: 1,
+                                pt: 3,
+                                pb: 1,
+                                boxSizing: 'border-box',
+                                outline: 'none',
+                            }}
+                        >
+                            <Box sx={{ width: boardWidth, flexShrink: 0 }}>
+                                {typeof board === 'function' ? board(boardWidth) : board}
+                            </Box>
                         </Box>
+                        <Box
+                            ref={arrowsRef}
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 0.5,
+                                flexShrink: 0,
+                                py: 0.5,
+                            }}
+                        >
+                                <IconButton size="small" onClick={stepFirst} aria-label="Primera posición">
+                                    <FirstPage />
+                                </IconButton>
+                                <IconButton
+                                    size="small"
+                                    onClick={stepBack}
+                                    disabled={cursorPathLength <= 0}
+                                    aria-label="Jugada anterior"
+                                >
+                                    <NavigateBefore />
+                                </IconButton>
+                                <Typography
+                                    variant="body2"
+                                    component="span"
+                                    sx={{ mx: 1, minWidth: 100, textAlign: 'center', userSelect: 'none' }}
+                                >
+                                    {moveLabel}
+                                </Typography>
+                                <IconButton
+                                    size="small"
+                                    onClick={stepForward}
+                                    disabled={!canStepForward}
+                                    aria-label="Jugada siguiente"
+                                >
+                                    <NavigateNext />
+                                </IconButton>
+                                <IconButton size="small" onClick={stepLast} aria-label="Última posición de la rama">
+                                    <LastPage />
+                                </IconButton>
+                        </Box>
+                        {open && annotationPanel && (
+                            <Box
+                                ref={annotationRef}
+                                sx={{
+                                    width: '100%',
+                                    maxWidth: boardWidth,
+                                    mx: 'auto',
+                                    px: 2,
+                                    pb: 1,
+                                    flexShrink: 0,
+                                }}
+                            >
+                                {annotationPanel}
+                            </Box>
+                        )}
                     </Box>
 
                     {pgnVisible && (

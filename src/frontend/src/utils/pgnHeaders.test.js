@@ -3,7 +3,7 @@ import {
     buildPgnClipboardText,
     extractPgnHeadersBlock,
 } from './coachPgnExport.js'
-import { upsertPgnHeaderBlock } from './pgnHeaders.js'
+import { listPgnHeaderRows, upsertPgnHeaderBlock } from './pgnHeaders.js'
 
 describe('extractPgnHeadersBlock escaped quotes', () => {
     it('keeps tags after a value with escaped quotes', () => {
@@ -28,6 +28,50 @@ describe('buildPgnClipboardText Result sync', () => {
         const out = buildPgnClipboardText('1. e4 1-0', source)
         expect(out).toContain('[Result "1-0"]')
         expect(out).not.toContain('[Result "0-1"]')
+    })
+})
+
+describe('listPgnHeaderRows', () => {
+    it('keeps tag order and empty values from the imported header', () => {
+        const pgn = `[Event "Paris m1"]
+[Site "Paris"]
+[Date "1858.??.??"]
+[Round "4"]
+[White "Anderssen, Adolf"]
+[Black "Morphy, Paul"]
+[Result "0-1"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "C77"]
+[Annotator "Colección didáctica - Sergio"]
+[StudyCategory "M02 Acción conjunta"]
+
+{CATEGORIA: M02}
+1.e4 e5 0-1`
+        const rows = listPgnHeaderRows(pgn)
+        expect(rows.map((row) => row.tag)).toEqual([
+            'Event',
+            'Site',
+            'Date',
+            'Round',
+            'White',
+            'Black',
+            'Result',
+            'WhiteElo',
+            'BlackElo',
+            'ECO',
+            'Annotator',
+            'StudyCategory',
+        ])
+        expect(rows.find((row) => row.tag === 'Event')).toMatchObject({
+            label: 'Evento',
+            value: 'Paris m1',
+        })
+        expect(rows.find((row) => row.tag === 'WhiteElo')?.value).toBe('')
+        expect(rows.find((row) => row.tag === 'StudyCategory')?.label).toBe('Categoría')
+        expect(rows.find((row) => row.tag === 'StudyCategory')?.value).toBe(
+            'M02 Acción conjunta',
+        )
     })
 })
 

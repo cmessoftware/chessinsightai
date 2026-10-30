@@ -11,14 +11,13 @@ import {
     ensurePgnSetupHeader,
 } from './coachPgnReplay.js'
 import { createEmptyRoot } from './coachVariationTree.js'
-import { initialPgnClock } from './pgnMoveNumber.js'
 
 const NAG_SUFFIXES = PLY_USER_NAG_OPTIONS.map((o) => o.value)
     .filter(Boolean)
     .sort((a, b) => b.length - a.length)
 
-/** Movetext only (no tag pairs). Strips `{comments}` and `$N` NAGs. */
-export function extractMovetextFromPgn(pgnText) {
+/** Movetext only (no tag pairs). Strips `$N` NAGs. Comments stay unless `keepComments` is false. */
+export function extractMovetextFromPgn(pgnText, { keepComments = false } = {}) {
     const lines = String(pgnText || '').split(/\r?\n/)
     const body = []
     let inHeaders = true
@@ -35,10 +34,22 @@ export function extractMovetextFromPgn(pgnText) {
         body.push(raw)
     }
     let text = body.join(' ').trim()
-    text = text.replace(/\{[^}]*\}/g, ' ')
+    if (!keepComments) {
+        text = text.replace(/\{[^}]*\}/g, ' ')
+    }
     text = text.replace(/\$\d+/g, ' ')
     text = text.replace(/\s(1-0|0-1|1\/2-1\/2|\*)\s*$/i, '')
     return text.replace(/\s+/g, ' ').trim()
+}
+
+/** Drop Lichess engine glyphs; keep prose annotations. */
+export function readablePgnComment(raw) {
+    const text = String(raw || '')
+        .replace(/\[%[^\]]*\]/g, ' ')
+        .replace(/\[#\]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    return text
 }
 
 function splitSanAndNag(token) {
@@ -60,6 +71,13 @@ function tokenizeMovetext(movetext) {
         const ch = s[i]
         if (/\s/.test(ch)) {
             i += 1
+            continue
+        }
+        if (ch === '{') {
+            const end = s.indexOf('}', i + 1)
+            const close = end === -1 ? s.length : end
+            tokens.push({ type: 'comment', text: s.slice(i + 1, close) })
+            i = end === -1 ? s.length : end + 1
             continue
         }
         if (ch === '(' || ch === ')') {
@@ -91,9 +109,9 @@ function nextNodeId() {
     return `p-${nodeSeq}`
 }
 
-function variationAnchor(cursor, lineParent) {
-    const stm = initialPgnClock(cursor.fen).side
-    return stm === 'w' ? lineParent : cursor
+/** A RAV replaces the move just played, from the position before that move. */
+function variationAnchor(lineParent) {
+    return lineParent
 }
 
 function pushMove(parent, san, { asMainLine = false } = {}) {
@@ -133,9 +151,18 @@ function parseSequence(tokens, parentNode, { attachAsSibling = false } = {}) {
     while (tokens.length > 0) {
         const t = tokens[0]
         if (t === ')') return null
+        if (t && typeof t === 'object' && t.type === 'comment') {
+            tokens.shift()
+            const text = readablePgnComment(t.text)
+            if (text) {
+                const prev = cursor.pgnComment ? `${cursor.pgnComment} ` : ''
+                cursor.pgnComment = `${prev}${text}`.trim()
+            }
+            continue
+        }
         if (t === '(') {
             tokens.shift()
-            const anchor = variationAnchor(cursor, lineParent)
+            const anchor = variationAnchor(lineParent)
             const err = parseSequence(tokens, anchor, { attachAsSibling: true })
             if (err) return err
             if (tokens[0] !== ')') return { message: 'unclosed_variation' }
@@ -186,7 +213,7 @@ export function buildTreeFromPgn(pgnText) {
         }
     }
 
-    const movetext = extractMovetextFromPgn(singleGame)
+    const movetext = extractMovetextFromPgn(singleGame, { keepComments: true })
     const root = createEmptyRoot(rootFen)
     if (!movetext) {
         return { tree: root, error: null }

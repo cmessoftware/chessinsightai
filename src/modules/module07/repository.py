@@ -456,6 +456,29 @@ def delete_coach_games(
     return {"deleted": deleted, "blocked": blocked, "missing": missing}
 
 
+def update_coach_games_corpus_type(
+    db: Session,
+    game_ids: list[str],
+    owner_user_id: int,
+    corpus_type: str,
+) -> dict[str, Any]:
+    """Set ``coach_games.corpus_type`` (and the master row) for the owner's selection."""
+    updated: list[str] = []
+    missing: list[str] = []
+    for gid in game_ids:
+        game = get_game(db, gid, owner_user_id)
+        if game is None:
+            missing.append(gid)
+            continue
+        game.corpus_type = corpus_type
+        if game.master_game is not None:
+            game.master_game.corpus_type = corpus_type
+        updated.append(gid)
+    if updated:
+        db.commit()
+    return {"updated": updated, "missing": missing, "corpus_type": corpus_type}
+
+
 def list_decisions_for_game(
     db: Session, game_id: str, owner_user_id: int
 ) -> list[Module07DecisionPoint]:

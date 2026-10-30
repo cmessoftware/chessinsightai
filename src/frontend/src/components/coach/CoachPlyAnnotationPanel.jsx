@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Box,
     Paper,
     Tab,
@@ -10,6 +13,7 @@ import {
     Typography,
 } from '@mui/material'
 import ChatBubbleOutline from '@mui/icons-material/ChatBubbleOutline'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import {
     getPlyUserAnnotation,
     PLY_USER_NAG_OPTIONS,
@@ -27,6 +31,7 @@ export default function CoachPlyAnnotationPanel({
     plyUserByPathKey = null,
     onPlyUserAnnotationChange = null,
     disabled = false,
+    collapsible = false,
 }) {
     const [tab, setTab] = useState(0)
     const hasMove = cursorPath?.length > 0
@@ -39,6 +44,13 @@ export default function CoachPlyAnnotationPanel({
     useEffect(() => {
         setCommentDraft(annotation?.comment || '')
     }, [cursorPath, annotation?.comment])
+
+    const commentDraftRef = useRef(commentDraft)
+    commentDraftRef.current = commentDraft
+    const savedCommentRef = useRef(annotation?.comment || '')
+    savedCommentRef.current = annotation?.comment || ''
+    const cursorPathRef = useRef(cursorPath)
+    cursorPathRef.current = cursorPath
 
     useEffect(() => {
         if (!hasMove || !onPlyUserAnnotationChange) return undefined
@@ -58,6 +70,18 @@ export default function CoachPlyAnnotationPanel({
         annotation?.comment,
     ])
 
+    useEffect(() => {
+        return () => {
+            if (!hasMove || !onPlyUserAnnotationChange) return
+            const path = cursorPathRef.current
+            if (!path?.length) return
+            const draft = commentDraftRef.current.trim()
+            const saved = savedCommentRef.current || ''
+            if (draft === saved) return
+            onPlyUserAnnotationChange(path, { comment: draft || null })
+        }
+    }, [hasMove, onPlyUserAnnotationChange])
+
     const currentNag = annotation?.nag || ''
 
     const handleNagChange = (_e, next) => {
@@ -72,17 +96,8 @@ export default function CoachPlyAnnotationPanel({
             : 'Jugada seleccionada'
         : 'Posición inicial — avanzá a una jugada para anotar'
 
-    return (
-        <Paper
-            variant="outlined"
-            sx={{
-                width: width ?? '100%',
-                maxWidth: '100%',
-                mt: 1.5,
-                overflow: 'hidden',
-                bgcolor: 'background.paper',
-            }}
-        >
+    const controls = (
+        <>
             <Tabs
                 value={tab}
                 onChange={(_, v) => setTab(v)}
@@ -176,6 +191,53 @@ export default function CoachPlyAnnotationPanel({
                     </Box>
                 )}
             </Box>
+        </>
+    )
+
+    if (collapsible) {
+        return (
+            <Accordion
+                defaultExpanded={false}
+                disableGutters
+                sx={{
+                    width: width ?? '100%',
+                    maxWidth: '100%',
+                    mt: 1,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    bgcolor: 'background.paper',
+                    '&:before': { display: 'none' },
+                    boxShadow: 'none',
+                }}
+            >
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="coach-ply-annotation-content"
+                    id="coach-ply-annotation-header"
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <ChatBubbleOutline fontSize="small" />
+                        <Typography variant="subtitle2">Comentario</Typography>
+                    </Box>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>{controls}</AccordionDetails>
+            </Accordion>
+        )
+    }
+
+    return (
+        <Paper
+            variant="outlined"
+            sx={{
+                width: width ?? '100%',
+                maxWidth: '100%',
+                mt: 1.5,
+                overflow: 'hidden',
+                bgcolor: 'background.paper',
+            }}
+        >
+            {controls}
         </Paper>
     )
 }

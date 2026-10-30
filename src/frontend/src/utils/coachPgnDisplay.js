@@ -126,10 +126,11 @@ function halfMoveFromChild(parentNode, parentPath, child, childIndex) {
         fromGame: child.fromGame,
         color: stm,
         ply: parentPath.length + 1,
+        pgnComment: child.pgnComment || '',
     }
 }
 
-const MAX_VARIATION_DISPLAY_DEPTH = 2
+const MAX_VARIATION_DISPLAY_DEPTH = 8
 
 function buildSiblingBranches(node, nodePath, currentDepth, maxDepth) {
     if (currentDepth >= maxDepth || !node?.children?.length) return []

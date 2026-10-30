@@ -1,10 +1,19 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Box } from '@mui/material'
 import { Chessboard } from 'react-chessboard'
+import {
+    mergeSquareStyles,
+    removeSquareCircleMark,
+    squareCircleColorFromMouseEvent,
+    squareCircleMarksToStyles,
+    toggleSquareCircleMark,
+} from '../../utils/coachBoardSquareCircles.js'
 
 /**
  * Vite/React board aligned with docs/ai_chess_coach_course/ui/chessinsight_board/CONTRACT.md
  * Jupyter uses the same props via Chessground (vanilla JS).
+ *
+ * FEAT-075: squareCircles + onSquareCirclesChange — right-click rings; left-click clears mark.
  */
 export default function ChessinsightBoard({
     fen,
@@ -13,8 +22,40 @@ export default function ChessinsightBoard({
     viewOnly = false,
     onMove,
     boardWidth = 420,
+    squareCircles = null,
+    onSquareCirclesChange = null,
+    enableSquareCircles = false,
 }) {
-    const squareStyles = useMemo(() => squaresFromUci(lastMove), [lastMove])
+    const circleMode = enableSquareCircles || typeof onSquareCirclesChange === 'function'
+
+    const lastMoveStyles = useMemo(() => squaresFromUci(lastMove), [lastMove])
+    const circleStyles = useMemo(
+        () => squareCircleMarksToStyles(squareCircles),
+        [squareCircles],
+    )
+    const squareStyles = useMemo(
+        () => mergeSquareStyles(lastMoveStyles, circleStyles),
+        [lastMoveStyles, circleStyles],
+    )
+
+    const handleSquareMouseDown = useCallback(
+        ({ square }, e) => {
+            if (!circleMode || viewOnly) return
+            if (e.button === 0) {
+                if (squareCircles?.[square]) {
+                    onSquareCirclesChange?.(removeSquareCircleMark(squareCircles, square))
+                }
+                return
+            }
+            const colorKey = squareCircleColorFromMouseEvent(e)
+            if (!colorKey) return
+            e.preventDefault()
+            e.stopPropagation()
+            const next = toggleSquareCircleMark(squareCircles, square, colorKey)
+            onSquareCirclesChange?.(next)
+        },
+        [circleMode, viewOnly, squareCircles, onSquareCirclesChange],
+    )
 
     const options = useMemo(
         () => ({
@@ -38,8 +79,22 @@ export default function ChessinsightBoard({
                 }
                 return true
             },
+            ...(circleMode
+                ? {
+                      onSquareMouseDown: handleSquareMouseDown,
+                  }
+                : {}),
         }),
-        [fen, orientation, viewOnly, squareStyles, boardWidth, onMove],
+        [
+            fen,
+            orientation,
+            viewOnly,
+            squareStyles,
+            boardWidth,
+            onMove,
+            circleMode,
+            handleSquareMouseDown,
+        ],
     )
 
     return (
@@ -49,6 +104,13 @@ export default function ChessinsightBoard({
                 maxWidth: '100%',
                 flexShrink: 0,
             }}
+            onContextMenu={
+                circleMode
+                    ? (e) => {
+                          e.preventDefault()
+                      }
+                    : undefined
+            }
         >
             <Chessboard options={options} />
         </Box>
