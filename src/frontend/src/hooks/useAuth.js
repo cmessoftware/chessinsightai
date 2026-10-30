@@ -16,6 +16,7 @@ const BASE_ROLES = {
 
 const ROLE_PERMISSIONS = {
     admin: ['ALL'],
+    user: ['chess_board', 'play_stockfish', 'view_own_games', 'import_pgn', 'personal_upload', 'generate_features'],
     basic_gamer: ['chess_board', 'play_stockfish', 'view_own_games', 'import_pgn', 'personal_upload', 'generate_features'],
     analysis_board: ['chess_board', 'analysis_engine', 'deep_analysis'],
     exercise_creator: ['create_exercises', 'edit_exercises', 'view_exercises'],
@@ -204,7 +205,8 @@ export const useAuth = () => {
             '/coach/importar': ['personal_analysis', 'bulk_upload', 'import_pgn'],
             '/reports': ['own_reports', 'view_stats', 'reports'],
             '/chess-board': ['chess_board'],
-            '/admin/roles': ['ALL'] // Admin only
+            '/admin/users': ['ALL'], // LOG-FEAT-04: admin only
+            '/admin/roles': ['ALL'],
         };
 
         const requiredPerms = routePermissions[route];
@@ -214,12 +216,12 @@ export const useAuth = () => {
     }
 
     const hasPermission = (permission) => {
+        if (user?.roles?.includes('admin') || user?.role === 'admin') {
+            return true;
+        }
         if (user?.permissions?.includes('ALL') || user?.permissions?.includes(permission)) {
             return true;
         }
-
-        // Legacy compatibility
-        if (user?.role === 'admin') return true;
 
         return user?.permissions?.includes(permission) || false;
     }

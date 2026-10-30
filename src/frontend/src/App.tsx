@@ -16,7 +16,7 @@ import ImportPage from './pages/ImportPage.jsx'
 import LogViewerPage from './pages/LogViewerPage.jsx'
 import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
 import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
-import AdminRolesPage from './pages/AdminRolesPage.jsx'
+import AdminUserManagementPage from './pages/AdminUserManagementPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachHomePage from './pages/CoachHomePage.jsx'
 import CoachImportarPage from './pages/CoachImportarPage.jsx'
@@ -217,13 +217,14 @@ function App() {
                   }
                 />
                 <Route
-                  path="/admin/roles"
+                  path="/admin/users"
                   element={
                     <ProtectedRoute requiredPermission="admin">
-                      <AdminRolesPage />
+                      <AdminUserManagementPage />
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/admin/roles" element={<Navigate to="/admin/users" replace />} />
               </Route>
             </Routes>
           </Router>

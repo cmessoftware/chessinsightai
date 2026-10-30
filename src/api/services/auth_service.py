@@ -10,6 +10,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from models.database_models import User, UserSession
 from models.schemas import BaseRole, ROLE_PERMISSIONS, UserCreate
+from models.coach_user_roles import coerce_base_role, role_values_for_db, user_has_admin_role
 from database import get_db
 
 
@@ -50,7 +51,10 @@ class AuthService:
         permissions = set()
 
         for role in roles:
-            role_perms = ROLE_PERMISSIONS.get(role, [])
+            base_role = coerce_base_role(role)
+            if base_role is None:
+                continue
+            role_perms = ROLE_PERMISSIONS.get(base_role, [])
             if "ALL" in role_perms:
                 # Admin role has all permissions
                 permissions.update(
@@ -296,7 +300,7 @@ class AuthService:
             username=user_create.username,
             email=user_create.email,
             password_hash=hashed_password,
-            roles=user_create.roles,
+            roles=role_values_for_db(user_create.roles) or [BaseRole.USER.value],
             is_active=user_create.is_active,
             created_at=datetime.utcnow(),
         )
@@ -326,7 +330,7 @@ class AuthService:
                 )
 
             user_roles = user_data.get("roles", [])
-            if BaseRole.ADMIN not in user_roles:
+            if not user_has_admin_role(user_roles):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Se requieren permisos de administrador",
@@ -351,11 +355,12 @@ class AuthService:
             user_roles = user_data.get("roles", [])
 
             # Admin always has access
-            if BaseRole.ADMIN in user_roles:
+            if user_has_admin_role(user_roles):
                 return user_data
 
-            # Check if user has any of the required roles
-            if not any(role in user_roles for role in required_roles):
+            coerced = [coerce_base_role(r) for r in user_roles]
+            coerced = [r for r in coerced if r is not None]
+            if not any(role in coerced for role in required_roles):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail=f"Se requieren roles: {[role.value for role in required_roles]}",
