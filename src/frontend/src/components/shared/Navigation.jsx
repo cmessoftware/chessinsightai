@@ -153,11 +153,11 @@ const Navigation = ({ onOpenSidebar }) => {
                                 <MenuItem
                                     onClick={() => {
                                         handleClose()
-                                        navigate('/admin/roles')
+                                        navigate('/admin/users')
                                     }}
                                 >
                                     <Security sx={{ mr: 1 }} />
-                                    Administrar Roles
+                                    Usuarios y roles
                                 </MenuItem>
                             )}
                             <MenuItem onClick={handleLogout}>

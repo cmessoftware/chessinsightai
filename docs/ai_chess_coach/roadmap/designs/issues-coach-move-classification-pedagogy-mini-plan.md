@@ -126,6 +126,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>LOG-FEAT-01</td><td></td><td>Soporte para login con usuario de Google</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>LOG-FEAT-02</td><td></td><td>Soporte para login con usuario de Chess.com</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>LOG-FEAT-04</td><td></td><td>Gestión usuarios/roles admin|user (solo admin)</td><td>✅ Done</td><td>HITL · <code>/admin/users</code></td></tr>
 </tbody>
 </table>
 
@@ -150,7 +151,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066/068/070/071/072/073, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066/068/070/071/072/073, LOG-FEAT-04, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>

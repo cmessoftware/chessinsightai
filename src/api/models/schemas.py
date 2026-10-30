@@ -8,6 +8,7 @@ class BaseRole(str, Enum):
     """Roles base del sistema que se pueden combinar"""
 
     ADMIN = "admin"
+    USER = "user"  # LOG-FEAT-04: cuenta Coach (no admin)
     BASIC_GAMER = "basic_gamer"
     ANALYSIS_BOARD = "analysis_board"
     EXERCISE_CREATOR = "exercise_creator"
@@ -20,6 +21,14 @@ class BaseRole(str, Enum):
 # Permissions mapping for each role
 ROLE_PERMISSIONS = {
     BaseRole.ADMIN: ["ALL"],  # Admin has all permissions
+    BaseRole.USER: [
+        "chess_board",
+        "play_stockfish",
+        "view_own_games",
+        "import_pgn",
+        "personal_upload",
+        "generate_features",
+    ],
     BaseRole.BASIC_GAMER: [
         "chess_board",
         "play_stockfish",
@@ -74,6 +83,12 @@ class UserCreate(UserBase):
     def password_strength(cls, v):
         assert len(v) >= 8, "Password must be at least 8 characters"
         return v
+
+
+class UserRolesUpdate(BaseModel):
+    """LOG-FEAT-04: body for PUT /users/{id}/roles (single admin or user)."""
+
+    roles: List[BaseRole]
 
 
 class UserUpdate(BaseModel):
@@ -131,6 +146,17 @@ class RoleMatrix(BaseModel):
     available_roles: List[RoleInfo]
     all_permissions: List[str]
     role_combinations: Dict[str, List[str]]  # Ejemplos de combinaciones comunes
+
+
+class CoachAccountRoleInfo(BaseModel):
+    """LOG-FEAT-04: roles expuestos en gestión de usuarios."""
+
+    name: BaseRole
+    description: str
+
+
+class CoachAccountRolesResponse(BaseModel):
+    roles: List[CoachAccountRoleInfo]
 
 
 class TokenResponse(BaseModel):

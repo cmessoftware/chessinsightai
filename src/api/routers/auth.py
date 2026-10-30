@@ -14,11 +14,15 @@ from models.schemas import (
     BaseRole,
     UserCreate,
     UserUpdate,
+    UserRolesUpdate,
     UserPermissionsResponse,
     RoleMatrix,
     RoleInfo,
     ROLE_PERMISSIONS,
+    CoachAccountRolesResponse,
+    CoachAccountRoleInfo,
 )
+from models.coach_user_roles import normalize_coach_account_roles
 from services.auth_service import AuthService
 from database import get_db
 
@@ -27,6 +31,24 @@ security = HTTPBearer()
 
 # Instancia del servicio de autenticación
 auth_service = AuthService()
+
+
+def _user_to_response(user) -> UserResponse:
+    roles: List[BaseRole] = []
+    for raw in user.roles or []:
+        try:
+            roles.append(BaseRole(raw))
+        except ValueError:
+            continue
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        roles=roles,
+        created_at=user.created_at,
+        last_login=user.last_login,
+        is_active=user.is_active,
+    )
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -182,6 +204,25 @@ async def get_roles_matrix():
     )
 
 
+@router.get("/admin/account-roles", response_model=CoachAccountRolesResponse)
+async def get_coach_account_roles(
+    current_user: dict = Depends(auth_service.get_current_admin_user()),
+):
+    """LOG-FEAT-04: roles disponibles en gestión de usuarios (solo admin)."""
+    return CoachAccountRolesResponse(
+        roles=[
+            CoachAccountRoleInfo(
+                name=BaseRole.ADMIN,
+                description="Acceso completo, incluida gestión de usuarios",
+            ),
+            CoachAccountRoleInfo(
+                name=BaseRole.USER,
+                description="Usuario Coach estándar (partidas e importación personal)",
+            ),
+        ]
+    )
+
+
 @router.post("/users", response_model=UserResponse)
 async def create_user(
     user_create: UserCreate,
@@ -192,16 +233,16 @@ async def create_user(
     Crear un nuevo usuario (solo admins)
     """
     try:
-        user = await auth_service.create_user(db, user_create)
-        return UserResponse(
-            id=user.id,
-            username=user.username,
-            email=user.email,
-            roles=user.roles,
-            created_at=user.created_at,
-            last_login=user.last_login,
-            is_active=user.is_active,
+        db_roles = normalize_coach_account_roles(user_create.roles or [BaseRole.USER])
+        payload = UserCreate(
+            username=user_create.username,
+            email=user_create.email,
+            password=user_create.password,
+            roles=[BaseRole(r) for r in db_roles],
+            is_active=user_create.is_active,
         )
+        user = await auth_service.create_user(db, payload)
+        return _user_to_response(user)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -217,29 +258,18 @@ async def list_users(
     from models.database_models import User
 
     users = db.query(User).all()
-    return [
-        UserResponse(
-            id=user.id,
-            username=user.username,
-            email=user.email,
-            roles=user.roles,
-            created_at=user.created_at,
-            last_login=user.last_login,
-            is_active=user.is_active,
-        )
-        for user in users
-    ]
+    return [_user_to_response(user) for user in users]
 
 
 @router.put("/users/{user_id}/roles", response_model=UserResponse)
 async def update_user_roles(
     user_id: int,
-    roles: List[BaseRole],
+    payload: UserRolesUpdate,
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth_service.get_current_admin_user()),
 ):
     """
-    Actualizar roles de un usuario (solo admins)
+    Actualizar roles de un usuario (solo admins, LOG-FEAT-04: admin | user)
     """
     from models.database_models import User
 
@@ -247,16 +277,37 @@ async def update_user_roles(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    user.roles = roles
+    user.roles = normalize_coach_account_roles(payload.roles)
     db.commit()
     db.refresh(user)
 
-    return UserResponse(
-        id=user.id,
-        username=user.username,
-        email=user.email,
-        roles=user.roles,
-        created_at=user.created_at,
-        last_login=user.last_login,
-        is_active=user.is_active,
-    )
+    return _user_to_response(user)
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse)
+async def patch_user(
+    user_id: int,
+    body: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(auth_service.get_current_admin_user()),
+):
+    """Actualizar email, activo, contraseña o rol (solo admins)."""
+    from models.database_models import User
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    if body.email is not None:
+        user.email = body.email
+    if body.is_active is not None:
+        user.is_active = body.is_active
+    if body.password is not None:
+        user.password_hash = auth_service.get_password_hash(body.password)
+    if body.roles is not None:
+        user.roles = normalize_coach_account_roles(body.roles)
+
+    db.commit()
+    db.refresh(user)
+
+    return _user_to_response(user)
