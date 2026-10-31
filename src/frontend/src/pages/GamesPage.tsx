@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
     Container,
     Typography,
@@ -31,17 +31,31 @@ import { useNavigate } from 'react-router-dom'
 import { gamesService } from '../services/games'
 import { useAuth } from '../hooks/useAuth.js'
 
+type ListedGame = {
+    game_id: string | number
+    white_player?: string
+    black_player?: string
+    result?: string
+    white_elo?: string | number
+    black_elo?: string | number
+    eco?: string
+    opening?: string
+    event?: string
+    date?: string
+    source?: string
+}
+
 const GamesPage = () => {
     const navigate = useNavigate()
     const { hasPermission } = useAuth()
-    const [games, setGames] = useState([])
+    const [games, setGames] = useState<ListedGame[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [totalCount, setTotalCount] = useState(0)
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(25)
     const [searchTerm, setSearchTerm] = useState('')
-    const [sources, setSources] = useState([])
+    const [sources, setSources] = useState<string[]>([])
     const [selectedSource, setSelectedSource] = useState('')
 
     // Cargar fuentes disponibles
@@ -110,20 +124,20 @@ const GamesPage = () => {
         await loadGames()
     }
 
-    const handleChangePage = (event, newPage) => {
+    const handleChangePage = (_event: unknown, newPage: number) => {
         setPage(newPage)
     }
 
-    const handleChangeRowsPerPage = (event) => {
+    const handleChangeRowsPerPage = (event: { target: { value: string } }) => {
         setRowsPerPage(parseInt(event.target.value, 10))
         setPage(0)
     }
 
-    const handleViewGame = (gameId) => {
+    const handleViewGame = (gameId: string | number) => {
         navigate(`/coach/games/${gameId}/analysis`)
     }
 
-    const getResultColor = (result) => {
+    const getResultColor = (result?: string) => {
         switch (result) {
             case '1-0': return 'success'
             case '0-1': return 'error'
@@ -132,7 +146,7 @@ const GamesPage = () => {
         }
     }
 
-    const getResultText = (result) => {
+    const getResultText = (result?: string) => {
         switch (result) {
             case '1-0': return 'Blancas ganan'
             case '0-1': return 'Negras ganan'
