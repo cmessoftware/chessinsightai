@@ -76,7 +76,7 @@ Comprobación rápida: la API local con esa URL debe responder en `/health` y Co
 | **Name** | `chessinsight-api` (o el que prefieras) |
 | **Region** | Misma región que Neon si podés |
 | **Root Directory** | *(vacío = raíz del repo)* |
-| **Runtime** | Python 3 |
+| **Runtime** | Python 3 (**3.12** — ver `runtime.txt` en la raíz; no uses 3.14: `pydantic-core` falla al compilar) |
 | **Build Command** | `pip install -r requirements-coach-mvp.txt` |
 | **Start Command** | `cd src/api && uvicorn main:app --host 0.0.0.0 --port $PORT` |
 
@@ -185,6 +185,7 @@ Redeploy de la API. Sin esto, el navegador bloqueará las llamadas a `/api/…`.
 | UI llama a localhost | Build sin `VITE_API_URL` | Rebuild Static Site con env correcta |
 | SSL / connection refused a DB | URL sin SSL o host incorrecto | `?sslmode=require`, revisar host Neon |
 | 502 en API al despertar | Cold start Render free | Esperar o plan paid |
+| Build falla en `pydantic-core` / maturin / Rust | Render usa Python 3.14 por defecto | `runtime.txt` con `python-3.12.8` o env `PYTHON_VERSION=3.12.8` |
 
 ---
 
