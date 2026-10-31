@@ -16,7 +16,7 @@ import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
 import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
 import { resolveCoachPlayerColor } from '../utils/coachPlayerColor.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
-import { buildTreeFromPgn } from '../utils/coachPgnTreeParse.js'
+import { buildTreeFromPgn, extractMovetextFromPgn } from '../utils/coachPgnTreeParse.js'
 import { loadCoachAnalysisCursor, saveCoachLastGameId } from '../utils/coachLastGameSession.js'
 import { loadCoachStudyDraft } from '../utils/coachStudyDraftSession.js'
 import {
@@ -65,9 +65,14 @@ export default function CoachGameAnalysisPage() {
                 if (g?.pgn) {
                     const draft = loadCoachStudyDraft(gameId)
                     const serverPgn = g.pgn
+                    const draftText = draft?.trim() || ''
+                    const serverHasVars = extractMovetextFromPgn(serverPgn).includes('(')
+                    const draftHasVars = extractMovetextFromPgn(draftText).includes('(')
                     const pgnForTree =
-                        draft?.trim() && draft.trim() !== serverPgn.trim()
-                            ? draft
+                        draftText &&
+                        draftText !== serverPgn.trim() &&
+                        !(serverHasVars && !draftHasVars)
+                            ? draftText
                             : serverPgn
 
                     const applyTree = (tree) => {

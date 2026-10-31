@@ -18,3 +18,4 @@ def test_module07_router_exposes_delete_game_routes():
     paths = {getattr(r, "path", None) for r in router_mod.router.routes}
     assert "/api/v1/module07/games/{game_id}" in paths
     assert "/api/v1/module07/games/bulk-delete" in paths
+    assert "/api/v1/module07/games/bulk-corpus" in paths

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
+import { formatTreePgnMovetext } from '../utils/coachPgnExport.js'
 import {
     buildStudyPgnFromTree,
+    extractMovetextFromPgn,
     studyPgnMatchesTree,
 } from '../utils/coachPgnTreeParse.js'
 import {
@@ -42,6 +44,11 @@ export function useCoachStudyPersistence({
             options,
         )
         if (!dirty) return undefined
+        const sourceMoves = extractMovetextFromPgn(effectiveSourcePgn)
+        const exportedMoves = formatTreePgnMovetext(treeRoot, options)
+        if (sourceMoves.includes('(') && !exportedMoves.includes('(')) {
+            return undefined
+        }
 
         const pgnText = buildStudyPgnFromTree(treeRoot, effectiveSourcePgn, options)
         saveCoachStudyDraft(gameId, pgnText)

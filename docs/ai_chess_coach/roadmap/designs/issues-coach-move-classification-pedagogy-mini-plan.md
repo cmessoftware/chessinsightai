@@ -92,6 +92,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code></td></tr>
 <tr><td>FEAT-051</td><td></td><td>En tablas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente, Resultado </td><td>✅ Done</td><td><code>feature/11_159_feat_051_partidas_sort</code></td></tr>
 <tr><td>FEAT-052</td><td>FEAT-054</td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>✅ Done</td><td>HITL OK — Coach → Configuración</td></tr>
+<tr><td>FEAT-053</td><td>FEAT-061</td><td>Agrega cuadro de texto para cargar comentarios para movidas en particular</td><td>✅ Done</td><td>HITL OK — <code>CoachPlyAnnotationPanel</code> · <a href="https://github.com/cmessoftware/chessinsightai/pull/197">#197</a></td></tr>
 <tr><td>FEAT-054</td><td></td><td>Menú Configuración en Coach; primer ítem: columnas Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code></td></tr>
 <tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code></td></tr>
 <tr><td>FEAT-056</td><td>FEAT-052</td><td>Agregar a tabla y configuracion campo Ritmo</td><td>✅ Done</td><td>HITL OK — PR #193</td></tr>
@@ -112,6 +113,14 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-072</td><td>FEAT-021</td><td>En lista de <strong>Partidas</strong>, botón para <strong>exportar</strong> el PGN (con variantes guardadas en catálogo) de las partidas seleccionadas</td><td>✅ Done</td><td><code>CoachGamesPanel</code> · <code>coachGamesPgnExport.js</code> · <code>feature/11_072_export_selected_pgn</code></td></tr>
 <tr><td>FEAT-073</td><td>FEAT-072</td><td>Agregar además botón «Ocultar panel PGN» a la izq. del botón «Guardar estudio» dentro del panel</td><td>✅ Done</td><td><code>CoachPgnMoveList</code> · <code>CoachStudyWorkspace</code> · #209</td></tr>
 <tr><td>BUG-074</td><td>FEAT-073</td><td>Al ocultar movidas del panel PGN, el contenedor conservaba <code>minHeight</code> vacío y el tablero no ampliaba ancho útil</td><td>✅ Done</td><td>Layout Grid + tope 640 px al colapsar · #209</td></tr>
+<tr><td>FEAT-075</td><td>FEAT-08</td><td>Círculos de color en casillas (clic derecho + modificadores; clic izquierdo quita; reutilizable sparring)</td><td>✅ Done</td><td>HITL · <code>feature/11_075_square_color_circles</code></td></tr>
+<tr><td>FEAT-076</td><td>FEAT-08</td><td>Icono en el panel PGN que muestra el encabezado importado en una tabla (tags y valores)</td><td>✅ Done</td><td><code>CoachPgnHeadersDialog</code></td></tr>
+<tr><td>BUG-077</td><td>FEAT-073</td><td>«Ocultar panel PGN» en tablero normal rompía el layout; el control queda solo en pantalla completa</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code></td></tr>
+<tr><td>FEAT-078</td><td>FEAT-064</td><td>Fuente (corpus) masiva para las partidas seleccionadas</td><td>✅ Done</td><td><code>POST /games/bulk-corpus</code></td></tr>
+<tr><td>FEAT-079</td><td>FEAT-061</td><td>Pantalla completa: control de comentario de la jugada colapsado por defecto</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code></td></tr>
+<tr><td>FEAT-080</td><td>FEAT-019</td><td>Pantalla completa: ←/→, Inicio y Fin mueven la partida igual que en el tablero normal</td><td>✅ Done</td><td>HITL OK — <code>usePgnKeyboardNav</code></td></tr>
+<tr><td>BUG-081</td><td>FEAT-075</td><td>Círculo de color solo en la jugada marcada; no se arrastra a jugadas anteriores ni siguientes</td><td>✅ Done</td><td>HITL OK — <code>squareCirclesForPath</code></td></tr>
+<tr><td>FEAT-082</td><td></td><td>Beta 1: nombre ChessDash y debajo <code>beta-&lt;commit&gt;</code></td><td>✅ Done</td><td>HITL OK — <code>ProductMark</code></td></tr>
 </tbody>
 </table>
 
@@ -151,11 +160,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/054/055/056/057/058/059, FEAT-043/045/066/068/070/071/072/073, LOG-FEAT-04, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082, LOG-FEAT-04, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-053, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-038/039 → FEAT-053.
+**Siguiente sugerido (orden):** FEAT-038 / FEAT-039.

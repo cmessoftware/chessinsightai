@@ -188,6 +188,14 @@ export async function deleteCoachGames(gameIds) {
     return data
 }
 
+export async function bulkUpdateCoachGamesCorpus(gameIds, corpusType) {
+    const { data } = await api.post('/api/v1/module07/games/bulk-corpus', {
+        game_ids: gameIds,
+        corpus_type: corpusType,
+    })
+    return data
+}
+
 export async function getLichessImportSettings() {
     const { data } = await api.get('/api/v1/module07/lichess-import/settings')
     return data

@@ -56,6 +56,7 @@ from modules.module07.repository import (
     replace_ply_annotations_for_game,
     delete_coach_game,
     delete_coach_games,
+    update_coach_games_corpus_type,
     update_coach_game_display_title,
     update_coach_game_result,
     update_coach_game_study_pgn,
@@ -469,6 +470,26 @@ def bulk_delete_games(
 ):
     owner = _owner_id(request)
     return delete_coach_games(db, body.game_ids, owner)
+
+
+class BulkCorpusBody(BaseModel):
+    game_ids: list[str] = Field(..., min_length=1)
+    corpus_type: str = Field(..., min_length=1)
+
+
+@router.post("/games/bulk-corpus")
+def bulk_update_games_corpus(
+    body: BulkCorpusBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """FEAT-078: set Fuente (corpus_type) on every selected Coach game."""
+    owner = _owner_id(request)
+    try:
+        corpus = _resolved_corpus(request, body.corpus_type)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return update_coach_games_corpus_type(db, body.game_ids, owner, corpus)
 
 
 class GameDisplayPatchBody(BaseModel):

@@ -43,6 +43,12 @@ function formatMoveToken(rootFen, plyBefore, san, { variationStart = false } = {
     return san
 }
 
+function appendImportedComment(token, node) {
+    const text = String(node?.pgnComment || '').replace(/[{}]/g, '').trim()
+    if (!text) return token
+    return `${token} { ${text} }`
+}
+
 function serializeFromChild(rootFen, parent, childIndex, plyBefore, parentPath = [], plyUserByPathKey = null) {
     const child = parent?.children?.[childIndex]
     if (!child) return ''
@@ -53,23 +59,30 @@ function serializeFromChild(rootFen, parent, childIndex, plyBefore, parentPath =
     let ply = plyBefore + 1
     let curPath = path
     chunks.push(
-        formatMoveToken(rootFen, plyBefore, cur.san, {
-            variationStart: childIndex !== 0,
-        }) + formatPgnUserAnnotationSuffix(plyUserByPathKey, curPath),
+        appendImportedComment(
+            formatMoveToken(rootFen, plyBefore, cur.san, {
+                variationStart: childIndex !== 0,
+            }) + formatPgnUserAnnotationSuffix(plyUserByPathKey, curPath),
+            cur,
+        ),
     )
 
     while (cur.children?.length > 0) {
+        const next = cur.children[0]
+        const nextPath = [...curPath, 0]
+        chunks.push(
+            appendImportedComment(
+                formatMoveToken(rootFen, ply, next.san)
+                    + formatPgnUserAnnotationSuffix(plyUserByPathKey, nextPath),
+                next,
+            ),
+        )
         for (let i = 1; i < cur.children.length; i += 1) {
             const nested = serializeFromChild(rootFen, cur, i, ply, curPath, plyUserByPathKey)
             if (nested) chunks.push(`(${nested})`)
         }
-        const next = cur.children[0]
-        curPath = [...curPath, 0]
-        chunks.push(
-            formatMoveToken(rootFen, ply, next.san)
-                + formatPgnUserAnnotationSuffix(plyUserByPathKey, curPath),
-        )
         cur = next
+        curPath = nextPath
         ply += 1
     }
 
@@ -79,10 +92,10 @@ function serializeFromChild(rootFen, parent, childIndex, plyBefore, parentPath =
 /** Movetext with nested `( )` variations (all branches in the tree). */
 export function formatTreePgnMovetext(root, { result = null, plyUserByPathKey = null } = {}) {
     if (!root?.children?.length) return ''
-    return appendResult(
-        serializeFromChild(root.fen, root, 0, 0, [], plyUserByPathKey),
-        result,
-    )
+    const body = serializeFromChild(root.fen, root, 0, 0, [], plyUserByPathKey)
+    const rootNote = String(root.pgnComment || '').replace(/[{}]/g, '').trim()
+    const movetext = rootNote ? `{ ${rootNote} } ${body}` : body
+    return appendResult(movetext, result)
 }
 
 /** Standard movetext for the main line (children[0] only), e.g. `1. e4 e5 2. Nf3`. */

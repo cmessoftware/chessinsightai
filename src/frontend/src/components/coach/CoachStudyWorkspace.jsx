@@ -45,6 +45,12 @@ import {
 } from '../../hooks/useSyncPlyClassificationPersistence.js'
 import { useMental1600Assessment } from '../../hooks/useMental1600Assessment.js'
 import { usePgnKeyboardNav } from '../../hooks/usePgnKeyboardNav.js'
+import {
+    loadSquareCirclesForScope,
+    saveSquareCirclesForScope,
+    setSquareCirclesForPath,
+    squareCirclesForPath,
+} from '../../utils/coachBoardSquareCircles.js'
 import { parseMoverEloFromGame } from '../../utils/coachPlayerElo.js'
 import { mainLineSignature } from '../../utils/coachClassificationSessionCache.js'
 import {
@@ -119,7 +125,7 @@ export default function CoachStudyWorkspace({
     const [saveStudyMessage, setSaveStudyMessage] = useState(null)
     const [boardFullscreen, setBoardFullscreen] = useState(false)
     const [fullscreenPgnVisible, setFullscreenPgnVisible] = useState(true)
-    const [pgnMovetextVisible, setPgnMovetextVisible] = useState(true)
+    const [squareCirclesByPath, setSquareCirclesByPath] = useState({})
 
     const effectiveSourcePgn = sourcePgn ?? gameMeta?.pgn ?? null
 
@@ -186,10 +192,27 @@ export default function CoachStudyWorkspace({
     useEffect(() => {
         if (!plyUserAnnotationScopeKey) {
             setPlyUserByPathKey({})
+            setSquareCirclesByPath({})
             return
         }
         setPlyUserByPathKey(loadPlyUserAnnotationsForScope(plyUserAnnotationScopeKey))
+        setSquareCirclesByPath(loadSquareCirclesForScope(plyUserAnnotationScopeKey))
     }, [plyUserAnnotationScopeKey])
+
+    const squareCircles = squareCirclesForPath(squareCirclesByPath, cursorPath)
+
+    const handleSquareCirclesChange = useCallback(
+        (marks) => {
+            setSquareCirclesByPath((prev) => {
+                const next = setSquareCirclesForPath(prev, cursorPath, marks)
+                if (plyUserAnnotationScopeKey) {
+                    saveSquareCirclesForScope(plyUserAnnotationScopeKey, next)
+                }
+                return next
+            })
+        },
+        [cursorPath, plyUserAnnotationScopeKey],
+    )
 
     const handlePlyUserAnnotationChange = useCallback(
         (path, patch) => {
@@ -234,7 +257,7 @@ export default function CoachStudyWorkspace({
             const columnW = el.clientWidth
             const vhCap =
                 typeof window !== 'undefined' ? Math.floor(window.innerHeight * 0.52) : 480
-            const widthCap = pgnMovetextVisible ? 480 : 640
+            const widthCap = 480
             const w = Math.min(widthCap, columnW - 16, vhCap)
             setBoardWidth(Math.max(280, w))
         }
@@ -246,7 +269,7 @@ export default function CoachStudyWorkspace({
             observer.disconnect()
             window.removeEventListener('resize', measure)
         }
-    }, [pgnMovetextVisible])
+    }, [])
 
     const exitCritical = useCallback(() => {
         reviewCritical?.onExit?.()
@@ -588,8 +611,6 @@ export default function CoachStudyWorkspace({
         studyDirty,
         saveStudyBusy,
         saveStudyMessage,
-        movetextVisible: pgnMovetextVisible,
-        onToggleMovetext: () => setPgnMovetextVisible((v) => !v),
     }
 
     const renderBoardAtWidth = (width) => (
@@ -607,6 +628,9 @@ export default function CoachStudyWorkspace({
                     viewOnly={criticalMode}
                     onMove={handleBoardMove}
                     boardWidth={width}
+                    enableSquareCircles={!criticalMode}
+                    squareCircles={squareCircles}
+                    onSquareCirclesChange={handleSquareCirclesChange}
                 />
                 {pendingPromotion && !criticalMode && (
                     <CoachPromotionPicker
@@ -658,8 +682,8 @@ export default function CoachStudyWorkspace({
                 <Grid
                     item
                     xs={12}
-                    sm={pgnMovetextVisible ? 7 : 12}
-                    md={pgnMovetextVisible ? 7 : 8}
+                    sm={7}
+                    md={7}
                     order={{ xs: 1, sm: 1 }}
                     sx={{ minWidth: 0, flex: { sm: '1 1 0' } }}
                 >
@@ -711,6 +735,9 @@ export default function CoachStudyWorkspace({
                                     viewOnly={criticalMode}
                                     onMove={handleBoardMove}
                                     boardWidth={boardWidth}
+                                    enableSquareCircles={!criticalMode}
+                                    squareCircles={squareCircles}
+                                    onSquareCirclesChange={handleSquareCirclesChange}
                                 />
                                 {pendingPromotion && !criticalMode && (
                                     <CoachPromotionPicker
@@ -814,7 +841,7 @@ export default function CoachStudyWorkspace({
                                 </IconButton>
                             </Box>
                         )}
-                        {!criticalMode && (
+                        {!criticalMode && !boardFullscreen && (
                             <CoachPlyAnnotationPanel
                                 width={boardWidth}
                                 cursorPath={cursorPath}
@@ -835,15 +862,13 @@ export default function CoachStudyWorkspace({
                 <Grid
                     item
                     xs={12}
-                    sm={pgnMovetextVisible ? 5 : 12}
-                    md={pgnMovetextVisible ? 5 : 4}
+                    sm={5}
+                    md={5}
                     order={{ xs: 2, sm: 2 }}
                     sx={{
                         minWidth: 0,
                         flex: { sm: '0 0 auto' },
-                        width: {
-                            sm: pgnMovetextVisible ? '41.666667%' : '100%',
-                        },
+                        width: { sm: '41.666667%' },
                         maxWidth: '100%',
                     }}
                 >
@@ -981,7 +1006,31 @@ export default function CoachStudyWorkspace({
                 canStepForward={canStepForward}
                 cursorPathLength={cursorPath.length}
                 board={renderBoardAtWidth}
-                pgnPanel={<CoachPgnMoveList {...pgnMoveListProps} />}
+                pgnPanel={
+                    <>
+                        {pendingPgnAction && (
+                            <Box sx={{ mb: 1 }}>
+                                <CoachConfirmBadge
+                                    message={pendingPgnAction.message}
+                                    confirmLabel={pendingPgnAction.confirmLabel}
+                                    onConfirm={confirmPendingPgnAction}
+                                    onCancel={cancelPendingPgnAction}
+                                />
+                            </Box>
+                        )}
+                        <CoachPgnMoveList {...pgnMoveListProps} />
+                    </>
+                }
+                annotationPanel={
+                    <CoachPlyAnnotationPanel
+                        collapsible
+                        width="100%"
+                        cursorPath={cursorPath}
+                        cursorSan={cursorSan}
+                        plyUserByPathKey={plyUserByPathKey}
+                        onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
+                    />
+                }
             />
         </Box>
     )

@@ -11,6 +11,8 @@ import {
 } from '@mui/material'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import TableChartOutlined from '@mui/icons-material/TableChartOutlined'
+import CoachPgnHeadersDialog from './CoachPgnHeadersDialog.jsx'
 import {
     buildPgnClipboardText,
     copyTextToClipboard,
@@ -227,6 +229,24 @@ function InlineMove({
     )
 }
 
+function PgnCommentNote({ text }) {
+    const note = String(text || '').trim()
+    if (!note) return null
+    const short = note.length > 160 ? `${note.slice(0, 160)}…` : note
+    return (
+        <Tooltip title={note}>
+            <Typography
+                component="span"
+                variant="caption"
+                color="text.secondary"
+                sx={{ mx: 0.35, fontStyle: 'italic', userSelect: 'text' }}
+            >
+                {short}
+            </Typography>
+        </Tooltip>
+    )
+}
+
 function UserNagSuffix({ nag }) {
     if (!nag) return null
     return (
@@ -276,9 +296,10 @@ function VariationMoveToken({
                 italic={!tok.half.fromGame}
                 onMoveContextMenu={onMoveContextMenu}
                 contextMeta={{ isBranchHead }}
-                commentTip={userAnn?.comment || null}
+                commentTip={userAnn?.comment || tok.half.pgnComment || null}
             />
             <UserNagSuffix nag={userAnn?.nag} />
+            <PgnCommentNote text={userAnn?.comment ? '' : tok.half.pgnComment} />
             <EvalChip fen={tok.half.fen} evalByFen={evalByFen} />
             {!tok.half.fromGame && isBranchHead && onDeleteVariation && (
                 <Tooltip title="Quitar variante">
@@ -467,9 +488,10 @@ function MoveHalfBlock({
                 moveRef={moveRef}
                 onMoveContextMenu={onMoveContextMenu}
                 contextMeta={{ isBranchHead: false }}
-                commentTip={userAnn?.comment || null}
+                commentTip={userAnn?.comment || half.pgnComment || null}
             />
             <UserNagSuffix nag={userAnn?.nag} />
+            <PgnCommentNote text={userAnn?.comment ? '' : half.pgnComment} />
             {showError ? (
                 <Box component="span" sx={{ mx: 0.2, verticalAlign: 'middle', lineHeight: 0 }}>
                     <LabelBadge classification={classification} />
@@ -509,6 +531,7 @@ export default function CoachPgnMoveList({
     const activeRef = useRef(null)
     const scrollContainerRef = useRef(null)
     const [moveMenu, setMoveMenu] = useState(null)
+    const [headersOpen, setHeadersOpen] = useState(false)
 
     useEffect(() => {
         scrollElementWithinScrollParent(scrollContainerRef.current, activeRef.current)
@@ -646,6 +669,15 @@ export default function CoachPgnMoveList({
                 >
                     <Typography variant="subtitle2">PGN</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                        <Tooltip title="Encabezado del PGN">
+                            <IconButton
+                                size="small"
+                                aria-label="Encabezado del PGN"
+                                onClick={() => setHeadersOpen(true)}
+                            >
+                                <TableChartOutlined fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
                         {onToggleMovetext && (
                             <Button
                                 size="small"
@@ -690,6 +722,11 @@ export default function CoachPgnMoveList({
                 )}
                 {movetextVisible && showLegend && <PgnLegend />}
             </Box>
+            <CoachPgnHeadersDialog
+                open={headersOpen}
+                onClose={() => setHeadersOpen(false)}
+                sourcePgn={sourcePgn}
+            />
             {movetextVisible && (
             <>
             <Box
@@ -725,6 +762,22 @@ export default function CoachPgnMoveList({
                         moveRef={atStart ? activeRef : undefined}
                     />
                     <EvalChip fen={treeRoot?.fen} evalByFen={evalByFen} />
+                    {treeRoot?.pgnComment ? (
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                                display: 'block',
+                                maxHeight: 140,
+                                overflow: 'auto',
+                                mt: 0.5,
+                                fontStyle: 'italic',
+                                whiteSpace: 'pre-wrap',
+                            }}
+                        >
+                            {treeRoot.pgnComment}
+                        </Typography>
+                    ) : null}
                 </Box>
 
                 {rows

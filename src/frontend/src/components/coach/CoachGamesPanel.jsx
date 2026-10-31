@@ -43,7 +43,9 @@ import {
     parseApiDetail,
     patchCoachGameResult,
     patchCoachGameTitle,
+    bulkUpdateCoachGamesCorpus,
 } from '../../services/module07Service.js'
+import { useAuth } from '../../hooks/useAuth.js'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 import {
     CoachConfirmBadge,
@@ -416,10 +418,23 @@ function PartidaTitleCell({ game, importTag, onSaved, onError }) {
 
 const analysisLinkState = { returnTo: COACH_RETURN_PARTIDAS }
 
+const ADMIN_CORPUS_OPTIONS = [
+    { value: 'personal', label: 'Personal' },
+    { value: 'elite', label: 'Elite' },
+    { value: 'fide', label: 'FIDE' },
+    { value: 'novice', label: 'Novice' },
+    { value: 'stockfish', label: 'Stockfish' },
+]
+
+const USER_CORPUS_OPTIONS = [{ value: 'personal', label: 'Personal' }]
+
 /** Cola module07 + tabla de partidas importadas (tab Coach → Partidas). */
 export default function CoachGamesPanel() {
     const location = useLocation()
     const navigate = useNavigate()
+    const { user } = useAuth()
+    const isAdmin = Boolean(user?.roles?.includes('admin'))
+    const corpusOptions = isAdmin ? ADMIN_CORPUS_OPTIONS : USER_CORPUS_OPTIONS
     const [jobs, setJobs] = useState([])
     const [games, setGames] = useState([])
     const [error, setError] = useState(null)
@@ -440,6 +455,8 @@ export default function CoachGamesPanel() {
         loadCoachGameCategoryOverrides(),
     )
     const [bulkCategoryAssign, setBulkCategoryAssign] = useState('')
+    const [bulkCorpus, setBulkCorpus] = useState('')
+    const [updatingCorpus, setUpdatingCorpus] = useState(false)
     const [jobsPage, setJobsPage] = useState(0)
     const [gamesPage, setGamesPage] = useState(0)
     const [advancedDraft, setAdvancedDraft] = useState(() => ({
@@ -606,6 +623,39 @@ export default function CoachGamesPanel() {
                 ? `Categoría asignada a ${ids.length} partida(s).`
                 : `Categoría automática restaurada en ${ids.length} partida(s).`,
         )
+    }
+
+    const applyBulkCorpus = async (value) => {
+        const corpus = String(value || '').trim()
+        if (!corpus || selectedIds.size === 0) return
+        const ids = [...selectedIds]
+        setUpdatingCorpus(true)
+        setError(null)
+        try {
+            const result = await bulkUpdateCoachGamesCorpus(ids, corpus)
+            const updated = new Set(result.updated || [])
+            setGames((prev) =>
+                prev.map((row) =>
+                    updated.has(row.id) ? { ...row, corpus_type: result.corpus_type || corpus } : row,
+                ),
+            )
+            if (updated.size) {
+                setCategoryOverrides((prev) =>
+                    setCoachGameCategoryOverridesBulk([...updated], null, prev),
+                )
+            }
+            const label = corpusOptions.find((o) => o.value === corpus)?.label || corpus
+            setInfo(
+                updated.size
+                    ? `Fuente ${label} asignada a ${updated.size} partida(s).`
+                    : 'Ninguna partida seleccionada se pudo actualizar.',
+            )
+        } catch (err) {
+            setError(parseApiDetail(err))
+        } finally {
+            setBulkCorpus('')
+            setUpdatingCorpus(false)
+        }
     }
 
     useEffect(() => {
@@ -1324,6 +1374,35 @@ export default function CoachGamesPanel() {
                             {assignableCategories.map((cat) => (
                                 <MenuItem key={cat.id} value={cat.id}>
                                     {cat.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <Typography variant="subtitle2" component="span">
+                        Fuente
+                    </Typography>
+                    <FormControl
+                        size="small"
+                        sx={{ minWidth: 220 }}
+                        disabled={selectedIds.size === 0 || updatingCorpus}
+                    >
+                        <InputLabel id="coach-bulk-corpus-label">Fuente de la selección</InputLabel>
+                        <Select
+                            labelId="coach-bulk-corpus-label"
+                            label="Fuente de la selección"
+                            value={bulkCorpus}
+                            onChange={(e) => {
+                                const v = e.target.value
+                                setBulkCorpus(v)
+                                applyBulkCorpus(v)
+                            }}
+                        >
+                            <MenuItem value="">
+                                <em>Elegir fuente…</em>
+                            </MenuItem>
+                            {corpusOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
                                 </MenuItem>
                             ))}
                         </Select>
