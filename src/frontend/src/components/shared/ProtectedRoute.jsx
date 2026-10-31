@@ -3,6 +3,13 @@ import { Navigate } from 'react-router-dom'
 import { CircularProgress, Box } from '@mui/material'
 import { useAuth } from '../../hooks/useAuth.js'
 
+/**
+ * @param {{
+ *   children?: import('react').ReactNode,
+ *   requiredPermission?: string | null,
+ *   customCheck?: string | null,
+ * }} props
+ */
 const ProtectedRoute = ({ children, requiredPermission = null, customCheck = null }) => {
     const { isAuthenticated, loading, hasPermission, user } = useAuth()
 
