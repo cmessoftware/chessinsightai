@@ -80,8 +80,8 @@ Sincronizado con [issues tracker § Resumen](./designs/issues-coach-move-classif
 
 | Estado | Alcance |
 | --- | --- |
-| ✅ Done | FEAT-01…06, FEAT-08…11, FEAT-014…033, FEAT-032/035/036, FEAT-040…042, FEAT-043/045–048, FEAT-050…062, FEAT-053 (HITL, vía FEAT-061), FEAT-063/064/065/066/068, FEAT-070/071 (#208), FEAT-072/073 + BUG-074 (#209), FEAT-075 (HITL, círculos en casillas), FEAT-076 (tabla de encabezado PGN), FEAT-078 (fuente masiva), FEAT-079 (comentario colapsado en pantalla completa), FEAT-080 (HITL, teclado en pantalla completa), FEAT-082 (HITL, ChessDash beta-commit), LOG-FEAT-04 (HITL, usuarios admin/user), BUG-02/04/07/10/013/015/016/037/044/049/060/067/077, DB-FEAT-01 |
-| 🔄 WIP | BUG-12 (pedagogía cp), FEAT-07 (Mental 1600), BUG-081 (círculo solo en la jugada) |
+| ✅ Done | FEAT-01…06, FEAT-08…11, FEAT-014…033, FEAT-032/035/036, FEAT-040…042, FEAT-043/045–048, FEAT-050…062, FEAT-053 (HITL, vía FEAT-061), FEAT-063/064/065/066/068, FEAT-070/071 (#208), FEAT-072/073 + BUG-074 (#209), FEAT-075 (HITL, círculos en casillas), FEAT-076 (tabla de encabezado PGN), FEAT-078 (fuente masiva), FEAT-079 (comentario colapsado en pantalla completa), FEAT-080 (HITL, teclado en pantalla completa), FEAT-082 (HITL, ChessDash beta-commit), LOG-FEAT-04 (HITL, usuarios admin/user), BUG-02/04/07/10/013/015/016/037/044/049/060/067/077/081, DB-FEAT-01 |
+| 🔄 WIP | BUG-12 (pedagogía cp), FEAT-07 (Mental 1600) |
 | ⬜ Todo | FEAT-038, FEAT-039, LOG-FEAT-01…03, DB-FEAT-02…04 |
 | 🔁 Duplicado | FEAT-034 |
 
