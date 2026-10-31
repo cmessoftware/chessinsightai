@@ -311,7 +311,7 @@ export default function LichessImportPanel({ corpusType }) {
                 fullWidth
                 size="small"
                 label="Alias POV (opcional)"
-                helperText="Opcional: otro nombre en [White]/[Black]. No uses tu login de Chess Trainer (p. ej. admin); el POV por defecto es el usuario Lichess de arriba."
+                helperText="Opcional: otro nombre en [White]/[Black]. No uses tu login de ChessDash (p. ej. admin); el POV por defecto es el usuario Lichess de arriba."
                 value={playerAlias}
                 onChange={(e) => setPlayerAlias(e.target.value)}
                 sx={{ mb: 2, ...noLoginAutofillSx }}

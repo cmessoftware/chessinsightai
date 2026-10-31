@@ -120,6 +120,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-079</td><td>FEAT-061</td><td>Pantalla completa: control de comentario de la jugada colapsado por defecto</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code></td></tr>
 <tr><td>FEAT-080</td><td>FEAT-019</td><td>Pantalla completa: ←/→, Inicio y Fin mueven la partida igual que en el tablero normal</td><td>✅ Done</td><td>HITL OK — <code>usePgnKeyboardNav</code></td></tr>
 <tr><td>BUG-081</td><td>FEAT-075</td><td>Círculo de color solo en la jugada marcada; no se arrastra a jugadas anteriores ni siguientes</td><td>🔄 WIP</td><td><code>squareCirclesForPath</code></td></tr>
+<tr><td>FEAT-082</td><td></td><td>Beta 1: nombre ChessDash y debajo <code>beta-&lt;commit&gt;</code></td><td>✅ Done</td><td>HITL OK — <code>ProductMark</code></td></tr>
 </tbody>
 </table>
 
@@ -159,7 +160,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080, LOG-FEAT-04, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082, LOG-FEAT-04, BUG-037, DB-FEAT-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, BUG-081</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, LOG-FEAT-01…03, DB-FEAT-02…04</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>

@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Container, Typography, Paper, Box, Button } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
 import ChessBoard from '../components/chess/ChessBoard.jsx'
+import ProductMark from '../components/shared/ProductMark.jsx'
 
 const ChessBoardPage = () => {
     const { gameId } = useParams()
@@ -27,9 +28,9 @@ const ChessBoardPage = () => {
                     Volver a Partidas
                 </Button>
 
-                <Typography variant="h4" gutterBottom align="center">
-                    Chess Trainer
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                    <ProductMark nameVariant="h4" align="center" />
+                </Box>
 
                 {gameId && (
                     <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 3 }}>

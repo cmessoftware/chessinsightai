@@ -15,6 +15,8 @@ import { useAuth } from '../../hooks/useAuth.js'
 import { logger } from '../../utils/helpers.js'
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/logo.png'
+import ProductMark from '../shared/ProductMark.jsx'
+import { PRODUCT_NAME } from '../../utils/productBrand.js'
 
 const LoginForm = () => {
     const [username, setUsername] = useState('')
@@ -74,13 +76,13 @@ const LoginForm = () => {
                         <Box
                             component="img"
                             src={logo}
-                            alt="Chess Trainer"
+                            alt={PRODUCT_NAME}
                             sx={{ height: 72, width: 'auto' }}
                         />
                     </Box>
-                    <Typography component="h1" variant="h4" align="center" gutterBottom>
-                        Chess Trainer
-                    </Typography>
+                    <Box component="h1" sx={{ m: 0, mb: 1 }}>
+                        <ProductMark nameVariant="h4" align="center" />
+                    </Box>
                     <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
                         Inicia sesión para acceder al sistema
                     </Typography>

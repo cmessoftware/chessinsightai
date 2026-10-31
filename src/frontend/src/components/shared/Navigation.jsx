@@ -22,6 +22,8 @@ import { useAuth } from '../../hooks/useAuth.js'
 import { logger } from '../../utils/helpers.js'
 import NotificationBell from './NotificationBell.jsx'
 import logo from '../../assets/logo.png'
+import ProductMark from './ProductMark.jsx'
+import { PRODUCT_NAME } from '../../utils/productBrand.js'
 
 const Navigation = ({ onOpenSidebar }) => {
     const { user, logout, isAuthenticated } = useAuth()
@@ -71,16 +73,16 @@ const Navigation = ({ onOpenSidebar }) => {
                     <Box
                         component="img"
                         src={logo}
-                        alt="Chess Trainer"
+                        alt={PRODUCT_NAME}
                         sx={{
                             height: 40,
                             width: 'auto',
                             display: 'block',
                         }}
                     />
-                    <Typography variant="h6" component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                        Chess Trainer
-                    </Typography>
+                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                        <ProductMark />
+                    </Box>
                 </Box>
 
                 <Box sx={{ flexGrow: 1 }} />
