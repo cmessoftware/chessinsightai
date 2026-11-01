@@ -21,7 +21,7 @@ import {
     PowerSettingsNew,
 } from '@mui/icons-material'
 import CoachBoardFullscreenOverlay from './CoachBoardFullscreenOverlay.jsx'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachCapturedPiecesStack from './CoachCapturedPiecesBar.jsx'
 import CoachCurrentFenBar from './CoachCurrentFenBar.jsx'
@@ -63,7 +63,12 @@ import {
     buildStudyPgnFromTree,
     studyPgnMatchesTree,
 } from '../../utils/coachPgnTreeParse.js'
-import { patchCoachGameStudyPgn, parseApiDetail } from '../../services/module07Service.js'
+import { ensurePgnGameTerminator } from '../../utils/pgnHeaders.js'
+import {
+    createBlankCoachGame,
+    patchCoachGameStudyPgn,
+    parseApiDetail,
+} from '../../services/module07Service.js'
 import { useCoachStudyPersistence } from '../../hooks/useCoachStudyPersistence.js'
 import { clearCoachStudyDraft } from '../../utils/coachStudyDraftSession.js'
 import { computeCapturedPiecesFromTree } from '../../utils/coachCapturedPieces.js'
@@ -72,6 +77,8 @@ import {
     countMainLinePlies,
     deleteLeafMoveAtPath,
     deleteVariationAtPath,
+    demoteMainLineAtPath,
+    promotePathToMainLine,
     getNodeAtPath,
     lastUciForPath,
     moveNumberFromPlyCount,
@@ -126,6 +133,9 @@ export default function CoachStudyWorkspace({
     const [boardFullscreen, setBoardFullscreen] = useState(false)
     const [fullscreenPgnVisible, setFullscreenPgnVisible] = useState(true)
     const [squareCirclesByPath, setSquareCirclesByPath] = useState({})
+    const [creatingBlank, setCreatingBlank] = useState(false)
+    const [blankGameError, setBlankGameError] = useState(null)
+    const navigate = useNavigate()
 
     const effectiveSourcePgn = sourcePgn ?? gameMeta?.pgn ?? null
 
@@ -173,6 +183,53 @@ export default function CoachStudyWorkspace({
         onGameMetaChange,
         gameMeta,
     ])
+
+    const handleSourcePgnChange = useCallback(
+        async (nextPgn) => {
+            let pgnText =
+                treeRoot != null
+                    ? buildStudyPgnFromTree(treeRoot, nextPgn, {
+                          result: gameMeta?.result ?? null,
+                          plyUserByPathKey,
+                      })
+                    : nextPgn
+            pgnText = ensurePgnGameTerminator(pgnText)
+            if (onGameMetaChange) {
+                onGameMetaChange({
+                    ...(gameMeta || {}),
+                    pgn: pgnText,
+                })
+            }
+            if (!gameId) return
+            try {
+                const updated = await patchCoachGameStudyPgn(gameId, pgnText)
+                if (onGameMetaChange) {
+                    onGameMetaChange({
+                        ...(gameMeta || {}),
+                        ...updated,
+                        pgn: updated?.pgn ?? pgnText,
+                    })
+                }
+            } catch (err) {
+                if (onGameMetaChange) onGameMetaChange(gameMeta)
+                throw new Error(parseApiDetail(err))
+            }
+        },
+        [treeRoot, gameMeta, plyUserByPathKey, onGameMetaChange, gameId],
+    )
+
+    const startBlankGame = useCallback(async () => {
+        setCreatingBlank(true)
+        setBlankGameError(null)
+        try {
+            const game = await createBlankCoachGame()
+            navigate(`/coach/games/${game.id}/analysis`)
+        } catch (err) {
+            setBlankGameError(parseApiDetail(err))
+        } finally {
+            setCreatingBlank(false)
+        }
+    }, [navigate])
 
     useCoachStudyPersistence({
         gameId,
@@ -471,11 +528,55 @@ export default function CoachStudyWorkspace({
 
     const requestDeleteVariationMove = useCallback((path) => {
         if (!path?.length) return
+        const inVariation = path.some((idx) => idx > 0)
         setPendingPgnAction({
             kind: 'deleteVariationMove',
             path,
-            message: '¿Borrar esta jugada de la variante?',
+            message: inVariation
+                ? '¿Borrar esta jugada de la variante?'
+                : '¿Borrar esta jugada?',
             confirmLabel: 'Borrar jugada',
+        })
+    }, [])
+
+    const executePromoteToMainLine = useCallback(
+        (path) => {
+            const result = promotePathToMainLine(treeRoot, path)
+            if (!result) return
+            setTreeRoot(result.tree)
+            setCursorPath(result.path)
+        },
+        [treeRoot, setTreeRoot, setCursorPath],
+    )
+
+    const requestPromoteToMainLine = useCallback((path) => {
+        if (!path?.length) return
+        setPendingPgnAction({
+            kind: 'promoteMainLine',
+            path,
+            message: '¿Pasar esta variante a la línea principal?',
+            confirmLabel: 'Pasar a línea principal',
+        })
+    }, [])
+
+    const executeDemoteMainLine = useCallback(
+        (path) => {
+            const result = demoteMainLineAtPath(treeRoot, path)
+            if (!result) return
+            setTreeRoot(result.tree)
+            setCursorPath(result.path)
+        },
+        [treeRoot, setTreeRoot, setCursorPath],
+    )
+
+    const requestDemoteMainLine = useCallback((path) => {
+        if (!path?.length) return
+        setPendingPgnAction({
+            kind: 'demoteMainLine',
+            path,
+            message:
+                '¿Pasar esta jugada y lo que sigue a variante secundaria? La otra línea de esta posición queda como principal.',
+            confirmLabel: 'Pasar a variante',
         })
     }, [])
 
@@ -484,12 +585,16 @@ export default function CoachStudyWorkspace({
         const { kind, path } = pendingPgnAction
         if (kind === 'deleteVariation') executeDeleteVariation(path)
         else if (kind === 'deleteVariationMove') executeDeleteVariationMove(path)
+        else if (kind === 'promoteMainLine') executePromoteToMainLine(path)
+        else if (kind === 'demoteMainLine') executeDemoteMainLine(path)
         else executeTruncateForward(path)
         setPendingPgnAction(null)
     }, [
         pendingPgnAction,
         executeDeleteVariation,
         executeDeleteVariationMove,
+        executePromoteToMainLine,
+        executeDemoteMainLine,
         executeTruncateForward,
     ])
 
@@ -597,6 +702,8 @@ export default function CoachStudyWorkspace({
         onDeleteVariation: requestDeleteVariation,
         onTruncateForward: requestTruncateForward,
         onDeleteVariationMove: requestDeleteVariationMove,
+        onPromoteToMainLine: requestPromoteToMainLine,
+        onDemoteMainLine: requestDemoteMainLine,
         pathHasContinuations,
         evalByFen,
         classificationByPathKey,
@@ -611,6 +718,7 @@ export default function CoachStudyWorkspace({
         studyDirty,
         saveStudyBusy,
         saveStudyMessage,
+        onSourcePgnChange: handleSourcePgnChange,
     }
 
     const renderBoardAtWidth = (width) => (
@@ -654,16 +762,32 @@ export default function CoachStudyWorkspace({
                 </Typography>
             )}
             {!embedded && subtitle}
-            {!embedded && returnTo && (
-                <Button
-                    component={RouterLink}
-                    to={returnTo}
-                    variant="outlined"
-                    size="small"
-                    sx={{ mb: 2 }}
-                >
-                    {backLabel}
-                </Button>
+            {!embedded && (
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                    {returnTo && (
+                        <Button
+                            component={RouterLink}
+                            to={returnTo}
+                            variant="outlined"
+                            size="small"
+                        >
+                            {backLabel}
+                        </Button>
+                    )}
+                    <Button
+                        variant="contained"
+                        size="small"
+                        disabled={creatingBlank}
+                        onClick={startBlankGame}
+                    >
+                        {creatingBlank ? 'Creando…' : 'Nueva partida'}
+                    </Button>
+                </Box>
+            )}
+            {blankGameError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {blankGameError}
+                </Alert>
             )}
 
             {importBanner && (

@@ -1,4 +1,5 @@
 import api from './api.js'
+import { blankStudyPgn } from '../utils/pgnHeaders.js'
 
 /** FastAPI detail: string, validation array, or fallback. */
 export function parseApiDetail(err) {
@@ -23,6 +24,19 @@ export function parseApiDetail(err) {
             .join(' · ')
     }
     return err.message || 'Error de API'
+}
+
+/** Empty starting position saved as a personal game, ready for the analysis board. */
+export async function createBlankCoachGame() {
+    const data = await ingestPgn(blankStudyPgn(), {
+        corpusType: 'personal',
+        source: 'manual',
+    })
+    const game = data?.games?.[0]
+    if (!game?.id) {
+        throw new Error('No se pudo crear la partida.')
+    }
+    return game
 }
 
 export async function ingestPgn(pgnText, options = {}) {

@@ -34,6 +34,7 @@ import {
 } from '../../utils/coachPgnDisplay.js'
 import {
     getNodeAtPath,
+    isMainLinePath,
     isVariationPath,
     variationBranchHeadPath,
 } from '../../utils/coachVariationTree.js'
@@ -229,22 +230,36 @@ function InlineMove({
     )
 }
 
-function PgnCommentNote({ text }) {
+function PgnCommentNote({ text, block = false }) {
     const note = String(text || '').trim()
     if (!note) return null
     const short = note.length > 160 ? `${note.slice(0, 160)}…` : note
     return (
         <Tooltip title={note}>
             <Typography
-                component="span"
+                component={block ? 'div' : 'span'}
                 variant="caption"
                 color="text.secondary"
-                sx={{ mx: 0.35, fontStyle: 'italic', userSelect: 'text' }}
+                sx={{
+                    mx: block ? 0 : 0.35,
+                    mt: block ? 0.15 : 0,
+                    pl: block ? 2 : 0,
+                    display: block ? 'block' : 'inline',
+                    fontStyle: 'italic',
+                    userSelect: 'text',
+                    whiteSpace: 'pre-wrap',
+                }}
             >
                 {short}
             </Typography>
         </Tooltip>
     )
+}
+
+function commentTextForHalf(half, plyUserByPathKey) {
+    if (!half) return ''
+    const userAnn = getPlyUserAnnotation(plyUserByPathKey, half.path)
+    return String(userAnn?.comment || half.pgnComment || '').trim()
 }
 
 function UserNagSuffix({ nag }) {
@@ -275,10 +290,12 @@ function VariationMoveToken({
     activeRef,
     isBranchHead,
     plyUserByPathKey,
+    stacked = false,
 }) {
     const selected = isPathSelected(cursorPath, tok.half.path)
     const userAnn = getPlyUserAnnotation(plyUserByPathKey, tok.half.path)
-    return (
+    const comment = userAnn?.comment || tok.half.pgnComment
+    const line = (
         <>
             <Typography
                 component="span"
@@ -299,7 +316,7 @@ function VariationMoveToken({
                 commentTip={userAnn?.comment || tok.half.pgnComment || null}
             />
             <UserNagSuffix nag={userAnn?.nag} />
-            <PgnCommentNote text={userAnn?.comment ? '' : tok.half.pgnComment} />
+            {!stacked && <PgnCommentNote text={comment} />}
             <EvalChip fen={tok.half.fen} evalByFen={evalByFen} />
             {!tok.half.fromGame && isBranchHead && onDeleteVariation && (
                 <Tooltip title="Quitar variante">
@@ -317,6 +334,13 @@ function VariationMoveToken({
                 </Tooltip>
             )}
         </>
+    )
+    if (!stacked) return line
+    return (
+        <Box sx={{ display: 'block', width: '100%' }}>
+            <Box sx={{ display: 'inline-flex', alignItems: 'baseline', flexWrap: 'wrap' }}>{line}</Box>
+            <PgnCommentNote text={comment} block />
+        </Box>
     )
 }
 
@@ -360,15 +384,22 @@ function VariationBranch({
             <Box
                 component={inline ? 'span' : 'div'}
                 sx={{
-                    display: 'inline-flex',
+                    display: inline ? 'inline-flex' : 'flex',
+                    flexDirection: inline ? 'row' : 'column',
                     flexWrap: 'wrap',
-                    alignItems: 'baseline',
+                    alignItems: inline ? 'baseline' : 'flex-start',
                     gap: '2px 4px',
                     maxWidth: '100%',
                     minWidth: 0,
+                    width: inline ? 'auto' : '100%',
                 }}
             >
-                <Typography component="span" variant="body2" color="text.secondary" sx={{ mx: 0.15 }}>
+                <Typography
+                    component={inline ? 'span' : 'div'}
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mx: 0.15 }}
+                >
                     (
                 </Typography>
                 {steps.map((step, stepIdx) => {
@@ -377,7 +408,11 @@ function VariationBranch({
                     const nestedStart = Math.floor((step.half.ply - 1) / 2) + 1
                     moveNum = moveNumAfterHalf(step.half, moveNum)
                     return (
-                        <React.Fragment key={step.half.path.join('-')}>
+                        <Box
+                            key={step.half.path.join('-')}
+                            component={inline ? 'span' : 'div'}
+                            sx={{ display: inline ? 'inline' : 'block', width: inline ? 'auto' : '100%', pl: inline ? 0 : 1 }}
+                        >
                             <VariationMoveToken
                                 tok={tok}
                                 cursorPath={cursorPath}
@@ -388,6 +423,7 @@ function VariationBranch({
                                 activeRef={activeRef}
                                 isBranchHead={stepIdx === 0}
                                 plyUserByPathKey={plyUserByPathKey}
+                                stacked={!inline}
                             />
                             {(step.nested || []).map((sub) => (
                                 <VariationBranch
@@ -405,10 +441,15 @@ function VariationBranch({
                                     plyUserByPathKey={plyUserByPathKey}
                                 />
                             ))}
-                        </React.Fragment>
+                        </Box>
                     )
                 })}
-                <Typography component="span" variant="body2" color="text.secondary" sx={{ mx: 0.15 }}>
+                <Typography
+                    component={inline ? 'span' : 'div'}
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mx: 0.15 }}
+                >
                     )
                 </Typography>
             </Box>
@@ -471,6 +512,7 @@ function MoveHalfBlock({
     classificationByPathKey,
     onMoveContextMenu,
     plyUserByPathKey,
+    suppressComment = false,
 }) {
     if (!half) return null
     const classification = lookupClassification(classificationByPathKey, half.path)
@@ -491,7 +533,7 @@ function MoveHalfBlock({
                 commentTip={userAnn?.comment || half.pgnComment || null}
             />
             <UserNagSuffix nag={userAnn?.nag} />
-            <PgnCommentNote text={userAnn?.comment ? '' : half.pgnComment} />
+            {!suppressComment && <PgnCommentNote text={userAnn?.comment || half.pgnComment} />}
             {showError ? (
                 <Box component="span" sx={{ mx: 0.2, verticalAlign: 'middle', lineHeight: 0 }}>
                     <LabelBadge classification={classification} />
@@ -526,6 +568,9 @@ export default function CoachPgnMoveList({
     saveStudyMessage = null,
     movetextVisible = true,
     onToggleMovetext = null,
+    onSourcePgnChange = null,
+    onPromoteToMainLine = null,
+    onDemoteMainLine = null,
 }) {
     const rows = useMemo(() => buildPgnDisplayRows(treeRoot), [treeRoot])
     const activeRef = useRef(null)
@@ -549,12 +594,18 @@ export default function CoachPgnMoveList({
         const canTruncate =
             path?.length && pathHasContinuations?.(path) && onTruncateForward
         const canDeleteLeaf =
-            inVariation &&
             path?.length &&
             node &&
             !node.children?.length &&
-            !half?.fromGame &&
             onDeleteVariationMove
+        const parent = path?.length ? getNodeAtPath(treeRoot, path.slice(0, -1)) : null
+        const canPromote =
+            inVariation && path?.length && onPromoteToMainLine
+        const canDemote =
+            path?.length &&
+            isMainLinePath(path) &&
+            (parent?.children?.length || 0) > 1 &&
+            onDemoteMainLine
         const canDeleteBranch =
             inVariation &&
             half &&
@@ -571,12 +622,16 @@ export default function CoachPgnMoveList({
             canTruncate,
             canDeleteLeaf,
             canDeleteBranch,
+            canPromote,
+            canDemote,
         })
     }, [
         treeRoot,
         onTruncateForward,
         onDeleteVariation,
         onDeleteVariationMove,
+        onPromoteToMainLine,
+        onDemoteMainLine,
         pathHasContinuations,
     ])
 
@@ -635,6 +690,8 @@ export default function CoachPgnMoveList({
     const menuCanTruncate = moveMenu?.canTruncate
     const menuCanDeleteLeaf = moveMenu?.canDeleteLeaf
     const menuCanDeleteBranch = moveMenu?.canDeleteBranch
+    const menuCanPromote = moveMenu?.canPromote
+    const menuCanDemote = moveMenu?.canDemote
     const menuInVariation = moveMenu?.inVariation
     const canCopyMainLine = Boolean(formatMainLinePgnMovetext(treeRoot))
     const canCopyWithVariations = Boolean(formatTreePgnMovetext(treeRoot))
@@ -726,6 +783,7 @@ export default function CoachPgnMoveList({
                 open={headersOpen}
                 onClose={() => setHeadersOpen(false)}
                 sourcePgn={sourcePgn}
+                onSave={onSourcePgnChange}
             />
             {movetextVisible && (
             <>
@@ -786,6 +844,12 @@ export default function CoachPgnMoveList({
                         const wSel = row.white && isPathSelected(cursorPath, row.white.path)
                         const bSel = row.black && isPathSelected(cursorPath, row.black.path)
                         const afterBlackStart = row.black ? row.moveNum + 1 : row.moveNum
+                        const whiteComment = commentTextForHalf(row.white, plyUserByPathKey)
+                        const blackComment = commentTextForHalf(row.black, plyUserByPathKey)
+                        const narrative = Boolean(
+                            row.afterWhiteVariations?.length ||
+                            row.afterBlackVariations?.length,
+                        )
                         const wClass = lookupClassification(classificationByPathKey, row.white?.path)
                         const bClass = lookupClassification(classificationByPathKey, row.black?.path)
                         const rowHighlight =
@@ -813,9 +877,10 @@ export default function CoachPgnMoveList({
                                 <Box
                                     sx={{
                                         display: 'flex',
+                                        flexDirection: narrative ? 'column' : 'row',
                                         flexWrap: 'wrap',
-                                        alignItems: 'baseline',
-                                        gap: '2px 4px',
+                                        alignItems: narrative ? 'flex-start' : 'baseline',
+                                        gap: narrative ? 0.25 : '2px 4px',
                                         maxWidth: '100%',
                                         minWidth: 0,
                                         whiteSpace: 'normal',
@@ -823,26 +888,32 @@ export default function CoachPgnMoveList({
                                         overflowWrap: 'anywhere',
                                     }}
                                 >
-                                    <Typography
-                                        component="span"
-                                        variant="body2"
-                                        color="text.secondary"
-                                        sx={{ mr: 0.35, userSelect: 'none' }}
-                                    >
-                                        {row.moveNum}.
-                                    </Typography>
-                                    {row.white && (
-                                        <MoveHalfBlock
-                                            half={row.white}
-                                            selected={wSel}
-                                            onSelectPath={onSelectPath}
-                                            moveRef={wSel ? activeRef : undefined}
-                                            evalByFen={evalByFen}
-                                            classificationByPathKey={classificationByPathKey}
-                                            onMoveContextMenu={handleMoveContextMenu}
-                                            plyUserByPathKey={plyUserByPathKey}
-                                        />
+                                    {(row.white || !narrative) && (
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                                            <Typography
+                                                component="span"
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{ mr: 0.35, userSelect: 'none' }}
+                                            >
+                                                {row.moveNum}.
+                                            </Typography>
+                                            {row.white && (
+                                                <MoveHalfBlock
+                                                    half={row.white}
+                                                    selected={wSel}
+                                                    onSelectPath={onSelectPath}
+                                                    moveRef={wSel ? activeRef : undefined}
+                                                    evalByFen={evalByFen}
+                                                    classificationByPathKey={classificationByPathKey}
+                                                    onMoveContextMenu={handleMoveContextMenu}
+                                                    plyUserByPathKey={plyUserByPathKey}
+                                                    suppressComment={narrative}
+                                                />
+                                            )}
+                                        </Box>
                                     )}
+                                    {narrative && <PgnCommentNote text={whiteComment} block />}
                                     <InlineVariations
                                         branches={row.afterWhiteVariations}
                                         startMoveNum={row.moveNum}
@@ -852,31 +923,62 @@ export default function CoachPgnMoveList({
                                         onMoveContextMenu={handleMoveContextMenu}
                                         evalByFen={evalByFen}
                                         activeRef={activeRef}
+                                        layout={narrative ? 'block' : 'inline'}
                                         plyUserByPathKey={plyUserByPathKey}
                                     />
-                                    {row.black && (
-                                        <MoveHalfBlock
-                                            half={row.black}
-                                            selected={bSel}
+                                    {narrative && (
+                                        <InlineVariations
+                                            branches={row.afterBlackVariations}
+                                            startMoveNum={row.moveNum}
+                                            cursorPath={cursorPath}
                                             onSelectPath={onSelectPath}
-                                            moveRef={bSel ? activeRef : undefined}
-                                            evalByFen={evalByFen}
-                                            classificationByPathKey={classificationByPathKey}
+                                            onDeleteVariation={onDeleteVariation}
                                             onMoveContextMenu={handleMoveContextMenu}
+                                            evalByFen={evalByFen}
+                                            activeRef={activeRef}
+                                            layout="block"
                                             plyUserByPathKey={plyUserByPathKey}
                                         />
                                     )}
-                                    <InlineVariations
-                                        branches={row.afterBlackVariations}
-                                        startMoveNum={afterBlackStart}
-                                        cursorPath={cursorPath}
-                                        onSelectPath={onSelectPath}
-                                        onDeleteVariation={onDeleteVariation}
-                                        onMoveContextMenu={handleMoveContextMenu}
-                                        evalByFen={evalByFen}
-                                        activeRef={activeRef}
-                                        plyUserByPathKey={plyUserByPathKey}
-                                    />
+                                    {row.black && (
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                                            {narrative && (
+                                                <Typography
+                                                    component="span"
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{ mr: 0.35, userSelect: 'none' }}
+                                                >
+                                                    {row.moveNum}...
+                                                </Typography>
+                                            )}
+                                            <MoveHalfBlock
+                                                half={row.black}
+                                                selected={bSel}
+                                                onSelectPath={onSelectPath}
+                                                moveRef={bSel ? activeRef : undefined}
+                                                evalByFen={evalByFen}
+                                                classificationByPathKey={classificationByPathKey}
+                                                onMoveContextMenu={handleMoveContextMenu}
+                                                plyUserByPathKey={plyUserByPathKey}
+                                                suppressComment={narrative}
+                                            />
+                                        </Box>
+                                    )}
+                                    {narrative && <PgnCommentNote text={blackComment} block />}
+                                    {!narrative && (
+                                        <InlineVariations
+                                            branches={row.afterBlackVariations}
+                                            startMoveNum={afterBlackStart}
+                                            cursorPath={cursorPath}
+                                            onSelectPath={onSelectPath}
+                                            onDeleteVariation={onDeleteVariation}
+                                            onMoveContextMenu={handleMoveContextMenu}
+                                            evalByFen={evalByFen}
+                                            activeRef={activeRef}
+                                            plyUserByPathKey={plyUserByPathKey}
+                                        />
+                                    )}
                                 </Box>
                             </Box>
                         )
@@ -919,6 +1021,28 @@ export default function CoachPgnMoveList({
                         Copiar PGN con variantes
                     </MenuItem>
                 )}
+                {menuCanPromote && (
+                    <MenuItem
+                        sx={(theme) => pgnMoveTextSx(theme)}
+                        onClick={() => {
+                            onPromoteToMainLine(moveMenu.half.path)
+                            closeMoveMenu()
+                        }}
+                    >
+                        Pasar a línea principal
+                    </MenuItem>
+                )}
+                {menuCanDemote && (
+                    <MenuItem
+                        sx={(theme) => pgnMoveTextSx(theme)}
+                        onClick={() => {
+                            onDemoteMainLine(moveMenu.half.path)
+                            closeMoveMenu()
+                        }}
+                    >
+                        Pasar a variante secundaria
+                    </MenuItem>
+                )}
                 {menuCanTruncate && (
                     <MenuItem
                         sx={(theme) => pgnMoveTextSx(theme)}
@@ -940,7 +1064,9 @@ export default function CoachPgnMoveList({
                             closeMoveMenu()
                         }}
                     >
-                        Borrar esta jugada de la variante
+                        {menuInVariation
+                            ? 'Borrar esta jugada de la variante'
+                            : 'Borrar esta jugada'}
                     </MenuItem>
                 )}
                 {menuCanDeleteBranch && (

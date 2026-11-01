@@ -3,7 +3,13 @@ import {
     buildPgnClipboardText,
     extractPgnHeadersBlock,
 } from './coachPgnExport.js'
-import { listPgnHeaderRows, upsertPgnHeaderBlock } from './pgnHeaders.js'
+import {
+    blankStudyPgn,
+    ensurePgnGameTerminator,
+    listPgnHeaderRows,
+    replacePgnHeaders,
+    upsertPgnHeaderBlock,
+} from './pgnHeaders.js'
 
 describe('extractPgnHeadersBlock escaped quotes', () => {
     it('keeps tags after a value with escaped quotes', () => {
@@ -81,5 +87,56 @@ describe('upsertPgnHeaderBlock', () => {
         expect(upsertPgnHeaderBlock(block, 'Result', '1-0')).toBe(
             '[Event "A"]\n[Result "1-0"]',
         )
+    })
+})
+
+describe('replacePgnHeaders', () => {
+    it('rewrites tags and keeps the movetext, including a variation', () => {
+        const pgn = `[Event "A"]
+[White "Old"]
+
+1. e4 e5 (1... c5) 2. Nf3 *`
+        const next = replacePgnHeaders(pgn, [
+            { tag: 'Event', value: 'Estudio' },
+            { tag: 'White', value: 'Ana' },
+            { tag: 'Black', value: 'Luis' },
+            { tag: 'Result', value: '*' },
+        ])
+        expect(next).toContain('[Event "Estudio"]')
+        expect(next).toContain('[White "Ana"]')
+        expect(next).not.toContain('[White "Old"]')
+        expect(next).toContain('1. e4 e5 (1... c5) 2. Nf3 *')
+    })
+})
+
+describe('ensurePgnGameTerminator', () => {
+    it('adds a result token only when there is no movetext', () => {
+        expect(ensurePgnGameTerminator('[Event "A"]\n[Result "*"]')).toBe(
+            '[Event "A"]\n[Result "*"]\n\n*',
+        )
+        const withMoves = '[Event "A"]\n\n1. e4 e5 *'
+        expect(ensurePgnGameTerminator(withMoves)).toBe(withMoves)
+    })
+})
+
+describe('blankStudyPgn', () => {
+    it('starts from the initial position with a unique clock in the header', () => {
+        const pgn = blankStudyPgn(new Date(2026, 9, 31, 19, 22, 5))
+        expect(pgn).toContain('[Event "Nueva partida"]')
+        expect(pgn).toContain('[Date "2026.10.31"]')
+        expect(pgn).toContain('[UTCTime "19:22:05"]')
+        expect(pgn).toContain('[Result "*"]')
+        expect(pgn.trim().endsWith('*')).toBe(true)
+        expect(listPgnHeaderRows(pgn).map((row) => row.tag)).toEqual([
+            'Event',
+            'Site',
+            'Date',
+            'Round',
+            'White',
+            'Black',
+            'Result',
+            'UTCDate',
+            'UTCTime',
+        ])
     })
 })
