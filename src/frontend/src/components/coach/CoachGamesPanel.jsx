@@ -34,6 +34,7 @@ import {
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import {
     createAnalysisJob,
+    createBlankCoachGame,
     deleteCoachGame,
     deleteCoachGames,
     getGame,
@@ -457,6 +458,7 @@ export default function CoachGamesPanel() {
     const [bulkCategoryAssign, setBulkCategoryAssign] = useState('')
     const [bulkCorpus, setBulkCorpus] = useState('')
     const [updatingCorpus, setUpdatingCorpus] = useState(false)
+    const [creatingBlank, setCreatingBlank] = useState(false)
     const [jobsPage, setJobsPage] = useState(0)
     const [gamesPage, setGamesPage] = useState(0)
     const [advancedDraft, setAdvancedDraft] = useState(() => ({
@@ -1028,9 +1030,37 @@ export default function CoachGamesPanel() {
                 )}
             </CoachConfigSectionAccordion>
             </Box>
-            <Typography variant="h6" gutterBottom>
-                Biblioteca de partidas
-            </Typography>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 2,
+                    flexWrap: 'wrap',
+                    mb: 1,
+                }}
+            >
+                <Typography variant="h6">Biblioteca de partidas</Typography>
+                <Button
+                    variant="contained"
+                    size="small"
+                    disabled={creatingBlank}
+                    onClick={async () => {
+                        setCreatingBlank(true)
+                        setError(null)
+                        try {
+                            const game = await createBlankCoachGame()
+                            navigate(`/coach/games/${game.id}/analysis`)
+                        } catch (err) {
+                            setError(parseApiDetail(err))
+                        } finally {
+                            setCreatingBlank(false)
+                        }
+                    }}
+                >
+                    {creatingBlank ? 'Creando…' : 'Nueva partida'}
+                </Button>
+            </Box>
             <CoachConfigSectionAccordion
                 id="coach-partidas-advanced-filters"
                 title={

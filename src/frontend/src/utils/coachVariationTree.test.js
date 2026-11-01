@@ -5,6 +5,8 @@ import {
     createEmptyRoot,
     moveNumberFromPlyCount,
     deleteLeafMoveAtPath,
+    demoteMainLineAtPath,
+    promotePathToMainLine,
     truncateLineForward,
     truncateTouchesImportedMoves,
     variationBranchHeadPath,
@@ -76,6 +78,63 @@ describe('deleteLeafMoveAtPath', () => {
         const out = deleteLeafMoveAtPath(root, [0, 1])
         expect(out.tree.children[0].children).toHaveLength(1)
         expect(out.tree.children[0].children[0].san).toBe('e5')
+    })
+
+    it('removes the last move of the imported main line', () => {
+        const root = buildSimpleMainLine(['e4', 'e5', 'Nf3'])
+        const out = deleteLeafMoveAtPath(root, [0, 0, 0])
+        expect(out.tree.children[0].children[0].children).toEqual([])
+        expect(out.path).toEqual([0, 0])
+        expect(out.tree.children[0].children[0].san).toBe('e5')
+    })
+})
+
+describe('promotePathToMainLine', () => {
+    it('makes the secondary line the main line and keeps the old line as a variation', () => {
+        const root = buildSimpleMainLine(['e4', 'e5', 'Nf3'])
+        const afterE4 = root.children[0]
+        const chess = new Chess('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
+        const c5 = chess.move('c5')
+        afterE4.children.push({
+            id: 'v-c5',
+            san: c5.san,
+            uci: c5.from + c5.to,
+            fen: chess.fen(),
+            fromGame: false,
+            children: [],
+        })
+        const out = promotePathToMainLine(root, [0, 1])
+        expect(out.path).toEqual([0, 0])
+        expect(out.tree.children[0].children[0].san).toBe('c5')
+        expect(out.tree.children[0].children[1].san).toBe('e5')
+        expect(out.tree.children[0].children[1].children[0].san).toBe('Nf3')
+    })
+})
+
+describe('demoteMainLineAtPath', () => {
+    it('moves the main-line tail behind the existing variation', () => {
+        const root = buildSimpleMainLine(['e4', 'e5', 'Nf3'])
+        const afterE4 = root.children[0]
+        const chess = new Chess('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
+        const c5 = chess.move('c5')
+        afterE4.children.push({
+            id: 'v-c5',
+            san: c5.san,
+            uci: c5.from + c5.to,
+            fen: chess.fen(),
+            fromGame: false,
+            children: [],
+        })
+        const out = demoteMainLineAtPath(root, [0, 0])
+        expect(out.path).toEqual([0, 1])
+        expect(out.tree.children[0].children[0].san).toBe('c5')
+        expect(out.tree.children[0].children[1].san).toBe('e5')
+        expect(out.tree.children[0].children[1].children[0].san).toBe('Nf3')
+    })
+
+    it('does nothing when the main line has no alternative at that move', () => {
+        const root = buildSimpleMainLine(['e4', 'e5'])
+        expect(demoteMainLineAtPath(root, [0, 0])).toBeNull()
     })
 })
 

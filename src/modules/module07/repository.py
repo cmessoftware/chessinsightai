@@ -392,9 +392,34 @@ def update_coach_game_study_pgn(
     master = game.master_game
     if master is None:
         raise ValueError("game has no master row")
+    old_default = _default_display_title(game)
     master.pgn = item.pgn
+    master.white_player = item.white_player
+    master.black_player = item.black_player
     if item.result:
         master.result = parse_allowed_result(item.result)
+    headers = _header_fields(item.pgn)
+    for key in ("white_elo", "black_elo", "eco", "opening", "date_played", "time_control"):
+        setattr(master, key, headers.get(key))
+    if headers.get("time_control") and item.speed_class:
+        master.speed_class = item.speed_class
+        game.speed_class = item.speed_class
+    prov = dict(game.import_provenance or {})
+    custom = str(prov.get("display_title") or "").strip()
+    new_default = _default_display_title(item)
+    if not custom or custom == old_default:
+        prov["display_title"] = new_default
+        game.import_provenance = prov
+        flag_modified(game, "import_provenance")
+    if game.player_username:
+        try:
+            game.player_color = resolve_player_color(
+                item.white_player,
+                item.black_player,
+                game.player_username,
+            )
+        except ValueError:
+            pass
     db.commit()
     db.refresh(game)
     return game

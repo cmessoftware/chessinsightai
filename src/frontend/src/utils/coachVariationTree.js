@@ -182,7 +182,7 @@ export function truncateLineForward(root, path) {
     return { tree, path: [...path] }
 }
 
-/** Quita la jugada hoja en `path` (solo ramas de usuario, sin continuación). */
+/** Quita la jugada hoja en `path` (línea principal o variante, sin continuación). */
 export function deleteLeafMoveAtPath(root, path) {
     if (!path?.length) return null
     const tree = cloneTree(root)
@@ -190,14 +190,48 @@ export function deleteLeafMoveAtPath(root, path) {
     const index = path[path.length - 1]
     const parent = getNodeAtPath(tree, parentPath)
     const target = parent?.children?.[index]
-    if (!target || target.fromGame) return null
+    if (!target) return null
     if (target.children?.length) return null
     parent.children.splice(index, 1)
-    const nextPath =
-        parentPath.length === 0
-            ? []
-            : [...parentPath]
-    return { tree, path: nextPath.length ? nextPath : [] }
+    const nextPath = parentPath.length === 0 ? [] : [...parentPath]
+    return { tree, path: nextPath }
+}
+
+/**
+ * Mueve la línea de `path` a la variante principal.
+ * En cada desvío, esa jugada pasa a `children[0]` y la línea anterior queda como variante.
+ */
+export function promotePathToMainLine(root, path) {
+    if (!path?.length || !isVariationPath(path)) return null
+    const tree = cloneTree(root)
+    let node = tree
+    const newPath = []
+    for (const index of path) {
+        const child = node.children?.[index]
+        if (!child) return null
+        if (index > 0) {
+            const [moved] = node.children.splice(index, 1)
+            node.children.unshift(moved)
+        }
+        newPath.push(0)
+        node = node.children[0]
+    }
+    return { tree, path: newPath }
+}
+
+/**
+ * Inverso de promote: la jugada de la línea principal (y lo que sigue) pasa al final
+ * de las alternativas. La primera variante de esa posición queda como línea principal.
+ */
+export function demoteMainLineAtPath(root, path) {
+    if (!path?.length || !isMainLinePath(path)) return null
+    const tree = cloneTree(root)
+    const parentPath = path.slice(0, -1)
+    const parent = getNodeAtPath(tree, parentPath)
+    if (!parent?.children || parent.children.length < 2) return null
+    const [main] = parent.children.splice(0, 1)
+    parent.children.push(main)
+    return { tree, path: [...parentPath, parent.children.length - 1] }
 }
 
 /**
