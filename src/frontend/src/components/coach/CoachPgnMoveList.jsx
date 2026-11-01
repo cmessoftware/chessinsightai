@@ -767,11 +767,6 @@ export default function CoachPgnMoveList({
                         {saveStudyMessage}
                     </Typography>
                 )}
-                {resultLabel && (
-                    <Typography variant="caption" color="text.secondary" display="block">
-                        {resultLabel}
-                    </Typography>
-                )}
                 {formatClassificationProgressLabel(classificationProgress) && (
                     <Typography variant="caption" color="text.secondary" display="block">
                         {formatClassificationProgressLabel(classificationProgress)}
@@ -983,6 +978,18 @@ export default function CoachPgnMoveList({
                             </Box>
                         )
                     })}
+                {resultLabel && (
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            py: 0.35,
+                            px: 0.5,
+                            fontWeight: 700,
+                        }}
+                    >
+                        {resultLabel}
+                    </Typography>
+                )}
             </Box>
             <Menu
                 open={moveMenu != null}

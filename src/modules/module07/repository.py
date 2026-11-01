@@ -425,6 +425,22 @@ def update_coach_game_study_pgn(
     return game
 
 
+def update_coach_game_manual_analysis(
+    db: Session,
+    game_id: str,
+    owner_user_id: int,
+    manual_analysis: bool,
+) -> CoachGame | None:
+    """FEAT-087: mark whether this game already has a manual analysis."""
+    game = get_game(db, game_id, owner_user_id)
+    if game is None:
+        return None
+    game.manual_analysis = bool(manual_analysis)
+    db.commit()
+    db.refresh(game)
+    return game
+
+
 def update_coach_game_result(
     db: Session,
     game_id: str,

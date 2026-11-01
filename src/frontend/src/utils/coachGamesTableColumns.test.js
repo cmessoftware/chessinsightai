@@ -23,4 +23,8 @@ describe('coachGamesTableColumns', () => {
     it('includes rhythm column in defaults', () => {
         expect(defaultVisibleCoachGamesColumns().has('rhythm')).toBe(true)
     })
+
+    it('includes manual analysis column in defaults', () => {
+        expect(defaultVisibleCoachGamesColumns().has('manual_analysis')).toBe(true)
+    })
 })

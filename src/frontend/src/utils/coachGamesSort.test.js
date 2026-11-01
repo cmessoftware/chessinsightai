@@ -34,4 +34,14 @@ describe('coachGamesSort', () => {
         const sorted = sortCoachGames(games, 'analysis', 'desc', { jobStatusForGame })
         expect(sorted.map((g) => g.id)).toEqual(['1', '2', '3'])
     })
+
+    it('sorts manual analysis before unmarked games', () => {
+        const games = [
+            { id: '1', manual_analysis: false },
+            { id: '2', manual_analysis: true },
+            { id: '3' },
+        ]
+        const sorted = sortCoachGames(games, 'manual_analysis', 'desc')
+        expect(sorted.map((g) => g.id)).toEqual(['2', '1', '3'])
+    })
 })

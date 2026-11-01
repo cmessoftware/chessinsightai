@@ -1,7 +1,8 @@
-export const COACH_GAMES_TABLE_COLUMNS_STORAGE_KEY = 'coach.partidas.tableColumns.v2'
+export const COACH_GAMES_TABLE_COLUMNS_STORAGE_KEY = 'coach.partidas.tableColumns.v3'
+const COACH_GAMES_TABLE_COLUMNS_STORAGE_KEY_V2 = 'coach.partidas.tableColumns.v2'
 const COACH_GAMES_TABLE_COLUMNS_STORAGE_KEY_V1 = 'coach.partidas.tableColumns.v1'
 
-/** @typedef {'partida' | 'white_player' | 'black_player' | 'player_pov' | 'rhythm' | 'eco' | 'white_elo' | 'black_elo' | 'opening' | 'date_played' | 'source' | 'analysis' | 'result' | 'actions'} CoachGamesColumnId */
+/** @typedef {'partida' | 'white_player' | 'black_player' | 'player_pov' | 'rhythm' | 'eco' | 'white_elo' | 'black_elo' | 'opening' | 'date_played' | 'source' | 'analysis' | 'manual_analysis' | 'result' | 'actions'} CoachGamesColumnId */
 
 /** @type {{ id: CoachGamesColumnId, label: string, defaultVisible: boolean, locked?: boolean }[]} */
 export const COACH_GAMES_TABLE_COLUMN_DEFS = [
@@ -17,6 +18,7 @@ export const COACH_GAMES_TABLE_COLUMN_DEFS = [
     { id: 'date_played', label: 'Fecha', defaultVisible: true },
     { id: 'source', label: 'Fuente', defaultVisible: true },
     { id: 'analysis', label: 'Análisis', defaultVisible: true },
+    { id: 'manual_analysis', label: 'Análisis Manual', defaultVisible: true },
     { id: 'result', label: 'Resultado', defaultVisible: true },
     { id: 'actions', label: 'Acciones', defaultVisible: true, locked: true },
 ]
@@ -62,10 +64,18 @@ export function loadVisibleCoachGamesColumns() {
     try {
         let raw = localStorage.getItem(COACH_GAMES_TABLE_COLUMNS_STORAGE_KEY)
         if (!raw) {
+            const previous = localStorage.getItem(COACH_GAMES_TABLE_COLUMNS_STORAGE_KEY_V2)
+            if (previous) {
+                const migrated = normalizeVisibleCoachGamesColumns(JSON.parse(previous))
+                migrated.add('manual_analysis')
+                saveVisibleCoachGamesColumns(migrated)
+                return migrated
+            }
             const legacy = localStorage.getItem(COACH_GAMES_TABLE_COLUMNS_STORAGE_KEY_V1)
             if (legacy) {
                 const migrated = normalizeVisibleCoachGamesColumns(JSON.parse(legacy))
                 migrated.add('rhythm')
+                migrated.add('manual_analysis')
                 saveVisibleCoachGamesColumns(migrated)
                 return migrated
             }
