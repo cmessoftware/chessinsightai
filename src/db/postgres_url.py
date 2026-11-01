@@ -6,8 +6,11 @@ import os
 
 
 def _normalize_postgres_url(url: str) -> str:
+    """Use the psycopg 3 driver. Bare ``postgresql://`` makes SQLAlchemy import psycopg2."""
     if url.startswith("postgres://"):
-        return "postgresql://" + url[len("postgres://") :]
+        url = "postgresql://" + url[len("postgres://") :]
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url[len("postgresql://") :]
     return url
 
 
