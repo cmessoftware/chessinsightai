@@ -42,6 +42,7 @@ import {
     listGames,
     listJobs,
     parseApiDetail,
+    patchCoachGameManualAnalysis,
     patchCoachGameResult,
     patchCoachGameTitle,
     bulkUpdateCoachGamesCorpus,
@@ -211,6 +212,36 @@ function SortableGamesHeader({ children, field, sortBy, sortDirection, onSort, s
                 {children}
             </TableSortLabel>
         </TableCell>
+    )
+}
+
+function ManualAnalysisCell({ game, onSaved, onError }) {
+    const [saving, setSaving] = useState(false)
+    const checked = Boolean(game.manual_analysis)
+
+    const toggle = async () => {
+        const next = !checked
+        setSaving(true)
+        try {
+            const updated = await patchCoachGameManualAnalysis(game.id, next)
+            onSaved(updated)
+        } catch (err) {
+            onError(parseApiDetail(err))
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    return (
+        <Tooltip title={checked ? 'Quitar análisis manual' : 'Marcar análisis manual'}>
+            <Checkbox
+                size="small"
+                checked={checked}
+                disabled={saving}
+                onChange={toggle}
+                inputProps={{ 'aria-label': 'Análisis manual' }}
+            />
+        </Tooltip>
     )
 }
 
@@ -1569,6 +1600,16 @@ export default function CoachGamesPanel() {
                                     Análisis
                                 </SortableGamesHeader>
                             )}
+                            {showCol('manual_analysis') && (
+                                <SortableGamesHeader
+                                    field="manual_analysis"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Análisis Manual
+                                </SortableGamesHeader>
+                            )}
                             {showCol('result') && (
                                 <SortableGamesHeader
                                     field="result"
@@ -1756,6 +1797,23 @@ export default function CoachGamesPanel() {
                                                     )
                                                 )}
                                             </Box>
+                                        </TableCell>
+                                    )}
+                                    {showCol('manual_analysis') && (
+                                        <TableCell padding="checkbox">
+                                            <ManualAnalysisCell
+                                                game={g}
+                                                onSaved={(updated) => {
+                                                    setGames((prev) =>
+                                                        prev.map((row) =>
+                                                            row.id === updated.id
+                                                                ? { ...row, ...updated }
+                                                                : row,
+                                                        ),
+                                                    )
+                                                }}
+                                                onError={setError}
+                                            />
                                         </TableCell>
                                     )}
                                     {showCol('result') && (

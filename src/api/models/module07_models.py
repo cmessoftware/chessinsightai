@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from sqlalchemy import (
+    Boolean,
     Column,
     DateTime,
     Float,
@@ -85,6 +86,7 @@ class CoachGame(Base):
     last_imported_at = Column(DateTime, nullable=False, server_default=func.now())
     client_analyzed_at = Column(DateTime, nullable=True)
     client_analysis_ply_count = Column(Integer, nullable=False, default=0)
+    manual_analysis = Column(Boolean, nullable=False, default=False, server_default="false")
     client_main_line_signature = Column(String(512), nullable=True)
     import_provenance = Column(JSON, nullable=True)
 

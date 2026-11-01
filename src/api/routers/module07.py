@@ -58,6 +58,7 @@ from modules.module07.repository import (
     delete_coach_games,
     update_coach_games_corpus_type,
     update_coach_game_display_title,
+    update_coach_game_manual_analysis,
     update_coach_game_result,
     update_coach_game_study_pgn,
 )
@@ -191,6 +192,7 @@ def _game_json(
             getattr(row, "client_analysis_ply_count", 0)
             and getattr(row, "client_analyzed_at", None)
         ),
+        "manual_analysis": bool(getattr(row, "manual_analysis", False)),
         "master_game_id": getattr(row, "master_game_id", None)
         or (
             master_game_id_from_pgn(row.pgn) if getattr(row, "pgn", None) else None
@@ -496,6 +498,7 @@ class GameDisplayPatchBody(BaseModel):
     display_title: Optional[str] = Field(default=None, max_length=200)
     result: Optional[str] = None
     pgn_text: Optional[str] = Field(default=None, max_length=400_000)
+    manual_analysis: Optional[bool] = None
 
     @field_validator("display_title")
     @classmethod
@@ -530,6 +533,7 @@ def patch_game_by_id(
         body.display_title is None
         and body.result is None
         and body.pgn_text is None
+        and body.manual_analysis is None
     ):
         raise HTTPException(status_code=400, detail="Nada para actualizar")
     try:
@@ -543,6 +547,10 @@ def patch_game_by_id(
         if body.pgn_text is not None:
             row = update_coach_game_study_pgn(
                 db, game_id, owner, body.pgn_text
+            )
+        if body.manual_analysis is not None:
+            row = update_coach_game_manual_analysis(
+                db, game_id, owner, body.manual_analysis
             )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
