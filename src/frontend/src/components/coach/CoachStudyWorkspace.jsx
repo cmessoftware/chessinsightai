@@ -33,7 +33,9 @@ import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
 import CoachEvalChartCollapsible from './CoachEvalChartCollapsible.jsx'
 import CoachPlyAnnotationPanel from './CoachPlyAnnotationPanel.jsx'
+import CoachMoveGlyph from './CoachMoveGlyph.jsx'
 import CoachPromotionPicker from './CoachPromotionPicker.jsx'
+import { formatCoachGameDescription } from '../../utils/coachGameDisplay.js'
 import { promotionChoicesForMove } from '../../utils/coachPromotion.js'
 import { buildMainLineEvalCpSeries, mainLinePlyFromCursorPath } from '../../utils/coachEvalCpSeries.js'
 import { useLiveStockfishAnalysis } from '../../hooks/useLiveStockfishAnalysis.js'
@@ -55,9 +57,11 @@ import { parseMoverEloFromGame } from '../../utils/coachPlayerElo.js'
 import { mainLineSignature } from '../../utils/coachClassificationSessionCache.js'
 import {
     applyPlyUserAnnotationPatch,
+    getPlyUserAnnotation,
     loadPlyUserAnnotationsForScope,
     savePlyUserAnnotationsForScope,
 } from '../../utils/coachPlyUserAnnotations.js'
+import { uciDestinationSquare } from '../../utils/coachMoveGlyph.js'
 import { saveCoachAnalysisCursor } from '../../utils/coachLastGameSession.js'
 import {
     buildStudyPgnFromTree,
@@ -721,6 +725,15 @@ export default function CoachStudyWorkspace({
         onSourcePgnChange: handleSourcePgnChange,
     }
 
+    const renderMoveGlyph = (width) => (
+        <CoachMoveGlyph
+            square={uciDestinationSquare(lastMove)}
+            nag={getPlyUserAnnotation(plyUserByPathKey, cursorPath)?.nag}
+            orientation={orientation}
+            boardWidth={width}
+        />
+    )
+
     const renderBoardAtWidth = (width) => (
         <CoachCapturedPiecesStack
             orientation={orientation}
@@ -740,6 +753,7 @@ export default function CoachStudyWorkspace({
                     squareCircles={squareCircles}
                     onSquareCirclesChange={handleSquareCirclesChange}
                 />
+                {renderMoveGlyph(width)}
                 {pendingPromotion && !criticalMode && (
                     <CoachPromotionPicker
                         pending={pendingPromotion}
@@ -863,6 +877,7 @@ export default function CoachStudyWorkspace({
                                     squareCircles={squareCircles}
                                     onSquareCirclesChange={handleSquareCirclesChange}
                                 />
+                                {renderMoveGlyph(boardWidth)}
                                 {pendingPromotion && !criticalMode && (
                                     <CoachPromotionPicker
                                         pending={pendingPromotion}
@@ -1145,6 +1160,7 @@ export default function CoachStudyWorkspace({
                         <CoachPgnMoveList {...pgnMoveListProps} />
                     </>
                 }
+                gameTitle={gameMeta ? formatCoachGameDescription(gameMeta) : ''}
                 annotationPanel={
                     <CoachPlyAnnotationPanel
                         collapsible
