@@ -3,11 +3,13 @@ import {
     Alert,
     Box,
     Button,
+    CircularProgress,
     Paper,
     TextField,
     Typography,
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import CoachImportProgress from '../components/coach/CoachImportProgress.jsx'
 import { ingestPgn } from '../services/module07Service.js'
 
 export default function CoachImportPage() {
@@ -58,7 +60,13 @@ export default function CoachImportPage() {
                     minRows={12}
                     sx={{ mb: 2, fontFamily: 'monospace' }}
                 />
-                <Button type="submit" variant="contained" disabled={loading}>
+                <CoachImportProgress active={loading} />
+                <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={loading}
+                    startIcon={loading ? <CircularProgress size={18} color="inherit" /> : null}
+                >
                     {loading ? 'Importando…' : 'Importar partidas'}
                 </Button>
             </Box>

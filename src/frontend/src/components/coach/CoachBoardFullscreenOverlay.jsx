@@ -38,6 +38,7 @@ export default function CoachBoardFullscreenOverlay({
     board,
     pgnPanel,
     annotationPanel = null,
+    gameTitle = '',
 }) {
     const panelRef = useRef(null)
     const columnRef = useRef(null)
@@ -45,6 +46,7 @@ export default function CoachBoardFullscreenOverlay({
     const arrowsRef = useRef(null)
     const annotationRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(480)
+    const headerTitle = String(gameTitle || '').trim() || 'Tablero · pantalla completa'
 
     useEffect(() => {
         if (!open) return undefined
@@ -162,10 +164,11 @@ export default function CoachBoardFullscreenOverlay({
                     <Typography
                         id="coach-board-fullscreen-title"
                         variant="subtitle2"
-                        color="text.secondary"
-                        sx={{ ml: 1 }}
+                        noWrap
+                        title={headerTitle}
+                        sx={{ ml: 1, minWidth: 0, flex: '1 1 auto' }}
                     >
-                        Tablero · pantalla completa
+                        {headerTitle}
                     </Typography>
                 </Stack>
 

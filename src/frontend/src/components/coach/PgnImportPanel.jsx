@@ -7,6 +7,7 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    CircularProgress,
     TextField,
     Typography,
 } from '@mui/material'
@@ -18,6 +19,7 @@ import {
     COACH_PGN_IMPORT_MAX_GAMES,
     pgnMultiGameImportNotice,
 } from '../../utils/coachPgnImport.js'
+import CoachImportProgress from './CoachImportProgress.jsx'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 
 async function readFileAsText(file) {
@@ -216,12 +218,15 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                 )}
             </Box>
 
+            <CoachImportProgress active={loading} />
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button
                     variant="contained"
                     color="primary"
                     size="large"
-                    startIcon={<CloudUpload />}
+                    startIcon={
+                        loading ? <CircularProgress size={18} color="inherit" /> : <CloudUpload />
+                    }
                     disabled={loading}
                     onClick={() => submitImport()}
                     sx={{ fontWeight: 700, letterSpacing: 0.5, px: 4, py: 1.25 }}

@@ -4,6 +4,7 @@ import {
     Box,
     Button,
     Checkbox,
+    CircularProgress,
     FormControlLabel,
     FormGroup,
     TextField,
@@ -17,6 +18,7 @@ import {
     runChesscomImport,
     saveChesscomImportSettings,
 } from '../../services/module07Service.js'
+import CoachImportProgress from './CoachImportProgress.jsx'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
 
 const PERF_OPTIONS = [
@@ -253,18 +255,25 @@ export default function ChesscomImportPanel({ corpusType }) {
                 sx={{ mb: 2 }}
             />
 
+            <CoachImportProgress active={importing} />
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                 <Button
                     variant="outlined"
                     startIcon={<Save />}
-                    disabled={saving}
+                    disabled={saving || importing}
                     onClick={handleSave}
                 >
                     {saving ? 'Guardando…' : 'Guardar configuración'}
                 </Button>
                 <Button
                     variant="contained"
-                    startIcon={<CloudDownload />}
+                    startIcon={
+                        importing ? (
+                            <CircularProgress size={18} color="inherit" />
+                        ) : (
+                            <CloudDownload />
+                        )
+                    }
                     disabled={importing}
                     onClick={() => handleImport({ resume: false, resetCursor: true })}
                 >
