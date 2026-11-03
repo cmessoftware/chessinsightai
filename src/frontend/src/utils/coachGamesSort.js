@@ -4,7 +4,7 @@ import {
     formatCoachRhythmDisplay,
 } from './coachGameDisplay.js'
 
-/** @typedef {'white_player' | 'black_player' | 'eco' | 'white_elo' | 'black_elo' | 'opening' | 'date_played' | 'source' | 'rhythm' | 'analysis' | 'manual_analysis' | 'result'} CoachGamesSortField */
+/** @typedef {'white_player' | 'black_player' | 'eco' | 'white_elo' | 'black_elo' | 'opening' | 'date_played' | 'imported_at' | 'source' | 'rhythm' | 'analysis' | 'manual_analysis' | 'result'} CoachGamesSortField */
 
 /** @param {string | null | undefined} raw */
 export function coachDateSortKey(raw) {
@@ -51,6 +51,8 @@ export function coachGameSortKey(game, field, ctx = {}) {
             return String(game.opening ?? '').trim().toLowerCase()
         case 'date_played':
             return coachDateSortKey(game.date_played)
+        case 'imported_at':
+            return coachDateSortKey(game.last_imported_at)
         case 'source':
             return formatCoachCatalogSource(game).toLowerCase()
         case 'rhythm':

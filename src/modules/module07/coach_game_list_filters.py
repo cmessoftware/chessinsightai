@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Any
 
 from sqlalchemy import or_
@@ -37,6 +38,37 @@ def _normalize_date_key(raw: str | None) -> str | None:
     return text.replace(".", "-").replace("/", "-")[:10]
 
 
+_RHYTHM_ALIASES = {
+    "daily": ("daily", "correspondence"),
+    "correspondence": ("daily", "correspondence"),
+}
+
+
+def _normalize_rhythms(values: list[str] | None) -> tuple[str, ...]:
+    merged: list[str] = []
+    for raw in values or []:
+        for part in str(raw).split(","):
+            key = part.strip().lower()
+            if not key:
+                continue
+            merged.extend(_RHYTHM_ALIASES.get(key, (key,)))
+    return tuple(dict.fromkeys(merged))
+
+
+def _imported_bound(raw: str | None, *, end: bool) -> datetime | None:
+    """Start of the day, or the start of the day after ``raw`` when ``end`` is set."""
+    key = _normalize_date_key(raw)
+    if not key:
+        return None
+    try:
+        day = datetime.strptime(key, "%Y-%m-%d")
+    except ValueError:
+        return None
+    if end:
+        return day + timedelta(days=1)
+    return day
+
+
 @dataclass(frozen=True)
 class CoachGameListFilters:
     corpus_types: tuple[str, ...] = ()
@@ -46,6 +78,9 @@ class CoachGameListFilters:
     opening: str | None = None
     date_from: str | None = None
     date_to: str | None = None
+    imported_from: str | None = None
+    imported_to: str | None = None
+    rhythms: tuple[str, ...] = ()
     results: tuple[str, ...] = ()
     opening_eco_or: bool = False
     limit: int | None = None
@@ -66,6 +101,9 @@ class CoachGameListFilters:
         opening_eco_or: bool = False,
         date_from: str | None = None,
         date_to: str | None = None,
+        imported_from: str | None = None,
+        imported_to: str | None = None,
+        rhythms: list[str] | None = None,
         result: list[str] | None = None,
         results: list[str] | None = None,
         limit: int | None = None,
@@ -98,6 +136,9 @@ class CoachGameListFilters:
             opening_eco_or=bool(opening_eco_or),
             date_from=_normalize_date_key(date_from),
             date_to=_normalize_date_key(date_to),
+            imported_from=_normalize_date_key(imported_from),
+            imported_to=_normalize_date_key(imported_to),
+            rhythms=_normalize_rhythms(rhythms),
             results=tuple(dict.fromkeys(merged_results)),
             limit=limit,
             offset=max(0, int(offset or 0)),
@@ -112,6 +153,9 @@ class CoachGameListFilters:
             or self.opening
             or self.date_from
             or self.date_to
+            or self.imported_from
+            or self.imported_to
+            or self.rhythms
             or self.results
         )
 
@@ -152,6 +196,16 @@ def apply_coach_game_list_filters(
         query = query.filter(g.date_played >= filters.date_from)
     if filters.date_to:
         query = query.filter(g.date_played <= filters.date_to)
+
+    imported_start = _imported_bound(filters.imported_from, end=False)
+    imported_end = _imported_bound(filters.imported_to, end=True)
+    if imported_start is not None:
+        query = query.filter(coach_model.last_imported_at >= imported_start)
+    if imported_end is not None:
+        query = query.filter(coach_model.last_imported_at < imported_end)
+
+    if filters.rhythms:
+        query = query.filter(coach_model.speed_class.in_(list(filters.rhythms)))
 
     if filters.results:
         query = query.filter(g.result.in_(list(filters.results)))

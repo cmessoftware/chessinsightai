@@ -27,4 +27,8 @@ describe('coachGamesTableColumns', () => {
     it('includes manual analysis column in defaults', () => {
         expect(defaultVisibleCoachGamesColumns().has('manual_analysis')).toBe(true)
     })
+
+    it('includes the import date column in defaults', () => {
+        expect(defaultVisibleCoachGamesColumns().has('imported_at')).toBe(true)
+    })
 })

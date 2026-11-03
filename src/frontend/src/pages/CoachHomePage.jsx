@@ -109,6 +109,7 @@ export default function CoachHomePage() {
             setCursorPath={setCursorPath}
             playerColor={playerColor}
             gameMeta={gameMeta}
+            onGameMetaChange={setGameMeta}
             gameId={gameMeta?.id}
             showCoachSubNav
             persistClassification={Boolean(gameMeta?.id)}

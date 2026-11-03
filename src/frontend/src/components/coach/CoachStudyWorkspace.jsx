@@ -25,6 +25,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import ChessinsightBoard from '../chess/ChessinsightBoard.jsx'
 import CoachCapturedPiecesStack from './CoachCapturedPiecesBar.jsx'
 import CoachCurrentFenBar from './CoachCurrentFenBar.jsx'
+import CoachChessStatisticsPanel from './CoachChessStatisticsPanel.jsx'
 import CoachPgnMoveList from './CoachPgnMoveList.jsx'
 import { CoachConfirmBadge } from './coachPanelStatus.jsx'
 import Mental1600Panel from './Mental1600Panel.jsx'
@@ -33,6 +34,7 @@ import AdvancedMoveAnalysisPanel from './AdvancedMoveAnalysisPanel.jsx'
 import LiveEnginePanel from './LiveEnginePanel.jsx'
 import CoachEvalChartCollapsible from './CoachEvalChartCollapsible.jsx'
 import CoachPlyAnnotationPanel from './CoachPlyAnnotationPanel.jsx'
+import CoachManualAnalysisCheckbox from './CoachManualAnalysisCheckbox.jsx'
 import CoachMoveGlyph from './CoachMoveGlyph.jsx'
 import CoachPromotionPicker from './CoachPromotionPicker.jsx'
 import { formatCoachGameDescription } from '../../utils/coachGameDisplay.js'
@@ -725,6 +727,27 @@ export default function CoachStudyWorkspace({
         onSourcePgnChange: handleSourcePgnChange,
     }
 
+    const handleManualAnalysisUpdated = useCallback(
+        (updated) => {
+            if (!onGameMetaChange || !updated) return
+            onGameMetaChange({
+                ...(gameMeta || {}),
+                ...updated,
+                pgn: updated.pgn ?? gameMeta?.pgn,
+                manual_analysis: Boolean(updated.manual_analysis),
+            })
+        },
+        [gameMeta, onGameMetaChange],
+    )
+
+    const renderManualAnalysisCheckbox = () => (
+        <CoachManualAnalysisCheckbox
+            gameId={gameId}
+            checked={Boolean(gameMeta?.manual_analysis)}
+            onUpdated={handleManualAnalysisUpdated}
+        />
+    )
+
     const renderMoveGlyph = (width) => (
         <CoachMoveGlyph
             square={uciDestinationSquare(lastMove)}
@@ -897,11 +920,14 @@ export default function CoachStudyWorkspace({
                                 width: boardWidth,
                                 maxWidth: '100%',
                                 display: 'flex',
-                                justifyContent: 'flex-end',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
                                 gap: 0.5,
                                 mt: 0.5,
                             }}
                         >
+                            {renderManualAnalysisCheckbox()}
+                            <Box sx={{ display: 'flex', marginLeft: 'auto' }}>
                             {!criticalMode && (
                                 <Tooltip title="Pantalla completa (tablero y PGN)">
                                     <IconButton
@@ -921,6 +947,7 @@ export default function CoachStudyWorkspace({
                             >
                                 <FlipCameraAndroid fontSize="small" />
                             </IconButton>
+                            </Box>
                         </Box>
                         <CoachCurrentFenBar
                             fen={boardFen}
@@ -1126,6 +1153,7 @@ export default function CoachStudyWorkspace({
                     )}
 
                     <CoachPgnMoveList {...pgnMoveListProps} maxHeight={320} />
+                    <CoachChessStatisticsPanel gameId={gameId} />
 
                     {decisionsPanel}
                 </Grid>
@@ -1158,9 +1186,11 @@ export default function CoachStudyWorkspace({
                             </Box>
                         )}
                         <CoachPgnMoveList {...pgnMoveListProps} />
+                        <CoachChessStatisticsPanel gameId={gameId} />
                     </>
                 }
                 gameTitle={gameMeta ? formatCoachGameDescription(gameMeta) : ''}
+                headerExtra={renderManualAnalysisCheckbox()}
                 annotationPanel={
                     <CoachPlyAnnotationPanel
                         collapsible

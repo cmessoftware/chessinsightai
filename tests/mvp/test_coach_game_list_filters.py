@@ -43,6 +43,23 @@ def test_filters_from_query_merges_sources_and_results():
     assert f.has_any()
 
 
+def test_rhythm_filter_includes_correspondence_alias():
+    f = CoachGameListFilters.from_query(rhythms=["Rapid", "daily"])
+    assert f.rhythms == ("rapid", "daily", "correspondence")
+    assert f.has_any()
+
+
+def test_imported_range_is_parsed():
+    f = CoachGameListFilters.from_query(
+        imported_from="2026.03.01",
+        imported_to="2026-03-31",
+    )
+    assert f.imported_from == "2026-03-01"
+    assert f.imported_to == "2026-03-31"
+    assert f.has_any()
+    assert f.date_from is None
+
+
 def test_empty_filters_has_any_false():
     f = CoachGameListFilters.from_query()
     assert not f.has_any()

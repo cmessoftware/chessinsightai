@@ -21,6 +21,7 @@ from modules.game_import.game_description import (
     format_coach_game_description,
     format_time_control_display,
 )
+from modules.module07.chess_statistics_summary import lookup_chess_statistics
 from modules.module07.ingest import parse_games_from_pgn_text
 from modules.module07.lichess_coach_import import (
     DEFAULT_BATCH_SIZE,
@@ -391,6 +392,13 @@ def get_games(
     ),
     date_from: Optional[str] = Query(None, description="YYYY-MM-DD or YYYY.MM.DD"),
     date_to: Optional[str] = Query(None),
+    imported_from: Optional[str] = Query(
+        None, description="Fecha de importación desde (YYYY-MM-DD)."
+    ),
+    imported_to: Optional[str] = Query(None, description="Fecha de importación hasta."),
+    rhythms: Optional[list[str]] = Query(
+        None, description="Ritmo: blitz, rapid, classical, bullet, ultrabullet, daily."
+    ),
     result: Optional[list[str]] = Query(None, alias="result"),
     results: Optional[list[str]] = Query(None),
     limit: Optional[int] = Query(None, ge=1, le=500),
@@ -421,6 +429,9 @@ def get_games(
         opening_eco_or=opening_eco_or,
         date_from=date_from,
         date_to=date_to,
+        imported_from=imported_from,
+        imported_to=imported_to,
+        rhythms=rhythms,
         result=result,
         results=results,
         limit=limit,
@@ -568,6 +579,17 @@ def get_game_by_id(
     if row is None:
         raise HTTPException(status_code=404, detail="Game not found")
     return _game_json(row, include_pgn=True)
+
+
+@router.get("/games/{game_id}/chess-statistics")
+def get_game_chess_statistics(
+    game_id: str, request: Request, db: Session = Depends(get_db)
+):
+    owner = _owner_id(request)
+    row = get_game(db, game_id, owner)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return lookup_chess_statistics(getattr(row, "pgn", None) or "")
 
 
 @router.get("/games/{game_id}/decisions")

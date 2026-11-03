@@ -2,6 +2,15 @@
 
 export const COACH_RESULT_FILTER_OPTIONS = ['1-0', '0-1', '1/2-1/2', '*']
 
+export const COACH_RHYTHM_FILTER_OPTIONS = [
+    { value: 'ultrabullet', label: 'UltraBullet' },
+    { value: 'bullet', label: 'Bullet' },
+    { value: 'blitz', label: 'Blitz' },
+    { value: 'rapid', label: 'Rapid' },
+    { value: 'classical', label: 'Classical' },
+    { value: 'daily', label: 'Correspondencia' },
+]
+
 /** @typedef {{ eco: string, name: string } | null} OpeningCatalogSelection */
 
 export const EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS = {
@@ -13,6 +22,9 @@ export const EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS = {
     openingCatalog: null,
     dateFrom: '',
     dateTo: '',
+    importedFrom: '',
+    importedTo: '',
+    rhythms: [],
     results: [],
 }
 
@@ -30,6 +42,9 @@ export function coachPartidasAdvancedFiltersActive(filters) {
             filters.openingCatalog?.eco ||
             String(filters.dateFrom || '').trim() ||
             String(filters.dateTo || '').trim() ||
+            String(filters.importedFrom || '').trim() ||
+            String(filters.importedTo || '').trim() ||
+            filters.rhythms?.length ||
             filters.results?.length,
     )
 }
@@ -63,6 +78,13 @@ export function buildCoachPartidasListQuery(filters) {
     const dateTo = String(filters.dateTo || '').trim()
     if (dateFrom) query.date_from = dateFrom
     if (dateTo) query.date_to = dateTo
+    const importedFrom = String(filters.importedFrom || '').trim()
+    const importedTo = String(filters.importedTo || '').trim()
+    if (importedFrom) query.imported_from = importedFrom
+    if (importedTo) query.imported_to = importedTo
+    if (filters.rhythms?.length) {
+        query.rhythms = [...filters.rhythms]
+    }
     if (filters.results?.length) {
         query.results = [...filters.results]
     }

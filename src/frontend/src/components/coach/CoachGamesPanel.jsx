@@ -84,6 +84,7 @@ import CoachConfigSectionAccordion from './CoachConfigSectionAccordion.jsx'
 import {
     buildCoachPartidasListQuery,
     COACH_RESULT_FILTER_OPTIONS,
+    COACH_RHYTHM_FILTER_OPTIONS,
     coachPartidasAdvancedFiltersActive,
     EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
 } from '../../utils/coachPartidasAdvancedFilters.js'
@@ -212,6 +213,33 @@ function SortableGamesHeader({ children, field, sortBy, sortDirection, onSort, s
                 {children}
             </TableSortLabel>
         </TableCell>
+    )
+}
+
+function openNativeDatePicker(event) {
+    const node = event.currentTarget
+    const input = node instanceof HTMLInputElement ? node : node.querySelector?.('input')
+    if (!input || typeof input.showPicker !== 'function') return
+    try {
+        input.showPicker()
+    } catch {
+        /* The picker is already open. */
+    }
+}
+
+function CoachFilterDateField({ label, value, onChange }) {
+    return (
+        <TextField
+            size="small"
+            label={label}
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={value}
+            onChange={onChange}
+            onClick={openNativeDatePicker}
+            fullWidth
+            sx={{ '& input': { cursor: 'pointer' } }}
+        />
     )
 }
 
@@ -1171,6 +1199,43 @@ export default function CoachGamesPanel() {
                             ))}
                         </Select>
                     </FormControl>
+                    <FormControl size="small" fullWidth>
+                        <InputLabel id="coach-adv-rhythm-label">Ritmo</InputLabel>
+                        <Select
+                            labelId="coach-adv-rhythm-label"
+                            multiple
+                            label="Ritmo"
+                            value={advancedDraft.rhythms || []}
+                            onChange={(e) => {
+                                const value = e.target.value
+                                setAdvancedDraft((prev) => ({
+                                    ...prev,
+                                    rhythms: typeof value === 'string' ? value.split(',') : value,
+                                }))
+                            }}
+                            renderValue={(selected) =>
+                                selected.length
+                                    ? selected
+                                          .map(
+                                              (value) =>
+                                                  COACH_RHYTHM_FILTER_OPTIONS.find(
+                                                      (option) => option.value === value,
+                                                  )?.label || value,
+                                          )
+                                          .join(', ')
+                                    : 'Cualquiera'
+                            }
+                        >
+                            {COACH_RHYTHM_FILTER_OPTIONS.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    <Checkbox
+                                        checked={(advancedDraft.rhythms || []).indexOf(option.value) > -1}
+                                    />
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <TextField
                         size="small"
                         label="Jugador blancas"
@@ -1247,25 +1312,33 @@ export default function CoachGamesPanel() {
                         }
                         fullWidth
                     />
-                    <TextField
-                        size="small"
+                    <CoachFilterDateField
                         label="Fecha desde"
-                        placeholder="2024-01-01"
                         value={advancedDraft.dateFrom}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({ ...prev, dateFrom: e.target.value }))
                         }
-                        fullWidth
                     />
-                    <TextField
-                        size="small"
+                    <CoachFilterDateField
                         label="Fecha hasta"
-                        placeholder="2024-12-31"
                         value={advancedDraft.dateTo}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({ ...prev, dateTo: e.target.value }))
                         }
-                        fullWidth
+                    />
+                    <CoachFilterDateField
+                        label="Fecha importación desde"
+                        value={advancedDraft.importedFrom}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({ ...prev, importedFrom: e.target.value }))
+                        }
+                    />
+                    <CoachFilterDateField
+                        label="Fecha importación hasta"
+                        value={advancedDraft.importedTo}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({ ...prev, importedTo: e.target.value }))
+                        }
                     />
                 </Box>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
@@ -1580,6 +1653,16 @@ export default function CoachGamesPanel() {
                                     Fecha
                                 </SortableGamesHeader>
                             )}
+                            {showCol('imported_at') && (
+                                <SortableGamesHeader
+                                    field="imported_at"
+                                    sortBy={sortBy}
+                                    sortDirection={sortDirection}
+                                    onSort={handleRequestSort}
+                                >
+                                    Fecha importación
+                                </SortableGamesHeader>
+                            )}
                             {showCol('source') && (
                                 <SortableGamesHeader
                                     field="source"
@@ -1729,6 +1812,11 @@ export default function CoachGamesPanel() {
                                     {showCol('date_played') && (
                                         <TableCell sx={{ whiteSpace: 'nowrap' }}>
                                             {formatCoachDatePlayed(g.date_played)}
+                                        </TableCell>
+                                    )}
+                                    {showCol('imported_at') && (
+                                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                                            {formatCoachDatePlayed(g.last_imported_at)}
                                         </TableCell>
                                     )}
                                     {showCol('source') && (
