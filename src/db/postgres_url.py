@@ -5,6 +5,20 @@ from __future__ import annotations
 import os
 
 
+def psycopg_conninfo(url: str) -> str:
+    """Libpq URL for a raw psycopg 3 connection. Drops a SQLAlchemy driver suffix."""
+    text = (url or "").strip()
+    if text.startswith("postgres://"):
+        text = "postgresql://" + text[len("postgres://") :]
+    prefix = "postgresql+"
+    if text.startswith(prefix):
+        rest = text[len(prefix) :]
+        _scheme, sep, tail = rest.partition("://")
+        if sep:
+            return "postgresql://" + tail
+    return text
+
+
 def _normalize_postgres_url(url: str) -> str:
     """Use the psycopg 3 driver. Bare ``postgresql://`` makes SQLAlchemy import psycopg2."""
     if url.startswith("postgres://"):

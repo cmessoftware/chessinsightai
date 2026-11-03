@@ -2,8 +2,11 @@ import chess
 import chess.engine
 import chess.pgn
 import io
-import psycopg2
 import os
+
+import psycopg
+
+from db.postgres_url import psycopg_conninfo
 from models.schemas import GameResponse, AnalysisResponse, MoveValidationResponse
 from typing import Optional, List, Dict, Any
 import time
@@ -27,7 +30,7 @@ class ChessService:
     def _get_db_connection(self):
         """Crear conexión a PostgreSQL"""
         try:
-            return psycopg2.connect(self.database_url)
+            return psycopg.connect(psycopg_conninfo(self.database_url))
         except Exception as e:
             logging.error(f"Error conectando a la base de datos: {e}")
             return None
