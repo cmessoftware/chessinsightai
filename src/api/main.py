@@ -34,6 +34,7 @@ from routers import (
     module07,
 )
 
+from middleware.cors_helpers import allowed_origins, cors_headers_for_request
 from middleware.jwt_middleware import JWTMiddleware
 
 
@@ -53,26 +54,6 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
-)
-
-# Configuración CORS (prod: CORS_ALLOW_ORIGINS=https://ui.onrender.com,...)
-_default_cors = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:3000",
-]
-_extra = [
-    o.strip()
-    for o in os.environ.get("CORS_ALLOW_ORIGINS", "").split(",")
-    if o.strip()
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_extra + _default_cors,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 # Middleware JWT (aplicar a rutas protegidas)
@@ -99,6 +80,16 @@ jwt_middleware = JWTMiddleware(
 async def jwt_middleware_handler(request: Request, call_next):
     """Aplicar middleware JWT personalizado"""
     return await jwt_middleware(request, call_next)
+
+
+# CORS por fuera del JWT: el preflight y los 401 tienen que llevar el origen.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins(),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Incluir routers
@@ -191,30 +182,13 @@ async def health_check():
     )
 
 
-def _cors_headers_for_request(request: Request) -> dict[str, str]:
-    """Ensure error JSON responses still carry CORS (browser hides 500 body otherwise)."""
-    origin = request.headers.get("origin", "")
-    allowed = {
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://localhost:3000",
-    }
-    if origin in allowed:
-        return {
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Credentials": "true",
-        }
-    return {}
-
-
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Manejador global de excepciones HTTP"""
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": True, "message": exc.detail, "status_code": exc.status_code},
-        headers=_cors_headers_for_request(request),
+        headers=cors_headers_for_request(request),
     )
 
 
@@ -236,7 +210,7 @@ async def general_exception_handler(request: Request, exc: Exception):
             "detail": error_detail,
             "status_code": 500,
         },
-        headers=_cors_headers_for_request(request),
+        headers=cors_headers_for_request(request),
     )
 
 
