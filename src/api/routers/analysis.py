@@ -17,16 +17,23 @@ from datetime import datetime
 
 from api.services.auth_service import AuthService
 from api.services.analysis_service import AnalysisService
-from api.services.llm_analysis_service import LLMAnalysisService
 from api.database import get_db
 
 router = APIRouter(prefix="/api", tags=["analysis"])
 security = HTTPBearer()
 
-# Instancias de servicios
+# Instancias de servicios. El análisis LLM no forma parte del MVP de Coach:
+# no se construye al arrancar y no exige OPENAI_API_KEY.
 auth_service = AuthService()
 analysis_service = AnalysisService()
-llm_analysis_service = LLMAnalysisService()
+llm_analysis_service = None
+
+
+def _llm_not_in_mvp() -> None:
+    raise HTTPException(
+        status_code=503,
+        detail="El análisis LLM no forma parte del MVP de Coach.",
+    )
 
 
 # ========================
@@ -639,8 +646,9 @@ async def generate_pedagogical_report(
              }'
     ```
     
-    **Nota**: Requiere OPENAI_API_KEY configurada en .env
+    **Nota**: Fuera del MVP de Coach. Responde 503.
     """
+    _llm_not_in_mvp()
     try:
         # Usar username del request o del current_user
         username = request.username or current_user.get("username")
@@ -731,8 +739,9 @@ async def generate_batch_pedagogical_reports(
              }'
     ```
     
-    **Nota**: El batch procesa secuencialmente para evitar rate limits de OpenAI.
+    **Nota**: Fuera del MVP de Coach. Responde 503.
     """
+    _llm_not_in_mvp()
     try:
         username = current_user.get("username")
 
