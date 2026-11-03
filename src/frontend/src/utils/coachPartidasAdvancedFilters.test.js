@@ -34,6 +34,32 @@ describe('coachPartidasAdvancedFilters', () => {
         })
     })
 
+    it('sends the selected rhythms', () => {
+        const query = buildCoachPartidasListQuery({
+            ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+            rhythms: ['rapid', 'blitz'],
+        })
+        expect(query).toEqual({ rhythms: ['rapid', 'blitz'] })
+    })
+
+    it('sends the import date range', () => {
+        const query = buildCoachPartidasListQuery({
+            ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+            importedFrom: '2026-03-01',
+            importedTo: '2026-03-31',
+        })
+        expect(query).toEqual({
+            imported_from: '2026-03-01',
+            imported_to: '2026-03-31',
+        })
+        expect(
+            coachPartidasAdvancedFiltersActive({
+                ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+                importedFrom: '2026-03-01',
+            }),
+        ).toBe(true)
+    })
+
     it('returns empty query when inactive', () => {
         expect(buildCoachPartidasListQuery(EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS)).toEqual({})
         expect(coachPartidasAdvancedFiltersActive(EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS)).toBe(

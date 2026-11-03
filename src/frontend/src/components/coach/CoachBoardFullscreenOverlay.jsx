@@ -39,6 +39,7 @@ export default function CoachBoardFullscreenOverlay({
     pgnPanel,
     annotationPanel = null,
     gameTitle = '',
+    headerExtra = null,
 }) {
     const panelRef = useRef(null)
     const columnRef = useRef(null)
@@ -161,6 +162,7 @@ export default function CoachBoardFullscreenOverlay({
                             <FlipCameraAndroidIcon fontSize="small" />
                         </IconButton>
                     </Tooltip>
+                    {headerExtra}
                     <Typography
                         id="coach-board-fullscreen-title"
                         variant="subtitle2"

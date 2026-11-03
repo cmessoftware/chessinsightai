@@ -118,13 +118,22 @@ export async function listJobs() {
  * @property {string} [opening]
  * @property {string} [date_from]
  * @property {string} [date_to]
+ * @property {string} [imported_from]
+ * @property {string} [imported_to]
+ * @property {string[]} [rhythms]
  * @property {string[]} [results]
  * @property {number} [limit]
  * @property {number} [offset]
  */
 
+/**
+ * FastAPI binds repeated keys (`rhythms=daily`). Axios defaults to `rhythms[]=daily`,
+ * which the list endpoint ignores and then returns every game.
+ */
+export const coachGamesListParamsSerializer = { indexes: null }
+
 /** @param {CoachPartidasListQuery} [query] */
-export async function listGames(query = {}) {
+export function coachGamesListParams(query = {}) {
     const params = {}
     for (const [key, value] of Object.entries(query)) {
         if (value === undefined || value === null || value === '') continue
@@ -135,7 +144,15 @@ export async function listGames(query = {}) {
         }
         params[key] = value
     }
-    const { data } = await api.get('/api/v1/module07/games', { params })
+    return params
+}
+
+/** @param {CoachPartidasListQuery} [query] */
+export async function listGames(query = {}) {
+    const { data } = await api.get('/api/v1/module07/games', {
+        params: coachGamesListParams(query),
+        paramsSerializer: coachGamesListParamsSerializer,
+    })
     return data.games || []
 }
 
@@ -174,6 +191,11 @@ export async function patchCoachGameStudyPgn(gameId, pgnText) {
 
 export async function getGame(gameId) {
     const { data } = await api.get(`/api/v1/module07/games/${gameId}`)
+    return data
+}
+
+export async function getCoachGameChessStatistics(gameId) {
+    const { data } = await api.get(`/api/v1/module07/games/${gameId}/chess-statistics`)
     return data
 }
 

@@ -35,6 +35,16 @@ describe('coachGamesSort', () => {
         expect(sorted.map((g) => g.id)).toEqual(['1', '2', '3'])
     })
 
+    it('sorts by import date', () => {
+        const games = [
+            { id: '1', last_imported_at: '2026-03-02T10:00:00' },
+            { id: '2', last_imported_at: '2026-01-15T08:00:00' },
+            { id: '3' },
+        ]
+        const sorted = sortCoachGames(games, 'imported_at', 'asc')
+        expect(sorted.map((g) => g.id)).toEqual(['3', '2', '1'])
+    })
+
     it('sorts manual analysis before unmarked games', () => {
         const games = [
             { id: '1', manual_analysis: false },
