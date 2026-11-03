@@ -55,6 +55,16 @@ def _normalize_rhythms(values: list[str] | None) -> tuple[str, ...]:
     return tuple(dict.fromkeys(merged))
 
 
+def study_name_ilike_pattern(raw: str) -> str:
+    """Match the PGN ``StudyName`` tag. A value without ``*`` is a substring."""
+    text = (raw or "").strip()
+    if not text:
+        return ""
+    if "*" not in text:
+        text = f"*{text}*"
+    return f'[StudyName "{wildcard_to_ilike_pattern(text)}"]'
+
+
 def _imported_bound(raw: str | None, *, end: bool) -> datetime | None:
     """Start of the day, or the start of the day after ``raw`` when ``end`` is set."""
     key = _normalize_date_key(raw)
@@ -81,6 +91,7 @@ class CoachGameListFilters:
     imported_from: str | None = None
     imported_to: str | None = None
     rhythms: tuple[str, ...] = ()
+    study_name: str | None = None
     results: tuple[str, ...] = ()
     opening_eco_or: bool = False
     limit: int | None = None
@@ -104,6 +115,7 @@ class CoachGameListFilters:
         imported_from: str | None = None,
         imported_to: str | None = None,
         rhythms: list[str] | None = None,
+        study_name: str | None = None,
         result: list[str] | None = None,
         results: list[str] | None = None,
         limit: int | None = None,
@@ -139,6 +151,7 @@ class CoachGameListFilters:
             imported_from=_normalize_date_key(imported_from),
             imported_to=_normalize_date_key(imported_to),
             rhythms=_normalize_rhythms(rhythms),
+            study_name=(study_name or "").strip() or None,
             results=tuple(dict.fromkeys(merged_results)),
             limit=limit,
             offset=max(0, int(offset or 0)),
@@ -156,6 +169,7 @@ class CoachGameListFilters:
             or self.imported_from
             or self.imported_to
             or self.rhythms
+            or self.study_name
             or self.results
         )
 
@@ -206,6 +220,9 @@ def apply_coach_game_list_filters(
 
     if filters.rhythms:
         query = query.filter(coach_model.speed_class.in_(list(filters.rhythms)))
+
+    if filters.study_name:
+        query = query.filter(g.pgn.ilike(study_name_ilike_pattern(filters.study_name)))
 
     if filters.results:
         query = query.filter(g.result.in_(list(filters.results)))

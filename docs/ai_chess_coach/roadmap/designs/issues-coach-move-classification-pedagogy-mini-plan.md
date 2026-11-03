@@ -133,8 +133,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-092</td><td></td><td>Mostrar el resultado al final de la lista PGN (1-0, 0-1 o tablas). Hoy, si la partida es tablas, no aparece nada después de la última jugada</td><td>✅ Done</td><td>HITL OK — el rótulo queda debajo de la última jugada</td></tr>
 <tr><td>FEAT-093</td><td></td><td>Agregar panel colapsable debajo en el panel pgn con el resultado del proceso ya existente chess_estatics </td><td>🔄 WIP</td><td>El panel ya está. El cálculo sigue en el SQLite del curso suspendido. Destino: Postgres — <a href="./feat-093-chess-statistics-postgres-mini-plan.md">mini plan</a></td></tr>
 <tr><td>FEAT-094</td><td>FEAT-087</td><td>En vista tablero de analisis agregar checkbox para indicar que fue analizado manualmente, mismo campo que el vista de tablas Partidas.</td><td>✅ Done</td><td>HITL OK — mismo <code>coach_games.manual_analysis</code> · checkbox bajo el tablero y en pantalla completa</td></tr>
-<tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>🔄 WIP</td><td>Columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
+<tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>✅ Done</td><td>HITL OK — columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
 <tr><td>FEAT-096</td><td></td><td>En Filtros avanzados de Partidas agregar Ritmo.</td><td>✅ Done</td><td>HITL OK — selector múltiple; Correspondencia se pide como <code>rhythms=daily</code></td></tr>
+<tr><td>FEAT-097</td><td></td><td>Buscar partidas por estudio con un nombre determinado.</td><td>✅ Done</td><td>HITL OK — filtro Estudio sobre el tag PGN <code>StudyName</code></td></tr>
 </tbody>
 </table>
 
@@ -188,7 +189,7 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 </tbody>
 </table>
 
-## Features y bugs de login
+## Features y bugs de login y seguridad.
 
 <table>
 <thead>
@@ -199,6 +200,23 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><td>LOG-FEAT-02</td><td></td><td>Soporte para login con usuario de Chess.com</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>LOG-FEAT-04</td><td></td><td>Gestión usuarios/roles admin|user (solo admin)</td><td>✅ Done</td><td>HITL · <code>/admin/users</code></td></tr>
+<tr><td>LOG-FEAT-05</td><td></td><td>opción de cambio de pass (solo admin)</td><td>✅ Done</td><td>HITL OK — cambio de contraseña en <code>/admin/users</code></td></tr>
+<tr><td>LOG-FEAT-06</td><td></td><td>Modulo de gestión de grupos</td><td>⬜ Todo</td><td>
+1. ABM de grupos.
+   1. ABM de usuarios al grupo (vista de dos paneles usuarios <--> grupo)
+   2. Asignación de un grupo al crear o modificar un usuario.
+   3. Asignación de roles al grupo.
+</td></tr>
+<tr><td>LOG-FEAT-07</td><td></td><td>Rol de Instructor</td><td>⬜ Todo<</td><td>
+    1. Rol de user
+    2. Agregar permisos para gestionar grupos de alumnos.
+</td></tr>
+<tr><td>LOG-FEAT-08</td><td></td><td>Rol de Instructor</td><td>⬜ Todo<</td><td>
+    1. Agregar permisos para gestionar partidas de alumnos / grupos de alumnos.
+       1. Clonar estudios completos o partidas seleccionadas por filtro avanzado.
+       2. Insertar nuevas partidas/estudios desde menu "insertar partidas" a un alumno o grupo de alumnos.
+    2. Agregar permisos para ver reportes de alumnos.
+</td></tr>
 </tbody>
 </table>
 
@@ -223,9 +241,9 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/096, LOG-FEAT-04, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-093, FEAT-095</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, DB-FEAT-02…04, EST-FEAT-01…05, RPT-FEAT-01…08</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-093</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, EST-FEAT-01…05, RPT-FEAT-01…08</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>

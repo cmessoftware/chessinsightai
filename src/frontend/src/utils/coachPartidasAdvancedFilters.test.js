@@ -42,6 +42,20 @@ describe('coachPartidasAdvancedFilters', () => {
         expect(query).toEqual({ rhythms: ['rapid', 'blitz'] })
     })
 
+    it('sends the study name', () => {
+        const query = buildCoachPartidasListQuery({
+            ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+            studyName: 'Larsen',
+        })
+        expect(query).toEqual({ study_name: 'Larsen' })
+        expect(
+            coachPartidasAdvancedFiltersActive({
+                ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+                studyName: 'Larsen',
+            }),
+        ).toBe(true)
+    })
+
     it('sends the import date range', () => {
         const query = buildCoachPartidasListQuery({
             ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,

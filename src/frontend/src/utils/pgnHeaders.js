@@ -35,6 +35,7 @@ export const PGN_HEADER_LABELS = {
     ECO: 'ECO',
     Opening: 'Apertura',
     Annotator: 'Anotador',
+    StudyName: 'Estudio',
     StudyCategory: 'Categoría',
     TimeControl: 'Control de tiempo',
     Termination: 'Terminación',
