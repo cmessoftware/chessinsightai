@@ -135,6 +135,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-094</td><td>FEAT-087</td><td>En vista tablero de analisis agregar checkbox para indicar que fue analizado manualmente, mismo campo que el vista de tablas Partidas.</td><td>✅ Done</td><td>HITL OK — mismo <code>coach_games.manual_analysis</code> · checkbox bajo el tablero y en pantalla completa</td></tr>
 <tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>🔄 WIP</td><td>Columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
 <tr><td>FEAT-096</td><td></td><td>En Filtros avanzados de Partidas agregar Ritmo.</td><td>✅ Done</td><td>HITL OK — selector múltiple; Correspondencia se pide como <code>rhythms=daily</code></td></tr>
+<tr><td>FEAT-097</td><td></td><td>Indicar con otro color varaintes agregadas a variantes ya existentes en el pgn.</td><td>⬜ Todo</td><td></td></tr>
 </tbody>
 </table>
 
@@ -182,7 +183,7 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 </thead>
 <tbody>
 <tr><td>EST-FEAT-01</td><td>FEAT-093</td><td>Tablas Postgres del resumen y de las jugadas de una partida Coach (<code>coach_game_statistics</code>, <code>coach_game_statistic_evals</code>). Una fila por <code>coach_games.id</code>. El PGN sigue en <code>games</code>.</td><td>✅ Done</td><td>HITL OK — tablas en Postgres</td></tr>
-<tr><td>EST-FEAT-02</td><td>EST-FEAT-01</td><td>Repositorio que lee y escribe esas tablas en Postgres. El producto no abre el SQLite del curso.</td><td>⬜ Todo</td><td>CS-2 · <code>feature/11_093_cs2_stat_repository</code></td></tr>
+<tr><td>EST-FEAT-02</td><td>EST-FEAT-01</td><td>Repositorio que lee y escribe esas tablas en Postgres. El producto no abre el SQLite del curso.</td><td>🔄 WIP</td><td>CS-2 · <code>est_feat_02_stat_repository</code></td></tr>
 <tr><td>EST-FEAT-03</td><td>EST-FEAT-02</td><td>Calcular una partida Coach con el proceso ya existente <code>chess_statistics</code> (precisión, fases y juicios) y guardarla en Postgres.</td><td>⬜ Todo</td><td>CS-3 · <code>feature/11_093_cs3_stat_compute</code></td></tr>
 <tr><td>EST-FEAT-04</td><td>EST-FEAT-02 / FEAT-093</td><td>El panel bajo el PGN lee Postgres. Si la partida todavía no tiene fila, muestra el vacío.</td><td>⬜ Todo</td><td>CS-4 · <code>feature/11_093_cs4_stat_panel_pg</code></td></tr>
 <tr><td>EST-FEAT-05</td><td>EST-FEAT-03</td><td>Job para calcular las partidas del usuario que todavía no tienen fila.</td><td>⬜ Todo</td><td>CS-5 · <code>feature/11_093_cs5_stat_backfill</code></td></tr>
@@ -226,8 +227,8 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 </thead>
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/096, LOG-FEAT-04, BUG-037, DB-FEAT-01, EST-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-093, FEAT-095</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, DB-FEAT-02…04, EST-FEAT-02…05, RPT-FEAT-01…08</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-093, FEAT-095, EST-FEAT-02</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, DB-FEAT-02…04, EST-FEAT-03…05, RPT-FEAT-01…08</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
