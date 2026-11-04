@@ -2,7 +2,7 @@
 
 > **Sync:** espejo de [`../deep_analysis/feat-093-chess-statistics-postgres-mini-plan.md`](../deep_analysis/feat-093-chess-statistics-postgres-mini-plan.md) (mismo contenido; este archivo permite enlaces desde `designs/`).
 
-**Estado:** ⏳ CS-1 … CS-5 pendientes. FEAT-093 sigue 🔄 WIP en el tracker.  
+**Estado:** ✅ CS-1 hecho. CS-2 … CS-5 pendientes. FEAT-093 sigue 🔄 WIP en el tracker.  
 **Actualizado:** 2026-11-02  
 **Tracker:** [issues § FEAT-093](./issues-coach-move-classification-pedagogy-mini-plan.md)  
 **Proceso que se conserva:** `src/chess_statistics/` (`accuracy.py`, `phases.py`, juicios). El archivo `data/chess_statistics.sqlite` era del curso suspendido ([plan LS01](../../../lichess_statistics/01_module_implementation_plan.md)).  
@@ -42,7 +42,7 @@
 
 | Id | Entrega | Estado | Rama | Depende de |
 | --- | --- | --- | --- | --- |
-| **CS-1** | Tablas Postgres del resumen y de las jugadas | ⏳ Pendiente | `feature/11_093_cs1_stat_schema` | — |
+| **CS-1** | Tablas Postgres del resumen y de las jugadas | ✅ Hecho | `est_feat_01_stat_schema` | — |
 | **CS-2** | Repositorio que lee y escribe esas tablas | ⏳ Pendiente | `feature/11_093_cs2_stat_repository` | CS-1 |
 | **CS-3** | Calcular una partida Coach con el proceso existente y guardarla | ⏳ Pendiente | `feature/11_093_cs3_stat_compute` | CS-2 |
 | **CS-4** | El endpoint de FEAT-093 lee Postgres y deja de abrir SQLite | ⏳ Pendiente | `feature/11_093_cs4_stat_panel_pg` | CS-2 |
@@ -64,14 +64,14 @@ Una fila por `coach_games.id`.
 | --- | --- |
 | `coach_game_id` | FK `coach_games.id` ON DELETE CASCADE, única |
 | `master_game_id` | FK `games.game_id` |
-| `usuario`, `color`, `rival` | Punto de vista de quien se analiza |
-| `ritmo` | El ritmo con el que se calculó |
-| `ranking_inicial`, `variacion_ranking`, `ranking_final` | No están en `games` (ahí solo hay Elo de cabecera) |
-| `imprecisiones`, `errores`, `errores_graves` | Conteos del proceso |
-| `perdida_promedio_cp` | |
-| `precision_general`, `precision_apertura`, `precision_medio_juego`, `precision_final` | |
-| `fuente_evaluacion`, `version_stockfish`, `profundidad_stockfish` | De dónde salió la eval |
-| `fecha_analisis` | |
+| `player_username`, `player_color`, `opponent` | Punto de vista de quien se analiza |
+| `speed_class` | El ritmo con el que se calculó |
+| `initial_rating`, `rating_change`, `final_rating` | No están en `games` (ahí solo hay Elo de cabecera) |
+| `inaccuracies`, `mistakes`, `blunders` | Conteos del proceso |
+| `average_cp_loss` | |
+| `accuracy`, `opening_accuracy`, `middlegame_accuracy`, `endgame_accuracy` | |
+| `evaluation_source`, `stockfish_version`, `stockfish_depth` | De dónde salió la eval |
+| `analyzed_at` | |
 
 ### `coach_game_statistic_evals`
 
