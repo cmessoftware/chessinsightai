@@ -1238,6 +1238,19 @@ export default function CoachGamesPanel() {
                     </FormControl>
                     <TextField
                         size="small"
+                        label="Estudio"
+                        placeholder="Nombre, o *Larsen*"
+                        value={advancedDraft.studyName || ''}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({
+                                ...prev,
+                                studyName: e.target.value,
+                            }))
+                        }
+                        fullWidth
+                    />
+                    <TextField
+                        size="small"
                         label="Jugador blancas"
                         placeholder="Ej. Carlsen o *club*"
                         value={advancedDraft.whitePlayer}

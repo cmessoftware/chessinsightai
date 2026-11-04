@@ -399,6 +399,9 @@ def get_games(
     rhythms: Optional[list[str]] = Query(
         None, description="Ritmo: blitz, rapid, classical, bullet, ultrabullet, daily."
     ),
+    study_name: Optional[str] = Query(
+        None, description="Nombre del estudio (tag PGN StudyName). Sin * busca por contenido."
+    ),
     result: Optional[list[str]] = Query(None, alias="result"),
     results: Optional[list[str]] = Query(None),
     limit: Optional[int] = Query(None, ge=1, le=500),
@@ -432,6 +435,7 @@ def get_games(
         imported_from=imported_from,
         imported_to=imported_to,
         rhythms=rhythms,
+        study_name=study_name,
         result=result,
         results=results,
         limit=limit,

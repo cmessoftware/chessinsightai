@@ -121,6 +121,7 @@ export async function listJobs() {
  * @property {string} [imported_from]
  * @property {string} [imported_to]
  * @property {string[]} [rhythms]
+ * @property {string} [study_name]
  * @property {string[]} [results]
  * @property {number} [limit]
  * @property {number} [offset]

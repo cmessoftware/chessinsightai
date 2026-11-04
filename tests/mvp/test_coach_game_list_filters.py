@@ -11,6 +11,7 @@ if str(SRC_DIR) not in sys.path:
 
 from modules.module07.coach_game_list_filters import (  # noqa: E402
     CoachGameListFilters,
+    study_name_ilike_pattern,
     wildcard_to_ilike_pattern,
 )
 
@@ -46,6 +47,14 @@ def test_filters_from_query_merges_sources_and_results():
 def test_rhythm_filter_includes_correspondence_alias():
     f = CoachGameListFilters.from_query(rhythms=["Rapid", "daily"])
     assert f.rhythms == ("rapid", "daily", "correspondence")
+    assert f.has_any()
+
+
+def test_study_name_matches_the_pgn_header():
+    assert study_name_ilike_pattern("Larsen") == '[StudyName "%Larsen%"]'
+    assert study_name_ilike_pattern("*finales*") == '[StudyName "%finales%"]'
+    f = CoachGameListFilters.from_query(study_name="  Larsen ")
+    assert f.study_name == "Larsen"
     assert f.has_any()
 
 
