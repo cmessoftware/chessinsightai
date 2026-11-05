@@ -88,9 +88,7 @@ def compute_coach_game_statistics(
     pgn = coach.pgn
     if not pgn or not str(pgn).strip():
         return CoachStatisticsComputeResult(False, key, None, 0, "no_pgn")
-    color = _normalize_color(coach.player_color)
-    if color is None:
-        return CoachStatisticsComputeResult(False, key, None, 0, "no_color")
+    color = _point_of_view(coach)
 
     rows = evals_from_pgn(pgn)
     source = SOURCE_EXPORT
@@ -120,6 +118,39 @@ def compute_coach_game_statistics(
     replace_summary(db, key, summary)
     replace_evals(db, key, evals)
     return CoachStatisticsComputeResult(True, key, source, len(evals), "stored")
+
+
+_DEMAND_DETAIL = {
+    "missing_game": "Partida no encontrada.",
+    "no_pgn": "Esta partida no tiene PGN.",
+    "no_color": "Falta el color del jugador.",
+    "no_moves": "El PGN no tiene jugadas.",
+    "no_engine": "Esta partida no trae evaluaciones y Stockfish local no está disponible.",
+    "empty_analysis": "El análisis no produjo jugadas.",
+}
+
+
+def compute_open_game_statistics(
+    db,
+    coach_game_id: str,
+    *,
+    stockfish_service: StockfishAnalyser | None = None,
+) -> dict[str, Any]:
+    """Calculate the Coach game open in the analysis panel.
+
+    A second call replaces that same row. It does not walk the owner's library.
+    """
+    from modules.module07.chess_statistics_summary import lookup_chess_statistics
+
+    result = compute_coach_game_statistics(
+        db, coach_game_id, stockfish_service=stockfish_service
+    )
+    if not result.stored:
+        raise ValueError(
+            _DEMAND_DETAIL.get(result.reason, "No se pudieron calcular las estadísticas.")
+        )
+    coach = db.query(CoachGame).filter(CoachGame.id == result.coach_game_id).one()
+    return lookup_chess_statistics(db, coach)
 
 
 def evals_from_pgn(pgn: str) -> list[EvalPly] | None:
@@ -252,6 +283,31 @@ def _metrics(
     return summary, evals
 
 
+def metrics_for_color(
+    ply_cps: list[int | None],
+    sans: list[str],
+    color: str,
+    pgn: str,
+) -> dict[str, Any]:
+    """Accuracy, phases, judgments and ratings for one color of the same ply list."""
+    judgments = _user_judgments(ply_cps, color)
+    division = classify_game(sans=sans, ply_count=len(ply_cps))
+    phases = phase_accuracies(ply_cps, color, division)
+    initial, _change, final = _ratings(pgn or "", color)
+    return {
+        "imprecisiones": judgments["inaccuracies"],
+        "errores": judgments["mistakes"],
+        "errores_graves": judgments["blunders"],
+        "perdida_promedio_cp": judgments["average_cp_loss"],
+        "precision_general": game_accuracy_percent(ply_cps, color),
+        "precision_apertura": phases[PHASE_OPENING],
+        "precision_medio_juego": phases[PHASE_MIDDLEGAME],
+        "precision_final": phases[PHASE_ENDGAME],
+        "ranking_inicial": initial,
+        "ranking_final": final,
+    }
+
+
 def _user_judgments(ply_cps: list[int | None], user_color: str) -> dict[str, Any]:
     """Same bands as ``persist_judgments``: counts and mean cp loss for the user only."""
     prev = CP_INITIAL
@@ -339,6 +395,17 @@ def _cp_loss(before: int | None, after: int | None, ply: int) -> int | None:
 def _pgn_has_moves(pgn: str) -> bool:
     game = chess.pgn.read_game(io.StringIO(pgn))
     return game is not None and bool(game.variations)
+
+
+def _point_of_view(coach: CoachGame) -> str:
+    """Same default as the analysis board: an empty color is white."""
+    explicit = _normalize_color(coach.player_color)
+    if explicit:
+        return explicit
+    user = (coach.player_username or "").strip().casefold()
+    if user and user == (coach.black_player or "").strip().casefold():
+        return "black"
+    return "white"
 
 
 def _normalize_color(value: str | None) -> str | None:

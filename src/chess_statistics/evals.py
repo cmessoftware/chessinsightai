@@ -407,6 +407,13 @@ class StockfishAnalysisService:
         path = self.config.resolved_path()
         if not path:
             raise StockfishConfigError("STOCKFISH_PATH is not set")
+        # FastAPI runs this from a worker thread. On Windows that thread's
+        # default loop cannot spawn a process, so python-chess raises
+        # NotImplementedError unless the proactor policy is set first.
+        if sys.platform == "win32":
+            import asyncio
+
+            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
         if not Path(path).is_file():
             raise StockfishConfigError(f"Stockfish binary not found: {path}")
         return chess.engine.SimpleEngine.popen_uci(path)

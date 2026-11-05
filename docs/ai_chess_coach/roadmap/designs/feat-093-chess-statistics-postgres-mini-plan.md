@@ -2,7 +2,7 @@
 
 > **Sync:** espejo de [`../deep_analysis/feat-093-chess-statistics-postgres-mini-plan.md`](../deep_analysis/feat-093-chess-statistics-postgres-mini-plan.md) (mismo contenido; este archivo permite enlaces desde `designs/`).
 
-**Estado:** ✅ CS-1 hecho. 🔄 CS-2 en progreso. 🔄 CS-3 en progreso. 🔄 CS-4 en progreso. CS-5 pendiente. FEAT-093 sigue 🔄 WIP en el tracker.  
+**Estado:** ✅ CS-1 hecho. ✅ CS-2 hecho. ✅ CS-3 hecho. ✅ CS-4 hecho. ✅ CS-5 hecho. ✅ CS-6 hecho. FEAT-093 sigue 🔄 WIP en el tracker.  
 **Actualizado:** 2026-11-02  
 **Tracker:** [issues § FEAT-093](./issues-coach-move-classification-pedagogy-mini-plan.md)  
 **Proceso que se conserva:** `src/chess_statistics/` (`accuracy.py`, `phases.py`, juicios). El archivo `data/chess_statistics.sqlite` era del curso suspendido ([plan LS01](../../../lichess_statistics/01_module_implementation_plan.md)).  
@@ -43,10 +43,11 @@
 | Id | Entrega | Estado | Rama | Depende de |
 | --- | --- | --- | --- | --- |
 | **CS-1** | Tablas Postgres del resumen y de las jugadas | ✅ Hecho | `est_feat_01_stat_schema` | — |
-| **CS-2** | Repositorio que lee y escribe esas tablas | 🔄 En progreso | `est_feat_02_stat_repository` | CS-1 |
-| **CS-3** | Calcular una partida Coach con el proceso existente y guardarla | 🔄 En progreso | `est_feat_03_stat_compute` | CS-2 |
-| **CS-4** | El endpoint de FEAT-093 lee Postgres y deja de abrir SQLite | 🔄 En progreso | `est_feat_04_stat_panel` | CS-2 |
-| **CS-5** | Job para calcular las partidas del usuario que todavía no tienen fila | ⏳ Pendiente | `feature/11_093_cs5_stat_backfill` | CS-3 |
+| **CS-2** | Repositorio que lee y escribe esas tablas | ✅ Hecho | `est_feat_02_stat_repository` | CS-1 |
+| **CS-3** | Calcular una partida Coach con el proceso existente y guardarla | ✅ Hecho | `est_feat_03_stat_compute` | CS-2 |
+| **CS-4** | El endpoint de FEAT-093 lee Postgres y deja de abrir SQLite | ✅ Hecho | `est_feat_04_stat_panel` | CS-2 |
+| **CS-5** | Calcular, a demanda desde el panel de Análisis, la partida abierta | ✅ Hecho | `est_feat_05_stat_on_demand` | CS-3 |
+| **CS-6** | Evaluar ambos colores y mostrar la tabla comparativa | ✅ Hecho | `est_feat_06_stat_both_colors` | CS-5 |
 
 **Orden:** CS-1, CS-2. Después CS-3 y CS-4 pueden ir en paralelo. CS-5 cierra el lote. Hasta que CS-3 o CS-5 escriban la fila, el panel dice que esa partida todavía no tiene estadísticas.
 
@@ -112,9 +113,15 @@ La evaluación sigue el orden del curso: el análisis que ya trae la exportació
 
 ---
 
-## CS-5 — Biblioteca del usuario
+## CS-5 — A demanda en Análisis
 
-Un job recorre las partidas Coach del dueño que no tienen fila. Es idempotente. Un fallo en una partida no frena el resto. No bloquea la tabla Partidas.
+El panel de Análisis calcula solo la partida abierta, cuando el usuario lo pide. Volver a pedirlo reemplaza esa fila. No recorre la biblioteca y no agrega una acción en la tabla Partidas.
+
+---
+
+## CS-6 — Ambos colores
+
+El panel muestra blancas y negras en la misma tabla. Las dos columnas salen de las jugadas ya guardadas, con la misma precisión, fases y juicios. Resultado, ritmo y fuente quedan una sola vez. No hace falta volver a calcular la partida.
 
 ---
 

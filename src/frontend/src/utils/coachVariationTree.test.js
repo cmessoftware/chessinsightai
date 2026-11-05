@@ -11,6 +11,7 @@ import {
     truncateTouchesImportedMoves,
     variationBranchHeadPath,
     variationNestDepth,
+    withPgnCommentAtPath,
 } from './coachVariationTree.js'
 
 function buildSimpleMainLine(sans) {
@@ -145,6 +146,36 @@ describe('truncateLineForward', () => {
         expect(truncateTouchesImportedMoves(root, path)).toBe(true)
         const out = truncateLineForward(root, path)
         expect(out.tree.children[0].children[0].children).toEqual([])
+    })
+})
+
+describe('withPgnCommentAtPath', () => {
+    it('replaces the imported comment on a move and keeps the original tree', () => {
+        const root = buildSimpleMainLine(['e4', 'e5'])
+        root.children[0].pgnComment = 'konnte wohl in die Variante'
+        const next = withPgnCommentAtPath(root, [0], 'podía pasar a la variante')
+        expect(next).not.toBe(root)
+        expect(root.children[0].pgnComment).toBe('konnte wohl in die Variante')
+        expect(next.children[0].pgnComment).toBe('podía pasar a la variante')
+        expect(next.children[0].children[0].san).toBe('e5')
+    })
+
+    it('clears a comment and can edit a variation move', () => {
+        const root = buildSimpleMainLine(['e4'])
+        root.children.push({
+            id: 'var',
+            san: 'd4',
+            uci: 'd2d4',
+            fen: root.children[0].fen,
+            fromGame: false,
+            children: [],
+            pgnComment: 'comentario de la variante',
+        })
+        const edited = withPgnCommentAtPath(root, [1], 'traducción')
+        expect(edited.children[1].pgnComment).toBe('traducción')
+        expect(root.children[1].pgnComment).toBe('comentario de la variante')
+        const cleared = withPgnCommentAtPath(edited, [1], '  ')
+        expect(cleared.children[1].pgnComment).toBeUndefined()
     })
 })
 

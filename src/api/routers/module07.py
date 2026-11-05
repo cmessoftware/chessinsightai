@@ -22,6 +22,7 @@ from modules.game_import.game_description import (
     format_time_control_display,
 )
 from modules.module07.chess_statistics_summary import lookup_chess_statistics
+from modules.module07.coach_game_statistics_compute import compute_open_game_statistics
 from modules.module07.ingest import parse_games_from_pgn_text
 from modules.module07.lichess_coach_import import (
     DEFAULT_BATCH_SIZE,
@@ -585,11 +586,31 @@ def get_game_by_id(
 def get_game_chess_statistics(
     game_id: str, request: Request, db: Session = Depends(get_db)
 ):
+    """Statistics for the open game. When plies are stored, both colors are compared."""
     owner = _owner_id(request)
     row = get_game(db, game_id, owner)
     if row is None:
         raise HTTPException(status_code=404, detail="Game not found")
     return lookup_chess_statistics(db, row)
+
+
+@router.post("/games/{game_id}/chess-statistics")
+def post_game_chess_statistics(
+    game_id: str, request: Request, db: Session = Depends(get_db)
+):
+    """EST-FEAT-05: calculate this open game only, when the analysis panel asks.
+
+    A missing player color uses the same default as the analysis board (white).
+    Games without export evals are scored with local Stockfish.
+    """
+    owner = _owner_id(request)
+    row = get_game(db, game_id, owner)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    try:
+        return compute_open_game_statistics(db, row.id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/games/{game_id}/decisions")
