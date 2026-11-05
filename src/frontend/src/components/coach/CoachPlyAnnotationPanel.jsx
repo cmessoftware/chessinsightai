@@ -28,8 +28,10 @@ export default function CoachPlyAnnotationPanel({
     width,
     cursorPath = [],
     cursorSan = null,
+    pgnComment = '',
     plyUserByPathKey = null,
     onPlyUserAnnotationChange = null,
+    onPgnCommentChange = null,
     disabled = false,
     collapsible = false,
 }) {
@@ -39,48 +41,36 @@ export default function CoachPlyAnnotationPanel({
         () => (hasMove ? getPlyUserAnnotation(plyUserByPathKey, cursorPath) : null),
         [hasMove, plyUserByPathKey, cursorPath],
     )
-    const [commentDraft, setCommentDraft] = useState('')
+    const pathKey = cursorPath?.length ? cursorPath.join('.') : ''
+    const externalComment = String(annotation?.comment || pgnComment || '')
+    const [commentDraft, setCommentDraft] = useState(externalComment)
+    const draftRef = useRef(commentDraft)
+    draftRef.current = commentDraft
 
     useEffect(() => {
-        setCommentDraft(annotation?.comment || '')
-    }, [cursorPath, annotation?.comment])
-
-    const commentDraftRef = useRef(commentDraft)
-    commentDraftRef.current = commentDraft
-    const savedCommentRef = useRef(annotation?.comment || '')
-    savedCommentRef.current = annotation?.comment || ''
-    const cursorPathRef = useRef(cursorPath)
-    cursorPathRef.current = cursorPath
+        const path = cursorPath
+        const saved = externalComment.trim()
+        setCommentDraft(externalComment)
+        draftRef.current = externalComment
+        return () => {
+            const draft = draftRef.current.trim()
+            if (!path?.length || !onPgnCommentChange || draft === saved) return
+            onPgnCommentChange(path, draft)
+        }
+        // Reload the field only when the selected move changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathKey])
 
     useEffect(() => {
-        if (!hasMove || !onPlyUserAnnotationChange) return undefined
-        const saved = annotation?.comment || ''
-        if (commentDraft === saved) return undefined
+        if (!pathKey || !onPgnCommentChange) return undefined
+        const text = commentDraft.trim()
+        if (text === externalComment.trim()) return undefined
+        const path = cursorPath
         const t = window.setTimeout(() => {
-            onPlyUserAnnotationChange(cursorPath, {
-                comment: commentDraft.trim() || null,
-            })
+            onPgnCommentChange(path, text)
         }, 400)
         return () => window.clearTimeout(t)
-    }, [
-        commentDraft,
-        cursorPath,
-        hasMove,
-        onPlyUserAnnotationChange,
-        annotation?.comment,
-    ])
-
-    useEffect(() => {
-        return () => {
-            if (!hasMove || !onPlyUserAnnotationChange) return
-            const path = cursorPathRef.current
-            if (!path?.length) return
-            const draft = commentDraftRef.current.trim()
-            const saved = savedCommentRef.current || ''
-            if (draft === saved) return
-            onPlyUserAnnotationChange(path, { comment: draft || null })
-        }
-    }, [hasMove, onPlyUserAnnotationChange])
+    }, [commentDraft, pathKey, externalComment, cursorPath, onPgnCommentChange])
 
     const currentNag = annotation?.nag || ''
 
@@ -146,8 +136,11 @@ export default function CoachPlyAnnotationPanel({
                                 : 'Elegí una jugada en el listado o con las flechas'
                         }
                         value={commentDraft}
-                        onChange={(e) => setCommentDraft(e.target.value)}
-                        disabled={disabled || !hasMove || !onPlyUserAnnotationChange}
+                        onChange={(e) => {
+                            draftRef.current = e.target.value
+                            setCommentDraft(e.target.value)
+                        }}
+                        disabled={disabled || !hasMove || !onPgnCommentChange}
                         sx={{ '& textarea': { lineHeight: 1.5 } }}
                     />
                 )}

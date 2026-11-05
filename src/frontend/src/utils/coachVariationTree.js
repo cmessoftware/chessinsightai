@@ -53,6 +53,32 @@ export function getNodeAtPath(root, path) {
     return node
 }
 
+/** Replace the prose comment on one move. The original tree is left unchanged. */
+export function withPgnCommentAtPath(root, path, comment) {
+    if (!root || !path?.length) return root
+    const text = String(comment ?? '').replace(/[{}]/g, '').trim()
+    let node = root
+    for (const idx of path) {
+        if (!node?.children?.[idx]) return root
+        node = node.children[idx]
+    }
+    if (String(node.pgnComment || '').trim() === text) return root
+
+    function visit(current, depth) {
+        if (depth === path.length) {
+            const next = { ...current }
+            if (text) next.pgnComment = text
+            else delete next.pgnComment
+            return next
+        }
+        const idx = path[depth]
+        const children = current.children.slice()
+        children[idx] = visit(current.children[idx], depth + 1)
+        return { ...current, children }
+    }
+    return visit(root, 0)
+}
+
 export function pathsEqual(a, b) {
     if (a.length !== b.length) return false
     return a.every((v, i) => v === b[i])

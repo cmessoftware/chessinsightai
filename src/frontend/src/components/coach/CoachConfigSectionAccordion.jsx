@@ -12,6 +12,9 @@ const accordionSx = {
     borderColor: 'divider',
     borderRadius: 1,
     mb: 1.5,
+    width: '100%',
+    maxWidth: '100%',
+    minWidth: 0,
     '&:before': { display: 'none' },
     boxShadow: 'none',
 }
@@ -28,7 +31,9 @@ export default function CoachConfigSectionAccordion({
             <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`${id}-content`} id={`${id}-header`}>
                 <Typography variant="subtitle1">{title}</Typography>
             </AccordionSummary>
-            <AccordionDetails sx={{ pt: 0, px: 2, pb: 2 }}>{children}</AccordionDetails>
+            <AccordionDetails sx={{ pt: 0, px: 2, pb: 2, minWidth: 0, overflowX: 'auto' }}>
+                {children}
+            </AccordionDetails>
         </Accordion>
     )
 }

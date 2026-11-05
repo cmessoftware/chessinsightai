@@ -3,8 +3,10 @@ import { blankStudyPgn } from '../utils/pgnHeaders.js'
 
 /** FastAPI detail: string, validation array, or fallback. */
 export function parseApiDetail(err) {
-    const detail = err.response?.data?.detail
-    if (typeof detail === 'string') {
+    const data = err.response?.data
+    const message = typeof data?.message === 'string' ? data.message.trim() : ''
+    const detail = data?.detail ?? message
+    if (typeof detail === 'string' && detail) {
         if (
             detail.includes('coach_lichess_import_settings') &&
             detail.includes('does not exist')
@@ -197,6 +199,11 @@ export async function getGame(gameId) {
 
 export async function getCoachGameChessStatistics(gameId) {
     const { data } = await api.get(`/api/v1/module07/games/${gameId}/chess-statistics`)
+    return data
+}
+
+export async function calculateCoachGameChessStatistics(gameId) {
+    const { data } = await api.post(`/api/v1/module07/games/${gameId}/chess-statistics`)
     return data
 }
 

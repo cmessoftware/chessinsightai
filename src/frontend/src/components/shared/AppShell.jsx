@@ -248,9 +248,18 @@ export default function AppShell() {
     }
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', maxWidth: '100%' }}>
             <Navigation onOpenSidebar={isMobile ? () => setMobileOpen(true) : undefined} />
-            <Box sx={{ display: 'flex', flex: 1, alignItems: 'stretch' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    alignItems: 'stretch',
+                    minWidth: 0,
+                    maxWidth: '100%',
+                    overflow: 'hidden',
+                }}
+            >
                 {isMobile ? (
                     <Drawer
                         anchor="left"
@@ -293,7 +302,7 @@ export default function AppShell() {
                 <Container
                     component="main"
                     maxWidth="xl"
-                    sx={{ flex: 1, minWidth: 0, py: 2 }}
+                    sx={{ flex: '1 1 auto', minWidth: 0, width: 'auto', maxWidth: '100%', py: 2 }}
                 >
                     <Outlet />
                 </Container>

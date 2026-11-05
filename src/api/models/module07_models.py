@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
     Float,
@@ -106,6 +107,17 @@ class CoachGame(Base):
         back_populates="game",
         cascade="all, delete-orphan",
     )
+    statistics = relationship(
+        "CoachGameStatistics",
+        back_populates="coach_game",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    statistic_evals = relationship(
+        "CoachGameStatisticEval",
+        back_populates="coach_game",
+        cascade="all, delete-orphan",
+    )
 
     @property
     def pgn(self) -> str | None:
@@ -169,6 +181,79 @@ class CoachGame(Base):
 
 # Backward-compatible alias (API package name module07 until GC-4).
 Module07Game = CoachGame
+
+
+class CoachGameStatistics(Base):
+    """EST-FEAT-01: one chess_statistics summary per Coach game. PGN stays on ``games``."""
+
+    __tablename__ = "coach_game_statistics"
+
+    coach_game_id = Column(
+        String(36),
+        ForeignKey("coach_games.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    master_game_id = Column(
+        String,
+        ForeignKey("games.game_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    player_username = Column(String(255), nullable=True)
+    player_color = Column(String(5), nullable=True)
+    opponent = Column(String(255), nullable=True)
+    speed_class = Column(String(32), nullable=True)
+    initial_rating = Column(Integer, nullable=True)
+    rating_change = Column(Integer, nullable=True)
+    final_rating = Column(Integer, nullable=True)
+    inaccuracies = Column(Integer, nullable=True)
+    mistakes = Column(Integer, nullable=True)
+    blunders = Column(Integer, nullable=True)
+    average_cp_loss = Column(Float, nullable=True)
+    accuracy = Column(Float, nullable=True)
+    opening_accuracy = Column(Float, nullable=True)
+    middlegame_accuracy = Column(Float, nullable=True)
+    endgame_accuracy = Column(Float, nullable=True)
+    evaluation_source = Column(String(64), nullable=True)
+    stockfish_version = Column(String(64), nullable=True)
+    stockfish_depth = Column(Integer, nullable=True)
+    analyzed_at = Column(DateTime(timezone=True), nullable=True)
+
+    coach_game = relationship("CoachGame", back_populates="statistics")
+
+
+class CoachGameStatisticEval(Base):
+    """EST-FEAT-01: one evaluated ply of a Coach game."""
+
+    __tablename__ = "coach_game_statistic_evals"
+    __table_args__ = (
+        CheckConstraint(
+            "played_by IS NULL OR played_by IN ('white', 'black')",
+            name="ck_coach_game_statistic_evals_played_by",
+        ),
+    )
+
+    coach_game_id = Column(
+        String(36),
+        ForeignKey("coach_games.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    ply = Column(Integer, primary_key=True)
+    fen = Column(String(120), nullable=True)
+    move_uci = Column(String(16), nullable=True)
+    move_san = Column(String(32), nullable=True)
+    evaluation_before_cp = Column(Integer, nullable=True)
+    evaluation_after_cp = Column(Integer, nullable=True)
+    best_move = Column(String(16), nullable=True)
+    cp_loss = Column(Integer, nullable=True)
+    win_probability_before = Column(Float, nullable=True)
+    win_probability_after = Column(Float, nullable=True)
+    move_accuracy = Column(Float, nullable=True)
+    judgment = Column(String(32), nullable=True)
+    phase = Column(String(32), nullable=True)
+    played_by = Column(String(5), nullable=True)
+
+    coach_game = relationship("CoachGame", back_populates="statistic_evals")
 
 
 class Module07DecisionPoint(Base):

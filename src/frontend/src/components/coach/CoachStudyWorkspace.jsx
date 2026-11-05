@@ -93,6 +93,7 @@ import {
     pathToBranchEnd,
     truncateLineForward,
     truncateTouchesImportedMoves,
+    withPgnCommentAtPath,
 } from '../../utils/coachVariationTree.js'
 
 /**
@@ -287,6 +288,20 @@ export default function CoachStudyWorkspace({
             })
         },
         [plyUserAnnotationScopeKey],
+    )
+
+    const handlePgnCommentChange = useCallback(
+        (path, comment) => {
+            setTreeRoot((prev) => withPgnCommentAtPath(prev, path, comment))
+            if (!plyUserAnnotationScopeKey || !path?.length) return
+            setPlyUserByPathKey((prev) => {
+                if (!getPlyUserAnnotation(prev, path)?.comment) return prev
+                const next = applyPlyUserAnnotationPatch(prev, path, { comment: null })
+                savePlyUserAnnotationsForScope(plyUserAnnotationScopeKey, next)
+                return next
+            })
+        },
+        [plyUserAnnotationScopeKey, setTreeRoot],
     )
 
     const pack = reviewCritical?.pack
@@ -1012,8 +1027,10 @@ export default function CoachStudyWorkspace({
                                 width={boardWidth}
                                 cursorPath={cursorPath}
                                 cursorSan={cursorSan}
+                                pgnComment={cursorPath?.length ? cursorNode?.pgnComment || '' : ''}
                                 plyUserByPathKey={plyUserByPathKey}
                                 onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
+                                onPgnCommentChange={handlePgnCommentChange}
                             />
                         )}
                         </Box>
@@ -1197,8 +1214,10 @@ export default function CoachStudyWorkspace({
                         width="100%"
                         cursorPath={cursorPath}
                         cursorSan={cursorSan}
+                        pgnComment={cursorPath?.length ? cursorNode?.pgnComment || '' : ''}
                         plyUserByPathKey={plyUserByPathKey}
                         onPlyUserAnnotationChange={handlePlyUserAnnotationChange}
+                        onPgnCommentChange={handlePgnCommentChange}
                     />
                 }
             />
