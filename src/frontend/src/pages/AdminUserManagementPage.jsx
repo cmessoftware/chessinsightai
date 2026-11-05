@@ -62,6 +62,9 @@ export default function AdminUserManagementPage() {
     })
     const [editingId, setEditingId] = useState(null)
     const [editDraft, setEditDraft] = useState({ role: 'user', is_active: true })
+    const [passwordTarget, setPasswordTarget] = useState(null)
+    const [passwordDraft, setPasswordDraft] = useState({ password: '', confirm: '' })
+    const [notice, setNotice] = useState(null)
 
     const load = useCallback(async () => {
         if (!token) return
@@ -123,6 +126,36 @@ export default function AdminUserManagementPage() {
         }
     }
 
+    const closePasswordDialog = () => {
+        setPasswordTarget(null)
+        setPasswordDraft({ password: '', confirm: '' })
+    }
+
+    const savePassword = async () => {
+        if (!passwordTarget) return
+        if ((passwordDraft.password || '').length < 8) {
+            setError('La contraseña debe tener al menos 8 caracteres')
+            return
+        }
+        if (passwordDraft.password !== passwordDraft.confirm) {
+            setError('Las contraseñas no coinciden')
+            return
+        }
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/users/${passwordTarget.id}`, {
+                method: 'PATCH',
+                headers: authHeaders(token),
+                body: JSON.stringify({ password: passwordDraft.password }),
+            })
+            if (!res.ok) throw new Error(await res.text())
+            setNotice(`Contraseña de ${passwordTarget.username} actualizada.`)
+            setError(null)
+            closePasswordDialog()
+        } catch (err) {
+            setError(err.message || 'Error al cambiar la contraseña')
+        }
+    }
+
     const createUser = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/auth/users`, {
@@ -173,6 +206,11 @@ export default function AdminUserManagementPage() {
             {error && (
                 <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
                     {error}
+                </Alert>
+            )}
+            {notice && (
+                <Alert severity="success" sx={{ mb: 2 }} onClose={() => setNotice(null)}>
+                    {notice}
                 </Alert>
             )}
 
@@ -252,18 +290,29 @@ export default function AdminUserManagementPage() {
                                             Guardar
                                         </Button>
                                     ) : (
-                                        <Button
-                                            size="small"
-                                            onClick={() => {
-                                                setEditingId(user.id)
-                                                setEditDraft({
-                                                    role: primaryRole(user.roles),
-                                                    is_active: user.is_active,
-                                                })
-                                            }}
-                                        >
-                                            Cambiar rol
-                                        </Button>
+                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                            <Button
+                                                size="small"
+                                                onClick={() => {
+                                                    setEditingId(user.id)
+                                                    setEditDraft({
+                                                        role: primaryRole(user.roles),
+                                                        is_active: user.is_active,
+                                                    })
+                                                }}
+                                            >
+                                                Cambiar rol
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                onClick={() => {
+                                                    setPasswordDraft({ password: '', confirm: '' })
+                                                    setPasswordTarget(user)
+                                                }}
+                                            >
+                                                Cambiar contraseña
+                                            </Button>
+                                        </Box>
                                     )}
                                 </TableCell>
                             </TableRow>
@@ -280,6 +329,49 @@ export default function AdminUserManagementPage() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <Dialog open={Boolean(passwordTarget)} onClose={closePasswordDialog} fullWidth maxWidth="sm">
+                <DialogTitle>Cambiar contraseña</DialogTitle>
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                        Usuario: {passwordTarget?.username}. Solo un administrador puede cambiarla.
+                    </Typography>
+                    <TextField
+                        label="Nueva contraseña"
+                        type="password"
+                        required
+                        autoComplete="new-password"
+                        value={passwordDraft.password}
+                        onChange={(e) =>
+                            setPasswordDraft((d) => ({ ...d, password: e.target.value }))
+                        }
+                        helperText="Mínimo 8 caracteres"
+                    />
+                    <TextField
+                        label="Repetir contraseña"
+                        type="password"
+                        required
+                        autoComplete="new-password"
+                        value={passwordDraft.confirm}
+                        onChange={(e) =>
+                            setPasswordDraft((d) => ({ ...d, confirm: e.target.value }))
+                        }
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closePasswordDialog}>Cancelar</Button>
+                    <Button
+                        variant="contained"
+                        onClick={savePassword}
+                        disabled={
+                            (passwordDraft.password?.length || 0) < 8
+                            || passwordDraft.password !== passwordDraft.confirm
+                        }
+                    >
+                        Guardar
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             <Dialog open={createOpen} onClose={() => setCreateOpen(false)} fullWidth maxWidth="sm">
                 <DialogTitle>Nuevo usuario</DialogTitle>

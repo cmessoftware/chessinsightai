@@ -291,7 +291,7 @@ async def patch_user(
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth_service.get_current_admin_user()),
 ):
-    """Actualizar email, activo, contraseña o rol (solo admins)."""
+    """Actualizar email, activo, contraseña o rol (solo admins, LOG-FEAT-05)."""
     from models.database_models import User
 
     user = db.query(User).filter(User.id == user_id).first()
