@@ -25,6 +25,7 @@ export const EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS = {
     importedFrom: '',
     importedTo: '',
     rhythms: [],
+    studyName: '',
     results: [],
 }
 
@@ -45,6 +46,7 @@ export function coachPartidasAdvancedFiltersActive(filters) {
             String(filters.importedFrom || '').trim() ||
             String(filters.importedTo || '').trim() ||
             filters.rhythms?.length ||
+            String(filters.studyName || '').trim() ||
             filters.results?.length,
     )
 }
@@ -85,6 +87,8 @@ export function buildCoachPartidasListQuery(filters) {
     if (filters.rhythms?.length) {
         query.rhythms = [...filters.rhythms]
     }
+    const studyName = String(filters.studyName || '').trim()
+    if (studyName) query.study_name = studyName
     if (filters.results?.length) {
         query.results = [...filters.results]
     }

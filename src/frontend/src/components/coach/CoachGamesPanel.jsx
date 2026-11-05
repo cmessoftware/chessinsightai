@@ -233,12 +233,31 @@ function CoachFilterDateField({ label, value, onChange }) {
             size="small"
             label={label}
             type="date"
-            InputLabelProps={{ shrink: true }}
+            InputLabelProps={{
+                shrink: true,
+                sx: {
+                    maxWidth: 'calc(100% - 24px)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                },
+            }}
             value={value}
             onChange={onChange}
             onClick={openNativeDatePicker}
             fullWidth
-            sx={{ '& input': { cursor: 'pointer' } }}
+            sx={{
+                minWidth: 0,
+                maxWidth: '100%',
+                width: '100%',
+                '& .MuiInputBase-root': { minWidth: 0, maxWidth: '100%' },
+                '& input': {
+                    cursor: 'pointer',
+                    minWidth: '0 !important',
+                    width: '100%',
+                    maxWidth: '100%',
+                },
+            }}
         />
     )
 }
@@ -979,7 +998,7 @@ export default function CoachGamesPanel() {
     }
 
     return (
-        <Box>
+        <Box sx={{ minWidth: 0, maxWidth: '100%' }}>
             <Box
                 sx={{
                     display: 'flex',
@@ -1132,8 +1151,13 @@ export default function CoachGamesPanel() {
                 <Box
                     sx={{
                         display: 'grid',
-                        gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                        width: '100%',
+                        maxWidth: '100%',
+                        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
                         gap: 2,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        '& > *': { minWidth: 0, maxWidth: '100%', width: '100%' },
                     }}
                 >
                     <FormControl size="small" fullWidth>
@@ -1238,6 +1262,19 @@ export default function CoachGamesPanel() {
                     </FormControl>
                     <TextField
                         size="small"
+                        label="Estudio"
+                        placeholder="Nombre, o *Larsen*"
+                        value={advancedDraft.studyName || ''}
+                        onChange={(e) =>
+                            setAdvancedDraft((prev) => ({
+                                ...prev,
+                                studyName: e.target.value,
+                            }))
+                        }
+                        fullWidth
+                    />
+                    <TextField
+                        size="small"
                         label="Jugador blancas"
                         placeholder="Ej. Carlsen o *club*"
                         value={advancedDraft.whitePlayer}
@@ -1312,34 +1349,53 @@ export default function CoachGamesPanel() {
                         }
                         fullWidth
                     />
-                    <CoachFilterDateField
-                        label="Fecha desde"
-                        value={advancedDraft.dateFrom}
-                        onChange={(e) =>
-                            setAdvancedDraft((prev) => ({ ...prev, dateFrom: e.target.value }))
-                        }
-                    />
-                    <CoachFilterDateField
-                        label="Fecha hasta"
-                        value={advancedDraft.dateTo}
-                        onChange={(e) =>
-                            setAdvancedDraft((prev) => ({ ...prev, dateTo: e.target.value }))
-                        }
-                    />
-                    <CoachFilterDateField
-                        label="Fecha importación desde"
-                        value={advancedDraft.importedFrom}
-                        onChange={(e) =>
-                            setAdvancedDraft((prev) => ({ ...prev, importedFrom: e.target.value }))
-                        }
-                    />
-                    <CoachFilterDateField
-                        label="Fecha importación hasta"
-                        value={advancedDraft.importedTo}
-                        onChange={(e) =>
-                            setAdvancedDraft((prev) => ({ ...prev, importedTo: e.target.value }))
-                        }
-                    />
+                    <Box
+                        sx={{
+                            gridColumn: '1 / -1',
+                            display: 'grid',
+                            width: '100%',
+                            maxWidth: '100%',
+                            minWidth: 0,
+                            gridTemplateColumns: {
+                                xs: 'minmax(0, 1fr)',
+                                md: 'repeat(2, minmax(0, 1fr))',
+                            },
+                            gap: 2,
+                            '& > *': { minWidth: 0, maxWidth: '100%', width: '100%' },
+                        }}
+                    >
+                        <CoachFilterDateField
+                            label="Fecha desde"
+                            value={advancedDraft.dateFrom}
+                            onChange={(e) =>
+                                setAdvancedDraft((prev) => ({ ...prev, dateFrom: e.target.value }))
+                            }
+                        />
+                        <CoachFilterDateField
+                            label="Fecha hasta"
+                            value={advancedDraft.dateTo}
+                            onChange={(e) =>
+                                setAdvancedDraft((prev) => ({ ...prev, dateTo: e.target.value }))
+                            }
+                        />
+                        <CoachFilterDateField
+                            label="Fecha importación desde"
+                            value={advancedDraft.importedFrom}
+                            onChange={(e) =>
+                                setAdvancedDraft((prev) => ({
+                                    ...prev,
+                                    importedFrom: e.target.value,
+                                }))
+                            }
+                        />
+                        <CoachFilterDateField
+                            label="Fecha importación hasta"
+                            value={advancedDraft.importedTo}
+                            onChange={(e) =>
+                                setAdvancedDraft((prev) => ({ ...prev, importedTo: e.target.value }))
+                            }
+                        />
+                    </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
                     <Button variant="contained" size="small" onClick={applyAdvancedFilters}>
@@ -1548,7 +1604,7 @@ export default function CoachGamesPanel() {
                     </Typography>
                 </Box>
             </Paper>
-            <Paper>
+            <Paper sx={{ overflowX: 'auto', maxWidth: '100%' }}>
                 <Table size="small">
                     <TableHead>
                         <TableRow>

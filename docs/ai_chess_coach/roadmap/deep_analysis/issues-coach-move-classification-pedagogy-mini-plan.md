@@ -133,7 +133,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-092</td><td></td><td>Mostrar el resultado al final de la lista PGN (1-0, 0-1 o tablas). Hoy, si la partida es tablas, no aparece nada después de la última jugada</td><td>✅ Done</td><td>HITL OK — el rótulo queda debajo de la última jugada</td></tr>
 <tr><td>FEAT-093</td><td></td><td>Agregar panel colapsable debajo en el panel pgn con el resultado del proceso ya existente chess_estatics </td><td>✅ Done</td><td>HITL OK — panel bajo el PGN lee Postgres; mini plan EST-FEAT-01…06 — <a href="./feat-093-chess-statistics-postgres-mini-plan.md">mini plan</a></td></tr>
 <tr><td>FEAT-094</td><td>FEAT-087</td><td>En vista tablero de analisis agregar checkbox para indicar que fue analizado manualmente, mismo campo que el vista de tablas Partidas.</td><td>✅ Done</td><td>HITL OK — mismo <code>coach_games.manual_analysis</code> · checkbox bajo el tablero y en pantalla completa</td></tr>
-<tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>🔄 WIP</td><td>Columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
+<tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>✅ Done</td><td>HITL OK — columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
 <tr><td>FEAT-096</td><td></td><td>En Filtros avanzados de Partidas agregar Ritmo.</td><td>✅ Done</td><td>HITL OK — selector múltiple; Correspondencia se pide como <code>rhythms=daily</code></td></tr>
 <tr><td>FEAT-097</td><td></td><td>Indicar con otro color varaintes agregadas a variantes ya existentes en el pgn.</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>BUG-098</td><td>FEAT-061</td><td>El comentario original del PGN importado no aparece en el campo de la jugada, y un comentario agregado después no se puede modificar</td><td>✅ Done</td><td>HITL OK — el campo muestra y edita el comentario PGN de esa jugada</td></tr>
@@ -228,8 +228,8 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/093/094/096, LOG-FEAT-04, BUG-037, DB-FEAT-01, EST-FEAT-01, EST-FEAT-02, EST-FEAT-03, EST-FEAT-04, EST-FEAT-05, EST-FEAT-06, BUG-098</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-095</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/093/094/095/096, LOG-FEAT-04, BUG-037, DB-FEAT-01, EST-FEAT-01, EST-FEAT-02, EST-FEAT-03, EST-FEAT-04, EST-FEAT-05, EST-FEAT-06, BUG-098</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, DB-FEAT-02…04, RPT-FEAT-01…08</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
