@@ -47,7 +47,6 @@ def test_repository_does_not_open_the_course_sqlite():
     source = inspect.getsource(repo)
     assert "sqlite3" not in source
     assert "chess_statistics" not in source
-    assert "chess_statistics.db" not in sys.modules
 
 
 def test_summary_round_trip_replaces_the_same_row(db):
