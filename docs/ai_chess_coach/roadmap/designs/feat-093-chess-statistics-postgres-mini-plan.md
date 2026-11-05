@@ -2,7 +2,7 @@
 
 > **Sync:** espejo de [`../deep_analysis/feat-093-chess-statistics-postgres-mini-plan.md`](../deep_analysis/feat-093-chess-statistics-postgres-mini-plan.md) (mismo contenido; este archivo permite enlaces desde `designs/`).
 
-**Estado:** ✅ CS-1 hecho. 🔄 CS-2 en progreso. 🔄 CS-3 en progreso. CS-4 y CS-5 pendientes. FEAT-093 sigue 🔄 WIP en el tracker.  
+**Estado:** ✅ CS-1 hecho. 🔄 CS-2 en progreso. 🔄 CS-3 en progreso. 🔄 CS-4 en progreso. CS-5 pendiente. FEAT-093 sigue 🔄 WIP en el tracker.  
 **Actualizado:** 2026-11-02  
 **Tracker:** [issues § FEAT-093](./issues-coach-move-classification-pedagogy-mini-plan.md)  
 **Proceso que se conserva:** `src/chess_statistics/` (`accuracy.py`, `phases.py`, juicios). El archivo `data/chess_statistics.sqlite` era del curso suspendido ([plan LS01](../../../lichess_statistics/01_module_implementation_plan.md)).  
@@ -45,7 +45,7 @@
 | **CS-1** | Tablas Postgres del resumen y de las jugadas | ✅ Hecho | `est_feat_01_stat_schema` | — |
 | **CS-2** | Repositorio que lee y escribe esas tablas | 🔄 En progreso | `est_feat_02_stat_repository` | CS-1 |
 | **CS-3** | Calcular una partida Coach con el proceso existente y guardarla | 🔄 En progreso | `est_feat_03_stat_compute` | CS-2 |
-| **CS-4** | El endpoint de FEAT-093 lee Postgres y deja de abrir SQLite | ⏳ Pendiente | `feature/11_093_cs4_stat_panel_pg` | CS-2 |
+| **CS-4** | El endpoint de FEAT-093 lee Postgres y deja de abrir SQLite | 🔄 En progreso | `est_feat_04_stat_panel` | CS-2 |
 | **CS-5** | Job para calcular las partidas del usuario que todavía no tienen fila | ⏳ Pendiente | `feature/11_093_cs5_stat_backfill` | CS-3 |
 
 **Orden:** CS-1, CS-2. Después CS-3 y CS-4 pueden ir en paralelo. CS-5 cierra el lote. Hasta que CS-3 o CS-5 escriban la fila, el panel dice que esa partida todavía no tiene estadísticas.

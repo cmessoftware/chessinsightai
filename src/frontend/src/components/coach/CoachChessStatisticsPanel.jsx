@@ -77,7 +77,7 @@ export default function CoachChessStatisticsPanel({ gameId }) {
     } else if (payload && !payload.found) {
         body = (
             <Typography variant="body2" color="text.secondary">
-                Esta partida no tiene resultado de chess_statistics.
+                Esta partida todavía no tiene estadísticas.
             </Typography>
         )
     } else if (payload?.fields?.length) {

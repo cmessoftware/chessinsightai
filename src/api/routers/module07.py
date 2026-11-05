@@ -589,7 +589,7 @@ def get_game_chess_statistics(
     row = get_game(db, game_id, owner)
     if row is None:
         raise HTTPException(status_code=404, detail="Game not found")
-    return lookup_chess_statistics(getattr(row, "pgn", None) or "")
+    return lookup_chess_statistics(db, row)
 
 
 @router.get("/games/{game_id}/decisions")
