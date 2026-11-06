@@ -12,6 +12,8 @@
 
 ---
 
+**Alcance:** solo rapid, clásicas y correspondencia. Blitz y bullet quedan excluidos de la muestra, los ejemplos y la validación del análisis mental; no generar assessment para esos ritmos.
+
 ## 1. Objetivo del HITL
 
 Validar **antes de congelar** `coachMental1600.js` (y portar a Python/worker):

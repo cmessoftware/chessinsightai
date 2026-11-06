@@ -8,9 +8,11 @@
 
 ## 1. Material y límites
 
+**Alcance vigente:** análisis mental únicamente para **rapid o ritmos más lentos** (clásicas y correspondencia). **Blitz y bullet quedan excluidos** de ejemplos, controles, calibración, métricas y validación pedagógica; tampoco se usan como complemento. Las referencias de estudio sin reloj se trabajan sin límite de tiempo y no se etiquetan como rapid ni se incorporan a métricas por ritmo sin verificar su control original.
+
 [PGN públicos de referencia E1 y E2](./coach-mental-review-2026-11-09.pgn). E1: Morphy–Duke of Brunswick (1858), partida clásica de iniciativa. E2: L'Ami–Vidit (2023), fragmento de decisión central desde FEN, sin continuación inventada. Movimientos tomados del material aportado para la revisión; páginas Lichess no recuperables durante esta sesión. Legalidad verificada con python-chess. No se ejecutó Stockfish para establecer mejores jugadas o evaluaciones.
 
-El protocolo completo con ejemplos propios y FEN se entrega a Sergio por separado. Este documento público conserva el procedimiento, los temas de comparación y las referencias públicas, sin publicar los PGN propios ni sus metadatos. Los IDs P1–P4/C01–C19 son códigos del protocolo privado, sin enlace a partidas personales.
+El protocolo completo con ejemplos propios y FEN se entrega a Sergio por separado. Este documento público conserva el procedimiento, los temas de comparación y las referencias públicas, sin publicar los PGN propios ni sus metadatos. Los IDs P1–P3/C01–C16 son códigos del protocolo privado, sin enlace a partidas personales.
 
 E1 no representa elite moderna y puede ser conocido de memoria; E2 es corto. No son una muestra representativa. Completar con posición tranquila de medio juego y final de elite moderna elegidos por el instructor. Si reconoce un caso, anotarlo y excluirlo de medición ciega del alumno. Los recortes con Result * no se usan para estadísticas globales.
 
@@ -20,7 +22,7 @@ Los tags ReviewPOV/ReviewCorpus documentan intención; no se presupone que el im
 
 1. Entrar por la raíz de ChessDash y usar el menú interno mientras BUG-098 siga abierto. Registrar fecha, beta/commit, reglas, navegador, dispositivo y disponibilidad del motor. No usar Reportes.
 2. Preferir cuenta de prueba/biblioteca aislada. Guardar los originales y trabajar con copias de los ejemplos. No reasignar corpus en bloque en la biblioteca real mientras BUG-099 siga abierto; la separación P/E también está en los IDs del protocolo.
-3. Importar el PGN de seis capítulos por texto o archivo; comprobar jugadores, jugadas y FEN. Confirmar que aparezcan seis partidas; resolver duplicados/omitidos antes de comparar. No lanzar Analizar todas.
+3. Importar los cinco capítulos del material completo o los dos del PGN público de referencias; comprobar jugadores, jugadas y FEN. Confirmar el conteo correspondiente; resolver duplicados/omitidos antes de comparar. No lanzar Analizar todas.
 4. Configurar explícitamente el POV según la tabla. Importar no garantiza que el tag ReviewPOV sea interpretado. Para un caso de negras seleccionar una jugada negra; verificar que la posición evaluada sea **la anterior a esa jugada** y que el turno de la FEN coincida.
 5. Abrir Mental 1600. Para el recorrido ciego cubrir/ocultar PGN futuro, resultado, panel mental y motor; si la UI no permite ocultarlos, mostrar al instructor solo tablero o FEN fuera de la vista de esas salidas. Operador conoce el caso; revisor no ve la continuación.
 6. Activar el análisis liviano desde Motor solo al llegar a la fase de contraste. Esperar evidencia de MultiPV terminado para ese FEN, anotar profundidad y fuente. Si no hay MultiPV, registrar no disponible; no contar ausencia como desacuerdo pedagógico. El fallo de estadísticas no impide esta revisión.
@@ -32,10 +34,10 @@ Los tags ReviewPOV/ReviewCorpus documentan intención; no se presupone que el im
 | 0–5 min | Acordar nivel objetivo y significado de crítica | Definición operativa del instructor |
 | 5–30 min | Ocho casos ciegos: C04, C06, C08, C09, C11, C12, C14 y C16 | Juicio previo, 2–3 candidatas y mejor respuesta rival |
 | 30–45 min | Revelar Mental y luego motor para esos casos | Coincidencias, omisiones, falsas alertas y candidatas descartadas |
-| 45–55 min | Casos semánticos C15 y C18; revisar terminología, pausas y ayudas | Correcciones prioritarias |
+| 45–55 min | Casos semánticos C14 y C15; revisar terminología, pausas y ayudas | Correcciones prioritarias |
 | 55–60 min | Ordenar cambios y elegir casos nuevos tranquilos/estratégicos | Tres prioridades y plan de nueva validación |
 
-Sesión inicial exploratoria. Completar C01–C16 después para la muestra principal de 16 decisiones; P4 es complemento y no se agrega a la métrica rapid. La reunión por sí sola no cierra el gate M-11.
+Sesión inicial exploratoria. Completar C01–C16 después para la muestra de 16 decisiones, sin complementos de ritmos excluidos. La reunión por sí sola no cierra el gate M-11.
 
 ## 4. Procedimiento por posición, paso a paso
 
@@ -63,9 +65,8 @@ No se fijan de antemano modo ni candidatas correctas: los controles tranquilos t
 | C14 | E1 antes de 10.Nxb5 | Sacrificio: material expuesto no prueba un error |
 | C15 | E1 antes de 16.Qb8+ | Jaque con sacrificio: control negativo de S2 |
 | C16 | E2 antes de 9.cxd5 | Resolver tensión central; discutir con el instructor |
-| C17–C19 | Propias blitz; material privado | Complemento de ataque y alertas; separado de métricas rapid |
 
-Comparar recaptura/tensión, iniciativa, estructura y sacrificio por tema. No tratar estos grupos como pares de igual dificultad ni como experimento causal. El conjunto privado contiene 16 decisiones principales y tres complementarias blitz.
+Comparar recaptura/tensión, iniciativa, estructura y sacrificio por tema. No tratar estos grupos como pares de igual dificultad ni como experimento causal. El conjunto privado contiene 16 decisiones sin complemento blitz.
 
 ## 6. Controles funcionales y bugs de biblioteca
 
@@ -92,7 +93,7 @@ La prueba masiva es un procedimiento pendiente: no se ejecutó contra datos de p
 
 Registrar criticidad y calidad de candidatas por separado. El instructor también define vocabulario adecuado, cantidad de información y utilidad del modo rápido. No convertir su feedback en una nota global inventada.
 
-**Resumen de cierre a completar:** N revisadas propias/elite y rapid/blitz; N críticas humanas detectadas; N omitidas; N tranquilas con falsa alarma; candidatas humanas útiles cubiertas/omitidas; explicación suficiente/incompleta; casos sin datos. Informar conteos con denominador y estrato. No promediar todo en una única nota.
+**Resumen de cierre a completar:** N revisadas propias/elite y rapid/clásicas/correspondencia; N críticas humanas detectadas; N omitidas; N tranquilas con falsa alarma; candidatas humanas útiles cubiertas/omitidas; explicación suficiente/incompleta; casos sin datos. Informar conteos con denominador y estrato. No promediar todo en una única nota.
 
 **Cierre técnico:** MENT-BUG P0 resueltos con regresión, FEN/POV y contexto consistentes, ninguna alerta S2 por dar jaque. **Cierre pedagógico:** al menos 15 decisiones, tres partidas rapid propias, controles fast/critical revisados y desacuerdos con acción; mantener los restantes requisitos M-11. Una muestra seleccionada y un instructor producen evidencia exploratoria, no una precisión poblacional.
 
