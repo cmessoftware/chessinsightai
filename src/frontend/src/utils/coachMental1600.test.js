@@ -135,5 +135,14 @@ describe('coachMental1600', () => {
         expect(qxf7).toBeTruthy()
         const failed = runAntiBlunderChecks(chess, qxf7)
         expect(failed).toContain('S3')
+        expect(failed).not.toContain('S2')
+    })
+
+    it('does not treat giving mate as leaving your own king in check', () => {
+        const fen = playSans(undefined, ['e4', 'e5', 'Qh5', 'Nc6', 'Bc4', 'Nf6'])
+        const chess = new Chess(fen)
+        const mate = chess.moves({ verbose: true }).find((m) => m.san === 'Qxf7#')
+        expect(mate).toBeTruthy()
+        expect(runAntiBlunderChecks(chess, mate)).not.toContain('S2')
     })
 })
