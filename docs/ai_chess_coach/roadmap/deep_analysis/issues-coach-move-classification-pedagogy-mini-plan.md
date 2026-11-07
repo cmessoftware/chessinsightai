@@ -166,6 +166,12 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 </tbody>
 </table>
 
+## Ejercitaciones y seguimiento en análisis · specs candidatas
+
+| Tipo-Id | Relación | Descripción | Estado | Aceptación / alcance |
+| --- | --- | --- | --- | --- |
+| FEAT-102 | LOG-FEAT-07/08 / FEAT-07 | Módulo general de ejercitaciones creadas por el usuario o su instructor y registro de actividad sobre partidas/posiciones marcadas como ejercicios. | Candidata · P1 · a refinar | [Spec candidata y tareas EX-FEAT-01…10](../designs/analysis-user-instructor-exercises-candidate-spec.md). Autoría, catálogo, asignaciones, intentos, aciertos/errores/parciales, ayudas, revisión del instructor, permisos, persistencia y seguimiento. Separar práctica del alumno de feedback HITL sobre el sistema; conservar versiones y primer intento. No implementado. |
+
 ## Features del módulo de reportes
 
 Módulo pendiente. La pantalla heredada no se presenta como funcionalidad terminada. Diseño previsto: menú **Módulo de Reportes**, visualización en el sistema y salida PDF o Markdown.
@@ -370,7 +376,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
