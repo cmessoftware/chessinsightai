@@ -98,7 +98,12 @@ import {
     downloadTextFile,
     joinGamePgnsForExport,
 } from '../../utils/coachGamesPgnExport.js'
-import { bulkEditIds, pruneSelection, selectionAfterLoad } from '../../utils/coachGameSelection.js'
+import {
+    bulkEditIds,
+    pruneSelection,
+    selectionAfterLoad,
+    selectionScope,
+} from '../../utils/coachGameSelection.js'
 
 const COACH_JOBS_PAGE_SIZE = 5
 const COACH_GAMES_PAGE_SIZE = 20
@@ -525,6 +530,7 @@ export default function CoachGamesPanel() {
     const [deleting, setDeleting] = useState(false)
     const [exportingPgns, setExportingPgns] = useState(false)
     const [pendingDelete, setPendingDelete] = useState(null)
+    const [pendingBulk, setPendingBulk] = useState(null)
     const [refreshing, setRefreshing] = useState(false)
     const [sortBy, setSortBy] = useState(null)
     const [sortDirection, setSortDirection] = useState('asc')
@@ -657,6 +663,78 @@ export default function CoachGamesPanel() {
         return n
     }, [paginatedGames, selectedIds])
 
+    const editScope = useMemo(
+        () =>
+            selectionScope({
+                selectedIds,
+                pageIds: paginatedGames.map((g) => g.id),
+            }),
+        [selectedIds, paginatedGames],
+    )
+
+    const selectPageGames = () => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev)
+            for (const g of paginatedGames) next.add(g.id)
+            return next
+        })
+    }
+
+    const selectFilteredGames = () => {
+        setSelectedIds(new Set(sortedGames.map((g) => g.id)))
+    }
+
+    const clearGameSelection = () => {
+        setSelectedIds(new Set())
+        setPendingBulk(null)
+    }
+
+    const requestBulkCategory = (value) => {
+        const ids = bulkEditIds(selectedIds)
+        if (!value || ids.length === 0) {
+            setBulkCategoryAssign('')
+            return
+        }
+        setBulkCategoryAssign(value)
+        setPendingBulk({
+            kind: 'category',
+            value,
+            ids,
+            message: `Categoría sobre ${ids.length} partida(s) marcada(s). No incluye el resto de la biblioteca.`,
+            confirmLabel: 'Aplicar a la selección',
+        })
+    }
+
+    const requestBulkCorpus = (value) => {
+        const ids = bulkEditIds(selectedIds)
+        if (!value || ids.length === 0) {
+            setBulkCorpus('')
+            return
+        }
+        setBulkCorpus(value)
+        setPendingBulk({
+            kind: 'corpus',
+            value,
+            ids,
+            message: `Fuente sobre ${ids.length} partida(s) marcada(s). No incluye el resto de la biblioteca.`,
+            confirmLabel: 'Aplicar a la selección',
+        })
+    }
+
+    const confirmPendingBulk = () => {
+        if (!pendingBulk?.ids?.length) return
+        const action = pendingBulk
+        setPendingBulk(null)
+        if (action.kind === 'category') applyBulkCategoryAssign(action.value, action.ids)
+        else void applyBulkCorpus(action.value, action.ids)
+    }
+
+    const cancelPendingBulk = () => {
+        setPendingBulk(null)
+        setBulkCategoryAssign('')
+        setBulkCorpus('')
+    }
+
     useEffect(() => {
         setJobsPage(0)
     }, [jobs.length])
@@ -692,28 +770,28 @@ export default function CoachGamesPanel() {
         return () => window.removeEventListener(COACH_PARTIDAS_CATEGORIES_CHANGED, syncCategories)
     }, [])
 
-    const applyBulkCategoryAssign = (value) => {
-        const ids = bulkEditIds(selectedIds)
-        if (!value || ids.length === 0) return
+    const applyBulkCategoryAssign = (value, ids) => {
+        const unique = bulkEditIds(ids)
+        if (!value || unique.length === 0) return
         const categoryId = value === COACH_CATEGORY_AUTO ? null : value
-        const next = setCoachGameCategoryOverridesBulk(ids, categoryId, categoryOverrides)
+        const next = setCoachGameCategoryOverridesBulk(unique, categoryId, categoryOverrides)
         setCategoryOverrides(next)
         setBulkCategoryAssign('')
         setInfo(
             categoryId
-                ? `Categoría asignada a ${ids.length} partida(s).`
-                : `Categoría automática restaurada en ${ids.length} partida(s).`,
+                ? `Categoría asignada a ${unique.length} partida(s).`
+                : `Categoría automática restaurada en ${unique.length} partida(s).`,
         )
     }
 
-    const applyBulkCorpus = async (value) => {
+    const applyBulkCorpus = async (value, ids = bulkEditIds(selectedIds)) => {
         const corpus = String(value || '').trim()
-        const ids = bulkEditIds(selectedIds)
-        if (!corpus || ids.length === 0) return
+        const unique = bulkEditIds(ids)
+        if (!corpus || unique.length === 0) return
         setUpdatingCorpus(true)
         setError(null)
         try {
-            const result = await bulkUpdateCoachGamesCorpus(ids, corpus)
+            const result = await bulkUpdateCoachGamesCorpus(unique, corpus)
             const updated = new Set(result.updated || [])
             setGames((prev) =>
                 prev.map((row) =>
@@ -1461,6 +1539,16 @@ export default function CoachGamesPanel() {
                     />
                 </Box>
             )}
+            {pendingBulk && (
+                <Box sx={{ mb: 2 }}>
+                    <CoachConfirmBadge
+                        message={pendingBulk.message}
+                        confirmLabel={pendingBulk.confirmLabel}
+                        onConfirm={confirmPendingBulk}
+                        onCancel={cancelPendingBulk}
+                    />
+                </Box>
+            )}
             <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="subtitle2" gutterBottom>
                     Encolar análisis en servidor (Stockfish)
@@ -1549,11 +1637,7 @@ export default function CoachGamesPanel() {
                             labelId="coach-bulk-category-label"
                             label="Asignar a selección"
                             value={bulkCategoryAssign}
-                            onChange={(e) => {
-                                const v = e.target.value
-                                setBulkCategoryAssign(v)
-                                applyBulkCategoryAssign(v)
-                            }}
+                            onChange={(e) => requestBulkCategory(e.target.value)}
                         >
                             <MenuItem value="">
                                 <em>Elegir categoría…</em>
@@ -1579,11 +1663,7 @@ export default function CoachGamesPanel() {
                             labelId="coach-bulk-corpus-label"
                             label="Fuente de la selección"
                             value={bulkCorpus}
-                            onChange={(e) => {
-                                const v = e.target.value
-                                setBulkCorpus(v)
-                                applyBulkCorpus(v)
-                            }}
+                            onChange={(e) => requestBulkCorpus(e.target.value)}
                         >
                             <MenuItem value="">
                                 <em>Elegir fuente…</em>
@@ -1596,10 +1676,19 @@ export default function CoachGamesPanel() {
                         </Select>
                     </FormControl>
                     <Typography variant="body2" color="text.secondary">
-                        {selectedIds.size === 0
-                            ? 'Seleccioná filas en la tabla.'
-                            : `${selectedIds.size} partida(s) seleccionada(s).`}
+                        {editScope.total === 0
+                            ? 'Nada marcado para editar. Analizar todas no usa esta selección.'
+                            : `${editScope.total} marcadas · ${editScope.onPage} en esta página · ${editScope.onOtherPages} en otras páginas.`}
                     </Typography>
+                    <Button size="small" onClick={selectPageGames} disabled={!paginatedGames.length}>
+                        Seleccionar esta página
+                    </Button>
+                    <Button size="small" onClick={selectFilteredGames} disabled={!sortedGames.length}>
+                        Seleccionar resultados filtrados
+                    </Button>
+                    <Button size="small" onClick={clearGameSelection} disabled={editScope.total === 0}>
+                        Limpiar selección
+                    </Button>
                 </Box>
             </Paper>
             <Paper sx={{ overflowX: 'auto', maxWidth: '100%' }}>

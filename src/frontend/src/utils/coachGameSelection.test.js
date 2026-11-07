@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { bulkEditIds, pruneSelection, selectionAfterLoad } from './coachGameSelection.js'
+import {
+    bulkEditIds,
+    pruneSelection,
+    selectionAfterLoad,
+    selectionScope,
+} from './coachGameSelection.js'
 
 describe('coachGameSelection', () => {
     it('does not select the library when nothing was highlighted', () => {
@@ -19,5 +24,13 @@ describe('coachGameSelection', () => {
     it('bulk edit uses only the given ids', () => {
         expect(bulkEditIds([])).toEqual([])
         expect(bulkEditIds([3, 3, 8])).toEqual([3, 8])
+    })
+
+    it('counts the page and the rows checked on other pages', () => {
+        expect(selectionScope({ selectedIds: [1, 2, 9], pageIds: [1, 2, 3] })).toEqual({
+            total: 3,
+            onPage: 2,
+            onOtherPages: 1,
+        })
     })
 })
