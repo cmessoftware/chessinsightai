@@ -72,6 +72,40 @@ describe('coachMental1600', () => {
         expect(ordered[0].category).toBeDefined()
     })
 
+    it('sees attacks and defenders of the side that is not to move', () => {
+        const hanging = assessDecisionPoint({
+            fen: '4r1k1/8/8/8/8/8/4Q3/6K1 w - - 0 1',
+        })
+        expect(hanging.triggers.some((t) => t.code === 'E8')).toBe(true)
+
+        const defended = assessDecisionPoint({
+            fen: '4r1k1/8/8/8/8/8/4Q3/4K3 w - - 0 1',
+        })
+        expect(defended.triggers.some((t) => t.code === 'E8')).toBe(false)
+
+        const pawnAttack = assessDecisionPoint({
+            fen: '8/8/8/3p4/2B5/8/8/4K2k w - - 0 1',
+        })
+        expect(pawnAttack.triggers.some((t) => t.code === 'E8')).toBe(true)
+
+        const pawnDefended = assessDecisionPoint({
+            fen: '8/8/8/3p4/2B5/1P6/8/4K2k w - - 0 1',
+        })
+        expect(pawnDefended.triggers.some((t) => t.code === 'E8')).toBe(false)
+    })
+
+    it('does not call a defended queen free material', () => {
+        const hanging = assessDecisionPoint({
+            fen: 'q6k/8/2B5/8/8/8/8/4K3 w - - 0 1',
+        })
+        expect(hanging.triggers.some((t) => t.code === 'E1')).toBe(true)
+
+        const defended = assessDecisionPoint({
+            fen: 'q6k/8/2B5/8/8/8/r7/4K3 w - - 0 1',
+        })
+        expect(defended.triggers.some((t) => t.code === 'E1')).toBe(false)
+    })
+
     it('runAntiBlunderChecks flags obvious major capture allowed', () => {
         const fen = 'rnbqkb1r/pppp1ppp/5n2/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 2 3'
         const chess = new Chess(fen)

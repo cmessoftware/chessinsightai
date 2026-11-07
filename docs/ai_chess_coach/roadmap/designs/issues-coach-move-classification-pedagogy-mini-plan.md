@@ -290,7 +290,7 @@ Estado global **WIP**: M-1…M-10 implementados no implica validación pedagógi
 <table>
 <thead><tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
 <tbody>
-<tr><td>MENT-BUG-01</td><td>FEAT-07 / M-2 / M-6</td><td>Detección de ataques/defensas basada en jugadas legales del bando al turno.</td><td>Todo · P0 · código</td><td><code>isAttackedBy</code> filtra <code>chess.moves()</code> por color: no calcula ambos colores ni defensores sobre piezas propias. Afecta E1/E2/E7/E8 y S1/S4. Usar mapa de ataques/defensas y separar ataque geométrico, captura legal y pieza realmente ganable. Validar clavadas, peones, reyes y piezas defendidas; no afirmar material gratis sin cálculo.</td></tr>
+<tr><td>MENT-BUG-01</td><td>FEAT-07 / M-2 / M-6</td><td>Detección de ataques/defensas basada en jugadas legales del bando al turno.</td><td>✅ Done</td><td><code>isAttacked</code> mira ambos colores, no solo las jugadas legales del turno. Una pieza atacada y defendida no se trata como material gratis. <code>feature/11_ment_bug_01_attack_map</code></td></tr>
 <tr><td>MENT-BUG-02</td><td>FEAT-07 / M-2</td><td>Los triggers pierden la última jugada rival al reconstruir Chess desde FEN.</td><td>Todo · P0 · código</td><td><code>assessDecisionPoint</code> reconstruye lastOpponentVerbose pero solo lo entrega a <code>detectNotableCritical</code>; <code>detectTriggers</code> consulta history vacío. Además E4 intenta volver a aplicar la jugada previa sobre la posición actual. Pasar contexto explícito y comparar before/after correctos. Caso: captura central y avance de peón con tempo en PGN y variante.</td></tr>
 <tr><td>MENT-BUG-03</td><td>FEAT-07 / M-6</td><td>S2 confunde dar jaque con dejar al propio rey en jaque.</td><td>Todo · P0 · código</td><td>Tras trial.move cambia el turno; <code>trial.inCheck()</code> consulta el rey rival. Dar un jaque legal puede disparar S2. Usar rey/color explícito; rechazar jugadas ilegales por legalidad. Fixture: e4 e5 Qh5 Nc6 Bc4 Nf6 Qxf7# no debe alertar S2 por dar mate.</td></tr>
 <tr><td>MENT-BUG-04</td><td>FEAT-07 / M-5</td><td>Taxonomía de candidatas incompleta y amenaza D2 calculada con el turno equivocado.</td><td>Todo · P1 · código</td><td>D4 no tiene retorno; D2 inspecciona trial.moves del rival y exige objetivo del mismo color rival. Separar amenaza propia, defensa/profilaxis y plan posicional con evidencia; admitir etiqueta no determinada. Captura o jaque no implica candidata buena ni prioridad final.</td></tr>
@@ -333,9 +333,9 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, BUG-099, FEAT-100, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, BUG-099, FEAT-100, MENT-BUG-01, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098, FEAT-101, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…08</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098, FEAT-101, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-02…07, MENT-FEAT-01…08</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
