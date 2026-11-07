@@ -170,7 +170,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 
 | Tipo-Id | Relación | Descripción | Estado | Aceptación / alcance |
 | --- | --- | --- | --- | --- |
-| FEAT-102 | LOG-FEAT-07/08 / FEAT-07 | Módulo general de ejercitaciones creadas por el usuario o su instructor y registro de actividad sobre partidas/posiciones marcadas como ejercicios. | Candidata · P1 · a refinar | [Spec candidata y tareas EX-FEAT-01…13](../designs/analysis-user-instructor-exercises-candidate-spec.md). Ejercicios abiertos por objetivos, sin solución prefijada; rúbricas de proceso y resultado, evaluación humana/híbrida, Maia como rival por nivel y motor objetivo como evidencia. Incluye factibilidad, utilidad esperada, piloto, autoría y asignaciones, intentos y seguimiento. Separar práctica del alumno de feedback HITL sobre el sistema; conservar versiones y primer intento. No implementado. |
+| FEAT-102 | LOG-FEAT-07/08 / FEAT-07 | Módulo general de ejercitaciones creadas por el usuario o su instructor y registro de actividad sobre partidas/posiciones marcadas como ejercicios. | Candidata · P1 · a refinar | [Spec candidata y tareas EX-FEAT-01…17](../designs/analysis-user-instructor-exercises-candidate-spec.md). Ejercicios abiertos por objetivos, sin solución prefijada; rúbricas de proceso y resultado, evaluación humana/híbrida, Maia como rival por nivel y motor objetivo como evidencia. Incluye factibilidad, piloto, autoría/asignaciones, intentos y seguimiento; candidatas Stockfish/Maia/manuales, comparación cp/probabilidad y fundamento revisable por jugada. Separar práctica del alumno de feedback HITL sobre el sistema; conservar versiones y primer intento. No implementado. |
 
 ## Features del módulo de reportes
 

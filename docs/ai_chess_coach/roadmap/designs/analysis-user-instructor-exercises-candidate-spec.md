@@ -87,3 +87,52 @@ Guardar borradores no publica material ni lo asigna automáticamente. Los coment
 - Tratamiento de respuestas libres y líneas parciales; número de intentos y ayudas permitidas por consigna.
 
 **Secuencia candidata:** EX-FEAT-01/02/09 → EX-FEAT-04/05/06 (práctica propia) → EX-FEAT-03/08 (instructor) → EX-FEAT-07/10/13; EX-FEAT-11 se integra desde autoría y EX-FEAT-12 agrega práctica híbrida. Refinar con usuarios e instructor antes de congelar contratos. Ninguna tarea queda Done por esta documentación.
+
+## 6. Candidatas de motor o manuales y fundamento por jugada
+
+**Alcance:** ofrecer opciones de Stockfish, opciones humanas plausibles de Maia y jugadas agregadas manualmente por usuario/instructor, con explicación y evidencia. Son material de comparación y discusión, no una solución cerrada del ejercicio. El alumno puede proponer otras jugadas y pedir su revisión bajo los mismos criterios.
+
+### Presentación y procedencia
+
+Cada candidata conserva SAN/UCI, FEN/turno/POV, autor o proveedor, idea, respuesta rival exigente, continuación ilustrativa y fundamento. Una misma jugada puede tener varias fuentes; conservar sus aportes sin duplicar la opción ni atribuir al motor una explicación humana.
+
+- **Stockfish:** lista ordenada por evaluación con MultiPV, PV y profundidad/presupuesto. Identificar posición y parámetros comunes.
+- **Maia:** lista por probabilidad o preferencia humana al nivel configurado; llamarlas candidatas plausibles de Maia, sin equiparar ese orden con mejores jugadas objetivas.
+- **Manual:** ingresar jugada legal, fundamento, variantes y valoración opcional del instructor/usuario. No exigir validación motor para guardarla. Evaluación ausente permanece pendiente; una cifra manual se etiqueta como valoración humana, no como score del motor.
+
+Permitir evaluar con Stockfish cualquier candidata Maia/manual, incluso fuera de MultiPV, con presupuesto comparable. Mantener separados ranking objetivo, orden Maia y orden didáctico. Si una fuente no está disponible, conservar las otras y mostrar su ausencia.
+
+### Ejemplo de comparación
+
+Ejemplo ilustrativo, no evaluaciones de una posición real. Valores desde POV del jugador, misma posición y presupuesto comparable:
+
+| Candidata | Evaluación Stockfish | Pérdida frente a la mejor analizada | Fundamento a completar |
+| --- | --- | --- | --- |
+| Jugada 1 | +100 cp | 0 cp | Qué ventaja conserva/obtiene, cómo responde el rival y qué plan permite. |
+| Jugada 2 | +50 cp | 50 cp | Qué concede respecto de la primera y por qué aún puede ser una alternativa razonable. |
+| Jugada 3 | 0 cp | 100 cp | Qué recurso rival neutraliza la ventaja y si cumple o incumple el objetivo de la consigna. |
+
+**Evaluación de posición no equivale a mejora obtenida:** +100 cp tras mover significa una estimación favorable de un peón desde el POV declarado, no que esa jugada ganó un peón ni mejoró 100 cp respecto de la posición inicial. Guardar también evaluación inicial cuando se afirme progreso. La diferencia frente a la mejor analizada no prueba que se haya encontrado la mejor absoluta.
+
+Respetar la convención de visualización estándar de la app (+ blancas / − negras); el ejemplo usa POV jugador explícito. Guardar ambas convenciones sin invertir dos veces; en negras una evaluación estándar negativa puede ser favorable. Mates se muestran como mate, no se convierten a cp para ordenar diferencias aritméticas. Scores de diferentes motores/presupuestos no se mezclan como si fueran comparables.
+
+### Explicación buena, dudosa o inadecuada
+
+Explicar por qué una jugada es útil o falla **respecto del objetivo y del contexto**, con hechos verificables: pieza que mejora, línea que se abre, debilidad atacable, amenaza cubierta, tiempo cedido o recurso rival. Incluir al menos una respuesta rival y continuación cuando el juicio dependa de cálculo. Comparar también concesiones y alternativas.
+
+No deducir causalidad de un score aislado ni fabricar una razón estratégica para justificarlo. Ejemplo de estructura: “Mejora la torre al ocupar la columna abierta; tras …X conserva presión sobre Y. La alternativa permite …Z y pierde el control de esa entrada”. Este texto requiere posición/línea que lo respalden.
+
+Un generador de explicaciones puede proponer un borrador basado en tablero y líneas, etiquetado automático/no revisado; el instructor puede escribir, corregir y validar. Sin evidencia suficiente: “fundamento pendiente” o incertidumbre explícita. Una probabilidad Maia alta no justifica “buena”; un menor score no basta para “mala”. No asignar automáticamente acierto/error por quedar fuera del top 3.
+
+**Fases:** durante el intento ciego ocultar candidatas, scores, fundamentos y líneas de referencia. Revelarlas después del envío o a pedido como ayuda, registrando exposición. La ayuda no sobrescribe el intento inicial ni su evaluación independiente.
+
+### Tareas candidatas adicionales
+
+| ID | Estado | Alcance y aceptación candidata |
+| --- | --- | --- |
+| EX-FEAT-14 | P1 · Candidata | **Proveedor de candidatas.** Stockfish MultiPV, Maia por nivel y carga manual con fundamentos/variantes; fuentes múltiples por jugada, validación legal y estados sin motor. Guardar nuevas opciones fuera de listas sin convertirlas en incorrectas. |
+| EX-FEAT-15 | P1 · Candidata | **Comparador de valoraciones.** Evaluación inicial/final, diferencia frente a la mejor analizada, probabilidad Maia independiente, parámetros y POV visibles. Analizar candidata manual/Maia bajo condiciones comparables; tratar scores ausentes, mates y negras sin cifras inventadas. |
+| EX-FEAT-16 | P1 · Candidata | **Fundamento y revisión.** Editor por candidata con idea, evidencia, respuesta rival, continuación, concesiones y vínculo al objetivo. Procedencia manual/automática y estado pendiente/revisado; historial de correcciones. Borradores automáticos sin evidencia no se presentan como hechos. |
+| EX-FEAT-17 | P1 · Candidata | **Validación funcional/pedagógica.** Verificar opciones 100/50/0 cp como fixture ilustrativo, negras/POV, mates, candidata fuera de MultiPV, motor ausente, alternativa válida fuera del top 3 y ocultación en modo ciego. Instructor revisa explicaciones y casos donde la preferencia Maia discrepa de Stockfish; documentar límites antes de automatizar juicios. |
+
+**Decisiones pendientes:** cantidad inicial de candidatas, presupuesto comparable de evaluación y generación automática de explicaciones. Carga manual y revisión humana deben funcionar aunque no se habilite generación automática.
