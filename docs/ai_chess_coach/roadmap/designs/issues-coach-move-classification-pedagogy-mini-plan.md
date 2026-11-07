@@ -337,12 +337,26 @@ Estado global **WIP**: M-1…M-10 implementados no implica validación pedagógi
 
 **Aceptación M-11:** usar el [checklist vigente](../deep_analysis/coach-mental-1600-hitl-checklist.md), incluidas ≥3 partidas rapid, ≥15 decisiones, ≥3 critical y ≥3 fast aceptables, casos obligatorios, revisor, versión y firma; registrar acuerdo con denominador y tickets para desacuerdos según §6. Los ejemplos E complementan y no sustituyen las tres propias rapid del protocolo. P0 semánticos abiertos bloquean cierre. Decisión explícita: congelar v1 / iterar v1.1 / bloquear Phase 2 worker. MENT-FEAT-09…14 permanecen Todo: esta spec no acredita implementación, pruebas ni feedback recibido.
 
+### Módulo de comentarios HITL sobre propuestas del modelo mental
+
+**Propósito:** registrar feedback durante sesiones HITL directamente sobre lo que propone Mental 1600, además de las respuestas del alumno y los comentarios generales de sesión. Desglosa MENT-FEAT-13; todas las tareas siguientes están pendientes.
+
+| ID | Relación | Prioridad / estado | Tarea y criterio de aceptación |
+| --- | --- | --- | --- |
+| MENT-FEAT-15 | MENT-FEAT-07/13 | P1 · Todo | **Modelo de datos y persistencia.** Definir sesión HITL, revisión y comentario vinculado a partida/fixture, FEN antes de mover, turno/POV, ply/rama y corrida. Guardar autor, rol, fechas, versión app/reglas y una instantánea inmutable de la propuesta revisada: modo fast/critical, pausa, trigger E*, candidata D*, chequeo S* o explicación/plan. Admitir comentario general del assessment. La referencia debe permitir reconstruir qué se comentó aunque el modelo cambie. Persistir en servidor con migración y contrato API documentados; no depender solo de memoria o localStorage. |
+| MENT-FEAT-16 | MENT-FEAT-15 / MENT-FEAT-10 | P1 · Todo | **Captura contextual en Mental 1600.** Acción “Comentar” junto a cada propuesta y al assessment completo; panel con texto del sistema, comentario libre, acuerdo/desacuerdo/parcial/no evaluable, motivo y propuesta de corrección o ejemplo. Motivos: omisión, falsa alarma, error técnico, candidata/respuesta rival inadecuada, explicación o vocabulario confuso, pausa impropia o falta de contexto. Elegir una candidata conserva SAN/UCI y su idea. Guardar sin perder posición ni campos al navegar; mostrar guardando/guardado/error y reintento sin duplicados. Disponible después de revelar el modelo; nunca revelar propuestas o feedback previo durante el intento ciego. |
+| MENT-FEAT-17 | MENT-FEAT-15/16 | P1 · Todo | **API, permisos e historial.** Crear, consultar, responder y editar comentarios con historial de revisiones, sin sobrescribir el juicio ciego ni la instantánea evaluada. Controlar acceso por propietario o participación autorizada en la sesión; rol instructor no concede acceso global a partidas privadas. Conservar autores distintos y desacuerdos entre revisores. Definir política de eliminación y validar aislamiento entre usuarios, referencia a corrida/posición y reintentos idempotentes. Reabrir sesión tras recargar recupera comentarios y estados. |
+| MENT-FEAT-18 | MENT-FEAT-13/14/17 | P1 · Todo | **Bandeja y resolución del feedback.** Listar por sesión, partida y posición; filtrar por autor, componente del modelo, motivo, prioridad y estado: abierto/en revisión/acordado/descartado/resuelto. Cada transición guarda responsable, fecha y motivo; “resuelto” requiere evidencia o nueva corrida. Vincular o proponer MENT-BUG/MENT-FEAT reutilizando issues existentes, con esperado/obtenido y criterio de aceptación; no crear tickets externos automáticamente. Navegar de comentario a propuesta original y comparar con la versión corregida. Exportar resumen de sesión con comentarios, decisiones y referencias; excluir material privado de cualquier salida pública. |
+| MENT-FEAT-19 | MENT-FEAT-15…18 / M-11 | P1 · Todo | **Validación funcional HITL.** Verificar recorrido completo: abrir sesión → revelar assessment → comentar trigger, candidata y explicación → recargar → recuperar → resolver o vincular issue → repetir con reglas nuevas conservando originales. Cubrir negras, variantes, FEN repetida en distintas partidas, cambio rápido de posición, motor ausente, error de guardado y usuario sin acceso. Confirmar ausencia de filtración al recorrido ciego y que comentarios/resoluciones no marcan automáticamente M-11 como aprobado. Documentar evidencia de aceptación antes de marcar Done. |
+
+**Orden de implementación:** MENT-FEAT-15 → MENT-FEAT-16/17 → MENT-FEAT-18 → MENT-FEAT-19. Registrar feedback no requiere ejecutar un nuevo análisis de motor ni congelar las reglas. La sesión conserva su juicio humano inicial separado de los comentarios posteriores. El feedback describe la calidad de la propuesta del sistema y cómo convendría razonar; no certifica qué pensó realmente el jugador.
+
 ### Orden y cierre
 
 1. BUG-099 + FEAT-100: aislar alcance de edición; no corregir corpus histórico sin revisar IDs afectados.
 2. MENT-BUG-01/02/03/06: eliminar errores semánticos y fuga retrospectiva antes de evaluar fiabilidad.
 3. Sesión MENT-FEAT-01: registrar feedback incluso si esos arreglos aún no están desplegados, etiquetando versión y limitaciones.
-4. MENT-BUG-04/05/07 y MENT-FEAT-02…08 según decisiones del instructor.
+4. MENT-BUG-04/05/07 y MENT-FEAT-02…19 según decisiones del instructor.
 5. EST-BUG-01/02 y BUG-098 con verificación en Render; Reportes continúa en backlog.
 
 El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas documentadas de desacuerdo, cero P0 semánticos pendientes y pruebas de regresión de los bugs corregidos. El 80% de acuerdo de M-11 es un criterio exploratorio, no una medida de precisión general del producto. Ver [guía de sesión](../deep_analysis/coach-mental-review-2026-11-09.md).
@@ -356,7 +370,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…14</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
