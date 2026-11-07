@@ -1,12 +1,12 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
-**Estado:** Seguimiento activo (UI MVP liviano)  
-**Actualizado:** 2026-10-28  
+**Estado:** Seguimiento activo (UI MVP liviano)
+**Actualizado:** 2026-11-06
 
-> **Sync (obligatorio):** **Canónico** — espejo en [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md`](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Cuerpo del tracker idéntico a `designs/`; mismo commit.
+> **Sync (obligatorio):** **Canónico** — espejo en [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Mismo cuerpo y mismo commit; solo cambia esta cabecera.
 
-**Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)  
-**Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)  
+**Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)
+**Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)
 **Split monolito #158:** integrado en `main` (#159–#164); ver [pr_158_riesgos.md](../../pr_158_riesgos.md).
 
 **Estrategia (vigente):** MVP **Stockfish WASM** + UI de análisis avanzada en cliente. **SV-2** persiste clasificación por ply en Postgres (#159) cuando hay `gameId` y el usuario activa análisis liviano. **Variantes de estudio** (FEAT-066): botón «Guardar estudio» persiste RAV en PGN del catálogo; al reabrir se reconstruye el árbol con <code>buildTreeFromPgn</code>. Análisis profundo servidor → Phase 2 ([deep_analysis index](../deep_analysis/index.md)).
@@ -14,6 +14,19 @@
 **Superficie UI actual:** `CoachStudyWorkspace.jsx`, `CoachGameAnalysisPage.jsx`, `CoachPgnMoveList.jsx`, `AdvancedMoveAnalysisPanel.jsx`, `LiveEnginePanel.jsx`, hooks `usePgnMoveClassification`, `useSyncPlyClassificationPersistence`.
 
 ---
+
+
+## Revisión de beta · 2026-11-06
+
+Reunión prevista: **lunes 2026-11-09**, con entrenador de **2100 Elo FIDE y 25 años de experiencia como instructor**. Prioridad funcional: refinar FEAT-07, detección de momentos críticos y generación/comparación de candidatas.
+
+**Reportes está pendiente de implementación.** El formulario legado visible no acredita que RPT-FEAT-01…08 estén terminados. Sergio prevé deshabilitar su acceso para evitar confusión; no se da por ejecutado ese cambio. El error de rutas ya estaba detectado y se registra aquí como pendiente.
+
+**Corrección del diagnóstico de corpus:** las partidas propias marcadas como elite provienen de una **actualización manual con alcance inesperado**, según Sergio. No se atribuye a una clasificación automática por nivel. Hay dos operaciones distintas: categoría local (override) y fuente/corpus persistida. Investigar ambas sin modificar datos reales para reproducir.
+
+Evidencia: recorrido autenticado de Render `beta-00035f0` el 2026-11-06; código de `main` en `b7d18587f2ede20fecd51d3085bf07d741a7d0e9`. Los hallazgos de código se distinguen de bugs reproducidos en UI y de propuestas todavía sin implementar. Ninguna entrada nueva se considera resuelta por esta actualización documental.
+
+**Guía para la reunión:** [protocolo, posiciones, FEN y plantilla de feedback](../deep_analysis/coach-mental-review-2026-11-09.md). Incluye PGN de ejemplo y casos de control. No depende del módulo Reportes.
 
 ## 3. Issues de UI para MVP de análisis liviano
 
@@ -42,7 +55,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-11</td><td>FEAT-08</td><td>Font tooltip = font movidas PGN</td><td>✅ Done</td><td><code>pgnMoveTextSx</code></td></tr>
 <tr><td>BUG-12</td><td></td><td>Blunders falsos según contexto (ganado/igual/perdido)</td><td>🔄 WIP</td><td><code>coachPedagogicalImpact.js</code>; etiqueta cp sin cambio</td></tr>
 <tr><td>BUG-013</td><td></td><td>Tab Análisis avanzado desaparecía al cambiar PGN</td><td>✅ Done</td><td>Tabs sticky; reset por <code>gameId</code></td></tr>
-<tr><td>FEAT-07</td><td></td><td><strong>Mental 1600</strong> (WASM + chess.js)</td><td>🔄 WIP</td><td>Tab en workspace; M-11 HITL: <a href="../deep_analysis/coach-mental-1600-hitl-checklist.md">checklist</a></td></tr>
+<tr><td>FEAT-07</td><td></td><td><strong>Mental 1600</strong> (WASM + chess.js)</td><td>🔄 WIP</td><td>Tab en workspace; M-11 HITL: <a href="./coach-mental-1600-hitl-checklist.md">checklist</a></td></tr>
 <tr><td>FEAT-014</td><td></td><td>Botón girar tablero</td><td>✅ Done</td><td>#159 — <code>FlipCameraAndroid</code></td></tr>
 <tr><td>BUG-015</td><td></td><td>Numeración por movimiento PGN (no ply)</td><td>✅ Done</td><td>#159 — <code>moveNumberFromPlyCount</code></td></tr>
 <tr><td>BUG-016</td><td></td><td>Tras importar y analizar hasta ply X, reabrir desde Partidas: tablero vs <strong>Análisis avanzado</strong> desincronizados (<a href="../../img/BUG-016.png">captura</a>)</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/165">#165</a> — <code>coachLastGameSession</code> cursor + sin auto-select 1ª decisión servidor</td></tr>
@@ -69,9 +82,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
 <tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>🔄 WIP</td><td>Rama <code>feature/07_038_fen_from_image</code> (local, sin PR). En Posición (FEN) «Pegar imagen» y «Elegir archivo» están deshabilitados, tooltip «En progreso». El recorte del tablero (OpenCV) y el clasificador ONNX están en el working tree; la detección todavía no es confiable para cargar el FEN.</td></tr>
 <tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td></td></tr>
-<tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>✅ Done</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — redirect <code>/games</code></td></tr>
-<tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>✅ Done</td><td><code>App.tsx</code> redirects <code>/chess-board</code></td></tr>
-<tr><td>FEAT-042</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>✅ Done</td><td><code>coach_games</code> + join <code>master_game</code></td></tr>
+<tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>✅ Done</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — redirect <code>/games</code>, <code>AppShell</code></td></tr>
+<tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>✅ Done</td><td><code>App.tsx</code> redirects <code>/chess-board</code> → <code>/coach/position</code></td></tr>
+<tr><td>FEAT-042</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>✅ Done</td><td><code>coach_games</code> + join <code>master_game</code>; Partidas canónica en Coach</td></tr>
 <tr><td>FEAT-043</td><td>FEAT-045</td><td>Partidas: eliminar selección / icono — confirmación con badge (sin <code>window.confirm</code>)</td><td>✅ Done</td><td><code>feature/11_154_bug_044_feat_043_045_coach_ux</code> — <code>CoachGamesPanel</code></td></tr>
 <tr><td>BUG-044</td><td>FEAT-036</td><td>Correspondencia: reloj en días (<code>1/86400</code>); PGN anotado multilínea = una sola partida</td><td>✅ Done</td><td><code>game_description</code>, <code>normalize_pgn_text_for_parse</code> — HITL OK</td></tr>
 <tr><td>FEAT-045</td><td>FEAT-08 / FEAT-09</td><td>Menú PGN (borrar desde aquí / quitar variante): confirmación con badge, sin <code>window.confirm</code></td><td>✅ Done</td><td><code>CoachConfirmBadge</code>, <code>CoachStudyWorkspace</code></td></tr>
@@ -80,26 +93,26 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 2. Configuración: crear/editar categorías y reglas (<code>CoachGameCategoriesSettings</code>).
 3. Desde Partidas: asignar o cambiar categoría por fila (selector en columna Fuente).
 4. Asignación masiva: selector «Asignar a selección» para las filas marcadas.
-5. Opción <strong>Automática (reglas)</strong> quita la asignación manual (override en <code>localStorage</code>).</td><td>✅ Done</td><td>HITL OK — overrides + bulk en Partidas</td></tr>
+5. Opción <strong>Automática (reglas)</strong> quita la asignación manual (override en <code>localStorage</code>).</td><td>✅ Done</td><td>HITL OK — <code>feature/11_166_feat_046_category_assign</code> — overrides + bulk</td></tr>
 <tr><td>FEAT-047</td><td></td><td>
-1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, escala ±2000 cp. 
-2. En eje x poner numero de jugadas. 
-3. Habilitar opción de mostrar el valor de cada punto como tooltip. 
+1. En panel de analisis mostrar en gráfico de lineas la variación de cp, con el cero en el medio horizontal, escala ±2000 cp (≈ ±20 peones).
+2. En eje x poner numero de jugadas.
+3. Habilitar opción de mostrar el valor de cada punto como tooltip.
 4. Habilitar que en click se desplace el tablero al movimiento correspondiente.
-5. Eval en UI: + blancas / − negras (estándar); clasificación CA en POV jugador.</td><td>✅ Done</td><td><code>formatStandardEval</code></td></tr>
+5. Eval en UI (gráfico, PGN, motor WASM, MultiPV): convención estándar + blancas / − negras (como Lichess), sin invertir por POV del jugador; la clasificación CA sigue en POV jugador.</td><td>✅ Done</td><td><code>CoachEvalCpChart</code>, <code>formatStandardEval</code></td></tr>
 <tr><td>FEAT-048</td><td></td><td>En lista de partidas editar descripción (Partida) y resultado inline (lápiz; 1-0 / 0-1 / 1/2-1/2 / Sin resultado)</td><td>✅ Done</td><td><code>CoachGamesPanel</code> — PATCH <code>/api/v1/module07/games/{id}</code></td></tr>
 <tr><td>BUG-049</td><td></td><td>A cargar una pgn desde FEN de una posición no iniclal, no da error pero carga parida vacia</td><td>✅ Done</td><td><code>ensure_fen_setup_headers</code>, <code>coachPgnReplay</code> SetUp + replay desde FEN</td></tr>
-<tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code></td></tr>
-<tr><td>FEAT-051</td><td></td><td>En tablas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente, Resultado </td><td>✅ Done</td><td><code>feature/11_159_feat_051_partidas_sort</code></td></tr>
-<tr><td>FEAT-052</td><td>FEAT-054</td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>✅ Done</td><td>HITL OK — Coach → Configuración</td></tr>
-<tr><td>FEAT-053</td><td>FEAT-061</td><td>Agrega cuadro de texto para cargar comentarios para movidas en particular</td><td>✅ Done</td><td>HITL OK — <code>CoachPlyAnnotationPanel</code> · <a href="https://github.com/cmessoftware/chessinsightai/pull/197">#197</a></td></tr>
-<tr><td>FEAT-054</td><td></td><td>Menú Configuración en Coach; primer ítem: columnas Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code></td></tr>
-<tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code></td></tr>
-<tr><td>FEAT-056</td><td>FEAT-052</td><td>Agregar a tabla y configuracion campo Ritmo</td><td>✅ Done</td><td>HITL OK — PR #193</td></tr>
-<tr><td>FEAT-057</td><td>FEAT-054</td><td>En páginas Configuración poner cada grupo como tablas apilables y colapsables.</td><td>✅ Done</td><td>HITL OK — <code>CoachConfigSectionAccordion</code></td></tr>
-<tr><td>FEAT-058</td><td></td><td>Incluir la lista de Jobs en un panel colapsable y paginar a 5 items por página</td><td>✅ Done</td><td>HITL OK — <code>CoachGamesPanel</code></td></tr>
-<tr><td>FEAT-059</td><td></td><td>Paginar lista de partidas a 20 items por página</td><td>✅ Done</td><td>HITL OK — <code>CoachGamesPanel</code></td></tr>
-<tr><td>BUG-060</td><td>FEAT-047</td><td>Saturación en ±100 cp; mates Mx cerca de 0 → escala ±2000 y banda ganadora para mate</td><td>✅ Done</td><td><code>playerScoreToChartCp</code></td></tr>
+<tr><td>FEAT-050</td><td></td><td>Replicar campos faltantes del módulo Partidas a módulo Coach: ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente </td><td>✅ Done</td><td><code>feature/11_158_feat_050_coach_catalog_fields</code> — API + <code>CoachGamesPanel</code></td></tr>
+<tr><td>FEAT-051</td><td></td><td>En tablas Partidas permitir ordenar por Jugador Negras, Jugador Blancas, ECO, Elo Negras, Elo Blancas, Descripcion Apertura, Fecha, Fuente,Analisis, Resultado </td><td>✅ Done</td><td><code>feature/11_159_feat_051_partidas_sort</code> — <code>CoachGamesPanel</code> + <code>coachGamesSort</code></td></tr>
+<tr><td>FEAT-052</td><td>FEAT-054</td><td>Agregar soporte para agregar o eliminar campos a viazualizar en la tabla</td><td>✅ Done</td><td>HITL OK — <code>feature/11_160_feat_052_table_columns</code> — Coach → Configuración</td></tr>
+<tr><td>FEAT-053</td><td>FEAT-061</td><td>Agrega cuadro de texto para cargar comentarios para movidas en particular</td><td>✅ Done</td><td>HITL OK — <code>CoachPlyAnnotationPanel</code> (pestaña Comentario, debajo del tablero; autoguardado por ply) · mismo entregable que FEAT-061 · <a href="https://github.com/cmessoftware/chessinsightai/pull/197">#197</a></td></tr>
+<tr><td>FEAT-054</td><td></td><td>Menú <strong>Configuración</strong> en Coach (subnav) para preferencias de UI; primer ítem: columnas visibles en Partidas (FEAT-052)</td><td>✅ Done</td><td>HITL OK — <code>/coach/configuracion</code>, <code>CoachConfiguracionPage</code></td></tr>
+<tr><td>FEAT-055</td><td></td><td>En campo Partida, mostrar solo Jugador blancas vs jugador negras</td><td>✅ Done</td><td>HITL OK — <code>feature/11_161_feat_055_partida_players_label</code> — <code>formatCoachPartidaTableLabel</code></td></tr>
+<tr><td>FEAT-056</td><td>FEAT-052</td><td>Agegar a tabla y configuracion campo "Ritmo"</td><td>✅ Done</td><td>HITL OK — PR #193</td></tr>
+<tr><td>FEAT-057</td><td>FEAT-054</td><td>En paginas Configuración poner cada grupo como tablas apilables y colapsables.</td><td>✅ Done</td><td>HITL OK — <code>feature/11_165_feat_057_config_accordion</code> — <code>CoachConfigSectionAccordion</code></td></tr>
+<tr><td>FEAT-058</td><td></td><td>Incluir la lista de Jobs en un panel colapsable y paginar a 5 items por página</td><td>✅ Done</td><td>HITL OK — <code>feature/11_167_feat_058_059_partidas_pagination</code></td></tr>
+<tr><td>FEAT-059</td><td></td><td>Paginar lista de partidas a 20 items por página</td><td>✅ Done</td><td>HITL OK — selección entre páginas</td></tr>
+<tr><td>BUG-060</td><td>FEAT-047</td><td>Gráfico cp saturado en ±100; mates (M1…) cerca de 0; escala ±2000 cp y <code>mateScoreToChartCp</code></td><td>✅ Done</td><td><code>playerScoreToChartCp</code></td></tr>
 <tr><td>FEAT-061</td><td></td><td>Agregar soporte para agregar comentarios por movida, incluida opción para etiquetar la movida (?,??,!!,!?,?!,-+,+-,==)</td><td>✅ Done</td><td>HITL OK — <code>CoachPlyAnnotationPanel</code> — <a href="https://github.com/cmessoftware/chessinsightai/pull/197">#197</a></td></tr>
 <tr><td>FEAT-062</td><td></td><td>Agregar soporte gráfico para elegir qué pieza coronar; desplegar menú con piezas sobre la casilla de coronación</td><td>✅ Done</td><td>HITL OK — <code>CoachPromotionPicker</code> — <a href="https://github.com/cmessoftware/chessinsightai/pull/198">#198</a></td></tr>
 <tr><td>FEAT-063</td><td>UI-G2</td><td>Filtros avanzados en <strong>Coach → Partidas</strong> (fuente, jugadores con <code>*</code>, ECO, apertura, fecha, resultado); AND/OR según [UI-G2](./coach-games-catalog-unify-mini-plan.md#ui-g2); API listado Coach con query params; complementa chips FEAT-046</td><td>✅ Done</td><td>HITL OK — <code>feature/11_065_partidas_opening_combo</code> (063–065); ver también FEAT-064/065</td></tr>
@@ -113,22 +126,22 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-072</td><td>FEAT-021</td><td>En lista de <strong>Partidas</strong>, botón para <strong>exportar</strong> el PGN (con variantes guardadas en catálogo) de las partidas seleccionadas</td><td>✅ Done</td><td><code>CoachGamesPanel</code> · <code>coachGamesPgnExport.js</code> · <code>feature/11_072_export_selected_pgn</code></td></tr>
 <tr><td>FEAT-073</td><td>FEAT-072</td><td>Agregar además botón «Ocultar panel PGN» a la izq. del botón «Guardar estudio» dentro del panel</td><td>✅ Done</td><td><code>CoachPgnMoveList</code> · <code>CoachStudyWorkspace</code> · #209</td></tr>
 <tr><td>BUG-074</td><td>FEAT-073</td><td>Al ocultar movidas del panel PGN, el contenedor conservaba <code>minHeight</code> vacío y el tablero no ampliaba ancho útil</td><td>✅ Done</td><td>Layout Grid + tope 640 px al colapsar · #209</td></tr>
-<tr><td>FEAT-075</td><td>FEAT-08</td><td>Círculos de color en casillas (clic derecho + modificadores; clic izquierdo quita; reutilizable sparring)</td><td>✅ Done</td><td>HITL · <code>feature/11_075_square_color_circles</code></td></tr>
-<tr><td>FEAT-076</td><td>FEAT-08</td><td>Icono en el panel PGN que muestra el encabezado importado en una tabla (tags y valores)</td><td>✅ Done</td><td><code>CoachPgnHeadersDialog</code></td></tr>
-<tr><td>BUG-077</td><td>FEAT-073</td><td>«Ocultar panel PGN» en tablero normal rompía el layout; el control queda solo en pantalla completa</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code></td></tr>
-<tr><td>FEAT-078</td><td>FEAT-064</td><td>Fuente (corpus) masiva para las partidas seleccionadas</td><td>✅ Done</td><td><code>POST /games/bulk-corpus</code></td></tr>
-<tr><td>FEAT-079</td><td>FEAT-061</td><td>Pantalla completa: control de comentario de la jugada colapsado por defecto</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code></td></tr>
-<tr><td>FEAT-080</td><td>FEAT-019</td><td>Pantalla completa: ←/→, Inicio y Fin mueven la partida igual que en el tablero normal</td><td>✅ Done</td><td>HITL OK — <code>usePgnKeyboardNav</code></td></tr>
-<tr><td>BUG-081</td><td>FEAT-075</td><td>Círculo de color solo en la jugada marcada; no se arrastra a jugadas anteriores ni siguientes</td><td>✅ Done</td><td>HITL OK — <code>squareCirclesForPath</code></td></tr>
-<tr><td>FEAT-082</td><td></td><td>Beta 1: nombre ChessDash y debajo <code>beta-&lt;commit&gt;</code></td><td>✅ Done</td><td>HITL OK — <code>ProductMark</code></td></tr>
-<tr><td>FEAT-083</td><td>FEAT-076 / FEAT-08</td><td>Partida desde cero en el tablero de análisis y encabezado PGN editable</td><td>✅ Done</td><td>HITL OK — <code>Nueva partida</code> · <code>CoachPgnHeadersDialog</code></td></tr>
-<tr><td>BUG-084</td><td>FEAT-09 / BUG-067</td><td>La última jugada no muestra la opción de borrarla en el menú contextual</td><td>✅ Done</td><td>HITL OK — <code>deleteLeafMoveAtPath</code></td></tr>
-<tr><td>FEAT-085</td><td>FEAT-08</td><td>Variante secundaria a línea principal, y el inverso: tramo de la línea principal a variante secundaria</td><td>✅ Done</td><td>HITL OK — <code>promotePathToMainLine</code> · <code>demoteMainLineAtPath</code></td></tr>
-<tr><td>FEAT-086</td><td>FEAT-061</td><td>Comentario debajo de su jugada; la variante que presenta va antes de seguir la línea principal. Sin variante, los dos plies quedan en la misma línea</td><td>✅ Done</td><td>HITL OK</td></tr>
+<tr><td>FEAT-075</td><td>FEAT-08</td><td>Agregar soporte para insertar círculo de colores en casilla del tablero de análisis (reutilizable a sparring): 1. botón derecho = verde; 2. Ctrl + botón derecho = rojo; 3. Alt + botón derecho = azul; 4. Ctrl+Alt + botón derecho = naranja (repetir mismo gesto quita el anillo); 5. clic izquierdo en casilla marcada quita el círculo</td><td>✅ Done</td><td>HITL · <code>feature/11_075_square_color_circles</code> — <code>coachBoardSquareCircles.js</code>, <code>ChessinsightBoard</code></td></tr>
+<tr><td>FEAT-076</td><td>FEAT-08</td><td>Botón (icono) en el panel PGN del análisis que abre una tabla con los tags del encabezado importado (Event, Site, Date, Round, White, Black, Result, Elo, ECO, Annotator, StudyCategory y el resto), en el orden del PGN</td><td>✅ Done</td><td><code>CoachPgnHeadersDialog</code> · <code>listPgnHeaderRows</code></td></tr>
+<tr><td>BUG-077</td><td>FEAT-073</td><td>En el tablero normal, «Ocultar panel PGN» rompía el layout (columna del tablero aplastada). El botón queda solo en pantalla completa</td><td>✅ Done</td><td><code>CoachStudyWorkspace</code> · icono en <code>CoachBoardFullscreenOverlay</code></td></tr>
+<tr><td>FEAT-078</td><td>FEAT-064</td><td>En Partidas, cambiar la fuente (corpus: personal, elite, FIDE, novice, stockfish) de todas las filas seleccionadas</td><td>✅ Done</td><td><code>POST /games/bulk-corpus</code> · «Fuente de la selección»</td></tr>
+<tr><td>FEAT-079</td><td>FEAT-061</td><td>En pantalla completa, el control de comentario y etiqueta de la jugada (el mismo del modo normal) aparece colapsado por defecto, debajo de las flechas</td><td>✅ Done</td><td><code>CoachPlyAnnotationPanel</code> · <code>CoachBoardFullscreenOverlay</code></td></tr>
+<tr><td>FEAT-080</td><td>FEAT-019</td><td>En pantalla completa, las mismas teclas del tablero normal mueven la partida: ←/→ retrocede y avanza, Inicio y Fin van a la primera posición y al final de la rama. No actúan mientras se escribe un comentario</td><td>✅ Done</td><td>HITL OK — <code>usePgnKeyboardNav</code> · <code>CoachBoardFullscreenOverlay</code></td></tr>
+<tr><td>BUG-081</td><td>FEAT-075</td><td>El círculo de color queda en la casilla al cambiar de jugada. Debe verse y persistir solo en la jugada donde se marcó: ni en las anteriores ni en las siguientes. Ejemplo: anillo verde en e3 en la jugada 18; en la 17 esa casilla no lo muestra; al volver a la 18 reaparece</td><td>✅ Done</td><td>HITL OK — <code>squareCirclesForPath</code> · localStorage por jugada</td></tr>
+<tr><td>FEAT-082</td><td></td><td>Beta 1: el nombre visible pasa a ChessDash y, debajo, la etiqueta <code>beta-&lt;commit&gt;</code> tomada de <code>VERSION</code></td><td>✅ Done</td><td>HITL OK — <code>ProductMark</code> · barra, login y tablero</td></tr>
+<tr><td>FEAT-083</td><td>FEAT-076 / FEAT-08</td><td>Cargar una partida desde cero en el tablero de análisis (posición inicial, sin jugadas) y editar el encabezado del PGN (tags y valores). Al guardar, el PGN de la partida conserva las jugadas</td><td>✅ Done</td><td>HITL OK — <code>Nueva partida</code> · <code>CoachPgnHeadersDialog</code></td></tr>
+<tr><td>BUG-084</td><td>FEAT-09 / BUG-067</td><td>En el menú contextual de la última jugada (sin continuación) no aparece la opción de borrarla. Debe poder borrarse, también si es la última de la línea principal</td><td>✅ Done</td><td>HITL OK — <code>deleteLeafMoveAtPath</code> · «Borrar esta jugada»</td></tr>
+<tr><td>FEAT-085</td><td>FEAT-08</td><td>Pasar una variante secundaria a línea principal (PV), y el inverso: pasar una jugada de la línea principal (y lo que sigue) a variante secundaria cuando ya hay otra línea en esa posición</td><td>✅ Done</td><td>HITL OK — <code>promotePathToMainLine</code> · <code>demoteMainLineAtPath</code></td></tr>
+<tr><td>FEAT-086</td><td>FEAT-061</td><td>Con variante, el comentario queda debajo de su jugada y la variante se inserta antes de seguir la línea. Sin variante, los dos plies siguen en la misma línea y el comentario va después de su jugada</td><td>✅ Done</td><td>HITL OK — comentario después de la jugada; con variante, la variante va antes de la continuación</td></tr>
 <tr><td>FEAT-087</td><td></td><td>Agregar campo "Analisis Manual" tipo bool para indicar cuando se hizo.</td><td>✅ Done</td><td>HITL OK — <code>coach_games.manual_analysis</code> · checkbox en Partidas</td></tr>
-<tr><td>FEAT-088</td><td></td><td>En talba Partidas permitir ordenamiento de columnas usando drag&amp;drop</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-088</td><td></td><td>En tabla Partidas permitir ordenamiento de columnas usando drag&amp;drop</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-089</td><td></td><td>Agregar spinner indicando que se está procesando la importación de las partias, en todos los casos implementados.</td><td>✅ Done</td><td>HITL OK — <code>CoachImportProgress</code> · PGN, Lichess y Chess.com</td></tr>
-<tr><td>BUG-090</td><td></td><td>En modo full screen de tablero de analisis mostrar en la misma fila superior descripción de la partida, por ejemplo: DanielCorralBono vs cmess1315 · POV cmess1315 (Rapid 10+5)</td><td>✅ Done</td><td>HITL OK — descripción en la barra superior de <code>CoachBoardFullscreenOverlay</code></td></tr>
+<tr><td>BUG-090</td><td></td><td>En modo full screen de tablero de analisis mostrar en la misma fila superior descripción de la partida, por ejemplo: Jugador A vs Jugador B · POV Jugador B (Rapid 10+5)</td><td>✅ Done</td><td>HITL OK — descripción en la barra superior de <code>CoachBoardFullscreenOverlay</code></td></tr>
 <tr><td>FEAT-091</td><td></td><td>Cuando se asigne un simbolo a ua movida representarolo en el tablero como icono en la parte superior derecha de la pieza en cuestión. Simil Lichess.</td><td>✅ Done</td><td>HITL OK — glifo en la esquina superior derecha de la pieza que acaba de mover</td></tr>
 <tr><td>FEAT-092</td><td></td><td>Mostrar el resultado al final de la lista PGN (1-0, 0-1 o tablas). Hoy, si la partida es tablas, no aparece nada después de la última jugada</td><td>✅ Done</td><td>HITL OK — el rótulo queda debajo de la última jugada</td></tr>
 <tr><td>FEAT-093</td><td></td><td>Agregar panel colapsable debajo en el panel pgn con el resultado del proceso ya existente chess_estatics </td><td>✅ Done</td><td>HITL OK — panel bajo el PGN lee Postgres; mini plan EST-FEAT-01…06 — <a href="./feat-093-chess-statistics-postgres-mini-plan.md">mini plan</a></td></tr>
@@ -140,9 +153,22 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 </table>
 
 
+
+## Bugs y mejoras de beta / biblioteca
+
+<table>
+<thead><tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
+<tbody>
+<tr><td>BUG-098</td><td>FEAT-030 / FEAT-082</td><td>Rutas de la SPA: acceso directo a <code>/reports</code> devuelve Not Found aunque la navegación interna funciona.</td><td>Todo · P1 · observado</td><td>Ya conocido por Sergio. Configurar fallback a index.html preservando assets/API y rutas no existentes. Aceptación: pegar URL, refrescar y abrir nueva pestaña en login, Partidas, análisis por ID, FEN y configuración; conservar guardas de sesión. /reports se prueba cuando se rehabilite.</td></tr>
+<tr><td>BUG-099</td><td>FEAT-046 / FEAT-078 / BUG-037</td><td>Asignación manual de categoría o corpus alcanza partidas que el usuario no pretendía seleccionar.</td><td>Todo · P0 · reportado</td><td>Código: al entrar se preseleccionan todas las queueableGames; el checkbox superior solo alterna la página. Los handlers masivos usan todo selectedIds. Explica un posible alcance oculto, pero falta reproducir el recorrido exacto y verificar backend. No cambiar datos históricos por inferencia. Cerrar solo con prueba de IDs solicitados/actualizados y cero filas ajenas.</td></tr>
+<tr><td>FEAT-100</td><td>BUG-099</td><td>Selección masiva explícita y alcance visible.</td><td>Todo · P0</td><td>Estado inicial sin selección para edición; separar selección de análisis de selección de edición. Mostrar N total, N visibles y N en otras páginas; acciones distintas para página / resultados filtrados / limpiar todo. Vista previa de alcance antes de aplicar. Sin selección = no-op; jamás fallback a toda la biblioteca. Refresco no agrega IDs.</td></tr>
+<tr><td>FEAT-101</td><td>BUG-099 / FEAT-100</td><td>Distinguir categoría visual de fuente/corpus y registrar cambios manuales.</td><td>Todo · P1</td><td>Mostrar origen: regla automática, override local o corpus persistido. Resumen de valores previos/nuevos, IDs modificados/rechazados y conteo; restauración del lote mediante valores anteriores. Cambiar corpus hoy borra overrides de los IDs actualizados: hacer ese efecto visible y acordar si debe mantenerse.</td></tr>
+</tbody>
+</table>
+
 ## Features del módulo de reportes
 
-Menú nuevo **Módulo de Reportes**. Cada reporte se muestra en el sistema y se puede generar en PDF o en Markdown.
+Módulo pendiente. La pantalla heredada no se presenta como funcionalidad terminada. Diseño previsto: menú **Módulo de Reportes**, visualización en el sistema y salida PDF o Markdown.
 
 <table>
 <thead>
@@ -172,6 +198,13 @@ ganadas por tiempo.
 </tbody>
 </table>
 
+<table>
+<thead><tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
+<tbody>
+<tr><td>RPT-FEAT-09</td><td>RPT-FEAT-01…08</td><td>Ocultar o deshabilitar temporalmente los accesos a Reportes mientras el módulo esté pendiente.</td><td>Todo · P1 · decisión de producto</td><td>Sergio indica que realizará el cambio. Cubrir tarjeta de Home, sidebar y ruta directa con mensaje de no disponibilidad; sin formulario operativo aparente. No marcar Done hasta verificar despliegue. Reportes no bloquea la sesión de FEAT-07.</td></tr>
+</tbody>
+</table>
+
 ## Features del módulo de estadísticas
 
 El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido y pasa a Postgres. El panel de FEAT-093 lee estas tablas. Detalle: <a href="./feat-093-chess-statistics-postgres-mini-plan.md">mini plan</a>.
@@ -190,6 +223,17 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 </tbody>
 </table>
 
+## Incidencias de estadísticas en beta
+
+<table>
+<thead><tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
+<tbody>
+<tr><td>EST-BUG-01</td><td>EST-FEAT-05 / FEAT-093</td><td>Calcular estadísticas en Render termina en Network Error.</td><td>Todo · P1 · observado</td><td>Partida propia analizada durante el recorrido; identificador conservado en el material privado de revisión. Panel mantiene vacío tras la acción. Causa no confirmada: revisar respuesta HTTP, duración, logs de API y disponibilidad del motor. No atribuirlo automáticamente a CORS. Aceptación: una sola partida calculada, ambas columnas, reabrir conserva resultado y no modifica otras filas.</td></tr>
+<tr><td>EST-BUG-02</td><td>EST-FEAT-03</td><td>Fuente de evaluación se registra como lichess para cualquier PGN con evals completas.</td><td>Todo · P1 · código</td><td><code>coach_game_statistics_compute.py</code>: SOURCE_EXPORT = lichess. Distinguir proveedor de importación, evaluación embebida y motor/version/profundidad cuando estén informados. Origen desconocido permanece desconocido; no inventar procedencia.</td></tr>
+<tr><td>EST-FEAT-07</td><td>EST-BUG-01</td><td>Estado y errores accionables al calcular estadísticas.</td><td>Todo · P1</td><td>Mostrar cálculo en curso, fallo y reintento; separar error de cálculo de ausencia de estadísticas. Si el tiempo de procesamiento requiere job, diseñarlo antes de asumir un timeout mayor. No presentar ceros como cálculo exitoso.</td></tr>
+</tbody>
+</table>
+
 ## Features y bugs de login y seguridad.
 
 <table>
@@ -200,7 +244,7 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><td>LOG-FEAT-01</td><td></td><td>Soporte para login con usuario de Google</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>LOG-FEAT-02</td><td></td><td>Soporte para login con usuario de Chess.com</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td></td></tr>
-<tr><td>LOG-FEAT-04</td><td></td><td>Gestión usuarios/roles admin|user (solo admin)</td><td>✅ Done</td><td>HITL · <code>/admin/users</code></td></tr>
+<tr><td>LOG-FEAT-04</td><td></td><td>Módulo de gestión de usuarios y roles (<code>admin</code>, <code>user</code>), accesible solo para admin</td><td>✅ Done</td><td>HITL · <code>/admin/users</code>, API <code>/api/auth/users</code></td></tr>
 <tr><td>LOG-FEAT-05</td><td></td><td>opción de cambio de pass (solo admin)</td><td>✅ Done</td><td>HITL OK — cambio de contraseña en <code>/admin/users</code></td></tr>
 <tr><td>LOG-FEAT-06</td><td></td><td>Modulo de gestión de grupos</td><td>⬜ Todo</td><td>
 1. ABM de grupos.
@@ -208,11 +252,11 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
    2. Asignación de un grupo al crear o modificar un usuario.
    3. Asignación de roles al grupo.
 </td></tr>
-<tr><td>LOG-FEAT-07</td><td></td><td>Rol de Instructor</td><td>⬜ Todo<</td><td>
+<tr><td>LOG-FEAT-07</td><td></td><td>Rol de Instructor</td><td>⬜ Todo</td><td>
     1. Rol de user
     2. Agregar permisos para gestionar grupos de alumnos.
 </td></tr>
-<tr><td>LOG-FEAT-08</td><td></td><td>Rol de Instructor</td><td>⬜ Todo<</td><td>
+<tr><td>LOG-FEAT-08</td><td></td><td>Rol de Instructor</td><td>⬜ Todo</td><td>
     1. Agregar permisos para gestionar partidas de alumnos / grupos de alumnos.
        1. Clonar estudios completos o partidas seleccionadas por filtro avanzado.
        2. Insertar nuevas partidas/estudios desde menu "insertar partidas" a un alumno o grupo de alumnos.
@@ -235,6 +279,53 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 </tbody>
 </table>
 
+## Modelo mental · críticas y candidatas (FEAT-07)
+
+Estado global **WIP**: M-1…M-10 implementados no implica validación pedagógica ni corrección de todos los detectores. Los hallazgos siguientes provienen de revisión estática; todavía no se ejecutaron pruebas funcionales de corrección. El entrenador valida utilidad didáctica; los fixtures validan semántica del tablero. No bloquear toda la beta por Reportes, pero no cerrar M-11 con P0 de modelo pendientes.
+
+**Alcance de FEAT-07:** rapid o ritmos más lentos (clásicas y correspondencia). Blitz y bullet excluidos de análisis mental, ejemplos, calibración y pruebas pedagógicas. Implementar guarda explícita por ritmo; los ritmos excluidos solo intervienen en controles negativos de admisión, sin generar assessment. Referencias sin reloj: ejercicio sin límite, fuera de métricas por ritmo hasta verificar origen.
+
+### Bugs / verificaciones técnicas
+
+<table>
+<thead><tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
+<tbody>
+<tr><td>MENT-BUG-01</td><td>FEAT-07 / M-2 / M-6</td><td>Detección de ataques/defensas basada en jugadas legales del bando al turno.</td><td>Todo · P0 · código</td><td><code>isAttackedBy</code> filtra <code>chess.moves()</code> por color: no calcula ambos colores ni defensores sobre piezas propias. Afecta E1/E2/E7/E8 y S1/S4. Usar mapa de ataques/defensas y separar ataque geométrico, captura legal y pieza realmente ganable. Validar clavadas, peones, reyes y piezas defendidas; no afirmar material gratis sin cálculo.</td></tr>
+<tr><td>MENT-BUG-02</td><td>FEAT-07 / M-2</td><td>Los triggers pierden la última jugada rival al reconstruir Chess desde FEN.</td><td>Todo · P0 · código</td><td><code>assessDecisionPoint</code> reconstruye lastOpponentVerbose pero solo lo entrega a <code>detectNotableCritical</code>; <code>detectTriggers</code> consulta history vacío. Además E4 intenta volver a aplicar la jugada previa sobre la posición actual. Pasar contexto explícito y comparar before/after correctos. Caso: captura central y avance de peón con tempo en PGN y variante.</td></tr>
+<tr><td>MENT-BUG-03</td><td>FEAT-07 / M-6</td><td>S2 confunde dar jaque con dejar al propio rey en jaque.</td><td>Todo · P0 · código</td><td>Tras trial.move cambia el turno; <code>trial.inCheck()</code> consulta el rey rival. Dar un jaque legal puede disparar S2. Usar rey/color explícito; rechazar jugadas ilegales por legalidad. Fixture: e4 e5 Qh5 Nc6 Bc4 Nf6 Qxf7# no debe alertar S2 por dar mate.</td></tr>
+<tr><td>MENT-BUG-04</td><td>FEAT-07 / M-5</td><td>Taxonomía de candidatas incompleta y amenaza D2 calculada con el turno equivocado.</td><td>Todo · P1 · código</td><td>D4 no tiene retorno; D2 inspecciona trial.moves del rival y exige objetivo del mismo color rival. Separar amenaza propia, defensa/profilaxis y plan posicional con evidencia; admitir etiqueta no determinada. Captura o jaque no implica candidata buena ni prioridad final.</td></tr>
+<tr><td>MENT-BUG-05</td><td>FEAT-07 / M-3 / M-5</td><td>E10 afirma evaluaciones cercanas solo por contar tres candidatas.</td><td>Todo · P1 · código</td><td>El hook pasa cantidad de UCI; no se comprueba cercanía de scores. Transportar scores, POV, mate y profundidad; computar diferencia comparable. Sin scores: no afirmar cercanía. MultiPV=3 por configuración no demuestra dificultad.</td></tr>
+<tr><td>MENT-BUG-06</td><td>FEAT-07 / M-3 / BUG-12</td><td>El modo crítico puede depender del error ya cometido.</td><td>Todo · P0 · diseño/código</td><td>El hook usa bestScore y playedScore de la decisión; su diferencia retrospectiva entra en critical/E11. No equivale a detectar necesidad de cálculo antes de mover. Separar diagnóstico previo de revisión posterior; al variar jugada realizada manteniendo posición/contexto, la criticidad previa debe permanecer estable.</td></tr>
+<tr><td>MENT-BUG-07</td><td>FEAT-07 / M-9</td><td>FEN y bando del tablero pueden no coincidir con la decisión explicada.</td><td>Todo · P1 · verificar UI</td><td>El hook analiza parent.fen al seleccionar la jugada ya realizada; en un punto crítico de job el cursor puede estar antes de la decisión. Mostrar explícitamente FEN, turno, movimiento objetivo y fuente cliente/job. Probar selección PGN, crítica, variante, negras y girar tablero. Registrar discrepancia antes de cambiar contrato.</td></tr>
+</tbody>
+</table>
+
+### Mejoras a implementar
+
+<table>
+<thead><tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
+<tbody>
+<tr><td>MENT-FEAT-01</td><td>FEAT-07 / M-11</td><td>Validación humana ciega de criticidad y candidatas.</td><td>Todo · P0</td><td>Sesión 2026-11-09; entrenador 2100 FIDE/25 años. Primero juicio humano sin motor ni continuación, después UI y finalmente motor. Conservar discrepancias con motivo y FEN; no tratar la opinión de un revisor como verdad universal.</td></tr>
+<tr><td>MENT-FEAT-02</td><td>MENT-BUG-06</td><td>Separar modo ejercicio previo y revisión posterior.</td><td>Todo · P1</td><td>Ejercicio: amenaza rival, 2–3 candidatas del alumno, mejor respuesta rival y elección razonada antes de revelar partida/eval. Revisión: comparar elección, continuación jugada y evidencia motor. No filtrar eval_after, jugada futura ni resultado hacia diagnóstico previo.</td></tr>
+<tr><td>MENT-FEAT-03</td><td>MENT-BUG-04 / M-5</td><td>Candidatas legibles y contrastables.</td><td>Todo · P1</td><td>Mostrar SAN, idea, motivo de inclusión, respuesta rival exigente y descarte concreto; UCI solo técnico. D1–D5 agrupa tipos, no sustituye ranking objetivo. Mantener ranking motor separado del orden didáctico y permitir defensa, profilaxis o mejora tranquila; máximo 2–3 opciones iniciales, ampliables.</td></tr>
+<tr><td>MENT-FEAT-04</td><td>MENT-BUG-01 / M-3</td><td>Criticidad explicada con evidencia de la posición.</td><td>Todo · P1</td><td>Explicar casillas/piezas, amenaza o transformación y qué verificar. Distinguir forzada, táctica, estratégica y tranquila; una única respuesta legal no exige comparar tres candidatas. Crit no es gravedad del error. Reemplazar crit 9.7 aislado por significado y escala documentada; calibración aún pendiente.</td></tr>
+<tr><td>MENT-FEAT-05</td><td>MENT-FEAT-01 / M-11</td><td>Corpus equilibrado para evaluar el modelo.</td><td>Todo · P1</td><td>Admitir solo rapid, clásicas y correspondencia; excluir blitz y bullet del análisis mental, ejemplos y validación. Separar propias/elite, ritmos admitidos, blancas/negras, críticas/tranquilas y tácticas/estratégicas. Ritmo desconocido requiere verificación antes de métricas por ritmo. Congelar muestra antes de ver salidas. Medir omisiones y falsas alarmas por estrato; no medir solo coincidencia con la primera línea del motor. Ampliar muestra con posiciones estratégicas elegidas por el entrenador.</td></tr>
+<tr><td>MENT-FEAT-06</td><td>M-4</td><td>Pausa orientativa y modo tranquilo con chequeo de seguridad.</td><td>Todo · P1</td><td>No presentar 10 s como regla universal. Bloquear assessment en blitz/bullet con mensaje de alcance; permitir rapid, clásicas y correspondencia. Considerar ritmo numérico PGN, incremento, reloj si existe y complejidad; si falta reloj declarar dato ausente. No penalizar ajedrez diario con una pausa artificial. Revisar parseo 600+5, 900+10, clásicas y 1/259200; 300 s se usa únicamente como control negativo de admisión y debe rechazarse para análisis mental; Elo por sí solo no valida el tiempo.</td></tr>
+<tr><td>MENT-FEAT-07</td><td>MENT-FEAT-01</td><td>Registro reproducible de cada revisión.</td><td>Todo · P1</td><td>Guardar versión app/reglas, PGN/FEN, ply y rama, POV, fuente, scores/depth, juicio ciego del instructor y respuesta alumno. Separar no disponible de seguro/sin alerta. Misma posición por PGN y FEN sin contexto debe declarar la información que falta.</td></tr>
+<tr><td>MENT-FEAT-08</td><td>M-6 / M-8</td><td>Advertencias proporcionales y ayudas escalonadas.</td><td>Todo · P1</td><td>S1–S4 sin alertas no certifica seguridad. Sacrificio intencional requiere respuesta y compensación verificadas; no rechazarlo solo por material atacado. Ayudas: pista del cambio → recurso rival → candidatas → línea corta, conservando intento inicial.</td></tr>
+</tbody>
+</table>
+
+### Orden y cierre
+
+1. BUG-099 + FEAT-100: aislar alcance de edición; no corregir corpus histórico sin revisar IDs afectados.
+2. MENT-BUG-01/02/03/06: eliminar errores semánticos y fuga retrospectiva antes de evaluar fiabilidad.
+3. Sesión MENT-FEAT-01: registrar feedback incluso si esos arreglos aún no están desplegados, etiquetando versión y limitaciones.
+4. MENT-BUG-04/05/07 y MENT-FEAT-02…08 según decisiones del instructor.
+5. EST-BUG-01/02 y BUG-098 con verificación en Render; Reportes continúa en backlog.
+
+El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas documentadas de desacuerdo, cero P0 semánticos pendientes y pruebas de regresión de los bugs corregidos. El 80% de acuerdo de M-11 es un criterio exploratorio, no una medida de precisión general del producto. Ver [guía de sesión](../deep_analysis/coach-mental-review-2026-11-09.md).
+
 ### Resumen backlog
 
 <table>
@@ -242,11 +333,11 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07, FEAT-038, FEAT-093</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, EST-FEAT-01…05, RPT-FEAT-01…08</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…08</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Siguiente sugerido (orden):** FEAT-038 (WIP, rama <code>feature/07_038_fen_from_image</code>) / FEAT-039.
+**Prioridad vigente:** corrección de selección masiva y revisión de FEAT-07 para la reunión del 2026-11-09. FEAT-038/039 permanecen en backlog.

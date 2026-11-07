@@ -1,14 +1,18 @@
 # Checklist HITL · Modelo mental 1600 (FEAT-07 / M-11)
 
-**Estado:** Borrador operativo  
-**Spec humana:** diagramas HTML en [`07_cc_detection_algoritms/`](../../../ai_chess_coach_course/07_cc_detection_algoritms/) · informe [`07_cc_human_mental_model_analysis.md`](../../../ai_chess_coach_course/07_cc_human_mental_model_analysis.md)  
-**Mini-plan:** [coach-mental-1600-mini-plan.md](./coach-mental-1600-mini-plan.md) (M-11, gate pre-congelar reglas JS / Phase 2 worker)  
-**Código cliente:** `src/frontend/src/utils/coachMental1600.js` → `MENTAL_MODEL_RULES_VERSION = 'v1'`  
+**Estado:** Borrador operativo · revisión con instructor prevista para 2026-11-09
+
+**Protocolo de esta sesión:** [guía con PGN, FEN, comparación ciega y feedback](./coach-mental-review-2026-11-09.md). Hallazgos MENT-BUG-01…07 abiertos en el tracker; una sesión de feedback no los da por corregidos.
+**Spec humana:** diagramas HTML en [`07_cc_detection_algoritms/`](../../../ai_chess_coach_course/07_cc_detection_algoritms/) · informe [`07_cc_human_mental_model_analysis.md`](../../../ai_chess_coach_course/07_cc_human_mental_model_analysis.md)
+**Mini-plan:** [coach-mental-1600-mini-plan.md](../designs/coach-mental-1600-mini-plan.md) (M-11, gate pre-congelar reglas JS / Phase 2 worker)
+**Código cliente:** `src/frontend/src/utils/coachMental1600.js` → `MENTAL_MODEL_RULES_VERSION = 'v1'`
 **UI:** pestaña **Mental 1600** · `Mental1600Panel.jsx` · hook `useMental1600Assessment.js`
 
 **Relación con CA-8:** [coach-classification-hitl-checklist.md](./coach-classification-hitl-checklist.md) valida **§1 / §3** (badges y impacto). Este HITL valida **cómo pensar** (modo fast/critical, E1–E11, notable, S1–S4, plan G/H/S). Pueden ejecutarse en la **misma sesión** de revisión por ply.
 
 ---
+
+**Alcance:** solo rapid, clásicas y correspondencia. Blitz y bullet quedan excluidos de la muestra, los ejemplos y la validación del análisis mental; no generar assessment para esos ritmos.
 
 ## 1. Objetivo del HITL
 
@@ -128,7 +132,7 @@ Hasta entonces: FEAT-07 MVP cliente usable; **no** marcar paridad Python↔JS ob
 
 ## 8. Referencias
 
-- [coach-mental-1600-mini-plan.md](./coach-mental-1600-mini-plan.md) — entregas M-1…M-11
+- [coach-mental-1600-mini-plan.md](../designs/coach-mental-1600-mini-plan.md) — entregas M-1…M-11
 - [coach-classification-hitl-checklist.md](./coach-classification-hitl-checklist.md) — CA-8 / BUG-12
 - [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) — FEAT-07
 - Lab: [`07_0_mental_model_lab.ipynb`](../../../ai_chess_coach_course/07_0_mental_model_lab.ipynb)
