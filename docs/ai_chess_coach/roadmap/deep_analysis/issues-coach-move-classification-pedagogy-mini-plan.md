@@ -80,7 +80,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-035</td><td></td><td>En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero</td><td>✅ Done</td><td><code>feature/11_157_feat_035_captured_pieces</code> — <code>CoachCapturedPiecesStack</code></td></tr>
 <tr><td>FEAT-036</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td><code>formatCoachGameDescription</code>; API <code>description</code> + <code>time_control</code></td></tr>
 <tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
-<tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>🔄 WIP</td><td>Rama <code>feature/07_038_fen_from_image</code> (local, sin PR). En Posición (FEN) «Pegar imagen» y «Elegir archivo» están deshabilitados, tooltip «En progreso». El recorte del tablero (OpenCV) y el clasificador ONNX están en el working tree; la detección todavía no es confiable para cargar el FEN.</td></tr>
 <tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>✅ Done</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — redirect <code>/games</code>, <code>AppShell</code></td></tr>
 <tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>✅ Done</td><td><code>App.tsx</code> redirects <code>/chess-board</code> → <code>/coach/position</code></td></tr>
@@ -149,6 +149,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>✅ Done</td><td>HITL OK — columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
 <tr><td>FEAT-096</td><td></td><td>En Filtros avanzados de Partidas agregar Ritmo.</td><td>✅ Done</td><td>HITL OK — selector múltiple; Correspondencia se pide como <code>rhythms=daily</code></td></tr>
 <tr><td>FEAT-097</td><td></td><td>Buscar partidas por estudio con un nombre determinado.</td><td>✅ Done</td><td>HITL OK — filtro Estudio sobre el tag PGN <code>StudyName</code></td></tr>
+<tr><td>FEAT-098</td><td>FEAT-039</td><td>Poder crear una posicion de estudio en base a un a posición dada.</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-099</td><td></td><td>Cuando el usuario de chess.com o lichess no existe mostrar error (ahora no muestra nada).</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-100</td><td></td><td>En filtro avanzado agregar "Analisis manual"</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-101</td><td></td><td>En posiciones de analisis agregar un control visual de temporizador</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-102</td><td></td><td>El modo analisis agregar campo para agregar referencias externas, soporte rich para agregar links y texto con formato.</td><td>⬜ Todo</td><td></td></tr>
 </tbody>
 </table>
 
