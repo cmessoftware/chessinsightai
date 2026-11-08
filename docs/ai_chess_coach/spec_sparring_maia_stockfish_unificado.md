@@ -1,6 +1,6 @@
 # ChessInsight — Sparring, ejercicios, instructor y progreso (Maia + Stockfish)
 
-**Documento unificado** · Fecha: 2026-10-18 · Actualizado: 2026-10-25  
+**Documento unificado** · Fecha: 2026-10-18 · Actualizado: 2026-11-08
 Reemplaza las fuentes Sparring (copias en [roadmap/deep_analysis/sources/](./roadmap/deep_analysis/sources/)) y los borradores 03/04 no restaurados.
 
 | ID | Edición | Contenido |
@@ -101,7 +101,7 @@ Excluye: entrenar modelos, adaptación de nivel en vivo, corrección automática
 
 ### 4.2 Flujo
 
-1. Origen: inicio, PGN/FEN, ejercicio.  
+1. Origen: inicio, PGN/FEN, ejercicio; reentrenamiento desde error propio con relojes originales según §4.10.
 2. Color, nivel, modo, ritmo, plan opcional → snapshot de config.  
 3. Sin tutor: jugar sin motor/probabilidades/soluciones. Con tutor: revisar propuestas antes de confirmarlas según §4.7; ayudas explícitas registradas.  
 4. Jugadas + tiempo transaccionales.  
@@ -358,6 +358,83 @@ Progresión de validación: posición fija → otras posiciones de la misma aper
 
 Entrega futura: definir rúbrica con experto → curar ejemplos y contraejemplos → prototipo de indicadores → revisión humana y prueba de transferencia. Criterios antes de activar: excepciones justificadas no penalizadas, no exigir libro, evidencia trazable y estados no evaluados distintos de cero. Sin fecha ni eficacia prometida.
 
+
+### 4.10 Reentrenar errores propios con Maia y relojes originales (BASE, posterior al MVP core)
+
+**Estado:** propuesta de especificación, no implementada. Ampliación de continuar desde PGN/FEN (§4.1, entrega SPAR-13), independiente del generador de ejercicios, Instructor PRO, tutor y antiimpulsividad.
+
+**Objetivo:** transformar una decisión problemática de una partida propia en una continuación jugable. Entrenar generación de candidatas, orientación cuando no hay táctica evidente y comprobación de respuestas del rival bajo la presión temporal de esa posición. El diferencial es integrar selección del error, contexto previo, ambos relojes e intentos comparables; no afirmar exclusividad de continuar desde una posición frente a otras plataformas.
+
+#### 4.10.1 Selección y preparación
+
+1. Seleccionar una serie de partidas propias finalizadas; preset inicial: **rapid estándar perdidas**, de Chess.com o Lichess, con filtros por fecha y cobertura de análisis. Excluir Chess960 de este preset; no inferir ritmo solo por la etiqueta externa si falta el control temporal. No usar partidas activas por correspondencia.
+2. Ejecutar o reutilizar Stockfish posterior con `EngineAnalysis`, versión, presupuesto, estabilidad y umbrales de clasificación identificados (§2.1). Proponer blunders confirmados; evaluaciones inciertas quedan pendientes de revisión. Tratar mate por separado, sin cp sintético. Una diferencia entre primera y segunda candidata no sustituye la evaluación de la jugada efectivamente realizada.
+3. Para cada error, guardar la posición **antes** de la jugada y permitir retroceder un número configurable de decisiones propias, por ejemplo 2–4, limitado por el historial disponible. Contar decisiones del alumno, no confundirlas con plies. Por defecto, iniciar en un turno del mismo bando del alumno.
+4. Ofrecer dos consignas: **decisión puntual**, inmediatamente antes del error; y **continuación contextual**, varios turnos antes, sin anunciar en qué momento aparecerá una dificultad. Permitir selección manual/curación para no depender exclusivamente de una etiqueta automática.
+5. Preservar origen, partida, variante, bando, ply del error, ply de inicio y contexto. El PGN original y su análisis no se modifican. Crear un bloque versionado reutilizable y una sesión nueva por intento.
+
+Reutilizar el concepto `PracticeSetupVersion` de §4.8.4 y el contexto de posición de §2.3, sin exigir implementar todo el experimento de antiimpulsividad. Validar que FEN inicial de la fuente + prefijo UCI llevan exactamente a la FEN de práctica. Conservar prefijo/historial para repetición y reglas de tablas, sin volver a ejecutar ni descontar tiempo por ese prefijo en la sesión nueva. FEN sola no contiene relojes y puede carecer de historia.
+
+#### 4.10.2 Reconstrucción temporal
+
+**Modo por defecto: relojes originales.** Inicializar por separado `white_remaining_ms`, `black_remaining_ms`, bando al turno e incremento original en el **punto de inicio elegido**, no en el error si se retrocedieron turnos. Ejemplo: una 15+10 puede reanudarse con blancas 03:21 y negras 06:48, manteniendo +10; no repartir nuevamente 15 minutos.
+
+Los comentarios PGN `[%clk ...]` suelen registrar el reloj del jugador **después** de su jugada. Para una posición situada después del ply k y antes de k+1, obtener para cada bando su último reloj válido del prefijo hasta k; no tomar el reloj posterior a k+1 ni añadir de nuevo un incremento que ya esté incluido. Antes de la primera jugada de un bando, usar el tiempo inicial solo si el control lo define inequívocamente. El formato/semántica del proveedor deben validarse, no suponerse universales.
+
+| Situación | Comportamiento |
+|---|---|
+| Relojes completos y control compatible | Preparar snapshot reproducible con referencia a los plies/comentarios fuente |
+| Falta un reloj o el incremento | Mostrar el campo desconocido; permitir carga manual explícita o modo sin reloj |
+| Relojes parciales o estimación | No presentarlos como exactos; registrar procedencia por campo y limitaciones |
+| Reloj negativo, malformado, turno incoherente o control no soportado | Rechazar esa reconstrucción automática y solicitar corrección en la configuración |
+| Delay, control por etapas o correspondencia | Fuera de la reconstrucción automática inicial; no tratarlos silenciosamente como incremento Fischer |
+
+Permitir un modo alternativo **tiempo adicional de entrenamiento**, por ejemplo 10+5 o 15+10 completos, elegido explícitamente. No mezclarlo en métricas con relojes originales. Una edición manual produce otra versión/configuración de práctica; registrar por campo `source_pgn / manual / estimated / unknown`, sin inventar precisión.
+
+La preparación, lectura de consigna y carga de Maia no consumen reloj. Una acción explícita «Comenzar intento» activa el reloj del bando al turno; si es Maia, solicita su jugada. Desde allí rige el reloj autoritativo del servidor y las reglas transaccionales de §4.2–4.3: descuento e incremento una sola vez por jugada confirmada, resolución de timeout antes de aceptar una jugada tardía y reconexión sin reiniciar tiempos. Un snapshot con tiempo agotado no inicia un intento cronometrado activo.
+
+Restaurar relojes reproduce la presión temporal de partida **al inicio**, no los tiempos futuros del rival humano. Maia puede responder de otra manera y con otra latencia. Registrar la política efectiva de consumo/simulación de tiempo del bot; no atribuirle un ritmo humano que no se haya implementado. Fallos de infraestructura aplican la pausa existente, no se sustituyen por Stockfish.
+
+#### 4.10.3 Práctica autónoma y revisión
+
+- Mantener el color original y permitir nivel Maia solicitado, por ejemplo 1700 o 1900, sujeto a capacidades/rango efectivo (§2.2). No prometer equivalencia con Elo de plataforma.
+- Por defecto, tutor y antiimpulsividad apagados; ambos pueden activarse independientemente con snapshots y etiquetas propios (§4.7–4.8). El intento autónomo no muestra evaluaciones, mejor jugada, jugada fallida original, variantes ni el turno exacto del blunder.
+- Consigna neutral opcional: registrar idea/plan breve y dos candidatas antes de jugar. No exigir un formulario en cada turno; identificar si la reflexión fue previa al arranque del reloj o dentro del tiempo activo. No calificar texto o comprensión estratégica automáticamente por cp.
+- Jugar una continuación libre; no exigir repetir la partida histórica ni ejecutar una solución única. Stockfish evalúa después del intento; Maia sigue siendo el rival y sus jugadas no se corrigen con SF.
+- En revisión, mostrar original e intento con su relación de origen, decisiones comparables y respuestas alternativas del rival. Comparar desde la misma raíz cuando corresponda. Si las trayectorias divergen, no comparar posiciones distintas como si fueran la misma decisión.
+- Cada repetición crea un intento/sesión independiente vinculado al bloque y, si corresponde, al intento anterior. Preservar orden de exposición, fecha y ayudas vistas. Repetir puede entrenar memoria; mezclar opcionalmente posiciones de control sin blunder seleccionado y separar retención de transferencia.
+
+#### 4.10.4 Trazabilidad, métricas y límites
+
+Extender los contratos conceptuales existentes, sin crear otro sistema paralelo de intentos:
+
+| Registro | Datos adicionales |
+|---|---|
+| Bloque de práctica versionado | fuente/versión/hash PGN, game_id o URL si existe, color, error_ply, start_ply, modo de selección/retroceso, contexto e historial, referencia de análisis y clasificación |
+| Snapshot temporal | reloj inicial blanco/negro, incremento, turno, modo original/adicional/sin reloj, procedencia y exactitud por campo, política de tiempo del bot |
+| Sesión/intento | practice_setup_version_id, sesión original si existe, intento previo opcional, configuración Maia solicitada/efectiva, tutor/antiimpulsividad, exposición y ayudas |
+| Evaluación posterior | decisiones propias elegibles/evaluadas, errores por clase, incertidumbres, horizonte alcanzado y referencias EngineAnalysis |
+
+Usar el catálogo compartido `Attempt` cuando esté disponible, con referencia a `SparringSession`; no exigir su módulo completo para la continuación BASE. Propagar la relación de origen en los eventos existentes `sparring.*` y `analysis.completed`, con esquema versionado, ownership e idempotencia ya definidos.
+
+Indicadores mínimos: calidad de la primera decisión alternativa; errores graves por decisiones propias evaluadas; decisiones propias hasta el primer error grave dentro de un horizonte declarado; reloj y terminaciones por tiempo; cobertura; resultado contra Maia como dato secundario. Un intento terminado antes del horizonte no cuenta automáticamente como «sin errores». Excluir prefijo histórico y jugadas del bot de los denominadores. Separar evaluación de la jugada y valoración del razonamiento; esta última requiere revisión humana cuando corresponda.
+
+Agrupar por posición/versión, modo temporal, relojes iniciales, incremento, nivel/configuración Maia, horizonte y ayudas. Cambios de configuración o tiempos no son repeticiones equivalentes. No deducir mejora causal ni comprensión estratégica por ganar, evitar una única jugada o repetir una posición conocida.
+
+#### 4.10.5 Criterios de aceptación
+
+1. Desde una derrota rapid estándar analizada, crear un bloque y varias sesiones sin modificar el PGN original; Chess960 queda fuera del preset y no se usa una partida activa.
+2. La FEN de práctica coincide con el prefijo validado. Retroceder 2–4 decisiones propias reconstruye posición **y relojes** del nuevo inicio; soportar ambos colores, enroque, captura al paso e historial/repetición disponible.
+3. Fixture PGN con relojes asimétricos: 03:21 / 06:48 y +10 quedan restaurados exactamente; usar solo relojes del prefijo, sin incorporar el `[%clk]` posterior al error ni sumar dos veces el incremento.
+4. Reloj ausente, parcial o malformado e incremento desconocido no generan un «modo original exacto»; edición manual/estimación y controles no soportados quedan etiquetados y versionados.
+5. Antes de «Comenzar intento» ambos relojes están quietos; después corre el bando correcto. Doble clic, reconexión, respuestas tardías y reintentos no duplican sesión, jugada, incremento ni turno bot; cero inicial y timeout se resuelven correctamente.
+6. Maia respeta configuración efectiva y legalidad; fallo de proveedor pausa según reglas existentes. Documentar cómo consume su reloj; no imitar tiempos históricos automáticamente.
+7. En modo autónomo no hay fuga de soluciones ni del blunder objetivo en DTO/UI; análisis original autorizado se reserva para preparación/revisión. Tutor y pausa opcionales siguen siendo independientes y quedan separados en métricas.
+8. Las continuaciones pueden divergir del original y ser válidas. Cada intento preserva exposición, origen y datos propios; métricas excluyen prefijo/bot, muestran cobertura y no declaran éxito si falta horizonte o análisis.
+9. Acceso a la fuente y a sus intentos requiere permisos existentes; origen ajeno no concede acceso. Creación/revisión repetidas son idempotentes.
+10. La entrega incluye fixtures de PGN con relojes completos/parciales, ambos colores y retroceso, y un smoke de continuación con proveedor Maia real. La presente modificación solo especifica estas pruebas; no las da por ejecutadas.
+
+
 ---
 
 ## 5. CI-STRAT-02 — Análisis y ejercicios (BASE)
@@ -582,6 +659,7 @@ Diccionario métricas → normalización → agregaciones → permisos → panel
 | 5 | CI-INST-03 PRO | Puede adelantarse a métricas |
 | 6 | CI-PROGRESS-04 PRO | Consume eventos de 2–5 |
 | Extensión BASE | Utilidad individual de pausa (§4.8.4) | Bloques desde apertura fija, intentos y comparación descriptiva; no depende de PRO |
+| Extensión BASE | Reentrenar errores con relojes originales (§4.10) | Continuación desde decisiones propias, Maia configurable, relojes asimétricos e intentos comparables; SPAR-21 |
 | Futuro | Conceptos de apertura (§4.9) | Rúbricas contextuales y transferencia; fuera del MVP |
 
 Paralelo posible: INST antes de PROGRESS; STRAT base no requiere PRO. Tutor opcional (§4.7): ampliación BASE posterior al núcleo de sparring, con evaluación Stockfish/Lc0 de propuestas y control antiimpulsividad (§4.8); independiente de INST/PROGRESS.
