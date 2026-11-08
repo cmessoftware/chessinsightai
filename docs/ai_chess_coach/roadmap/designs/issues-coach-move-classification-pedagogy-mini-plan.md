@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)
-**Actualizado:** 2026-11-06
+**Actualizado:** 2026-11-08
 
 > **Sync (obligatorio):** **Canónico** — espejo en [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Mismo cuerpo y mismo commit; solo cambia esta cabecera.
 
@@ -149,6 +149,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>✅ Done</td><td>HITL OK — columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
 <tr><td>FEAT-096</td><td></td><td>En Filtros avanzados de Partidas agregar Ritmo.</td><td>✅ Done</td><td>HITL OK — selector múltiple; Correspondencia se pide como <code>rhythms=daily</code></td></tr>
 <tr><td>FEAT-097</td><td></td><td>Buscar partidas por estudio con un nombre determinado.</td><td>✅ Done</td><td>HITL OK — filtro Estudio sobre el tag PGN <code>StudyName</code></td></tr>
+<tr><td>FEAT-104</td><td>FEAT-025 / FEAT-097</td><td>Importar PGN externo con título de estudio y descripción inicial.</td><td>Todo · P1</td><td>Solicitado por Sergio el 2026-11-08. Agregar campos opcionales «Título / nombre del estudio» y «Descripción» (multilínea) al importar texto pegado o archivo PGN. Persistir el título en el tag <code>StudyName</code>, reutilizando el filtro avanzado Estudio existente (FEAT-097); no reemplazar White/Black, Event ni el rótulo de jugadores. Insertar la descripción como comentario PGN de la posición inicial, después de los encabezados y antes de la primera jugada, también con SetUp/FEN. Conservar comentarios iniciales preexistentes, variantes, NAG y demás encabezados. Campos vacíos conservan el PGN original; si ya existe StudyName, precargarlo para una partida y permitir su edición explícita. En importación múltiple, indicar que título y descripción ingresados se aplican a cada partida del lote; sin valores ingresados se conservan los metadatos individuales. Escapar comillas/barra inversa en tags y serializar delimitadores de comentario sin invalidar el PGN. Aceptación: texto y archivo, una y varias partidas, PGN con/sin StudyName o comentario inicial, Unicode/multilínea y FEN; tras importar, recargar y reabrir se conserva el título y se encuentra mediante filtro avanzado; copiar/exportar PGN incluye StudyName y descripción antes de la primera jugada. Verificar reimportación sin duplicar el comentario agregado ni perder anotaciones. Evidencia de revisión: PgnImportPanel.jsx y CoachImportPage.jsx no ofrecen estos campos; filtro StudyName sí existe. Documentación solamente; implementación pendiente.</td></tr>
 </tbody>
 </table>
 
@@ -376,7 +377,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, FEAT-102 (candidata), FEAT-104, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
