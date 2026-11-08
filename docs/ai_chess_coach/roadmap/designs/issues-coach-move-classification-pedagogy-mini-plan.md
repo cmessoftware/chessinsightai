@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)
-**Actualizado:** 2026-11-06
+**Actualizado:** 2026-11-08
 
 > **Sync (obligatorio):** **Canónico** — espejo en [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Mismo cuerpo y mismo commit; solo cambia esta cabecera.
 
@@ -163,6 +163,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>BUG-099</td><td>FEAT-046 / FEAT-078 / BUG-037</td><td>Asignación manual de categoría o corpus alcanza partidas que el usuario no pretendía seleccionar.</td><td>Todo · P0 · reportado</td><td>Código: al entrar se preseleccionan todas las queueableGames; el checkbox superior solo alterna la página. Los handlers masivos usan todo selectedIds. Explica un posible alcance oculto, pero falta reproducir el recorrido exacto y verificar backend. No cambiar datos históricos por inferencia. Cerrar solo con prueba de IDs solicitados/actualizados y cero filas ajenas.</td></tr>
 <tr><td>FEAT-100</td><td>BUG-099</td><td>Selección masiva explícita y alcance visible.</td><td>Todo · P0</td><td>Estado inicial sin selección para edición; separar selección de análisis de selección de edición. Mostrar N total, N visibles y N en otras páginas; acciones distintas para página / resultados filtrados / limpiar todo. Vista previa de alcance antes de aplicar. Sin selección = no-op; jamás fallback a toda la biblioteca. Refresco no agrega IDs.</td></tr>
 <tr><td>FEAT-101</td><td>BUG-099 / FEAT-100</td><td>Distinguir categoría visual de fuente/corpus y registrar cambios manuales.</td><td>Todo · P1</td><td>Mostrar origen: regla automática, override local o corpus persistido. Resumen de valores previos/nuevos, IDs modificados/rechazados y conteo; restauración del lote mediante valores anteriores. Cambiar corpus hoy borra overrides de los IDs actualizados: hacer ese efecto visible y acordar si debe mantenerse.</td></tr>
+<tr><td>BUG-103</td><td>FEAT-048 / FEAT-055</td><td>La descripción editada desde la tabla Partidas se revierte a «Blancas vs Negras» al abrir la partida.</td><td>Todo · P1 · reportado</td><td>Reportado por Sergio el 2026-11-08; pendiente de reproducción técnica. Pasos: 1) editar la descripción inline en Partidas, por ejemplo «Anderssen vs NN»; 2) guardar y comprobar que la tabla muestra Anderssen como blancas y NN como negras; 3) ingresar a la partida y esperar unos segundos. Obtenido: inicialmente se muestra el valor modificado, pero luego reaparece «Blancas vs Negras». Control: al modificar los nombres desde el formulario de edición de encabezados PGN, el cambio se aplica correctamente. Esperado/aceptación: conservar los nombres editados en tabla y detalle, también tras terminar la carga, refrescar y reabrir; ambas vías de edición deben producir una visualización coherente. Investigar sincronización entre descripción, metadatos y encabezados White/Black del PGN, así como respuestas asíncronas que puedan sobrescribir el valor; causa no confirmada. Alcance: registrar el bug, sin corrección de código en esta actualización.</td></tr>
 </tbody>
 </table>
 
@@ -376,7 +377,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099/103, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
