@@ -25,3 +25,12 @@ export function resolveCoachPlayerColor(gameMeta, reviewPack = null) {
 export function coachPlayerColorLabel(color) {
     return color === 'black' ? 'negras' : 'blancas'
 }
+
+/** Nombre del PGN que el análisis profundo usa como jugador. */
+export function coachDeepAnalysisUsername(gameMeta) {
+    const saved = String(gameMeta?.player_username || '').trim()
+    if (saved) return saved
+    const color = resolveCoachPlayerColor(gameMeta)
+    const name = color === 'black' ? gameMeta?.black_player : gameMeta?.white_player
+    return String(name || '').trim()
+}
