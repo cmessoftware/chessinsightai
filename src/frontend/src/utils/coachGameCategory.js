@@ -124,3 +124,17 @@ export function coachGameMatchesCategoryFilter(game, filterId, categories, overr
     if (!filterId || filterId === 'all') return true
     return resolveCoachGameCategory(game, categories, overrides).id === filterId
 }
+
+/**
+ * Advanced Fuente filter: any selected category (Torneo, Chess.com, corpus, …).
+ * Empty selection does not filter. This does not assign a category.
+ * @param {object} game
+ * @param {string[] | null | undefined} sourceIds
+ * @param {import('./coachGameCategoriesConfig.js').CoachGameCategoryDef[] | null | undefined} categories
+ * @param {Record<string, string> | null | undefined} overrides
+ */
+export function coachGameMatchesSourceFilter(game, sourceIds, categories, overrides) {
+    if (!sourceIds?.length) return true
+    const id = resolveCoachGameCategory(game, categories, overrides).id
+    return sourceIds.includes(id)
+}

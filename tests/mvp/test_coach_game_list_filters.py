@@ -11,6 +11,7 @@ if str(SRC_DIR) not in sys.path:
 
 from modules.module07.coach_game_list_filters import (  # noqa: E402
     CoachGameListFilters,
+    partial_name_ilike_pattern,
     study_name_ilike_pattern,
     wildcard_to_ilike_pattern,
 )
@@ -52,10 +53,25 @@ def test_rhythm_filter_includes_correspondence_alias():
 
 def test_study_name_matches_the_pgn_header():
     assert study_name_ilike_pattern("Larsen") == '[StudyName "%Larsen%"]'
-    assert study_name_ilike_pattern("*finales*") == '[StudyName "%finales%"]'
+    assert study_name_ilike_pattern("Lar") == '[StudyName "%Lar%"]'
+    assert study_name_ilike_pattern("*fi*") == '[StudyName "%*fi*%"]'
+    assert study_name_ilike_pattern("ab") == ""
     f = CoachGameListFilters.from_query(study_name="  Larsen ")
     assert f.study_name == "Larsen"
     assert f.has_any()
+    short = CoachGameListFilters.from_query(study_name="ab", white_player="Ca", black_player="Vi")
+    assert short.study_name is None
+    assert short.white_player is None
+    assert short.black_player is None
+    assert not short.has_any()
+
+
+def test_player_names_are_partial_and_need_three_characters():
+    assert partial_name_ilike_pattern("car") == "%car%"
+    assert partial_name_ilike_pattern("ab") == ""
+    f = CoachGameListFilters.from_query(white_player="  Carlsen ")
+    assert f.white_player == "Carlsen"
+    assert partial_name_ilike_pattern(f.white_player) == "%Carlsen%"
 
 
 def test_imported_range_is_parsed():

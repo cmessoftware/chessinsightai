@@ -91,6 +91,24 @@ export function formatCoachCorpusType(raw) {
     return value || '—'
 }
 
+/** Fuente assigns ``coach_games.corpus_type`` only. Categories stay on their own control. */
+export const COACH_CORPUS_ASSIGN_OPTIONS = [
+    { value: 'personal', label: 'Personal' },
+    { value: 'elite', label: 'Elite' },
+    { value: 'fide', label: 'FIDE' },
+    { value: 'novice', label: 'Novice' },
+    { value: 'stockfish', label: 'Stockfish' },
+]
+
+/**
+ * @param {boolean} isAdmin
+ * @returns {{ value: string, label: string }[]}
+ */
+export function coachCorpusAssignOptions(isAdmin) {
+    if (isAdmin) return COACH_CORPUS_ASSIGN_OPTIONS
+    return COACH_CORPUS_ASSIGN_OPTIONS.filter((option) => option.value === 'personal')
+}
+
 /** Standard ECO codes (e.g. C55, B90); some sources store opening URLs in ``eco``. */
 const ECO_CODE_RE = /^[A-E]\d{2}(?:\/\d+)?$/i
 
