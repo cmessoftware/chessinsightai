@@ -15,3 +15,18 @@ export function pruneSelection(selectedIds, validIds) {
 export function bulkEditIds(selectedIds) {
     return [...new Set(selectedIds)].filter((id) => id != null && id !== '')
 }
+
+/** How many checked rows are on this page versus the rest of the list. */
+export function selectionScope({ selectedIds, pageIds = [] } = {}) {
+    const selected = selectedIds instanceof Set ? selectedIds : new Set(selectedIds || [])
+    const page = new Set(pageIds)
+    let onPage = 0
+    for (const id of selected) {
+        if (page.has(id)) onPage += 1
+    }
+    return {
+        total: selected.size,
+        onPage,
+        onOtherPages: selected.size - onPage,
+    }
+}
