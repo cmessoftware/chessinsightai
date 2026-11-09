@@ -160,7 +160,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <table>
 <thead><tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
 <tbody>
-<tr><td>BUG-098</td><td>FEAT-030 / FEAT-082</td><td>Rutas de la SPA: acceso directo a <code>/reports</code> devuelve Not Found aunque la navegación interna funciona.</td><td>Todo · P1 · observado</td><td>Ya conocido por Sergio. Configurar fallback a index.html preservando assets/API y rutas no existentes. Aceptación: pegar URL, refrescar y abrir nueva pestaña en login, Partidas, análisis por ID, FEN y configuración; conservar guardas de sesión. /reports se prueba cuando se rehabilite.</td></tr>
+<tr><td>BUG-098</td><td>FEAT-030 / FEAT-082</td><td>Rutas de la SPA: acceso directo a <code>/reports</code> devuelve Not Found aunque la navegación interna funciona.</td><td>✅ Done</td><td>Rewrite a <code>index.html</code> solo para las rutas de la app, en el static site <code>chessdash-frontend</code> (<code>render.yaml</code>). Un archivo publicado se sirve tal cual. <code>/api</code> y las rutas desconocidas siguen en 404. <code>ProtectedRoute</code> no cambia. <code>/reports</code> carga el shell; la pantalla se prueba cuando se rehabilite. El CDN aplica las reglas al sincronizar el Blueprint: Render no lee <code>public/_redirects</code>.</td></tr>
 <tr><td>BUG-099</td><td>FEAT-046 / FEAT-078 / BUG-037</td><td>Asignación manual de categoría o corpus alcanza partidas que el usuario no pretendía seleccionar.</td><td>✅ Done</td><td>Al entrar no se marca la biblioteca. Categoría, fuente, borrar y exportar usan solo las filas marcadas; sin selección no hacen nada. El refresco no agrega ids. <code>feature/11_099_bug_099_bulk_selection</code> — <code>coachGameSelection.js</code></td></tr>
 <tr><td>FEAT-100</td><td>BUG-099</td><td>Selección masiva explícita y alcance visible.</td><td>✅ Done</td><td>La tabla empieza vacía. Muestra cuántas filas están marcadas en esta página y en otras. Hay acciones para la página, los resultados filtrados y limpiar. Categoría y fuente piden confirmación con ese alcance. <code>feature/11_100_feat_100_selection_scope</code></td></tr>
 <tr><td>FEAT-101</td><td>BUG-099 / FEAT-100</td><td>Distinguir categoría visual de fuente/corpus y registrar cambios manuales.</td><td>Todo · P1</td><td>Mostrar origen: regla automática, override local o corpus persistido. Resumen de valores previos/nuevos, IDs modificados/rechazados y conteo; restauración del lote mediante valores anteriores. Cambiar corpus hoy borra overrides de los IDs actualizados: hacer ese efecto visible y acordar si debe mantenerse.</td></tr>
@@ -364,7 +364,7 @@ Estado global **WIP**: M-1…M-10 implementados no implica validación pedagógi
 2. MENT-BUG-01/02/03/06: eliminar errores semánticos y fuga retrospectiva antes de evaluar fiabilidad.
 3. Sesión MENT-FEAT-01: registrar feedback incluso si esos arreglos aún no están desplegados, etiquetando versión y limitaciones.
 4. MENT-BUG-04/05/07 y MENT-FEAT-02…19 según decisiones del instructor.
-5. EST-BUG-01/02 y BUG-098 con verificación en Render; Reportes continúa en backlog.
+5. EST-BUG-01/02 con verificación en Render. BUG-098 está en el Blueprint; el CDN lo aplica al sincronizarlo. Reportes continúa en backlog.
 
 El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas documentadas de desacuerdo, cero P0 semánticos pendientes y pruebas de regresión de los bugs corregidos. El 80% de acuerdo de M-11 es un criterio exploratorio, no una medida de precisión general del producto. Ver [guía de sesión](../deep_analysis/coach-mental-review-2026-11-09.md).
 
@@ -375,9 +375,9 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, BUG-099, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, BUG-098, BUG-099, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>

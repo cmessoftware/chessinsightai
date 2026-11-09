@@ -64,6 +64,63 @@ services:
       mountPath: /app/mlartifacts
       sizeGB: 5
 
+  # ChessDash UI. Same name as the published static site so a Blueprint sync
+  # updates that service. Render serves a real file before any rewrite, so
+  # /assets and other build output stay intact. Unlisted paths, including
+  # /api, stay 404. Render does not read public/_redirects.
+  - type: web
+    name: chessdash-frontend
+    runtime: static
+    rootDir: src/frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./src/frontend/dist
+    routes:
+      - type: rewrite
+        source: /login
+        destination: /index.html
+      - type: rewrite
+        source: /unauthorized
+        destination: /index.html
+      - type: rewrite
+        source: /chess-board
+        destination: /index.html
+      - type: rewrite
+        source: /chess-board/*
+        destination: /index.html
+      - type: rewrite
+        source: /games
+        destination: /index.html
+      - type: rewrite
+        source: /games/*
+        destination: /index.html
+      - type: rewrite
+        source: /import
+        destination: /index.html
+      - type: rewrite
+        source: /import/*
+        destination: /index.html
+      - type: rewrite
+        source: /coach
+        destination: /index.html
+      - type: rewrite
+        source: /coach/*
+        destination: /index.html
+      - type: rewrite
+        source: /reports
+        destination: /index.html
+      - type: rewrite
+        source: /reports/*
+        destination: /index.html
+      - type: rewrite
+        source: /logs
+        destination: /index.html
+      - type: rewrite
+        source: /admin
+        destination: /index.html
+      - type: rewrite
+        source: /admin/*
+        destination: /index.html
+
 databases:
   - name: chess-trainer-db
     databaseName: chess_trainer
