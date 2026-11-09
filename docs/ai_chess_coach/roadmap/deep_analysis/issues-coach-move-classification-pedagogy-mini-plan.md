@@ -80,7 +80,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-035</td><td></td><td>En tablero de análisis mostrar arriba y abajo mini iconos de piezas capturadas, adaptar si se gira el tablero</td><td>✅ Done</td><td><code>feature/11_157_feat_035_captured_pieces</code> — <code>CoachCapturedPiecesStack</code></td></tr>
 <tr><td>FEAT-036</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td><code>formatCoachGameDescription</code>; API <code>description</code> + <code>time_control</code></td></tr>
 <tr><td>BUG-037</td><td></td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
-<tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-038</td><td></td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>🔄 WIP</td><td>Rama <code>feature/07_038_fen_from_image</code> (local, sin PR). En Posición (FEN) «Pegar imagen» y «Elegir archivo» están deshabilitados, tooltip «En progreso». El recorte del tablero (OpenCV) y el clasificador ONNX están en el working tree; la detección todavía no es confiable para cargar el FEN.</td></tr>
 <tr><td>FEAT-039</td><td></td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td></td></tr>
 <tr><td>FEAT-040</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>✅ Done</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — redirect <code>/games</code>, <code>AppShell</code></td></tr>
 <tr><td>FEAT-041</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>✅ Done</td><td><code>App.tsx</code> redirects <code>/chess-board</code> → <code>/coach/position</code></td></tr>
@@ -149,6 +149,11 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-095</td><td></td><td>En tabla Partidas agregar campo FechaImportacion, agregar como filtro al FIltro avanzados.</td><td>✅ Done</td><td>HITL OK — columna Fecha importación (<code>last_imported_at</code>) y rango en Filtros avanzados</td></tr>
 <tr><td>FEAT-096</td><td></td><td>En Filtros avanzados de Partidas agregar Ritmo.</td><td>✅ Done</td><td>HITL OK — selector múltiple; Correspondencia se pide como <code>rhythms=daily</code></td></tr>
 <tr><td>FEAT-097</td><td></td><td>Buscar partidas por estudio con un nombre determinado.</td><td>✅ Done</td><td>HITL OK — filtro Estudio sobre el tag PGN <code>StudyName</code></td></tr>
+<tr><td>FEAT-098</td><td>FEAT-039</td><td>Poder crear una posicion de estudio en base a un a posición dada.</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-099</td><td></td><td>Cuando el usuario de chess.com o lichess no existe mostrar error (ahora no muestra nada).</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-100</td><td></td><td>En filtro avanzado agregar "Analisis manual"</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-101</td><td></td><td>En posiciones de analisis agregar un control visual de temporizador</td><td>⬜ Todo</td><td></td></tr>
+<tr><td>FEAT-102</td><td></td><td>El modo analisis agregar campo para agregar referencias externas, soporte rich para agregar links y texto con formato.</td><td>⬜ Todo</td><td></td></tr>
 </tbody>
 </table>
 
@@ -165,6 +170,12 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-101</td><td>BUG-099 / FEAT-100</td><td>Distinguir categoría visual de fuente/corpus y registrar cambios manuales.</td><td>Todo · P1</td><td>Mostrar origen: regla automática, override local o corpus persistido. Resumen de valores previos/nuevos, IDs modificados/rechazados y conteo; restauración del lote mediante valores anteriores. Cambiar corpus hoy borra overrides de los IDs actualizados: hacer ese efecto visible y acordar si debe mantenerse.</td></tr>
 </tbody>
 </table>
+
+## Ejercitaciones y seguimiento en análisis · specs candidatas
+
+| Tipo-Id | Relación | Descripción | Estado | Aceptación / alcance |
+| --- | --- | --- | --- | --- |
+| FEAT-102 | LOG-FEAT-07/08 / FEAT-07 | Módulo general de ejercitaciones creadas por el usuario o su instructor y registro de actividad sobre partidas/posiciones marcadas como ejercicios. | Candidata · P1 · a refinar | [Spec candidata y tareas EX-FEAT-01…17](../designs/analysis-user-instructor-exercises-candidate-spec.md). Ejercicios abiertos por objetivos, sin solución prefijada; rúbricas de proceso y resultado, evaluación humana/híbrida, Maia como rival por nivel y motor objetivo como evidencia. Incluye factibilidad, piloto, autoría/asignaciones, intentos y seguimiento; candidatas Stockfish/Maia/manuales, comparación cp/probabilidad y fundamento revisable por jugada. Separar práctica del alumno de feedback HITL sobre el sistema; conservar versiones y primer intento. No implementado. |
 
 ## Features del módulo de reportes
 
@@ -316,12 +327,47 @@ Estado global **WIP**: M-1…M-10 implementados no implica validación pedagógi
 </tbody>
 </table>
 
+### Especificación de revisión Mental 1600 · sesión 2026-11-09
+
+**Alcance de esta actualización:** requisitos y aceptación en el tracker; implementación pendiente. No crear ni desplegar un Site. El flujo debe explicar **cómo debería haber pensado el jugador**: separar hechos del tablero, autorreporte del alumno, juicio del instructor e hipótesis del modelo. Nunca afirmar como hecho «no calculaste», «pensaste X» o «jugaste impulsivamente» sin evidencia explícita; preferir «aquí convenía detenerse y verificar…». Una demora observada no demuestra cálculo.
+
+| ID | Relación | Prioridad / estado | Requisito y aceptación |
+| --- | --- | --- | --- |
+| MENT-FEAT-09 | MENT-FEAT-05/07 | P1 · Todo | **Fixtures P1–P3 / E1–E2.** Cargar PGN y fragmentos SetUp/FEN; organizar tres partidas propias rapid y dos de estudio/elite. Mantener IDs estables, corpus explícito, POV, ritmo original y verificado, fuente, integridad/completitud y posiciones C01–C16. Verificar exactamente cinco fixtures y reportar omisiones/duplicados sin sobrescribir. Rechazar blitz/bullet para assessment y métricas; ritmo desconocido queda pendiente salvo estudio sin reloj, fuera de métricas por ritmo. E1 histórico no equivale a elite moderna; fragmentos no cuentan como partidas completas. Conservar PGN propios y metadatos en ámbito privado, sin volcarlos al repo público. |
+| MENT-FEAT-10 | MENT-FEAT-01/02/07 | P1 · Todo | **Recorrido ciego por posiciones.** Congelar selección antes de revelar salidas; incluir críticas y controles tranquilos. Ocultar continuación histórica, resultado, comentarios reveladores, Mental y motores. Guardar primer intento del alumno y juicio independiente del instructor antes de revelar Mental y después evidencia motor. Marcar casos reconocidos y excluirlos de medición ciega. Reabrir conserva intento original; ayudas y nuevos intentos quedan separados. |
+| MENT-FEAT-11 | MENT-FEAT-03/07 | P1 · Todo | **Registro por decisión.** Guardar si se detuvo (sí/no/no consta), fuente de ese dato (autorreporte/observación/registro de reloj), tiempo de sesión separado del reloj histórico, amenaza detectada, 2–3 candidatas SAN con idea, respuesta rival prevista y continuación calculada por candidata, elección y motivo. Permitir una sola candidata si la posición lo justifica. Separar respuesta rival prevista de la realmente jugada y elección del ejercicio de jugada histórica. No inferir pensamientos a partir del tiempo ni completar campos ausentes con suposiciones. |
+| MENT-FEAT-12 | MENT-BUG-05 / MENT-FEAT-03/07 | P1 · Todo | **Contraste Stockfish / Lc0 / Maia.** Relacionar elección y jugada histórica con candidatas humanas, del modelo y de cada motor; conservar coincidencias, alternativas válidas, omisiones y respuestas refutadoras. Guardar FEN/POV/rama, motor y versión/red o modelo/Elo, parámetros, PV, score/tipo/POV, profundidad o presupuesto disponible y procedencia/fecha. Stockfish y Lc0 aportan evaluación/líneas; Maia aporta plausibilidad humana según su modelo, no verdad objetiva. No mezclar probabilidades Maia con centipeones ni promediar scores incompatibles. Evidencia ausente o incompleta se indica como tal, sin fabricar evaluación ni exigir los tres motores para registrar la sesión. |
+| MENT-FEAT-13 | MENT-FEAT-09…12 | P1 · Todo | **Vistas de revisión.** Fixtures con admisión y completitud; resumen por partida; detalle por posición con intentos, fases y evidencia; comparación propias vs estudio/elite por tema, color y ritmo; comentarios del instructor con autor, fecha, caso/FEN, decisión y estado; backlog priorizado filtrable MENT-BUG/MENT-FEAT. Navegar de un hallazgo a su posición y versión sin contaminar la fase ciega. Los comentarios posteriores no alteran el juicio ciego original. |
+| MENT-FEAT-14 | M-11 / MENT-FEAT-01/07/13 | P1 · Todo | **Control trazable del gate.** Mostrar cada requisito M-11 como pendiente/cumplido/bloqueado/no aplica con evidencia enlazada y motivo; conteos verificables por partida/posición, versión, revisores y firma/fecha. Separar cobertura de fixtures, cierre técnico y aceptación pedagógica. Cinco fixtures o una reunión no cierran automáticamente M-11. Mantener sus requisitos vigentes y bloqueos P0. |
+
+**Datos mínimos y trazabilidad:** sesión → fixture → posición (FEN antes de mover, turno, ply, rama y última jugada rival) → intento ciego → revelación/contraste → comentario/hallazgo. Guardar versión app/reglas y del fixture; los cambios de reglas crean una nueva corrida, sin borrar resultados previos. Identificar inequívocamente posición y corpus: los IDs de referencia **E1/E2** no se confunden con triggers E1–E11.
+
+**Clasificación de hallazgos:** MENT-BUG para incumplimiento reproducible del contrato o comportamiento incorrecto; MENT-FEAT para capacidad nueva o mejora pedagógica. Reutilizar los IDs existentes antes de asignar otro. Cada hallazgo incluye prioridad, estado, observado/hipótesis/confirmado, caso/FEN/POV, versión, pasos, esperado/obtenido, evidencia, comentario del instructor, criterio de aceptación y ticket/commit de resolución. Una discrepancia de estilo no confirma un bug. Ordenar P0 semánticos y fuga retrospectiva primero; después flujo ciego/registro y contraste; luego agregados y presentación.
+
+**Comparación propias vs estudio/elite:** informar N y denominadores por estrato: pausa registrada, críticas humanas detectadas/omitidas, tranquilas con falsa alarma, candidatas útiles cubiertas/omitidas, respuesta rival y cálculo documentados, explicaciones suficientes y casos sin datos. No equiparar dificultad, exposición previa o representatividad de P y E; no inferir causalidad ni precisión general con esta muestra.
+
+**Aceptación M-11:** usar el [checklist vigente](../deep_analysis/coach-mental-1600-hitl-checklist.md), incluidas ≥3 partidas rapid, ≥15 decisiones, ≥3 critical y ≥3 fast aceptables, casos obligatorios, revisor, versión y firma; registrar acuerdo con denominador y tickets para desacuerdos según §6. Los ejemplos E complementan y no sustituyen las tres propias rapid del protocolo. P0 semánticos abiertos bloquean cierre. Decisión explícita: congelar v1 / iterar v1.1 / bloquear Phase 2 worker. MENT-FEAT-09…14 permanecen Todo: esta spec no acredita implementación, pruebas ni feedback recibido.
+
+### Módulo de comentarios HITL sobre propuestas del modelo mental
+
+**Propósito:** registrar feedback durante sesiones HITL directamente sobre lo que propone Mental 1600, además de las respuestas del alumno y los comentarios generales de sesión. Desglosa MENT-FEAT-13; todas las tareas siguientes están pendientes.
+
+| ID | Relación | Prioridad / estado | Tarea y criterio de aceptación |
+| --- | --- | --- | --- |
+| MENT-FEAT-15 | MENT-FEAT-07/13 | P1 · Todo | **Modelo de datos y persistencia.** Definir sesión HITL, revisión y comentario vinculado a partida/fixture, FEN antes de mover, turno/POV, ply/rama y corrida. Guardar autor, rol, fechas, versión app/reglas y una instantánea inmutable de la propuesta revisada: modo fast/critical, pausa, trigger E*, candidata D*, chequeo S* o explicación/plan. Admitir comentario general del assessment. La referencia debe permitir reconstruir qué se comentó aunque el modelo cambie. Persistir en servidor con migración y contrato API documentados; no depender solo de memoria o localStorage. |
+| MENT-FEAT-16 | MENT-FEAT-15 / MENT-FEAT-10 | P1 · Todo | **Captura contextual en Mental 1600.** Acción “Comentar” junto a cada propuesta y al assessment completo; panel con texto del sistema, comentario libre, acuerdo/desacuerdo/parcial/no evaluable, motivo y propuesta de corrección o ejemplo. Motivos: omisión, falsa alarma, error técnico, candidata/respuesta rival inadecuada, explicación o vocabulario confuso, pausa impropia o falta de contexto. Elegir una candidata conserva SAN/UCI y su idea. Guardar sin perder posición ni campos al navegar; mostrar guardando/guardado/error y reintento sin duplicados. Disponible después de revelar el modelo; nunca revelar propuestas o feedback previo durante el intento ciego. |
+| MENT-FEAT-17 | MENT-FEAT-15/16 | P1 · Todo | **API, permisos e historial.** Crear, consultar, responder y editar comentarios con historial de revisiones, sin sobrescribir el juicio ciego ni la instantánea evaluada. Controlar acceso por propietario o participación autorizada en la sesión; rol instructor no concede acceso global a partidas privadas. Conservar autores distintos y desacuerdos entre revisores. Definir política de eliminación y validar aislamiento entre usuarios, referencia a corrida/posición y reintentos idempotentes. Reabrir sesión tras recargar recupera comentarios y estados. |
+| MENT-FEAT-18 | MENT-FEAT-13/14/17 | P1 · Todo | **Bandeja y resolución del feedback.** Listar por sesión, partida y posición; filtrar por autor, componente del modelo, motivo, prioridad y estado: abierto/en revisión/acordado/descartado/resuelto. Cada transición guarda responsable, fecha y motivo; “resuelto” requiere evidencia o nueva corrida. Vincular o proponer MENT-BUG/MENT-FEAT reutilizando issues existentes, con esperado/obtenido y criterio de aceptación; no crear tickets externos automáticamente. Navegar de comentario a propuesta original y comparar con la versión corregida. Exportar resumen de sesión con comentarios, decisiones y referencias; excluir material privado de cualquier salida pública. |
+| MENT-FEAT-19 | MENT-FEAT-15…18 / M-11 | P1 · Todo | **Validación funcional HITL.** Verificar recorrido completo: abrir sesión → revelar assessment → comentar trigger, candidata y explicación → recargar → recuperar → resolver o vincular issue → repetir con reglas nuevas conservando originales. Cubrir negras, variantes, FEN repetida en distintas partidas, cambio rápido de posición, motor ausente, error de guardado y usuario sin acceso. Confirmar ausencia de filtración al recorrido ciego y que comentarios/resoluciones no marcan automáticamente M-11 como aprobado. Documentar evidencia de aceptación antes de marcar Done. |
+
+**Orden de implementación:** MENT-FEAT-15 → MENT-FEAT-16/17 → MENT-FEAT-18 → MENT-FEAT-19. Registrar feedback no requiere ejecutar un nuevo análisis de motor ni congelar las reglas. La sesión conserva su juicio humano inicial separado de los comentarios posteriores. El feedback describe la calidad de la propuesta del sistema y cómo convendría razonar; no certifica qué pensó realmente el jugador.
+
 ### Orden y cierre
 
 1. BUG-099 + FEAT-100: aislar alcance de edición; no corregir corpus histórico sin revisar IDs afectados.
 2. MENT-BUG-01/02/03/06: eliminar errores semánticos y fuga retrospectiva antes de evaluar fiabilidad.
 3. Sesión MENT-FEAT-01: registrar feedback incluso si esos arreglos aún no están desplegados, etiquetando versión y limitaciones.
-4. MENT-BUG-04/05/07 y MENT-FEAT-02…08 según decisiones del instructor.
+4. MENT-BUG-04/05/07 y MENT-FEAT-02…19 según decisiones del instructor.
 5. EST-BUG-01/02 y BUG-098 con verificación en Render; Reportes continúa en backlog.
 
 El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas documentadas de desacuerdo, cero P0 semánticos pendientes y pruebas de regresión de los bugs corregidos. El 80% de acuerdo de M-11 es un criterio exploratorio, no una medida de precisión general del producto. Ver [guía de sesión](../deep_analysis/coach-mental-review-2026-11-09.md).
@@ -335,7 +381,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…08</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>

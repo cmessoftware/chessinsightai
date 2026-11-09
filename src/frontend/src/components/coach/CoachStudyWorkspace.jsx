@@ -787,6 +787,7 @@ export default function CoachStudyWorkspace({
                     viewOnly={criticalMode}
                     onMove={handleBoardMove}
                     boardWidth={width}
+                    boardId="chessinsight-board-fullscreen"
                     enableSquareCircles={!criticalMode}
                     squareCircles={squareCircles}
                     onSquareCirclesChange={handleSquareCirclesChange}
