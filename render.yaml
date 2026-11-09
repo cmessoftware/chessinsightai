@@ -79,6 +79,9 @@ services:
         source: /login
         destination: /index.html
       - type: rewrite
+        source: /changelog
+        destination: /index.html
+      - type: rewrite
         source: /unauthorized
         destination: /index.html
       - type: rewrite

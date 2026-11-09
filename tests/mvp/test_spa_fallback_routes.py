@@ -35,6 +35,7 @@ def resolve(path: str) -> str:
 def test_direct_app_routes_serve_the_spa():
     for path in (
         "/login",
+        "/changelog",
         "/unauthorized",
         "/coach",
         "/coach/partidas",
