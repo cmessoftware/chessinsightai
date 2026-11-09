@@ -98,6 +98,7 @@ import {
     downloadTextFile,
     joinGamePgnsForExport,
 } from '../../utils/coachGamesPgnExport.js'
+import { bulkEditIds, pruneSelection, selectionAfterLoad } from '../../utils/coachGameSelection.js'
 
 const COACH_JOBS_PAGE_SIZE = 5
 const COACH_GAMES_PAGE_SIZE = 20
@@ -692,8 +693,8 @@ export default function CoachGamesPanel() {
     }, [])
 
     const applyBulkCategoryAssign = (value) => {
-        if (!value || selectedIds.size === 0) return
-        const ids = [...selectedIds]
+        const ids = bulkEditIds(selectedIds)
+        if (!value || ids.length === 0) return
         const categoryId = value === COACH_CATEGORY_AUTO ? null : value
         const next = setCoachGameCategoryOverridesBulk(ids, categoryId, categoryOverrides)
         setCategoryOverrides(next)
@@ -707,8 +708,8 @@ export default function CoachGamesPanel() {
 
     const applyBulkCorpus = async (value) => {
         const corpus = String(value || '').trim()
-        if (!corpus || selectedIds.size === 0) return
-        const ids = [...selectedIds]
+        const ids = bulkEditIds(selectedIds)
+        if (!corpus || ids.length === 0) return
         setUpdatingCorpus(true)
         setError(null)
         try {
@@ -800,31 +801,28 @@ export default function CoachGamesPanel() {
         setGamesPage(0)
     }
 
-    const initialSelectionDone = useRef(false)
     const importHighlightKey = useRef(null)
 
     useEffect(() => {
         const fromImport = location.state?.highlightGameIds
         const highlightKey =
             fromImport?.length > 0 ? fromImport.slice().sort().join(',') : null
-        if (highlightKey && importHighlightKey.current !== highlightKey) {
-            importHighlightKey.current = highlightKey
-            initialSelectionDone.current = true
-            const queueable = new Set(queueableGames.map((g) => g.id))
-            setSelectedIds(new Set(fromImport.filter((id) => queueable.has(id))))
-            return
-        }
-        if (initialSelectionDone.current || !games.length) return
-        initialSelectionDone.current = true
-        setSelectedIds(new Set(queueableGames.map((g) => g.id)))
-    }, [queueableGames, games.length, location.state?.highlightGameIds])
+        if (!highlightKey || importHighlightKey.current === highlightKey) return
+        importHighlightKey.current = highlightKey
+        const ids = selectionAfterLoad({
+            highlightIds: fromImport,
+            queueableIds: queueableGames.map((g) => g.id),
+        })
+        setSelectedIds(new Set(ids))
+    }, [queueableGames, location.state?.highlightGameIds])
 
     useEffect(() => {
-        const valid = new Set(games.map((g) => g.id))
+        const valid = games.map((g) => g.id)
         setSelectedIds((prev) => {
             if (!prev.size) return prev
-            const next = new Set([...prev].filter((id) => valid.has(id)))
-            return next.size === prev.size ? prev : next
+            const nextIds = pruneSelection(prev, valid)
+            if (nextIds.length === prev.size) return prev
+            return new Set(nextIds)
         })
     }, [games])
 
@@ -896,7 +894,7 @@ export default function CoachGamesPanel() {
     }
 
     const requestDeleteGames = (ids) => {
-        const unique = [...new Set(ids)].filter(Boolean)
+        const unique = bulkEditIds(ids)
         if (!unique.length) return
         const message =
             unique.length === 1
@@ -919,7 +917,7 @@ export default function CoachGamesPanel() {
     const cancelPendingDelete = () => setPendingDelete(null)
 
     const exportSelectedGamesPgns = async () => {
-        const ids = [...selectedIds]
+        const ids = bulkEditIds(selectedIds)
         if (!ids.length) return
         setExportingPgns(true)
         setError(null)
