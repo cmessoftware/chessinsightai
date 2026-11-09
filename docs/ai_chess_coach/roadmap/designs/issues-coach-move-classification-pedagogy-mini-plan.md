@@ -227,6 +227,9 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-111</td><td></td><td></td><td>Agregar link al documento del changelog (PR #228) accesible desde el número de versión, por ejemplo beta-00035f0.</td><td>⬜ Todo</td><td>En el stash estaba numerado FEAT-102. Ese ID quedó en la epic de ejercitaciones.</td></tr>
 <tr><td>FEAT-111</td><td></td><td></td><td>Agregar link al documento del changelog (PR #228) accesible desde el número de versión, por ejemplo beta-00035f0.</td><td>⬜ Todo</td><td>En el stash estaba numerado FEAT-102. Ese ID quedó en la epic de ejercitaciones.</td></tr>
 <tr><td>FEAT-112</td><td></td><td></td><td>En tablero de analsis cambiar "IR A COLA DE ANALISIS" por un icono acorde a "Ejecutar analisi profundo" (usar ese texto como tooltip) , cuando el usaurio presione mostrar un spinner no pasar a la pagian de Partidas.  </td><td>⬜ Todo</td><td></td></tr>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 </tbody>
 </table>
