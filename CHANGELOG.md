@@ -19,7 +19,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Biblioteca con campos de catálogo, ordenamiento, columnas configurables, categorías y ritmos (#187–#195, #203, #204).
 - Comentarios y etiquetas por jugada, selector de coronación y persistencia/edición de estudios (#197, #198, #204, #214).
 - Gestión de usuarios y roles (#211); estadísticas en la interfaz y persistidas en Postgres, comparación por color y cálculo bajo demanda (#218, #225).
-- La etiqueta `beta-<commit>` abre este changelog (#228, FEAT-111).
+- La etiqueta `beta-<commit>` abre este changelog (#228, #243, FEAT-111).
 
 ### Changed
 
@@ -51,6 +51,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-09 | [#243](https://github.com/cmessoftware/chessinsightai/pull/243) | Cambio integrado | La etiqueta beta abre este changelog. El historial suma los pull requests mergeados hasta #241. |
 | 2026-11-09 | [#241](https://github.com/cmessoftware/chessinsightai/pull/241) | Cambio integrado | Las rutas de la SPA sirven `index.html`. Assets, `/api` y rutas desconocidas siguen igual. |
 | 2026-11-09 | [#231](https://github.com/cmessoftware/chessinsightai/pull/231) | Cambio integrado | Muestra el alcance de las partidas marcadas antes de cambiar categoría o fuente. |
 | 2026-11-09 | [#239](https://github.com/cmessoftware/chessinsightai/pull/239) | Documentación | Publica partidas de la revisión mental y deja un solo tracker de issues. |
