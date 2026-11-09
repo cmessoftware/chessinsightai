@@ -3,7 +3,7 @@
 **Estado:** Seguimiento activo (UI MVP liviano)
 **Actualizado:** 2026-11-06
 
-> **Sync (obligatorio):** **Canónico** — espejo en [`../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md](../deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md). Mismo cuerpo y mismo commit; solo cambia esta cabecera.
+> **Canónico.** No hay copia en `deep_analysis/`.
 
 **Spec origen:** [Clasificación de jugadas e importancia pedagógica](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md)
 **Mini-plan CA-*:** [coach-move-classification-pedagogy-mini-plan.md](./coach-move-classification-pedagogy-mini-plan.md)
@@ -121,6 +121,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-066</td><td>FEAT-08 / FEAT-021</td><td><strong>Persistir estudio:</strong> guardar variantes del tablero de análisis en el PGN de la partida del catálogo (<code>PATCH</code> <code>/api/v1/module07/games/{id}</code> o botón «Guardar estudio»). Al reabrir, reconstruir árbol desde PGN con RAV (no solo <code>buildTreeFromMainLine</code>). Comentarios/NAG por ply (FEAT-061) siguen en su tabla aparte.</td><td>✅ Done</td><td><code>coachPgnTreeParse</code>, <code>patchCoachGameStudyPgn</code>, autoguardado <code>useCoachStudyPersistence</code></td></tr>
 <tr><td>BUG-067</td><td>FEAT-09 / FEAT-45</td><td>Menú contextual PGN: no se podían borrar jugadas <strong>dentro</strong> de variantes (solo línea principal o quitar rama en la cabeza)</td><td>✅ Done</td><td><code>deleteLeafMoveAtPath</code>; truncar / borrar hoja / quitar variante completa en <code>CoachPgnMoveList</code></td></tr>
 <tr><td>FEAT-068</td><td>FEAT-032 / FEAT-036</td><td><strong>Ritmo Lichess:</strong> clasificar y mostrar ritmo desde reloj PGN (UltraBullet &lt;30 s, Bullet &lt;3 min, Blitz, Rapid, Classical); columna/descripción <code>formatCoachRhythmDisplay</code>; regla categoría <code>speed_class</code>; import <code>infer_speed_class_from_time_control</code></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/204">#204</a></td></tr>
+<tr><td>FEAT-069</td><td><a href="../../spec_sparring_maia_stockfish_unificado.md#spar-03">SPAR-03</a></td><td>Coach → <strong>Sparring</strong>: subnav + tarjeta en <strong>home</strong> (<code>sparring.png</code>), ruta <code>/coach/sparring</code>, status <code>GET /api/v1/sparring/status</code>; tablero SPAR-08 reutiliza UI Coach</td><td>🔄 WIP</td><td><a href="../deep_analysis/issues-sparring-maia-server-mini-plan.md">Mini plan Sparring Maia</a> · rama <code>feature/11_070_eval_chart_collapsible</code>. <code>CoachSparringPage</code> · <a href="https://github.com/cmessoftware/chessinsightai/pull/206">#206</a>; home y tablero pendientes.</td></tr>
 <tr><td>FEAT-070</td><td>FEAT-047</td><td>Panel del <strong>gráfico de evaluación</strong> (pestaña Motor / análisis liviano): colapsable, <strong>expandido por defecto</strong></td><td>✅ Done</td><td><code>CoachEvalChartCollapsible</code> · <a href="https://github.com/cmessoftware/chessinsightai/pull/208">#208</a> (incl. #207)</td></tr>
 <tr><td>FEAT-071</td><td>FEAT-08</td><td><strong>Pantalla completa</strong> del tablero en análisis: solo tablero + flechas de navegación; panel <strong>PGN a la derecha</strong> visible por defecto; opción para <strong>ocultar</strong> el PGN</td><td>✅ Done</td><td><code>CoachBoardFullscreenOverlay</code> · <a href="https://github.com/cmessoftware/chessinsightai/pull/208">#208</a></td></tr>
 <tr><td>FEAT-072</td><td>FEAT-021</td><td>En lista de <strong>Partidas</strong>, botón para <strong>exportar</strong> el PGN (con variantes guardadas en catálogo) de las partidas seleccionadas</td><td>✅ Done</td><td><code>CoachGamesPanel</code> · <code>coachGamesPgnExport.js</code> · <code>feature/11_072_export_selected_pgn</code></td></tr>
@@ -375,7 +376,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 </thead>
 <tbody>
 <tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, BUG-099, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos)</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-098/099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
