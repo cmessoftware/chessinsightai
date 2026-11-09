@@ -10,19 +10,19 @@
 
 **Alcance vigente:** el modelo mental se usa para **rapid y ritmos más lentos** (clásicas y correspondencia). **Blitz y bullet quedan excluidos** de ejemplos, controles, calibración, métricas y validación pedagógica; tampoco se usan como complemento. Las partidas de torneo de los estudios públicos son **clásicas**: 45 minutos, 60 o más, según el torneo. El PGN exportado no trae el reloj numérico; no se inventa el control exacto de cada evento y no se las etiqueta como rapid.
 
-[PGN públicos de referencia E1 y E2](./coach-mental-review-2026-11-09.pgn). E1 sale del estudio Lichess **Principio de Iniciativa**: Morphy–Duke of Brunswick (1858). E2 sale de **Metodo de la eliminación y comparacion**: L'Ami–Vidit (2023), fragmento hasta 9.cxd5, sin continuación inventada. Hay un ejemplo más por estudio en la [sección 9](#9-un-ejemplo-por-estudio-de-lichess). Legalidad de las FEN nuevas verificada con python-chess. No se ejecutó Stockfish para establecer mejores jugadas o evaluaciones. No se copian los comentarios de los estudios.
+[PGN de ejemplo](./coach-mental-review-2026-11-09.pgn). Cada partida es el capítulo publicado completo, con sus variantes y comentarios, tal como lo exporta el estudio. E1 sale de **Principio de Iniciativa**: Morphy–Duke of Brunswick (1858); C13, C14 y C15 repiten ese capítulo y marcan la posición a analizar. E2 sale de **Metodo de la eliminación y comparacion**: L'Ami–Vidit (2023), partida completa. Hay un ejemplo más por estudio en la [sección 9](#9-un-ejemplo-por-estudio-de-lichess). Legalidad de las FEN nuevas verificada con python-chess. No se ejecutó Stockfish para establecer mejores jugadas o evaluaciones.
 
 El protocolo completo con ejemplos propios y FEN se entrega a Sergio por separado. Este documento público conserva el procedimiento, los temas de comparación y las referencias públicas, sin publicar los PGN propios ni sus metadatos. Los IDs P1–P3/C01–C16 son códigos del protocolo privado, sin enlace a partidas personales.
 
-E1 no representa elite moderna y puede ser conocido de memoria; E2 es corto. No son una muestra representativa. Completar con posición tranquila de medio juego y final de elite moderna elegidos por el instructor. Si reconoce un caso, anotarlo y excluirlo de medición ciega del alumno. Los recortes con Result * no se usan para estadísticas globales.
+E1 no representa elite moderna y puede ser conocido de memoria. E2 es una sola partida completa. No son una muestra representativa. Completar con posición tranquila de medio juego y final de elite moderna elegidos por el instructor. Si reconoce un caso, anotarlo y excluirlo de medición ciega del alumno. El PGN de ejemplo conserva el resultado de cada capítulo publicado.
 
-Los tags ReviewPOV/ReviewCorpus documentan intención; no se presupone que el importador los aplique. E2 usa SetUp/FEN para conservar el fragmento corto. Si la política lo omite, usar su FEN y declarar el contexto faltante.
+Los tags ReviewPOV/ReviewCorpus documentan intención; no se presupone que el importador los aplique. Cada caso trae el capítulo completo; el comentario inicial indica la posición a analizar.
 
 ## 2. Preparación antes de la reunión
 
 1. Entrar por la raíz de ChessDash y usar el menú interno mientras BUG-098 siga abierto. Registrar fecha, beta/commit, reglas, navegador, dispositivo y disponibilidad del motor. No usar Reportes.
 2. Preferir cuenta de prueba/biblioteca aislada. Guardar los originales y trabajar con copias de los ejemplos. No reasignar corpus en bloque en la biblioteca real mientras BUG-099 siga abierto; la separación P/E también está en los IDs del protocolo.
-3. Importar los cinco capítulos del material completo o los dos del PGN público de referencias; comprobar jugadores, jugadas y FEN. Confirmar el conteo correspondiente; resolver duplicados/omitidos antes de comparar. No lanzar Analizar todas.
+3. Importar el PGN de ejemplo: cinco capítulos publicados (C13–C15 repiten Morphy) más E3, E4 y E5. Comprobar jugadores, jugadas, variantes y FEN. Resolver duplicados antes de comparar. No lanzar Analizar todas.
 4. Configurar explícitamente el POV según la tabla. Importar no garantiza que el tag ReviewPOV sea interpretado. Para un caso de negras seleccionar una jugada negra; verificar que la posición evaluada sea **la anterior a esa jugada** y que el turno de la FEN coincida.
 5. Abrir Mental 1600. Para el recorrido ciego cubrir/ocultar PGN futuro, resultado, panel mental y motor; si la UI no permite ocultarlos, mostrar al instructor solo tablero o FEN fuera de la vista de esas salidas. Operador conoce el caso; revisor no ve la continuación.
 6. Activar el análisis liviano desde Motor solo al llegar a la fase de contraste. Esperar evidencia de MultiPV terminado para ese FEN, anotar profundidad y fuente. Si no hay MultiPV, registrar no disponible; no contar ausencia como desacuerdo pedagógico. El fallo de estadísticas no impide esta revisión.
@@ -139,7 +139,7 @@ Un capítulo público de cada estudio. El título es el `StudyName` exportado po
 | E1 | [Principio de Iniciativa](https://lichess.org/study/0DIi9xBK/g4XCL2I5) | Morphy–Duke of Brunswick, 1858 | 9.Ag5 | Ya es C13. Iniciativa frente a una captura tentadora |
 | E2 | [Metodo de la eliminación y comparacion](https://lichess.org/study/MAjiqRfC/a4uWaS04) | L'Ami–Vidit, Grand Swiss 2023 | 9.cxd5 | Ya es C16. Comparar si se resuelve o se mantiene la tensión |
 | E4 | [Posiciones con centro abierto y cerrado](https://lichess.org/study/B7MMty6b/PW3dVLRL) | Amonatov–Rakhmanov, Moscú 2007 | 16...c5 | Decidir si se abre el centro |
-| E5 | [Ejecución de Planes](https://lichess.org/study/CUexpH0y/UXWWnSnW) | Harikrishna–Caruana, Saint Louis rapid 2019 | 15.d4 | Ejecutar la ruptura central. El capítulo público termina en 22...c5; no se inventa el resto |
+| E5 | [Ejecución de Planes](https://lichess.org/study/CUexpH0y/UXWWnSnW) | Harikrishna–Caruana, Saint Louis rapid 2019 | 15.d4 | Ejecutar la ruptura central. El PGN copia el capítulo publicado, que termina en 22...c5 e incluye la variante 22.Bf3 |
 
 ### E3 · Errores en las aperturas · antes de 9...Aa6
 

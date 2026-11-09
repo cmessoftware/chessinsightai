@@ -42,6 +42,25 @@ describe('coachPartidasAdvancedFilters', () => {
         expect(query).toEqual({ rhythms: ['rapid', 'blitz'] })
     })
 
+    it('sends a partial name of at least 3 characters', () => {
+        const query = buildCoachPartidasListQuery({
+            ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+            whitePlayer: 'car',
+            blackPlayer: 'vi',
+            studyName: 'ini',
+        })
+        expect(query).toEqual({
+            white_player: 'car',
+            study_name: 'ini',
+        })
+        expect(
+            coachPartidasAdvancedFiltersActive({
+                ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+                blackPlayer: 'vi',
+            }),
+        ).toBe(false)
+    })
+
     it('sends the study name', () => {
         const query = buildCoachPartidasListQuery({
             ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
@@ -72,6 +91,15 @@ describe('coachPartidasAdvancedFilters', () => {
                 importedFrom: '2026-03-01',
             }),
         ).toBe(true)
+    })
+
+    it('keeps Fuente categories out of the API query', () => {
+        const filters = {
+            ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
+            sourceIds: ['torneo', 'chesscom'],
+        }
+        expect(coachPartidasAdvancedFiltersActive(filters)).toBe(true)
+        expect(buildCoachPartidasListQuery(filters)).toEqual({})
     })
 
     it('returns empty query when inactive', () => {

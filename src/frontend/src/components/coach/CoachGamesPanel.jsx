@@ -38,7 +38,6 @@ import {
     deleteCoachGame,
     deleteCoachGames,
     getGame,
-    listCoachCorpusTypes,
     listGames,
     listJobs,
     parseApiDetail,
@@ -55,8 +54,8 @@ import {
     CoachStatusBadgeRow,
 } from './coachPanelStatus.jsx'
 import {
+    coachCorpusAssignOptions,
     formatCoachCatalogSource,
-    formatCoachCorpusType,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
     formatCoachPartidaTableLabel,
@@ -65,6 +64,7 @@ import {
 import { sortCoachGames } from '../../utils/coachGamesSort.js'
 import {
     coachGameMatchesCategoryFilter,
+    coachGameMatchesSourceFilter,
     listCoachGameCategoryFilters,
     resolveCoachGameCategory,
 } from '../../utils/coachGameCategory.js'
@@ -503,23 +503,13 @@ function PartidaTitleCell({ game, importTag, onSaved, onError }) {
 
 const analysisLinkState = { returnTo: COACH_RETURN_PARTIDAS }
 
-const ADMIN_CORPUS_OPTIONS = [
-    { value: 'personal', label: 'Personal' },
-    { value: 'elite', label: 'Elite' },
-    { value: 'fide', label: 'FIDE' },
-    { value: 'novice', label: 'Novice' },
-    { value: 'stockfish', label: 'Stockfish' },
-]
-
-const USER_CORPUS_OPTIONS = [{ value: 'personal', label: 'Personal' }]
-
 /** Cola module07 + tabla de partidas importadas (tab Coach → Partidas). */
 export default function CoachGamesPanel() {
     const location = useLocation()
     const navigate = useNavigate()
     const { user } = useAuth()
     const isAdmin = Boolean(user?.roles?.includes('admin'))
-    const corpusOptions = isAdmin ? ADMIN_CORPUS_OPTIONS : USER_CORPUS_OPTIONS
+    const corpusOptions = coachCorpusAssignOptions(isAdmin)
     const [jobs, setJobs] = useState([])
     const [games, setGames] = useState([])
     const [error, setError] = useState(null)
@@ -552,7 +542,6 @@ export default function CoachGamesPanel() {
     const [advancedApplied, setAdvancedApplied] = useState(() => ({
         ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
     }))
-    const [corpusTypeOptions, setCorpusTypeOptions] = useState([])
     const [ecoOpeningsCatalog, setEcoOpeningsCatalog] = useState([])
     const [openingCatalogSearch, setOpeningCatalogSearch] = useState('')
 
@@ -634,10 +623,22 @@ export default function CoachGamesPanel() {
 
     const filteredGames = useMemo(
         () =>
-            games.filter((g) =>
-                coachGameMatchesCategoryFilter(g, categoryFilter, gameCategories, categoryOverrides),
+            games.filter(
+                (g) =>
+                    coachGameMatchesCategoryFilter(
+                        g,
+                        categoryFilter,
+                        gameCategories,
+                        categoryOverrides,
+                    ) &&
+                    coachGameMatchesSourceFilter(
+                        g,
+                        advancedApplied.sourceIds,
+                        gameCategories,
+                        categoryOverrides,
+                    ),
             ),
-        [games, categoryFilter, gameCategories, categoryOverrides],
+        [games, categoryFilter, gameCategories, categoryOverrides, advancedApplied.sourceIds],
     )
 
     const sortedGames = useMemo(
@@ -846,11 +847,6 @@ export default function CoachGamesPanel() {
 
     useEffect(() => {
         let cancelled = false
-        listCoachCorpusTypes()
-            .then((types) => {
-                if (!cancelled) setCorpusTypeOptions(types)
-            })
-            .catch(() => {})
         loadEcoOpeningsCatalog()
             .then(({ openings }) => {
                 if (!cancelled) setEcoOpeningsCatalog(openings)
@@ -1237,37 +1233,42 @@ export default function CoachGamesPanel() {
                     }}
                 >
                     <FormControl size="small" fullWidth>
-                        <InputLabel id="coach-adv-corpus-label">Fuente (corpus)</InputLabel>
+                        <InputLabel id="coach-adv-source-label">Fuente</InputLabel>
                         <Select
-                            labelId="coach-adv-corpus-label"
+                            labelId="coach-adv-source-label"
                             multiple
-                            label="Fuente (corpus)"
-                            value={advancedDraft.corpusTypes}
+                            label="Fuente"
+                            value={advancedDraft.sourceIds || []}
                             onChange={(e) => {
                                 const value = e.target.value
                                 setAdvancedDraft((prev) => ({
                                     ...prev,
-                                    corpusTypes:
-                                        typeof value === 'string' ? value.split(',') : value,
+                                    sourceIds: typeof value === 'string' ? value.split(',') : value,
                                 }))
                             }}
                             renderValue={(selected) =>
                                 selected.length
-                                    ? selected.map((v) => formatCoachCorpusType(v)).join(', ')
+                                    ? selected
+                                          .map(
+                                              (id) =>
+                                                  assignableCategories.find((cat) => cat.id === id)
+                                                      ?.label || id,
+                                          )
+                                          .join(', ')
                                     : 'Todas'
                             }
                         >
-                            {corpusTypeOptions.map((corpus) => (
-                                <MenuItem key={corpus} value={corpus}>
+                            {assignableCategories.map((cat) => (
+                                <MenuItem key={cat.id} value={cat.id}>
                                     <Checkbox
-                                        checked={advancedDraft.corpusTypes.indexOf(corpus) > -1}
+                                        checked={(advancedDraft.sourceIds || []).indexOf(cat.id) > -1}
                                     />
-                                    {formatCoachCorpusType(corpus)}
+                                    {cat.label}
                                 </MenuItem>
                             ))}
-                            {!corpusTypeOptions.length && (
+                            {!assignableCategories.length && (
                                 <MenuItem disabled value="">
-                                    Sin corpus en biblioteca
+                                    Sin fuentes configuradas
                                 </MenuItem>
                             )}
                         </Select>
@@ -1339,7 +1340,13 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Estudio"
-                        placeholder="Nombre, o *Larsen*"
+                        placeholder="Parte del nombre"
+                        helperText={
+                            (advancedDraft.studyName || '').trim().length > 0 &&
+                            (advancedDraft.studyName || '').trim().length < 3
+                                ? 'Mínimo 3 caracteres'
+                                : ' '
+                        }
                         value={advancedDraft.studyName || ''}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({
@@ -1352,7 +1359,13 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Jugador blancas"
-                        placeholder="Ej. Carlsen o *club*"
+                        placeholder="Parte del nombre"
+                        helperText={
+                            advancedDraft.whitePlayer.trim().length > 0 &&
+                            advancedDraft.whitePlayer.trim().length < 3
+                                ? 'Mínimo 3 caracteres'
+                                : ' '
+                        }
                         value={advancedDraft.whitePlayer}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({
@@ -1365,7 +1378,13 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Jugador negras"
-                        placeholder="Comodín *"
+                        placeholder="Parte del nombre"
+                        helperText={
+                            advancedDraft.blackPlayer.trim().length > 0 &&
+                            advancedDraft.blackPlayer.trim().length < 3
+                                ? 'Mínimo 3 caracteres'
+                                : ' '
+                        }
                         value={advancedDraft.blackPlayer}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({
