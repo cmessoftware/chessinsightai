@@ -4,13 +4,13 @@
 
 **Objetivo:** determinar si el módulo ayuda a un jugador intermedio a reconocer cuándo detenerse, proponer opciones razonables, calcular la respuesta rival y elegir con criterio. El Elo del instructor aporta experiencia de revisión; no sustituye evidencia de uso con alumnos.
 
-**Tracker:** [issues de Coach](./issues-coach-move-classification-pedagogy-mini-plan.md), FEAT-07 / MENT-BUG-01…07 / MENT-FEAT-01…08. **Gate existente:** [M-11](./coach-mental-1600-hitl-checklist.md). Fuente técnica revisada: `main` b7d18587, reglas `v1`. Registrar la versión realmente usada el lunes.
+**Tracker:** [issues de Coach](../designs/issues-coach-move-classification-pedagogy-mini-plan.md), FEAT-07 / MENT-BUG-01…07 / MENT-FEAT-01…08. **Gate existente:** [M-11](./coach-mental-1600-hitl-checklist.md). Fuente técnica revisada: `main` b7d18587, reglas `v1`. Registrar la versión realmente usada el lunes.
 
 ## 1. Material y límites
 
-**Alcance vigente:** análisis mental únicamente para **rapid o ritmos más lentos** (clásicas y correspondencia). **Blitz y bullet quedan excluidos** de ejemplos, controles, calibración, métricas y validación pedagógica; tampoco se usan como complemento. Las referencias de estudio sin reloj se trabajan sin límite de tiempo y no se etiquetan como rapid ni se incorporan a métricas por ritmo sin verificar su control original.
+**Alcance vigente:** el modelo mental se usa para **rapid y ritmos más lentos** (clásicas y correspondencia). **Blitz y bullet quedan excluidos** de ejemplos, controles, calibración, métricas y validación pedagógica; tampoco se usan como complemento. Las partidas de torneo de los estudios públicos son **clásicas**: 45 minutos, 60 o más, según el torneo. El PGN exportado no trae el reloj numérico; no se inventa el control exacto de cada evento y no se las etiqueta como rapid.
 
-[PGN públicos de referencia E1 y E2](./coach-mental-review-2026-11-09.pgn). E1: Morphy–Duke of Brunswick (1858), partida clásica de iniciativa. E2: L'Ami–Vidit (2023), fragmento de decisión central desde FEN, sin continuación inventada. Movimientos tomados del material aportado para la revisión; páginas Lichess no recuperables durante esta sesión. Legalidad verificada con python-chess. No se ejecutó Stockfish para establecer mejores jugadas o evaluaciones.
+[PGN públicos de referencia E1 y E2](./coach-mental-review-2026-11-09.pgn). E1 sale del estudio Lichess **Principio de Iniciativa**: Morphy–Duke of Brunswick (1858). E2 sale de **Metodo de la eliminación y comparacion**: L'Ami–Vidit (2023), fragmento hasta 9.cxd5, sin continuación inventada. Hay un ejemplo más por estudio en la [sección 9](#9-un-ejemplo-por-estudio-de-lichess). Legalidad de las FEN nuevas verificada con python-chess. No se ejecutó Stockfish para establecer mejores jugadas o evaluaciones. No se copian los comentarios de los estudios.
 
 El protocolo completo con ejemplos propios y FEN se entrega a Sergio por separado. Este documento público conserva el procedimiento, los temas de comparación y las referencias públicas, sin publicar los PGN propios ni sus metadatos. Los IDs P1–P3/C01–C16 son códigos del protocolo privado, sin enlace a partidas personales.
 
@@ -66,7 +66,7 @@ No se fijan de antemano modo ni candidatas correctas: los controles tranquilos t
 | C15 | E1 antes de 16.Qb8+ | Jaque con sacrificio: control negativo de S2 |
 | C16 | E2 antes de 9.cxd5 | Resolver tensión central; discutir con el instructor |
 
-Comparar recaptura/tensión, iniciativa, estructura y sacrificio por tema. No tratar estos grupos como pares de igual dificultad ni como experimento causal. El conjunto privado contiene 16 decisiones sin complemento blitz.
+Comparar recaptura/tensión, iniciativa, estructura y sacrificio por tema. No tratar estos grupos como pares de igual dificultad ni como experimento causal. El conjunto privado contiene 16 decisiones sin complemento blitz. Los cinco estudios públicos de la [sección 9](#9-un-ejemplo-por-estudio-de-lichess) suman un ejemplo cada uno; E1 y E2 ya están en C13 y C16.
 
 ## 6. Controles funcionales y bugs de biblioteca
 
@@ -103,6 +103,8 @@ La FEN aislada no contiene la última jugada rival. Usar PGN cuando el trigger d
 
 ### C13 · E1 · antes de 9.Bg5
 
+Estudio **Principio de Iniciativa**, capítulo Morphy–Duke of Brunswick. [Capítulo](https://lichess.org/study/0DIi9xBK/g4XCL2I5).
+
 ```text
 rn2kb1r/pp2qppp/2p2n2/4p3/2B1P3/1QN5/PPP2PPP/R1B1K2R w KQkq - 0 9
 ```
@@ -121,7 +123,39 @@ rn2kb1r/p3qppp/2p2n2/1p2p1B1/2B1P3/1QN5/PPP2PPP/R3K2R w KQkq - 0 10
 
 ### C16 · E2 · antes de 9.cxd5
 
+Estudio **Metodo de la eliminación y comparacion**, capítulo L'Ami–Vidit. [Capítulo](https://lichess.org/study/MAjiqRfC/a4uWaS04).
+
 ```text
 r1bqr1k1/ppp2ppp/2n1pn2/3p4/2PP4/P1Q1P3/1P2NPPP/R1B1KB1R w KQ - 0 9
+```
+
+## 9. Un ejemplo por estudio de Lichess
+
+Un capítulo público de cada estudio. El título es el `StudyName` exportado por Lichess. La jugada indicada es la de la partida, para el operador; en la fase ciega no se muestra. Estas posiciones no sustituyen C01–C12, que son las rapid propias. E2, E3 y E4 son clásicas de torneo: 45 minutos, 60 o más, según el evento, y por eso entran en el modelo mental. E1 es una clásica histórica de referencia, sin reloj moderno en el PGN. E5 es la única cuyo nombre de evento ya dice rapid.
+
+| Id | Estudio | Capítulo | Antes de | Qué contrastar |
+| --- | --- | --- | --- | --- |
+| E3 | [Errores en las aperturas](https://lichess.org/study/KM1VdlIZ/3NTHt2nW) | Saemisch–Capablanca, Karlsbad 1929 | 9...Aa6 | Error de pieza en la apertura, con el turno de las negras |
+| E1 | [Principio de Iniciativa](https://lichess.org/study/0DIi9xBK/g4XCL2I5) | Morphy–Duke of Brunswick, 1858 | 9.Ag5 | Ya es C13. Iniciativa frente a una captura tentadora |
+| E2 | [Metodo de la eliminación y comparacion](https://lichess.org/study/MAjiqRfC/a4uWaS04) | L'Ami–Vidit, Grand Swiss 2023 | 9.cxd5 | Ya es C16. Comparar si se resuelve o se mantiene la tensión |
+| E4 | [Posiciones con centro abierto y cerrado](https://lichess.org/study/B7MMty6b/PW3dVLRL) | Amonatov–Rakhmanov, Moscú 2007 | 16...c5 | Decidir si se abre el centro |
+| E5 | [Ejecución de Planes](https://lichess.org/study/CUexpH0y/UXWWnSnW) | Harikrishna–Caruana, Saint Louis rapid 2019 | 15.d4 | Ejecutar la ruptura central. El capítulo público termina en 22...c5; no se inventa el resto |
+
+### E3 · Errores en las aperturas · antes de 9...Aa6
+
+```text
+r1bqk2r/p1p2ppp/1pnp1n2/4p3/2PPP3/P1PBBP2/6PP/R2QK1NR b KQkq - 1 9
+```
+
+### E4 · Posiciones con centro abierto y cerrado · antes de 16...c5
+
+```text
+r2q1rk1/pp2bpp1/2p1bn1p/3n4/3P4/2NB1N1P/PP1B1PP1/R2QR1K1 b - - 1 16
+```
+
+### E5 · Ejecución de Planes · antes de 15.d4
+
+```text
+r3rbk1/1pp2ppp/2nqb3/p3p3/Q3P3/2BP1NP1/PP3PBP/R2R2K1 w - - 1 15
 ```
 
