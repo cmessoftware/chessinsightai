@@ -180,6 +180,14 @@ def build_review_pack(
             "score": criticality.score,
             "level": criticality.level,
             "critical": criticality.critical,
+            "reasons": [
+                {
+                    "type": reason.type,
+                    "weight": reason.weight,
+                    "description": reason.description,
+                }
+                for reason in criticality.reasons
+            ],
         }
     if eval_loss is not None:
         pack["eval_loss"] = {
