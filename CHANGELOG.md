@@ -27,6 +27,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Marcas de estudio y análisis manual, filtros de importación/ritmo y búsqueda por estudio (#212, #215, #218, #224).
 - La selección masiva muestra cuántas partidas están marcadas en esta página y en otras, y pide confirmación antes de cambiar categoría o fuente (#231).
 - En Filtros avanzados, Jugador blancas, Jugador negras y Estudio buscan por nombre parcial, con mínimo de 3 caracteres. Fuente filtra por Torneo, Chess.com, Estudios, Lichess y el resto de categorías sin asignarlas (#244).
+- En el tablero de análisis, un icono ejecuta el análisis profundo y muestra un spinner sin salir de esa pantalla (#245).
 
 ### Fixed
 
@@ -44,6 +45,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Revisión Mental 1600, seguimiento M-11, feedback HITL y spec candidata de ejercitaciones: objetivos abiertos, fuentes de candidatas y fundamento por jugada (#229).
 - Partidas públicas de la revisión mental y un solo tracker de issues (#239).
 - El PGN de la revisión mental carga cada capítulo publicado completo, con variantes y comentarios (#244).
+- La tabla de issues separa la prioridad del estado. Una candidata se marca con ✨ (#245).
 
 ### Límites y trazabilidad
 
@@ -53,6 +55,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-09 | [#245](https://github.com/cmessoftware/chessinsightai/pull/245) | Cambio integrado | El tablero de análisis ejecuta el análisis profundo con un icono y un spinner, sin ir a Partidas. La tabla de issues separa la prioridad. |
 | 2026-11-09 | [#244](https://github.com/cmessoftware/chessinsightai/pull/244) | Cambio integrado | Jugador y estudio se buscan por nombre parcial. Fuente filtra por categoría sin asignarla. El PGN de revisión mental trae los capítulos completos. |
 | 2026-11-09 | [#243](https://github.com/cmessoftware/chessinsightai/pull/243) | Cambio integrado | La etiqueta beta abre este changelog. El historial suma los pull requests mergeados hasta #241. |
 | 2026-11-09 | [#241](https://github.com/cmessoftware/chessinsightai/pull/241) | Cambio integrado | Las rutas de la SPA sirven `index.html`. Assets, `/api` y rutas desconocidas siguen igual. |
