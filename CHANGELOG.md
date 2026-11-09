@@ -28,6 +28,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - La selección masiva muestra cuántas partidas están marcadas en esta página y en otras, y pide confirmación antes de cambiar categoría o fuente (#231).
 - En Filtros avanzados, Jugador blancas, Jugador negras y Estudio buscan por nombre parcial, con mínimo de 3 caracteres. Fuente filtra por Torneo, Chess.com, Estudios, Lichess y el resto de categorías sin asignarlas (#244).
 - En el tablero de análisis, un icono ejecuta el análisis profundo y muestra un spinner sin salir de esa pantalla (#245).
+- El panel de jugadas críticas abre el criterio del listado: puntaje, niveles y los cuatro motivos. El MultiPV no elige esas jugadas (#246).
 
 ### Fixed
 
@@ -55,6 +56,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-09 | [#246](https://github.com/cmessoftware/chessinsightai/pull/246) | Cambio integrado | La ayuda de jugadas críticas explica el puntaje, los niveles y los cuatro motivos. |
 | 2026-11-09 | [#245](https://github.com/cmessoftware/chessinsightai/pull/245) | Cambio integrado | El tablero de análisis ejecuta el análisis profundo con un icono y un spinner, sin ir a Partidas. La tabla de issues separa la prioridad. |
 | 2026-11-09 | [#244](https://github.com/cmessoftware/chessinsightai/pull/244) | Cambio integrado | Jugador y estudio se buscan por nombre parcial. Fuente filtra por categoría sin asignarla. El PGN de revisión mental trae los capítulos completos. |
 | 2026-11-09 | [#243](https://github.com/cmessoftware/chessinsightai/pull/243) | Cambio integrado | La etiqueta beta abre este changelog. El historial suma los pull requests mergeados hasta #241. |
