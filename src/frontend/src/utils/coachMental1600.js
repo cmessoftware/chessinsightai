@@ -85,9 +85,9 @@ function squareName(sq) {
     return sq
 }
 
+/** Geometric attack by `color`, including the side that is not to move. Not a legal capture and not a win. */
 function isAttackedBy(chess, square, color) {
-    const moves = chess.moves({ verbose: true })
-    return moves.some((m) => m.to === square && m.color === color)
+    return chess.isAttacked(square, color)
 }
 
 /** @returns {{ square: string, piece: string }[]} */
@@ -199,16 +199,13 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
         })
     }
 
-    if (kingSq) {
-        const attackers = chess.moves({ verbose: true }).filter((m) => m.to === kingSq).length
-        if (attackers >= 1) {
-            triggers.push({
-                code: 'E7',
-                label_es: TRIGGER_LABELS.E7,
-                confidence: 0.8,
-                evidence: [`Rey expuesto en ${kingSq}`],
-            })
-        }
+    if (kingSq && isAttackedBy(chess, kingSq, opponent)) {
+        triggers.push({
+            code: 'E7',
+            label_es: TRIGGER_LABELS.E7,
+            confidence: 0.8,
+            evidence: [`Rey expuesto en ${kingSq}`],
+        })
     }
 
     const ownHang = attackedUndefended(chess, player, 3)
