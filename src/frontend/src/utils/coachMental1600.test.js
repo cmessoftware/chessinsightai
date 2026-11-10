@@ -24,15 +24,16 @@ describe('coachMental1600', () => {
         expect(result.thinking_plan.some((s) => s.node_id === 'C1')).toBe(true)
     })
 
-    it('large eval shift triggers critical + E11', () => {
-        const result = assessDecisionPoint({
-            fen: new Chess().fen(),
-            scoreDiffBefore: 20,
-            scoreDiffAfter: 150,
-        })
-        expect(result.mode).toBe('critical')
-        expect(result.triggers.some((t) => t.code === 'E11')).toBe(true)
-        expect(result.mapped_07_reasons).toContain('EvaluationInstability')
+    it('a large eval shift stays in the post-move review and does not change prior criticality', () => {
+        const fen = new Chess().fen()
+        const quiet = assessDecisionPoint({ fen, playedMoveUci: 'e2e4', scoreDiffBefore: 20, scoreDiffAfter: 30 })
+        const blunder = assessDecisionPoint({ fen, playedMoveUci: 'a2a3', scoreDiffBefore: 20, scoreDiffAfter: 150 })
+        expect(blunder.mode).toBe('fast')
+        expect(blunder.mode).toBe(quiet.mode)
+        expect(blunder.triggers.map((t) => t.code)).toEqual(quiet.triggers.map((t) => t.code))
+        expect(blunder.triggers.some((t) => t.code === 'E11')).toBe(false)
+        expect(blunder.meta.post_move_review).toMatchObject({ code: 'E11', eval_shift_cp: 130 })
+        expect(quiet.meta.post_move_review).toBeUndefined()
     })
 
     it('quiet sicilian line after d6 is not critical from captures alone', () => {

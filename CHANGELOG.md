@@ -32,6 +32,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Fixed
 
+- El modo crítico de Mental 1600 ya no depende de la jugada ya hecha. La diferencia de evaluación queda como revisión posterior (#235).
 - S2 de Mental 1600 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta (#234).
 - Mental 1600 conserva la última jugada rival al evaluar los triggers. Sin esa jugada, una FEN sola no inventa la captura ni el tempo (#233).
 - Mental 1600 mira ataques y defensas de ambos colores. Una pieza atacada y defendida no se presenta como material gratis (#232).
@@ -59,6 +60,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-10 | [#235](https://github.com/cmessoftware/chessinsightai/pull/235) | Cambio integrado | El modo crítico ya no depende de la jugada hecha. Esa diferencia queda como revisión posterior. |
 | 2026-11-10 | [#234](https://github.com/cmessoftware/chessinsightai/pull/234) | Cambio integrado | S2 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta. |
 | 2026-11-10 | [#233](https://github.com/cmessoftware/chessinsightai/pull/233) | Cambio integrado | Los triggers de Mental 1600 reciben la última jugada rival. Una FEN sola no inventa la captura ni el tempo. |
 | 2026-11-10 | [#232](https://github.com/cmessoftware/chessinsightai/pull/232) | Cambio integrado | Mental 1600 calcula ataques y defensas de ambos colores. Una pieza defendida no se presenta como material gratis. |

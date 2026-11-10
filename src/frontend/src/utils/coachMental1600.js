@@ -14,7 +14,6 @@ const PAUSE_BY_TIME_CONTROL = {
     classical: 30,
 }
 
-const FAST_PATH_EVAL_DELTA = 40
 const EVAL_SHIFT_CP = 80
 
 const TRIGGER_LABELS = {
@@ -131,7 +130,7 @@ function pieceNameEs(type) {
     return map[type] || type
 }
 
-function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount, lastMove = null }) {
+function detectTriggers(chess, { candidateCount, lastMove = null }) {
     /** @type {{ code: string, label_es: string, confidence: number, evidence: string[] }[]} */
     const triggers = []
     const player = chess.turn()
@@ -228,18 +227,6 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
             confidence: 0.78,
             evidence: [`Tu ${pieceNameEs(piece)} en ${square} sin defensa`],
         })
-    }
-
-    if (scoreDiffBefore != null && scoreDiffAfter != null) {
-        const delta = Math.abs(Number(scoreDiffAfter) - Number(scoreDiffBefore))
-        if (delta >= EVAL_SHIFT_CP) {
-            triggers.push({
-                code: 'E11',
-                label_es: TRIGGER_LABELS.E11,
-                confidence: Math.min(0.95, 0.6 + delta / 400),
-                evidence: [`Cambio de eval ≈ ${Math.round(delta)} cp`],
-            })
-        }
     }
 
     if (candidateCount != null && candidateCount >= 3) {
@@ -487,19 +474,16 @@ export function assessDecisionPoint({
         lastOpponentVerbose = findVerboseMove(prior, lastOpponentMoveUci)
     }
     const triggers = detectTriggers(chess, {
-        scoreDiffBefore,
-        scoreDiffAfter,
         candidateCount,
         lastMove: lastOpponentVerbose,
     })
     const notable = detectNotableCritical(chess, lastOpponentVerbose)
+    const critical = notable.length > 0
 
     let evalDelta = null
     if (scoreDiffBefore != null && scoreDiffAfter != null) {
         evalDelta = Math.abs(Number(scoreDiffAfter) - Number(scoreDiffBefore))
     }
-    const evalDrop = evalDelta != null && evalDelta >= FAST_PATH_EVAL_DELTA
-    const critical = evalDrop || notable.length > 0
 
     const elo = playerElo ?? 1600
     /** @type {Record<string, unknown>} */
@@ -513,6 +497,13 @@ export function assessDecisionPoint({
 
     const ordered = orderTopMovesByCategory(chess, topMovesUci)
     if (ordered.length) meta.ordered_candidates = ordered
+    if (evalDelta != null && evalDelta >= EVAL_SHIFT_CP) {
+        meta.post_move_review = {
+            code: 'E11',
+            label_es: TRIGGER_LABELS.E11,
+            eval_shift_cp: Math.round(evalDelta),
+        }
+    }
 
     let antiBlunderFailed = []
     if (playedMoveUci) {
