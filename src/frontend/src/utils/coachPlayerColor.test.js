@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveCoachPlayerColor } from './coachPlayerColor.js'
+import { coachDeepAnalysisUsername, resolveCoachPlayerColor } from './coachPlayerColor.js'
 
 describe('resolveCoachPlayerColor', () => {
     it('uses explicit player_color', () => {
@@ -18,5 +18,27 @@ describe('resolveCoachPlayerColor', () => {
 
     it('defaults to white', () => {
         expect(resolveCoachPlayerColor({})).toBe('white')
+    })
+})
+
+describe('coachDeepAnalysisUsername', () => {
+    it('keeps the saved player username', () => {
+        expect(
+            coachDeepAnalysisUsername({
+                player_username: 'cmess1315',
+                white_player: 'Alice',
+                black_player: 'cmess1315',
+            }),
+        ).toBe('cmess1315')
+    })
+
+    it('uses the PGN name of the resolved color', () => {
+        expect(
+            coachDeepAnalysisUsername({
+                player_color: 'black',
+                white_player: 'Alice',
+                black_player: 'Bob',
+            }),
+        ).toBe('Bob')
     })
 })

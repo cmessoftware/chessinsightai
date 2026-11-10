@@ -22,11 +22,31 @@ def wildcard_to_ilike_pattern(raw: str) -> str:
     for ch in text:
         if ch == "*":
             out.append("%")
-        elif ch in ("%", "_"):
+        elif ch in ("%", "_", "\\"):
             out.append(f"\\{ch}")
         else:
             out.append(ch)
     return "".join(out)
+
+
+_MIN_PARTIAL_NAME = 3
+
+
+def normalize_partial_name(raw: str | None) -> str | None:
+    """Keep a name query only when it has at least 3 characters. `*` is literal."""
+    text = (raw or "").strip()
+    if len(text) < _MIN_PARTIAL_NAME:
+        return None
+    return text
+
+
+def partial_name_ilike_pattern(raw: str) -> str:
+    """Substring ILIKE for player and study names. No wildcard. Short text does not match."""
+    text = normalize_partial_name(raw)
+    if not text:
+        return ""
+    escaped = "".join(f"\\{ch}" if ch in ("%", "_", "\\") else ch for ch in text)
+    return f"%{escaped}%"
 
 
 def _normalize_date_key(raw: str | None) -> str | None:
@@ -56,13 +76,11 @@ def _normalize_rhythms(values: list[str] | None) -> tuple[str, ...]:
 
 
 def study_name_ilike_pattern(raw: str) -> str:
-    """Match the PGN ``StudyName`` tag. A value without ``*`` is a substring."""
-    text = (raw or "").strip()
-    if not text:
+    """Match the PGN ``StudyName`` tag by partial name. ``*`` is not a wildcard."""
+    inner = partial_name_ilike_pattern(raw)
+    if not inner:
         return ""
-    if "*" not in text:
-        text = f"*{text}*"
-    return f'[StudyName "{wildcard_to_ilike_pattern(text)}"]'
+    return f'[StudyName "{inner}"]'
 
 
 def _imported_bound(raw: str | None, *, end: bool) -> datetime | None:
@@ -141,8 +159,8 @@ class CoachGameListFilters:
             merged_results.extend(r.strip() for r in result_values if r and str(r).strip())
         return cls(
             corpus_types=tuple(dict.fromkeys(merged_corpus)),
-            white_player=(white_player or "").strip() or None,
-            black_player=(black_player or "").strip() or None,
+            white_player=normalize_partial_name(white_player),
+            black_player=normalize_partial_name(black_player),
             eco=(eco or "").strip() or None,
             opening=(opening or "").strip() or None,
             opening_eco_or=bool(opening_eco_or),
@@ -151,7 +169,7 @@ class CoachGameListFilters:
             imported_from=_normalize_date_key(imported_from),
             imported_to=_normalize_date_key(imported_to),
             rhythms=_normalize_rhythms(rhythms),
-            study_name=(study_name or "").strip() or None,
+            study_name=normalize_partial_name(study_name),
             results=tuple(dict.fromkeys(merged_results)),
             limit=limit,
             offset=max(0, int(offset or 0)),
@@ -185,8 +203,8 @@ def apply_coach_game_list_filters(
     if filters.corpus_types:
         query = query.filter(coach_model.corpus_type.in_(list(filters.corpus_types)))
 
-    white_pat = wildcard_to_ilike_pattern(filters.white_player or "")
-    black_pat = wildcard_to_ilike_pattern(filters.black_player or "")
+    white_pat = partial_name_ilike_pattern(filters.white_player or "")
+    black_pat = partial_name_ilike_pattern(filters.black_player or "")
     if white_pat and black_pat:
         query = query.filter(
             or_(g.white_player.ilike(white_pat), g.black_player.ilike(black_pat))
@@ -221,8 +239,9 @@ def apply_coach_game_list_filters(
     if filters.rhythms:
         query = query.filter(coach_model.speed_class.in_(list(filters.rhythms)))
 
-    if filters.study_name:
-        query = query.filter(g.pgn.ilike(study_name_ilike_pattern(filters.study_name)))
+    study_pat = study_name_ilike_pattern(filters.study_name or "")
+    if study_pat:
+        query = query.filter(g.pgn.ilike(study_pat))
 
     if filters.results:
         query = query.filter(g.result.in_(list(filters.results)))

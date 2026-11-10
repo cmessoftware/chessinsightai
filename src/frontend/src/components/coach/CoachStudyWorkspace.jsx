@@ -3,6 +3,7 @@ import {
     Alert,
     Box,
     Button,
+    CircularProgress,
     Grid,
     IconButton,
     Paper,
@@ -19,6 +20,7 @@ import {
     NavigateBefore,
     NavigateNext,
     PowerSettingsNew,
+    QueryStats,
 } from '@mui/icons-material'
 import CoachBoardFullscreenOverlay from './CoachBoardFullscreenOverlay.jsx'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
@@ -118,6 +120,7 @@ export default function CoachStudyWorkspace({
     showMentalTab = false,
     decisionsPanel = null,
     topAlerts = null,
+    deepAnalysis = null,
     persistClassification = true,
     embedded = false,
     rootPositionLabel = 'Posición inicial',
@@ -787,6 +790,7 @@ export default function CoachStudyWorkspace({
                     viewOnly={criticalMode}
                     onMove={handleBoardMove}
                     boardWidth={width}
+                    boardId="chessinsight-board-fullscreen"
                     enableSquareCircles={!criticalMode}
                     squareCircles={squareCircles}
                     onSquareCirclesChange={handleSquareCirclesChange}
@@ -943,6 +947,26 @@ export default function CoachStudyWorkspace({
                         >
                             {renderManualAnalysisCheckbox()}
                             <Box sx={{ display: 'flex', marginLeft: 'auto' }}>
+                            {deepAnalysis && (
+                                <Tooltip title="Ejecutar análisis profundo">
+                                    <span>
+                                        <IconButton
+                                            size="small"
+                                            onClick={deepAnalysis.onRun}
+                                            disabled={
+                                                deepAnalysis.running || deepAnalysis.disabled
+                                            }
+                                            aria-label="Ejecutar análisis profundo"
+                                        >
+                                            {deepAnalysis.running ? (
+                                                <CircularProgress size={18} />
+                                            ) : (
+                                                <QueryStats fontSize="small" />
+                                            )}
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+                            )}
                             {!criticalMode && (
                                 <Tooltip title="Pantalla completa (tablero y PGN)">
                                     <IconButton

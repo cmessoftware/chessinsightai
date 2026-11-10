@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BETA_LABEL, PRODUCT_NAME, betaLabelFromVersion } from './productBrand.js'
+import { BETA_LABEL, CHANGELOG_PATH, PRODUCT_NAME, betaLabelFromVersion } from './productBrand.js'
 
 describe('productBrand', () => {
     it('names this beta ChessDash', () => {
@@ -11,5 +11,9 @@ describe('productBrand', () => {
         expect(betaLabelFromVersion('v0.1.595-ABCDEF1')).toBe('beta-abcdef1')
         expect(betaLabelFromVersion('')).toBe('beta-dev')
         expect(BETA_LABEL).toMatch(/^beta-[0-9a-f]{7}$/)
+    })
+
+    it('points the beta label at the changelog', () => {
+        expect(CHANGELOG_PATH).toBe('/changelog')
     })
 })

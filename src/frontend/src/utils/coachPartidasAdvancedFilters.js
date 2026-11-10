@@ -15,6 +15,8 @@ export const COACH_RHYTHM_FILTER_OPTIONS = [
 
 export const EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS = {
     corpusTypes: [],
+    /** Category ids used only to filter (Torneo, Chess.com, corpus, …). */
+    sourceIds: [],
     whitePlayer: '',
     blackPlayer: '',
     eco: '',
@@ -29,6 +31,11 @@ export const EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS = {
     results: [],
 }
 
+function partialNameQuery(value) {
+    const text = String(value || '').trim()
+    return text.length >= 3 ? text : ''
+}
+
 /**
  * @param {typeof EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS} filters
  * @returns {boolean}
@@ -37,8 +44,9 @@ export function coachPartidasAdvancedFiltersActive(filters) {
     if (!filters) return false
     return Boolean(
         filters.corpusTypes?.length ||
-            String(filters.whitePlayer || '').trim() ||
-            String(filters.blackPlayer || '').trim() ||
+            filters.sourceIds?.length ||
+            partialNameQuery(filters.whitePlayer) ||
+            partialNameQuery(filters.blackPlayer) ||
             String(filters.eco || '').trim() ||
             filters.openingCatalog?.eco ||
             String(filters.dateFrom || '').trim() ||
@@ -46,7 +54,7 @@ export function coachPartidasAdvancedFiltersActive(filters) {
             String(filters.importedFrom || '').trim() ||
             String(filters.importedTo || '').trim() ||
             filters.rhythms?.length ||
-            String(filters.studyName || '').trim() ||
+            partialNameQuery(filters.studyName) ||
             filters.results?.length,
     )
 }
@@ -64,8 +72,8 @@ export function buildCoachPartidasListQuery(filters) {
     if (filters.corpusTypes?.length) {
         query.corpus_types = [...filters.corpusTypes]
     }
-    const white = String(filters.whitePlayer || '').trim()
-    const black = String(filters.blackPlayer || '').trim()
+    const white = partialNameQuery(filters.whitePlayer)
+    const black = partialNameQuery(filters.blackPlayer)
     if (white) query.white_player = white
     if (black) query.black_player = black
     if (filters.openingCatalog?.eco && filters.openingCatalog?.name) {
@@ -87,7 +95,7 @@ export function buildCoachPartidasListQuery(filters) {
     if (filters.rhythms?.length) {
         query.rhythms = [...filters.rhythms]
     }
-    const studyName = String(filters.studyName || '').trim()
+    const studyName = partialNameQuery(filters.studyName)
     if (studyName) query.study_name = studyName
     if (filters.results?.length) {
         query.results = [...filters.results]

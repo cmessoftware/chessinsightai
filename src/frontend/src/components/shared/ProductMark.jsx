@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material'
-import { BETA_LABEL, PRODUCT_NAME } from '../../utils/productBrand.js'
+import { Link as RouterLink } from 'react-router-dom'
+import { BETA_LABEL, CHANGELOG_PATH, PRODUCT_NAME } from '../../utils/productBrand.js'
 
 /** FEAT-082: ChessDash with beta-<commit> under the name. */
 export default function ProductMark({
@@ -27,8 +28,19 @@ export default function ProductMark({
             </Typography>
             <Typography
                 variant="caption"
-                component="div"
-                sx={{ opacity: 0.8, letterSpacing: 0.3, lineHeight: 1.2 }}
+                component={RouterLink}
+                to={CHANGELOG_PATH}
+                onClick={(event) => event.stopPropagation()}
+                aria-label="Abrir el changelog"
+                sx={{
+                    opacity: 0.8,
+                    letterSpacing: 0.3,
+                    lineHeight: 1.2,
+                    color: 'inherit',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: 2,
+                    width: 'fit-content',
+                }}
             >
                 {BETA_LABEL}
             </Typography>

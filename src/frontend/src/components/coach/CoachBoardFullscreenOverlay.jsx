@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
     Box,
     IconButton,
@@ -20,6 +20,7 @@ import {
     NavigateNext,
 } from '@mui/icons-material'
 import { usePgnKeyboardNav } from '../../hooks/usePgnKeyboardNav.js'
+import { fitFullscreenBoardWidth } from '../../utils/coachFullscreenBoardFit.js'
 
 /** FEAT-071: pantalla completa tablero + flechas de navegación; PGN lateral (visible por defecto, ocultable). */
 export default function CoachBoardFullscreenOverlay({
@@ -44,6 +45,7 @@ export default function CoachBoardFullscreenOverlay({
     const panelRef = useRef(null)
     const columnRef = useRef(null)
     const slotRef = useRef(null)
+    const stackRef = useRef(null)
     const arrowsRef = useRef(null)
     const annotationRef = useRef(null)
     const [boardWidth, setBoardWidth] = useState(480)
@@ -78,26 +80,37 @@ export default function CoachBoardFullscreenOverlay({
         return () => window.cancelAnimationFrame(id)
     }, [open])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!open) return undefined
         const column = columnRef.current
         const slot = slotRef.current
         if (!column || !slot || typeof ResizeObserver === 'undefined') return undefined
         const measure = () => {
-            const arrowsH = arrowsRef.current?.offsetHeight ?? 40
-            const noteH = annotationRef.current?.offsetHeight ?? 0
             const slotStyle = window.getComputedStyle(slot)
-            const padTop = Number.parseFloat(slotStyle.paddingTop) || 0
-            const padBottom = Number.parseFloat(slotStyle.paddingBottom) || 0
-            // Strips above and below the square. Padding on the slot is the visible margin.
-            const captures = 44
-            const fromSlot = slot.clientHeight - padTop - padBottom - captures - 12
-            const fromViewport = window.innerHeight - arrowsH - noteH - captures - padTop - padBottom - 80
-            const w = Math.min(720, slot.clientWidth - 16, fromSlot, fromViewport)
-            if (!Number.isFinite(w) || w < 160) return
-            setBoardWidth(Math.floor(w))
+            const padX =
+                (Number.parseFloat(slotStyle.paddingLeft) || 0) +
+                (Number.parseFloat(slotStyle.paddingRight) || 0)
+            const padY =
+                (Number.parseFloat(slotStyle.paddingTop) || 0) +
+                (Number.parseFloat(slotStyle.paddingBottom) || 0)
+            const stack = stackRef.current
+            const square = stack?.querySelector('[data-coach-board-square]')
+            let chrome = 44
+            if (square && square.offsetHeight >= 80 && square.offsetWidth >= 80) {
+                chrome = Math.max(0, Math.ceil(stack.offsetHeight - square.offsetHeight))
+            }
+            const w = fitFullscreenBoardWidth({
+                slotWidth: slot.clientWidth,
+                slotHeight: slot.clientHeight,
+                padX,
+                padY,
+                chrome,
+            })
+            if (w == null) return
+            setBoardWidth((prev) => (prev === w ? prev : w))
         }
         measure()
+        const frame = window.requestAnimationFrame(measure)
         const observer = new ResizeObserver(measure)
         observer.observe(column)
         observer.observe(slot)
@@ -105,6 +118,7 @@ export default function CoachBoardFullscreenOverlay({
         if (annotationRef.current) observer.observe(annotationRef.current)
         window.addEventListener('resize', measure)
         return () => {
+            window.cancelAnimationFrame(frame)
             observer.disconnect()
             window.removeEventListener('resize', measure)
         }
@@ -118,10 +132,14 @@ export default function CoachBoardFullscreenOverlay({
                 sx={{
                     position: 'fixed',
                     inset: 0,
+                    width: '100vw',
+                    height: '100dvh',
+                    maxHeight: '100dvh',
                     bgcolor: 'background.default',
                     display: 'flex',
                     flexDirection: 'column',
                     outline: 'none',
+                    overflow: 'hidden',
                 }}
             >
                 <Stack
@@ -197,20 +215,18 @@ export default function CoachBoardFullscreenOverlay({
                             sx={{
                                 flex: '1 1 0px',
                                 display: 'flex',
-                                flexDirection: 'column',
                                 alignItems: 'center',
-                                justifyContent: 'flex-start',
+                                justifyContent: 'center',
                                 minWidth: 0,
                                 minHeight: 0,
                                 overflow: 'hidden',
-                                px: 1,
-                                pt: 3,
-                                pb: 1,
+                                px: 2,
+                                py: 1,
                                 boxSizing: 'border-box',
                                 outline: 'none',
                             }}
                         >
-                            <Box sx={{ width: boardWidth, flexShrink: 0 }}>
+                            <Box ref={stackRef} sx={{ width: boardWidth, maxWidth: '100%', flexShrink: 0 }}>
                                 {typeof board === 'function' ? board(boardWidth) : board}
                             </Box>
                         </Box>
@@ -278,6 +294,8 @@ export default function CoachBoardFullscreenOverlay({
                             sx={{
                                 width: { xs: '42%', sm: 360 },
                                 maxWidth: 420,
+                                minHeight: 0,
+                                alignSelf: 'stretch',
                                 borderLeft: 1,
                                 borderColor: 'divider',
                                 display: 'flex',

@@ -162,6 +162,6 @@ ML aquí puede ser **statistical / isotonic / GAM** sobre agregados; no hace fal
 
 ## 8. Referencias
 
-- [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) (BUG-12)
+- [issues-coach-move-classification-pedagogy-mini-plan.md](../designs/issues-coach-move-classification-pedagogy-mini-plan.md) (BUG-12)
 - [Clasificación … §8](../../Clasificación_de_%20jugadas_e_%20importancia%20pedagógica.md) — validación mínima
 - Roadmap [00-roadmap-index.md](../00-roadmap-index.md) — HITL ×5, expert_gold
