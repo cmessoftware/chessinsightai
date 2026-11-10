@@ -24,15 +24,16 @@ describe('coachMental1600', () => {
         expect(result.thinking_plan.some((s) => s.node_id === 'C1')).toBe(true)
     })
 
-    it('large eval shift triggers critical + E11', () => {
-        const result = assessDecisionPoint({
-            fen: new Chess().fen(),
-            scoreDiffBefore: 20,
-            scoreDiffAfter: 150,
-        })
-        expect(result.mode).toBe('critical')
-        expect(result.triggers.some((t) => t.code === 'E11')).toBe(true)
-        expect(result.mapped_07_reasons).toContain('EvaluationInstability')
+    it('a large eval shift stays in the post-move review and does not change prior criticality', () => {
+        const fen = new Chess().fen()
+        const quiet = assessDecisionPoint({ fen, playedMoveUci: 'e2e4', scoreDiffBefore: 20, scoreDiffAfter: 30 })
+        const blunder = assessDecisionPoint({ fen, playedMoveUci: 'a2a3', scoreDiffBefore: 20, scoreDiffAfter: 150 })
+        expect(blunder.mode).toBe('fast')
+        expect(blunder.mode).toBe(quiet.mode)
+        expect(blunder.triggers.map((t) => t.code)).toEqual(quiet.triggers.map((t) => t.code))
+        expect(blunder.triggers.some((t) => t.code === 'E11')).toBe(false)
+        expect(blunder.meta.post_move_review).toMatchObject({ code: 'E11', eval_shift_cp: 130 })
+        expect(quiet.meta.post_move_review).toBeUndefined()
     })
 
     it('quiet sicilian line after d6 is not critical from captures alone', () => {
@@ -40,6 +41,28 @@ describe('coachMental1600', () => {
         const result = assessDecisionPoint({ fen })
         expect(result.mode).toBe('fast')
         expect(result.triggers.some((t) => t.code === 'E2')).toBe(false)
+    })
+
+    it('reads a central capture and a pawn tempo from the previous move, not from an empty FEN history', () => {
+        const captureFen = playSans(undefined, ['e4', 'e5', 'd4', 'exd4'])
+        const capturePrior = playSans(undefined, ['e4', 'e5', 'd4'])
+        const capture = assessDecisionPoint({
+            fen: captureFen,
+            lastOpponentMoveUci: 'e5d4',
+            grandparentFen: capturePrior,
+        })
+        expect(capture.triggers.some((t) => t.code === 'E6')).toBe(true)
+        expect(assessDecisionPoint({ fen: captureFen }).triggers.some((t) => t.code === 'E6')).toBe(false)
+
+        const tempoPrior = playSans(undefined, ['e4', 'Nc6', 'd4', 'a6'])
+        const tempoFen = playSans(undefined, ['e4', 'Nc6', 'd4', 'a6', 'd5'])
+        const tempo = assessDecisionPoint({
+            fen: tempoFen,
+            lastOpponentMoveUci: 'd4d5',
+            grandparentFen: tempoPrior,
+        })
+        expect(tempo.triggers.some((t) => t.code === 'E4')).toBe(true)
+        expect(assessDecisionPoint({ fen: tempoFen }).triggers.some((t) => t.code === 'E4')).toBe(false)
     })
 
     it('exd4 recapture position is critical (notable)', () => {
@@ -72,6 +95,40 @@ describe('coachMental1600', () => {
         expect(ordered[0].category).toBeDefined()
     })
 
+    it('sees attacks and defenders of the side that is not to move', () => {
+        const hanging = assessDecisionPoint({
+            fen: '4r1k1/8/8/8/8/8/4Q3/6K1 w - - 0 1',
+        })
+        expect(hanging.triggers.some((t) => t.code === 'E8')).toBe(true)
+
+        const defended = assessDecisionPoint({
+            fen: '4r1k1/8/8/8/8/8/4Q3/4K3 w - - 0 1',
+        })
+        expect(defended.triggers.some((t) => t.code === 'E8')).toBe(false)
+
+        const pawnAttack = assessDecisionPoint({
+            fen: '8/8/8/3p4/2B5/8/8/4K2k w - - 0 1',
+        })
+        expect(pawnAttack.triggers.some((t) => t.code === 'E8')).toBe(true)
+
+        const pawnDefended = assessDecisionPoint({
+            fen: '8/8/8/3p4/2B5/1P6/8/4K2k w - - 0 1',
+        })
+        expect(pawnDefended.triggers.some((t) => t.code === 'E8')).toBe(false)
+    })
+
+    it('does not call a defended queen free material', () => {
+        const hanging = assessDecisionPoint({
+            fen: 'q6k/8/2B5/8/8/8/8/4K3 w - - 0 1',
+        })
+        expect(hanging.triggers.some((t) => t.code === 'E1')).toBe(true)
+
+        const defended = assessDecisionPoint({
+            fen: 'q6k/8/2B5/8/8/8/r7/4K3 w - - 0 1',
+        })
+        expect(defended.triggers.some((t) => t.code === 'E1')).toBe(false)
+    })
+
     it('runAntiBlunderChecks flags obvious major capture allowed', () => {
         const fen = 'rnbqkb1r/pppp1ppp/5n2/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 2 3'
         const chess = new Chess(fen)
@@ -79,5 +136,14 @@ describe('coachMental1600', () => {
         expect(qxf7).toBeTruthy()
         const failed = runAntiBlunderChecks(chess, qxf7)
         expect(failed).toContain('S3')
+        expect(failed).not.toContain('S2')
+    })
+
+    it('does not treat giving mate as leaving your own king in check', () => {
+        const fen = playSans(undefined, ['e4', 'e5', 'Qh5', 'Nc6', 'Bc4', 'Nf6'])
+        const chess = new Chess(fen)
+        const mate = chess.moves({ verbose: true }).find((m) => m.san === 'Qxf7#')
+        expect(mate).toBeTruthy()
+        expect(runAntiBlunderChecks(chess, mate)).not.toContain('S2')
     })
 })

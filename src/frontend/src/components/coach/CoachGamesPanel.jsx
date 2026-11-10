@@ -38,7 +38,6 @@ import {
     deleteCoachGame,
     deleteCoachGames,
     getGame,
-    listCoachCorpusTypes,
     listGames,
     listJobs,
     parseApiDetail,
@@ -55,8 +54,8 @@ import {
     CoachStatusBadgeRow,
 } from './coachPanelStatus.jsx'
 import {
+    coachCorpusAssignOptions,
     formatCoachCatalogSource,
-    formatCoachCorpusType,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
     formatCoachPartidaTableLabel,
@@ -65,6 +64,7 @@ import {
 import { sortCoachGames } from '../../utils/coachGamesSort.js'
 import {
     coachGameMatchesCategoryFilter,
+    coachGameMatchesSourceFilter,
     listCoachGameCategoryFilters,
     resolveCoachGameCategory,
 } from '../../utils/coachGameCategory.js'
@@ -98,6 +98,12 @@ import {
     downloadTextFile,
     joinGamePgnsForExport,
 } from '../../utils/coachGamesPgnExport.js'
+import {
+    bulkEditIds,
+    pruneSelection,
+    selectionAfterLoad,
+    selectionScope,
+} from '../../utils/coachGameSelection.js'
 
 const COACH_JOBS_PAGE_SIZE = 5
 const COACH_GAMES_PAGE_SIZE = 20
@@ -497,23 +503,13 @@ function PartidaTitleCell({ game, importTag, onSaved, onError }) {
 
 const analysisLinkState = { returnTo: COACH_RETURN_PARTIDAS }
 
-const ADMIN_CORPUS_OPTIONS = [
-    { value: 'personal', label: 'Personal' },
-    { value: 'elite', label: 'Elite' },
-    { value: 'fide', label: 'FIDE' },
-    { value: 'novice', label: 'Novice' },
-    { value: 'stockfish', label: 'Stockfish' },
-]
-
-const USER_CORPUS_OPTIONS = [{ value: 'personal', label: 'Personal' }]
-
 /** Cola module07 + tabla de partidas importadas (tab Coach → Partidas). */
 export default function CoachGamesPanel() {
     const location = useLocation()
     const navigate = useNavigate()
     const { user } = useAuth()
     const isAdmin = Boolean(user?.roles?.includes('admin'))
-    const corpusOptions = isAdmin ? ADMIN_CORPUS_OPTIONS : USER_CORPUS_OPTIONS
+    const corpusOptions = coachCorpusAssignOptions(isAdmin)
     const [jobs, setJobs] = useState([])
     const [games, setGames] = useState([])
     const [error, setError] = useState(null)
@@ -524,6 +520,7 @@ export default function CoachGamesPanel() {
     const [deleting, setDeleting] = useState(false)
     const [exportingPgns, setExportingPgns] = useState(false)
     const [pendingDelete, setPendingDelete] = useState(null)
+    const [pendingBulk, setPendingBulk] = useState(null)
     const [refreshing, setRefreshing] = useState(false)
     const [sortBy, setSortBy] = useState(null)
     const [sortDirection, setSortDirection] = useState('asc')
@@ -545,7 +542,6 @@ export default function CoachGamesPanel() {
     const [advancedApplied, setAdvancedApplied] = useState(() => ({
         ...EMPTY_COACH_PARTIDAS_ADVANCED_FILTERS,
     }))
-    const [corpusTypeOptions, setCorpusTypeOptions] = useState([])
     const [ecoOpeningsCatalog, setEcoOpeningsCatalog] = useState([])
     const [openingCatalogSearch, setOpeningCatalogSearch] = useState('')
 
@@ -627,10 +623,22 @@ export default function CoachGamesPanel() {
 
     const filteredGames = useMemo(
         () =>
-            games.filter((g) =>
-                coachGameMatchesCategoryFilter(g, categoryFilter, gameCategories, categoryOverrides),
+            games.filter(
+                (g) =>
+                    coachGameMatchesCategoryFilter(
+                        g,
+                        categoryFilter,
+                        gameCategories,
+                        categoryOverrides,
+                    ) &&
+                    coachGameMatchesSourceFilter(
+                        g,
+                        advancedApplied.sourceIds,
+                        gameCategories,
+                        categoryOverrides,
+                    ),
             ),
-        [games, categoryFilter, gameCategories, categoryOverrides],
+        [games, categoryFilter, gameCategories, categoryOverrides, advancedApplied.sourceIds],
     )
 
     const sortedGames = useMemo(
@@ -655,6 +663,78 @@ export default function CoachGamesPanel() {
         }
         return n
     }, [paginatedGames, selectedIds])
+
+    const editScope = useMemo(
+        () =>
+            selectionScope({
+                selectedIds,
+                pageIds: paginatedGames.map((g) => g.id),
+            }),
+        [selectedIds, paginatedGames],
+    )
+
+    const selectPageGames = () => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev)
+            for (const g of paginatedGames) next.add(g.id)
+            return next
+        })
+    }
+
+    const selectFilteredGames = () => {
+        setSelectedIds(new Set(sortedGames.map((g) => g.id)))
+    }
+
+    const clearGameSelection = () => {
+        setSelectedIds(new Set())
+        setPendingBulk(null)
+    }
+
+    const requestBulkCategory = (value) => {
+        const ids = bulkEditIds(selectedIds)
+        if (!value || ids.length === 0) {
+            setBulkCategoryAssign('')
+            return
+        }
+        setBulkCategoryAssign(value)
+        setPendingBulk({
+            kind: 'category',
+            value,
+            ids,
+            message: `Categoría sobre ${ids.length} partida(s) marcada(s). No incluye el resto de la biblioteca.`,
+            confirmLabel: 'Aplicar a la selección',
+        })
+    }
+
+    const requestBulkCorpus = (value) => {
+        const ids = bulkEditIds(selectedIds)
+        if (!value || ids.length === 0) {
+            setBulkCorpus('')
+            return
+        }
+        setBulkCorpus(value)
+        setPendingBulk({
+            kind: 'corpus',
+            value,
+            ids,
+            message: `Fuente sobre ${ids.length} partida(s) marcada(s). No incluye el resto de la biblioteca.`,
+            confirmLabel: 'Aplicar a la selección',
+        })
+    }
+
+    const confirmPendingBulk = () => {
+        if (!pendingBulk?.ids?.length) return
+        const action = pendingBulk
+        setPendingBulk(null)
+        if (action.kind === 'category') applyBulkCategoryAssign(action.value, action.ids)
+        else void applyBulkCorpus(action.value, action.ids)
+    }
+
+    const cancelPendingBulk = () => {
+        setPendingBulk(null)
+        setBulkCategoryAssign('')
+        setBulkCorpus('')
+    }
 
     useEffect(() => {
         setJobsPage(0)
@@ -691,28 +771,28 @@ export default function CoachGamesPanel() {
         return () => window.removeEventListener(COACH_PARTIDAS_CATEGORIES_CHANGED, syncCategories)
     }, [])
 
-    const applyBulkCategoryAssign = (value) => {
-        if (!value || selectedIds.size === 0) return
-        const ids = [...selectedIds]
+    const applyBulkCategoryAssign = (value, ids) => {
+        const unique = bulkEditIds(ids)
+        if (!value || unique.length === 0) return
         const categoryId = value === COACH_CATEGORY_AUTO ? null : value
-        const next = setCoachGameCategoryOverridesBulk(ids, categoryId, categoryOverrides)
+        const next = setCoachGameCategoryOverridesBulk(unique, categoryId, categoryOverrides)
         setCategoryOverrides(next)
         setBulkCategoryAssign('')
         setInfo(
             categoryId
-                ? `Categoría asignada a ${ids.length} partida(s).`
-                : `Categoría automática restaurada en ${ids.length} partida(s).`,
+                ? `Categoría asignada a ${unique.length} partida(s).`
+                : `Categoría automática restaurada en ${unique.length} partida(s).`,
         )
     }
 
-    const applyBulkCorpus = async (value) => {
+    const applyBulkCorpus = async (value, ids = bulkEditIds(selectedIds)) => {
         const corpus = String(value || '').trim()
-        if (!corpus || selectedIds.size === 0) return
-        const ids = [...selectedIds]
+        const unique = bulkEditIds(ids)
+        if (!corpus || unique.length === 0) return
         setUpdatingCorpus(true)
         setError(null)
         try {
-            const result = await bulkUpdateCoachGamesCorpus(ids, corpus)
+            const result = await bulkUpdateCoachGamesCorpus(unique, corpus)
             const updated = new Set(result.updated || [])
             setGames((prev) =>
                 prev.map((row) =>
@@ -767,11 +847,6 @@ export default function CoachGamesPanel() {
 
     useEffect(() => {
         let cancelled = false
-        listCoachCorpusTypes()
-            .then((types) => {
-                if (!cancelled) setCorpusTypeOptions(types)
-            })
-            .catch(() => {})
         loadEcoOpeningsCatalog()
             .then(({ openings }) => {
                 if (!cancelled) setEcoOpeningsCatalog(openings)
@@ -800,31 +875,28 @@ export default function CoachGamesPanel() {
         setGamesPage(0)
     }
 
-    const initialSelectionDone = useRef(false)
     const importHighlightKey = useRef(null)
 
     useEffect(() => {
         const fromImport = location.state?.highlightGameIds
         const highlightKey =
             fromImport?.length > 0 ? fromImport.slice().sort().join(',') : null
-        if (highlightKey && importHighlightKey.current !== highlightKey) {
-            importHighlightKey.current = highlightKey
-            initialSelectionDone.current = true
-            const queueable = new Set(queueableGames.map((g) => g.id))
-            setSelectedIds(new Set(fromImport.filter((id) => queueable.has(id))))
-            return
-        }
-        if (initialSelectionDone.current || !games.length) return
-        initialSelectionDone.current = true
-        setSelectedIds(new Set(queueableGames.map((g) => g.id)))
-    }, [queueableGames, games.length, location.state?.highlightGameIds])
+        if (!highlightKey || importHighlightKey.current === highlightKey) return
+        importHighlightKey.current = highlightKey
+        const ids = selectionAfterLoad({
+            highlightIds: fromImport,
+            queueableIds: queueableGames.map((g) => g.id),
+        })
+        setSelectedIds(new Set(ids))
+    }, [queueableGames, location.state?.highlightGameIds])
 
     useEffect(() => {
-        const valid = new Set(games.map((g) => g.id))
+        const valid = games.map((g) => g.id)
         setSelectedIds((prev) => {
             if (!prev.size) return prev
-            const next = new Set([...prev].filter((id) => valid.has(id)))
-            return next.size === prev.size ? prev : next
+            const nextIds = pruneSelection(prev, valid)
+            if (nextIds.length === prev.size) return prev
+            return new Set(nextIds)
         })
     }, [games])
 
@@ -896,7 +968,7 @@ export default function CoachGamesPanel() {
     }
 
     const requestDeleteGames = (ids) => {
-        const unique = [...new Set(ids)].filter(Boolean)
+        const unique = bulkEditIds(ids)
         if (!unique.length) return
         const message =
             unique.length === 1
@@ -919,7 +991,7 @@ export default function CoachGamesPanel() {
     const cancelPendingDelete = () => setPendingDelete(null)
 
     const exportSelectedGamesPgns = async () => {
-        const ids = [...selectedIds]
+        const ids = bulkEditIds(selectedIds)
         if (!ids.length) return
         setExportingPgns(true)
         setError(null)
@@ -1161,37 +1233,42 @@ export default function CoachGamesPanel() {
                     }}
                 >
                     <FormControl size="small" fullWidth>
-                        <InputLabel id="coach-adv-corpus-label">Fuente (corpus)</InputLabel>
+                        <InputLabel id="coach-adv-source-label">Fuente</InputLabel>
                         <Select
-                            labelId="coach-adv-corpus-label"
+                            labelId="coach-adv-source-label"
                             multiple
-                            label="Fuente (corpus)"
-                            value={advancedDraft.corpusTypes}
+                            label="Fuente"
+                            value={advancedDraft.sourceIds || []}
                             onChange={(e) => {
                                 const value = e.target.value
                                 setAdvancedDraft((prev) => ({
                                     ...prev,
-                                    corpusTypes:
-                                        typeof value === 'string' ? value.split(',') : value,
+                                    sourceIds: typeof value === 'string' ? value.split(',') : value,
                                 }))
                             }}
                             renderValue={(selected) =>
                                 selected.length
-                                    ? selected.map((v) => formatCoachCorpusType(v)).join(', ')
+                                    ? selected
+                                          .map(
+                                              (id) =>
+                                                  assignableCategories.find((cat) => cat.id === id)
+                                                      ?.label || id,
+                                          )
+                                          .join(', ')
                                     : 'Todas'
                             }
                         >
-                            {corpusTypeOptions.map((corpus) => (
-                                <MenuItem key={corpus} value={corpus}>
+                            {assignableCategories.map((cat) => (
+                                <MenuItem key={cat.id} value={cat.id}>
                                     <Checkbox
-                                        checked={advancedDraft.corpusTypes.indexOf(corpus) > -1}
+                                        checked={(advancedDraft.sourceIds || []).indexOf(cat.id) > -1}
                                     />
-                                    {formatCoachCorpusType(corpus)}
+                                    {cat.label}
                                 </MenuItem>
                             ))}
-                            {!corpusTypeOptions.length && (
+                            {!assignableCategories.length && (
                                 <MenuItem disabled value="">
-                                    Sin corpus en biblioteca
+                                    Sin fuentes configuradas
                                 </MenuItem>
                             )}
                         </Select>
@@ -1263,7 +1340,13 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Estudio"
-                        placeholder="Nombre, o *Larsen*"
+                        placeholder="Parte del nombre"
+                        helperText={
+                            (advancedDraft.studyName || '').trim().length > 0 &&
+                            (advancedDraft.studyName || '').trim().length < 3
+                                ? 'Mínimo 3 caracteres'
+                                : ' '
+                        }
                         value={advancedDraft.studyName || ''}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({
@@ -1276,7 +1359,13 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Jugador blancas"
-                        placeholder="Ej. Carlsen o *club*"
+                        placeholder="Parte del nombre"
+                        helperText={
+                            advancedDraft.whitePlayer.trim().length > 0 &&
+                            advancedDraft.whitePlayer.trim().length < 3
+                                ? 'Mínimo 3 caracteres'
+                                : ' '
+                        }
                         value={advancedDraft.whitePlayer}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({
@@ -1289,7 +1378,13 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Jugador negras"
-                        placeholder="Comodín *"
+                        placeholder="Parte del nombre"
+                        helperText={
+                            advancedDraft.blackPlayer.trim().length > 0 &&
+                            advancedDraft.blackPlayer.trim().length < 3
+                                ? 'Mínimo 3 caracteres'
+                                : ' '
+                        }
                         value={advancedDraft.blackPlayer}
                         onChange={(e) =>
                             setAdvancedDraft((prev) => ({
@@ -1463,6 +1558,16 @@ export default function CoachGamesPanel() {
                     />
                 </Box>
             )}
+            {pendingBulk && (
+                <Box sx={{ mb: 2 }}>
+                    <CoachConfirmBadge
+                        message={pendingBulk.message}
+                        confirmLabel={pendingBulk.confirmLabel}
+                        onConfirm={confirmPendingBulk}
+                        onCancel={cancelPendingBulk}
+                    />
+                </Box>
+            )}
             <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="subtitle2" gutterBottom>
                     Encolar análisis en servidor (Stockfish)
@@ -1551,11 +1656,7 @@ export default function CoachGamesPanel() {
                             labelId="coach-bulk-category-label"
                             label="Asignar a selección"
                             value={bulkCategoryAssign}
-                            onChange={(e) => {
-                                const v = e.target.value
-                                setBulkCategoryAssign(v)
-                                applyBulkCategoryAssign(v)
-                            }}
+                            onChange={(e) => requestBulkCategory(e.target.value)}
                         >
                             <MenuItem value="">
                                 <em>Elegir categoría…</em>
@@ -1581,11 +1682,7 @@ export default function CoachGamesPanel() {
                             labelId="coach-bulk-corpus-label"
                             label="Fuente de la selección"
                             value={bulkCorpus}
-                            onChange={(e) => {
-                                const v = e.target.value
-                                setBulkCorpus(v)
-                                applyBulkCorpus(v)
-                            }}
+                            onChange={(e) => requestBulkCorpus(e.target.value)}
                         >
                             <MenuItem value="">
                                 <em>Elegir fuente…</em>
@@ -1598,10 +1695,19 @@ export default function CoachGamesPanel() {
                         </Select>
                     </FormControl>
                     <Typography variant="body2" color="text.secondary">
-                        {selectedIds.size === 0
-                            ? 'Seleccioná filas en la tabla.'
-                            : `${selectedIds.size} partida(s) seleccionada(s).`}
+                        {editScope.total === 0
+                            ? 'Nada marcado para editar. Analizar todas no usa esta selección.'
+                            : `${editScope.total} marcadas · ${editScope.onPage} en esta página · ${editScope.onOtherPages} en otras páginas.`}
                     </Typography>
+                    <Button size="small" onClick={selectPageGames} disabled={!paginatedGames.length}>
+                        Seleccionar esta página
+                    </Button>
+                    <Button size="small" onClick={selectFilteredGames} disabled={!sortedGames.length}>
+                        Seleccionar resultados filtrados
+                    </Button>
+                    <Button size="small" onClick={clearGameSelection} disabled={editScope.total === 0}>
+                        Limpiar selección
+                    </Button>
                 </Box>
             </Paper>
             <Paper sx={{ overflowX: 'auto', maxWidth: '100%' }}>

@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Historial recuperado de Coach / ChessDash — hasta 2026-11-06
+### Historial recuperado de Coach / ChessDash — hasta 2026-11-09
 
-Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coach. Fuentes: [roadmap](docs/ai_chess_coach/roadmap/00-roadmap-index.md), [tracker de issues](docs/ai_chess_coach/roadmap/deep_analysis/issues-coach-move-classification-pedagogy-mini-plan.md) y metadatos de integración de GitHub. No se asigna una versión publicada nueva. Las fechas de integración de la tabla se expresan en UTC.
+Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coach. Fuentes: [roadmap](docs/ai_chess_coach/roadmap/00-roadmap-index.md), [tracker de issues](docs/ai_chess_coach/roadmap/designs/issues-coach-move-classification-pedagogy-mini-plan.md) y metadatos de integración de GitHub. No se asigna una versión publicada nueva. Las fechas de integración de la tabla se expresan en UTC.
 
 ### Added
 
@@ -19,30 +19,62 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Biblioteca con campos de catálogo, ordenamiento, columnas configurables, categorías y ritmos (#187–#195, #203, #204).
 - Comentarios y etiquetas por jugada, selector de coronación y persistencia/edición de estudios (#197, #198, #204, #214).
 - Gestión de usuarios y roles (#211); estadísticas en la interfaz y persistidas en Postgres, comparación por color y cálculo bajo demanda (#218, #225).
+- La etiqueta `beta-<commit>` abre este changelog (#228, #243, FEAT-111).
 
 ### Changed
 
 - Análisis liviano activado por el usuario (#166); gráfico de evaluación, pantalla completa, controles y panel PGN (#194, #209, #212, #217).
 - Marcas de estudio y análisis manual, filtros de importación/ritmo y búsqueda por estudio (#212, #215, #218, #224).
+- La selección masiva muestra cuántas partidas están marcadas en esta página y en otras, y pide confirmación antes de cambiar categoría o fuente (#231).
+- En Filtros avanzados, Jugador blancas, Jugador negras y Estudio buscan por nombre parcial, con mínimo de 3 caracteres. Fuente filtra por Torneo, Chess.com, Estudios, Lichess y el resto de categorías sin asignarlas (#244).
+- En el tablero de análisis, un icono ejecuta el análisis profundo y muestra un spinner sin salir de esa pantalla (#245).
+- El panel de jugadas críticas abre el criterio del listado: puntaje, niveles y los cuatro motivos. El MultiPV no elige esas jugadas (#246).
 
 ### Fixed
 
+- El modo crítico de Mental 1600 ya no depende de la jugada ya hecha. La diferencia de evaluación queda como revisión posterior (#235).
+- S2 de Mental 1600 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta (#234).
+- Mental 1600 conserva la última jugada rival al evaluar los triggers. Sin esa jugada, una FEN sola no inventa la captura ni el tempo (#233).
+- Mental 1600 mira ataques y defensas de ambos colores. Una pieza atacada y defendida no se presenta como material gratis (#232).
 - Sincronización del cursor (#165), importación Lichess (#177), selección/configuración de base de datos (#178), exportación PGN con encabezados y carga desde FEN (#185), presentación del ECO (#188).
 - Compilación frontend, dependencias y arranque de la API en Render, conexión a Neon y CORS (#210, #213, #215, #216, #219–#223).
+- El tablero en pantalla completa queda dentro del viewport (#227).
+- Al entrar a Partidas ya no se marcan todas las partidas; categoría, fuente, borrar y exportar usan solo las filas elegidas (#230).
+- Un acceso directo a login, Partidas, análisis, FEN o configuración sirve la aplicación. Los assets publicados siguen como archivo; `/api` y las rutas desconocidas siguen en 404 (#241).
 
 ### Documentation
 
 - Arquitectura de motores y análisis profundo (#164, #179); diseño de tutor opcional y antiimpulsividad (#199).
 - Tracker de incidencias y protocolo de revisión de criticidad/candidatas (#175, #226). La restricción a rapid o ritmos más lentos es un requisito documentado pendiente de implementar; blitz y bullet se excluyen de la validación mental.
+- Changelog de Coach con la tabla de pull requests (#228).
+- Revisión Mental 1600, seguimiento M-11, feedback HITL y spec candidata de ejercitaciones: objetivos abiertos, fuentes de candidatas y fundamento por jugada (#229).
+- Partidas públicas de la revisión mental y un solo tracker de issues (#239).
+- El PGN de la revisión mental carga cada capítulo publicado completo, con variantes y comentarios (#244).
+- La tabla de issues separa la prioridad del estado. Una candidata se marca con ✨ (#245).
 
 ### Límites y trazabilidad
 
-Integrado no significa validado de punta a punta en producción. Reportes sigue pendiente; las incidencias de rutas, cálculo de estadísticas, alcance de edición masiva y bugs/mejoras del modelo mental siguen en el tracker. El PR #178 no demuestra resuelto el bug de selección masiva reportado posteriormente. #199 y #226 documentan trabajo futuro y no implementan esas funciones.
+Integrado no significa validado de punta a punta en producción. Reportes sigue pendiente. BUG-099, FEAT-100 y BUG-098 quedaron integrados (#230, #231, #241); el CDN aplica las rewrites de la SPA al sincronizar el Blueprint. El cálculo de estadísticas y los bugs o mejoras del modelo mental siguen en el tracker. El PR #178 no demuestra resuelto el bug de selección masiva reportado posteriormente. #199 y #226 documentan trabajo futuro y no implementan esas funciones.
 
 #158 no se integró: su trabajo se dividió en #159–#164. #207 y #208 no tienen merge propio; el tracker atribuye su incorporación a #209. Se listan con su estado real para no confundir referencia documental con entrega integrada. Los títulos de la tabla conservan el texto de GitHub para facilitar auditoría.
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-10 | [#235](https://github.com/cmessoftware/chessinsightai/pull/235) | Cambio integrado | El modo crítico ya no depende de la jugada hecha. Esa diferencia queda como revisión posterior. |
+| 2026-11-10 | [#234](https://github.com/cmessoftware/chessinsightai/pull/234) | Cambio integrado | S2 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta. |
+| 2026-11-10 | [#233](https://github.com/cmessoftware/chessinsightai/pull/233) | Cambio integrado | Los triggers de Mental 1600 reciben la última jugada rival. Una FEN sola no inventa la captura ni el tempo. |
+| 2026-11-10 | [#232](https://github.com/cmessoftware/chessinsightai/pull/232) | Cambio integrado | Mental 1600 calcula ataques y defensas de ambos colores. Una pieza defendida no se presenta como material gratis. |
+| 2026-11-09 | [#246](https://github.com/cmessoftware/chessinsightai/pull/246) | Cambio integrado | La ayuda de jugadas críticas explica el puntaje, los niveles y los cuatro motivos. |
+| 2026-11-09 | [#245](https://github.com/cmessoftware/chessinsightai/pull/245) | Cambio integrado | El tablero de análisis ejecuta el análisis profundo con un icono y un spinner, sin ir a Partidas. La tabla de issues separa la prioridad. |
+| 2026-11-09 | [#244](https://github.com/cmessoftware/chessinsightai/pull/244) | Cambio integrado | Jugador y estudio se buscan por nombre parcial. Fuente filtra por categoría sin asignarla. El PGN de revisión mental trae los capítulos completos. |
+| 2026-11-09 | [#243](https://github.com/cmessoftware/chessinsightai/pull/243) | Cambio integrado | La etiqueta beta abre este changelog. El historial suma los pull requests mergeados hasta #241. |
+| 2026-11-09 | [#241](https://github.com/cmessoftware/chessinsightai/pull/241) | Cambio integrado | Las rutas de la SPA sirven `index.html`. Assets, `/api` y rutas desconocidas siguen igual. |
+| 2026-11-09 | [#231](https://github.com/cmessoftware/chessinsightai/pull/231) | Cambio integrado | Muestra el alcance de las partidas marcadas antes de cambiar categoría o fuente. |
+| 2026-11-09 | [#239](https://github.com/cmessoftware/chessinsightai/pull/239) | Documentación | Publica partidas de la revisión mental y deja un solo tracker de issues. |
+| 2026-11-09 | [#230](https://github.com/cmessoftware/chessinsightai/pull/230) | Cambio integrado | Al entrar a Partidas ya no se preseleccionan todas las partidas para edición masiva. |
+| 2026-11-07 | [#229](https://github.com/cmessoftware/chessinsightai/pull/229) | Documentación | Revisión Mental 1600, seguimiento M-11, feedback HITL y ejercitaciones con objetivos abiertos, fuentes de candidatas y fundamento por jugada. |
+| 2026-11-07 | [#228](https://github.com/cmessoftware/chessinsightai/pull/228) | Documentación | Recupera el changelog de Coach y lo enlaza con los pull requests del roadmap. |
+| 2026-11-07 | [#227](https://github.com/cmessoftware/chessinsightai/pull/227) | Cambio integrado | El tablero de pantalla completa queda dentro del viewport. FEAT-038 queda en WIP. |
 | 2026-11-06 | [#226](https://github.com/cmessoftware/chessinsightai/pull/226) | Documentación | Document beta issues and prepare mental-model instructor review |
 | 2026-11-05 | [#225](https://github.com/cmessoftware/chessinsightai/pull/225) | Cambio integrado | Store Coach statistics in Postgres and compare both colors |
 | 2026-11-04 | [#224](https://github.com/cmessoftware/chessinsightai/pull/224) | Cambio integrado | Ship Done catalog items for Render |

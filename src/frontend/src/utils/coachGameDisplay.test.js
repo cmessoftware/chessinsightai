@@ -3,6 +3,7 @@ import {
     coachGamePlayersLabel,
     formatCoachPartidaTableLabel,
     formatCoachRhythmDisplay,
+    coachCorpusAssignOptions,
     formatCoachCatalogSource,
     formatCoachDatePlayed,
     formatCoachEcoForDisplay,
@@ -101,6 +102,17 @@ describe('coachGameDisplay', () => {
     it('formats PGN dates and catalog source', () => {
         expect(formatCoachDatePlayed('2024.03.15')).toBe('15/03/2024')
         expect(formatCoachCatalogSource({ catalog_source: 'lichess' })).toBe('lichess')
+    })
+
+    it('lists only corpus values for the Fuente selector', () => {
+        expect(coachCorpusAssignOptions(true).map((option) => option.value)).toEqual([
+            'personal',
+            'elite',
+            'fide',
+            'novice',
+            'stockfish',
+        ])
+        expect(coachCorpusAssignOptions(false)).toEqual([{ value: 'personal', label: 'Personal' }])
     })
 
     it('shows normal ECO codes and hides URL junk in eco field', () => {

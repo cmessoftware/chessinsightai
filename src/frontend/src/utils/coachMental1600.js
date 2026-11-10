@@ -14,7 +14,6 @@ const PAUSE_BY_TIME_CONTROL = {
     classical: 30,
 }
 
-const FAST_PATH_EVAL_DELTA = 40
 const EVAL_SHIFT_CP = 80
 
 const TRIGGER_LABELS = {
@@ -85,9 +84,25 @@ function squareName(sq) {
     return sq
 }
 
+/** Geometric attack by `color`, including the side that is not to move. Not a legal capture and not a win. */
 function isAttackedBy(chess, square, color) {
-    const moves = chess.moves({ verbose: true })
-    return moves.some((m) => m.to === square && m.color === color)
+    return chess.isAttacked(square, color)
+}
+
+/** Squares a pawn of `color` attacks from `square`. Independent of whose turn it is. */
+function pawnAttackSquares(square, color) {
+    if (!square || square.length < 2) return []
+    const file = square.charCodeAt(0) - 97
+    const rank = Number(square[1])
+    const nextRank = color === 'w' ? rank + 1 : rank - 1
+    if (nextRank < 1 || nextRank > 8) return []
+    const squares = []
+    for (const delta of [-1, 1]) {
+        const nextFile = file + delta
+        if (nextFile < 0 || nextFile > 7) continue
+        squares.push(`${String.fromCharCode(97 + nextFile)}${nextRank}`)
+    }
+    return squares
 }
 
 /** @returns {{ square: string, piece: string }[]} */
@@ -115,7 +130,7 @@ function pieceNameEs(type) {
     return map[type] || type
 }
 
-function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount }) {
+function detectTriggers(chess, { candidateCount, lastMove = null }) {
     /** @type {{ code: string, label_es: string, confidence: number, evidence: string[] }[]} */
     const triggers = []
     const player = chess.turn()
@@ -136,7 +151,7 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
     const forcing = []
     if (chess.inCheck()) forcing.push('Estás en jaque')
     const history = chess.history({ verbose: true })
-    const last = history[history.length - 1]
+    const last = lastMove || history[history.length - 1]
     if (last) {
         if (last.captured) forcing.push(`La última jugada fue captura (${last.from}${last.to})`)
         if (last.san.includes('+')) forcing.push('La última jugada dio jaque')
@@ -161,24 +176,19 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
     }
 
     if (last?.piece === 'p') {
-        try {
-            const afterPawn = new Chess(chess.fen())
-            afterPawn.move({ from: last.from, to: last.to, promotion: last.promotion })
-            const movesFromPawn = afterPawn.moves({ verbose: true, square: last.to })
-            const tempoHits = movesFromPawn.filter((m) => m.captured)
-            if (tempoHits.length) {
-                triggers.push({
-                    code: 'E4',
-                    label_es: TRIGGER_LABELS.E4,
-                    confidence: 0.82,
-                    evidence: tempoHits.slice(0, 2).map(
-                        (m) =>
-                            `Peón en ${last.to} ataca ${pieceNameEs(m.captured)} en ${m.to}`,
-                    ),
-                })
-            }
-        } catch {
-            /* ignore */
+        const tempoHits = pawnAttackSquares(last.to, last.color)
+            .map((square) => ({ square, piece: chess.get(square) }))
+            .filter(({ piece }) => piece && piece.color !== last.color && piece.type !== 'k')
+        if (tempoHits.length) {
+            triggers.push({
+                code: 'E4',
+                label_es: TRIGGER_LABELS.E4,
+                confidence: 0.82,
+                evidence: tempoHits.slice(0, 2).map(
+                    ({ square, piece }) =>
+                        `Peón en ${last.to} ataca ${pieceNameEs(piece.type)} en ${square}`,
+                ),
+            })
         }
     }
 
@@ -199,16 +209,13 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
         })
     }
 
-    if (kingSq) {
-        const attackers = chess.moves({ verbose: true }).filter((m) => m.to === kingSq).length
-        if (attackers >= 1) {
-            triggers.push({
-                code: 'E7',
-                label_es: TRIGGER_LABELS.E7,
-                confidence: 0.8,
-                evidence: [`Rey expuesto en ${kingSq}`],
-            })
-        }
+    if (kingSq && isAttackedBy(chess, kingSq, opponent)) {
+        triggers.push({
+            code: 'E7',
+            label_es: TRIGGER_LABELS.E7,
+            confidence: 0.8,
+            evidence: [`Rey expuesto en ${kingSq}`],
+        })
     }
 
     const ownHang = attackedUndefended(chess, player, 3)
@@ -220,18 +227,6 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
             confidence: 0.78,
             evidence: [`Tu ${pieceNameEs(piece)} en ${square} sin defensa`],
         })
-    }
-
-    if (scoreDiffBefore != null && scoreDiffAfter != null) {
-        const delta = Math.abs(Number(scoreDiffAfter) - Number(scoreDiffBefore))
-        if (delta >= EVAL_SHIFT_CP) {
-            triggers.push({
-                code: 'E11',
-                label_es: TRIGGER_LABELS.E11,
-                confidence: Math.min(0.95, 0.6 + delta / 400),
-                evidence: [`Cambio de eval ≈ ${Math.round(delta)} cp`],
-            })
-        }
     }
 
     if (candidateCount != null && candidateCount >= 3) {
@@ -403,12 +398,13 @@ export function runAntiBlunderChecks(chess, moveVerbose) {
 
     /** @type {string[]} */
     const failed = []
-    if (trial.inCheck()) failed.push('S2')
+    const ownKing = findKingSquare(trial, player)
+    const opponent = player === 'w' ? 'b' : 'w'
+    if (ownKing && isAttackedBy(trial, ownKing, opponent)) failed.push('S2')
 
     const majorHang = attackedUndefended(trial, player, 5)
     if (majorHang.length) failed.push('S1')
 
-    const opponent = player === 'w' ? 'b' : 'w'
     const oppMoves = trial.moves({ verbose: true })
     if (
         oppMoves.some((m) => {
@@ -477,15 +473,17 @@ export function assessDecisionPoint({
         const prior = new Chess(grandparentFen)
         lastOpponentVerbose = findVerboseMove(prior, lastOpponentMoveUci)
     }
-    const triggers = detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount })
+    const triggers = detectTriggers(chess, {
+        candidateCount,
+        lastMove: lastOpponentVerbose,
+    })
     const notable = detectNotableCritical(chess, lastOpponentVerbose)
+    const critical = notable.length > 0
 
     let evalDelta = null
     if (scoreDiffBefore != null && scoreDiffAfter != null) {
         evalDelta = Math.abs(Number(scoreDiffAfter) - Number(scoreDiffBefore))
     }
-    const evalDrop = evalDelta != null && evalDelta >= FAST_PATH_EVAL_DELTA
-    const critical = evalDrop || notable.length > 0
 
     const elo = playerElo ?? 1600
     /** @type {Record<string, unknown>} */
@@ -499,6 +497,13 @@ export function assessDecisionPoint({
 
     const ordered = orderTopMovesByCategory(chess, topMovesUci)
     if (ordered.length) meta.ordered_candidates = ordered
+    if (evalDelta != null && evalDelta >= EVAL_SHIFT_CP) {
+        meta.post_move_review = {
+            code: 'E11',
+            label_es: TRIGGER_LABELS.E11,
+            eval_shift_cp: Math.round(evalDelta),
+        }
+    }
 
     let antiBlunderFailed = []
     if (playedMoveUci) {

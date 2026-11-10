@@ -28,7 +28,7 @@ Estados: [leyenda § abajo](#leyenda-de-estados). **Vigente** = doc de referenci
 | **F07 en producto / análisis servidor** | [03-phase-02-analysis-in-product.md](./03-phase-02-analysis-in-product.md) | AS-A/B, SV-*, gates | **🧪** |
 | **Análisis profundo + sparring (índice)** | [deep_analysis/index.md](./deep_analysis/index.md) | Specs, arq., AS, LZ | Vigente |
 | **Clasificación jugadas + pedagogía** | [deep_analysis/coach-move-classification-pedagogy-mini-plan.md](./deep_analysis/coach-move-classification-pedagogy-mini-plan.md) | CA-1…CA-9, SV-* | **🧪** |
-| **Tracker UI (`FEAT-*`, espejo)** | [designs/issues-coach-move-classification-pedagogy-mini-plan.md](./designs/issues-coach-move-classification-pedagogy-mini-plan.md) | FEAT-01…065 | **🧪** |
+| **Tracker UI (`FEAT-*`)** | [designs/issues-coach-move-classification-pedagogy-mini-plan.md](./designs/issues-coach-move-classification-pedagogy-mini-plan.md) | FEAT-01…065 | **🧪** |
 | **Mini-plan servidor MVP** | [deep_analysis/coach-async-analysis-server-mini-plan.md](./deep_analysis/coach-async-analysis-server-mini-plan.md) | AS-1…AS-11 | **⬜ / 🟡** |
 | **Lc0 kibitzer (críticas, server)** | [deep_analysis/coach-lc0-strategic-kibitzer-mini-plan.md](./deep_analysis/coach-lc0-strategic-kibitzer-mini-plan.md) | LZ-1…LZ-8 | **⬜** |
 | **Catálogo `games` + Coach + navegador** | [deep_analysis/coach-games-catalog-unify-mini-plan.md](./deep_analysis/coach-games-catalog-unify-mini-plan.md) | GC-1…GC-5, UI-G1…UI-G3 | **🧪** |
