@@ -51,6 +51,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Partidas públicas de la revisión mental y un solo tracker de issues (#239).
 - El PGN de la revisión mental carga cada capítulo publicado completo, con variantes y comentarios (#244).
 - La tabla de issues separa la prioridad del estado. Una candidata se marca con ✨ (#245).
+- SPAR-21 documenta reentrenar errores propios con Maia usando los relojes originales de la partida (#238).
 
 ### Límites y trazabilidad
 
@@ -60,6 +61,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-10 | [#238](https://github.com/cmessoftware/chessinsightai/pull/238) | Documentación | SPAR-21: reentrenar errores propios con Maia y los relojes originales de la partida. |
 | 2026-11-10 | [#235](https://github.com/cmessoftware/chessinsightai/pull/235) | Cambio integrado | El modo crítico ya no depende de la jugada hecha. Esa diferencia queda como revisión posterior. |
 | 2026-11-10 | [#234](https://github.com/cmessoftware/chessinsightai/pull/234) | Cambio integrado | S2 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta. |
 | 2026-11-10 | [#233](https://github.com/cmessoftware/chessinsightai/pull/233) | Cambio integrado | Los triggers de Mental 1600 reciben la última jugada rival. Una FEN sola no inventa la captura ni el tempo. |
