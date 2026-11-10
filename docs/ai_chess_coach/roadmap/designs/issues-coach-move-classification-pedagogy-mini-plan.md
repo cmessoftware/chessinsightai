@@ -166,6 +166,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-112</td><td></td><td>En tablero de analsis cambiar "IR A COLA DE ANALISIS" por un icono acorde a "Ejecutar analisis profundo" (usar ese texto como tooltip) , cuando el usuario presione mostrar un spinner no pasar a la pagian de Partidas.  </td><td>✅ Done</td><td></td><td>Icono bajo el tablero con tooltip «Ejecutar análisis profundo». Encola el job y deja el spinner en esta pantalla. <code>feature/11_112_feat_112_deep_analysis</code></td></tr>
 <tr><td>FEAT-113</td><td>FEAT-063 / FEAT-097</td><td>En filtro avanzado, buscar por nombre parcial en Jugador blancas, Jugador negras y Estudio. Mínimo 3 caracteres. Sin comodín <code>*</code>.</td><td>✅ Done</td><td></td><td>Un campo vacío no filtra. Menos de 3 caracteres no se envía. «car» encuentra Carlsen y Caruana. <code>*</code> no es comodín en estos tres campos. <code>partial_name_ilike_pattern</code></td></tr>
 <tr><td>BUG-114</td><td>FEAT-064 / FEAT-046</td><td>En Filtros avanzados, Fuente solo ofrece corpus. Hay que poder elegir Torneo, Chess.com, Estudios, Lichess y el resto de fuentes para filtrar, sin asignarlas.</td><td>✅ Done</td><td></td><td>El selector lista las fuentes configuradas y deja en la tabla las partidas de cualquiera de las elegidas. No cambia la fuente de la partida. <code>coachGameMatchesSourceFilter</code></td></tr>
+<tr><td>FEAT-115</td><td>FEAT-112 / FEAT-07</td><td>En el panel de jugadas críticas, abrir una ayuda con el criterio del listado: puntaje, niveles y los cuatro motivos. Aclarar que el MultiPV no elige esas jugadas.</td><td>✅ Done</td><td></td><td>Icono de ayuda junto al título. El diálogo explica el puntaje de 0 a 10, los niveles y los motivos. Un análisis nuevo guarda el motivo de cada jugada. <code>coachCriticalityReason.js</code></td></tr>
 </tbody>
 </table>
 
@@ -384,7 +385,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, FEAT-103…110, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-01…07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
