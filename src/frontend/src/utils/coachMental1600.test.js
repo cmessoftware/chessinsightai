@@ -42,6 +42,28 @@ describe('coachMental1600', () => {
         expect(result.triggers.some((t) => t.code === 'E2')).toBe(false)
     })
 
+    it('reads a central capture and a pawn tempo from the previous move, not from an empty FEN history', () => {
+        const captureFen = playSans(undefined, ['e4', 'e5', 'd4', 'exd4'])
+        const capturePrior = playSans(undefined, ['e4', 'e5', 'd4'])
+        const capture = assessDecisionPoint({
+            fen: captureFen,
+            lastOpponentMoveUci: 'e5d4',
+            grandparentFen: capturePrior,
+        })
+        expect(capture.triggers.some((t) => t.code === 'E6')).toBe(true)
+        expect(assessDecisionPoint({ fen: captureFen }).triggers.some((t) => t.code === 'E6')).toBe(false)
+
+        const tempoPrior = playSans(undefined, ['e4', 'Nc6', 'd4', 'a6'])
+        const tempoFen = playSans(undefined, ['e4', 'Nc6', 'd4', 'a6', 'd5'])
+        const tempo = assessDecisionPoint({
+            fen: tempoFen,
+            lastOpponentMoveUci: 'd4d5',
+            grandparentFen: tempoPrior,
+        })
+        expect(tempo.triggers.some((t) => t.code === 'E4')).toBe(true)
+        expect(assessDecisionPoint({ fen: tempoFen }).triggers.some((t) => t.code === 'E4')).toBe(false)
+    })
+
     it('exd4 recapture position is critical (notable)', () => {
         const fen = playSans(undefined, ['e4', 'e5', 'd4', 'exd4'])
         const prior = playSans(undefined, ['e4', 'e5', 'd4'])

@@ -32,6 +32,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Fixed
 
+- Mental 1600 conserva la última jugada rival al evaluar los triggers. Sin esa jugada, una FEN sola no inventa la captura ni el tempo (#233).
 - Mental 1600 mira ataques y defensas de ambos colores. Una pieza atacada y defendida no se presenta como material gratis (#232).
 - Sincronización del cursor (#165), importación Lichess (#177), selección/configuración de base de datos (#178), exportación PGN con encabezados y carga desde FEN (#185), presentación del ECO (#188).
 - Compilación frontend, dependencias y arranque de la API en Render, conexión a Neon y CORS (#210, #213, #215, #216, #219–#223).
@@ -57,6 +58,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-10 | [#233](https://github.com/cmessoftware/chessinsightai/pull/233) | Cambio integrado | Los triggers de Mental 1600 reciben la última jugada rival. Una FEN sola no inventa la captura ni el tempo. |
 | 2026-11-10 | [#232](https://github.com/cmessoftware/chessinsightai/pull/232) | Cambio integrado | Mental 1600 calcula ataques y defensas de ambos colores. Una pieza defendida no se presenta como material gratis. |
 | 2026-11-09 | [#246](https://github.com/cmessoftware/chessinsightai/pull/246) | Cambio integrado | La ayuda de jugadas críticas explica el puntaje, los niveles y los cuatro motivos. |
 | 2026-11-09 | [#245](https://github.com/cmessoftware/chessinsightai/pull/245) | Cambio integrado | El tablero de análisis ejecuta el análisis profundo con un icono y un spinner, sin ir a Partidas. La tabla de issues separa la prioridad. |

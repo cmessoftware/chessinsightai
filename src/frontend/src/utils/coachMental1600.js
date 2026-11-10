@@ -90,6 +90,22 @@ function isAttackedBy(chess, square, color) {
     return chess.isAttacked(square, color)
 }
 
+/** Squares a pawn of `color` attacks from `square`. Independent of whose turn it is. */
+function pawnAttackSquares(square, color) {
+    if (!square || square.length < 2) return []
+    const file = square.charCodeAt(0) - 97
+    const rank = Number(square[1])
+    const nextRank = color === 'w' ? rank + 1 : rank - 1
+    if (nextRank < 1 || nextRank > 8) return []
+    const squares = []
+    for (const delta of [-1, 1]) {
+        const nextFile = file + delta
+        if (nextFile < 0 || nextFile > 7) continue
+        squares.push(`${String.fromCharCode(97 + nextFile)}${nextRank}`)
+    }
+    return squares
+}
+
 /** @returns {{ square: string, piece: string }[]} */
 function attackedUndefended(chess, victimColor, minValue = 1) {
     const attackerColor = victimColor === 'w' ? 'b' : 'w'
@@ -115,7 +131,7 @@ function pieceNameEs(type) {
     return map[type] || type
 }
 
-function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount }) {
+function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount, lastMove = null }) {
     /** @type {{ code: string, label_es: string, confidence: number, evidence: string[] }[]} */
     const triggers = []
     const player = chess.turn()
@@ -136,7 +152,7 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
     const forcing = []
     if (chess.inCheck()) forcing.push('Estás en jaque')
     const history = chess.history({ verbose: true })
-    const last = history[history.length - 1]
+    const last = lastMove || history[history.length - 1]
     if (last) {
         if (last.captured) forcing.push(`La última jugada fue captura (${last.from}${last.to})`)
         if (last.san.includes('+')) forcing.push('La última jugada dio jaque')
@@ -161,24 +177,19 @@ function detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount
     }
 
     if (last?.piece === 'p') {
-        try {
-            const afterPawn = new Chess(chess.fen())
-            afterPawn.move({ from: last.from, to: last.to, promotion: last.promotion })
-            const movesFromPawn = afterPawn.moves({ verbose: true, square: last.to })
-            const tempoHits = movesFromPawn.filter((m) => m.captured)
-            if (tempoHits.length) {
-                triggers.push({
-                    code: 'E4',
-                    label_es: TRIGGER_LABELS.E4,
-                    confidence: 0.82,
-                    evidence: tempoHits.slice(0, 2).map(
-                        (m) =>
-                            `Peón en ${last.to} ataca ${pieceNameEs(m.captured)} en ${m.to}`,
-                    ),
-                })
-            }
-        } catch {
-            /* ignore */
+        const tempoHits = pawnAttackSquares(last.to, last.color)
+            .map((square) => ({ square, piece: chess.get(square) }))
+            .filter(({ piece }) => piece && piece.color !== last.color && piece.type !== 'k')
+        if (tempoHits.length) {
+            triggers.push({
+                code: 'E4',
+                label_es: TRIGGER_LABELS.E4,
+                confidence: 0.82,
+                evidence: tempoHits.slice(0, 2).map(
+                    ({ square, piece }) =>
+                        `Peón en ${last.to} ataca ${pieceNameEs(piece.type)} en ${square}`,
+                ),
+            })
         }
     }
 
@@ -474,7 +485,12 @@ export function assessDecisionPoint({
         const prior = new Chess(grandparentFen)
         lastOpponentVerbose = findVerboseMove(prior, lastOpponentMoveUci)
     }
-    const triggers = detectTriggers(chess, { scoreDiffBefore, scoreDiffAfter, candidateCount })
+    const triggers = detectTriggers(chess, {
+        scoreDiffBefore,
+        scoreDiffAfter,
+        candidateCount,
+        lastMove: lastOpponentVerbose,
+    })
     const notable = detectNotableCritical(chess, lastOpponentVerbose)
 
     let evalDelta = null
