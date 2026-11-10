@@ -6,11 +6,13 @@ function Strip({ label, glyphs, justifyContent }) {
         <Box
             sx={{
                 width: '100%',
-                minHeight: 22,
+                height: 22,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent,
                 px: 0.5,
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
             }}
         >
             <Typography

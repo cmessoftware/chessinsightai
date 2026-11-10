@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
     coachGameMatchesCategoryFilter,
+    coachGameMatchesSourceFilter,
     listCoachGameCategoryFilters,
     resolveCoachGameCategory,
 } from './coachGameCategory.js'
@@ -19,6 +20,15 @@ describe('coachGameCategory', () => {
                 DEFAULTS,
             ).id,
         ).toBe('torneo')
+    })
+
+    it('filters by any selected fuente without assigning it', () => {
+        const chesscom = { id: 'a', catalog_source: 'chess.com' }
+        const torneo = { id: 'b', source: 'pgn', description: 'Torneo Club 2024' }
+        expect(coachGameMatchesSourceFilter(chesscom, ['torneo', 'chesscom'], DEFAULTS)).toBe(true)
+        expect(coachGameMatchesSourceFilter(torneo, ['torneo', 'chesscom'], DEFAULTS)).toBe(true)
+        expect(coachGameMatchesSourceFilter(chesscom, ['torneo'], DEFAULTS)).toBe(false)
+        expect(coachGameMatchesSourceFilter(chesscom, [], DEFAULTS)).toBe(true)
     })
 
     it('detects platforms and corpus', () => {
