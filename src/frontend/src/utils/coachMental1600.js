@@ -411,12 +411,13 @@ export function runAntiBlunderChecks(chess, moveVerbose) {
 
     /** @type {string[]} */
     const failed = []
-    if (trial.inCheck()) failed.push('S2')
+    const ownKing = findKingSquare(trial, player)
+    const opponent = player === 'w' ? 'b' : 'w'
+    if (ownKing && isAttackedBy(trial, ownKing, opponent)) failed.push('S2')
 
     const majorHang = attackedUndefended(trial, player, 5)
     if (majorHang.length) failed.push('S1')
 
-    const opponent = player === 'w' ? 'b' : 'w'
     const oppMoves = trial.moves({ verbose: true })
     if (
         oppMoves.some((m) => {
