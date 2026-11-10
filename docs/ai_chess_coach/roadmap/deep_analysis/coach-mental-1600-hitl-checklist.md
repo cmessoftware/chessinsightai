@@ -134,6 +134,6 @@ Hasta entonces: FEAT-07 MVP cliente usable; **no** marcar paridad Python↔JS ob
 
 - [coach-mental-1600-mini-plan.md](../designs/coach-mental-1600-mini-plan.md) — entregas M-1…M-11
 - [coach-classification-hitl-checklist.md](./coach-classification-hitl-checklist.md) — CA-8 / BUG-12
-- [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) — FEAT-07
+- [issues-coach-move-classification-pedagogy-mini-plan.md](../designs/issues-coach-move-classification-pedagogy-mini-plan.md) — FEAT-07
 - Lab: [`07_0_mental_model_lab.ipynb`](../../../ai_chess_coach_course/07_0_mental_model_lab.ipynb)
 - HTML canónico: [`algoritmo_posiciones_criticas_ajedrez.html`](../../../ai_chess_coach_course/07_cc_detection_algoritms/algoritmo_posiciones_criticas_ajedrez.html)

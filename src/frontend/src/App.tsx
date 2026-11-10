@@ -26,6 +26,7 @@ import CoachReviewPage from './pages/CoachReviewPage.jsx'
 import CoachGameAnalysisPage from './pages/CoachGameAnalysisPage.jsx'
 import CoachPositionPage from './pages/CoachPositionPage.jsx'
 import CoachPositionStudyPage from './pages/CoachPositionStudyPage.jsx'
+import ChangelogPage from './pages/ChangelogPage.jsx'
 
 // Utilidades
 import { logger } from './utils/helpers.js'
@@ -69,6 +70,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/changelog" element={<ChangelogPage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
               <Route element={<AppShell />}>

@@ -27,6 +27,7 @@ Diseños UI: [../designs/index.md](../designs/index.md) · Roadmap Phase 2: [../
 |-----------|---------|
 | [issues-plan-implementacion-analisis-profundo.md](./issues-plan-implementacion-analisis-profundo.md) | **DEEP-01…19** — catálogo A/B/C, ramas, orden sugerido |
 | [issues-plan-implementacion-sparring-maia.md](./issues-plan-implementacion-sparring-maia.md) | **SPAR-01…15** — sparring Maia MVP + post-análisis SF |
+| [issues-sparring-maia-server-mini-plan.md](./issues-sparring-maia-server-mini-plan.md) | Tracker detallado **CI-SPAR-01** (FEAT-069). Texto recuperado de `feature/11_070_eval_chart_collapsible`. |
 
 ## Entregas, HITL y datos
 
@@ -38,6 +39,6 @@ Diseños UI: [../designs/index.md](../designs/index.md) · Roadmap Phase 2: [../
 | [coach-classification-hitl-checklist.md](./coach-classification-hitl-checklist.md) | Gate **CA-8** (badges / impacto). |
 | [coach-mental-1600-hitl-checklist.md](./coach-mental-1600-hitl-checklist.md) | Gate **M-11** (mental 1600). |
 | [coach-games-catalog-unify-mini-plan.md](./coach-games-catalog-unify-mini-plan.md) | **GC-1…GC-5** — `games` maestro + `coach_games`. |
-| [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) | Issues CA / FEAT trazables (**espejo**; canónico en [`../designs/issues-coach-move-classification-pedagogy-mini-plan.md`](../designs/issues-coach-move-classification-pedagogy-mini-plan.md)). |
+| [issues-coach-move-classification-pedagogy-mini-plan.md](../designs/issues-coach-move-classification-pedagogy-mini-plan.md) | Issues CA / FEAT trazables. Canónico en `designs/`. |
 
 Fuentes históricas (no planificar): [sources/](./sources/)

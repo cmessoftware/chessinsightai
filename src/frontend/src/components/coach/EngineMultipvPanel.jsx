@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box, Paper, Typography } from '@mui/material'
 import { formatPvOneLine, formatStandardEval } from '../../utils/engineEval.js'
+import { criticalitySummary } from '../../utils/coachCriticalityReason.js'
 
 function LineRow({ rank, evalText, lineSan, highlight, suffix }) {
     return (
@@ -76,16 +77,26 @@ export default function EngineMultipvPanel({ pack, depth, multipv }) {
 
     const formatPackEval = (score) =>
         formatStandardEval(score ? { ...score, playerColor: packPlayerColor } : score)
+    const whyCritical = criticalitySummary({
+        review_pack: pack,
+        criticality: pack.criticality?.score,
+    })
 
     return (
         <Paper variant="outlined" sx={{ p: 1.5, bgcolor: 'grey.50' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                 <Typography variant="subtitle2">Variantes (MultiPV)</Typography>
                 <Typography variant="caption" color="text.secondary">
                     {metaDepth ? `depth ${metaDepth}` : ''}
                     {metaMultipv ? ` · MultiPV ${metaMultipv}` : ''}
                 </Typography>
             </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                Estas líneas son las mejores que encontró Stockfish en esta posición. La jugada
+                de la partida aparece aparte si no está entre ellas. Ese listado no decide qué
+                jugadas son críticas.
+                {whyCritical ? ` ${whyCritical}.` : ''}
+            </Typography>
             {candidates.map((c) => (
                 <LineRow
                     key={c.rank ?? c.uci ?? c.san}

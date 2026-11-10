@@ -4,7 +4,7 @@
 
 **Estado:** ✅ CS-1 hecho. ✅ CS-2 hecho. ✅ CS-3 hecho. ✅ CS-4 hecho. ✅ CS-5 hecho. ✅ CS-6 hecho. FEAT-093 ✅ Done en el tracker.  
 **Actualizado:** 2026-11-02  
-**Tracker:** [issues § FEAT-093](./issues-coach-move-classification-pedagogy-mini-plan.md)  
+**Tracker:** [issues § FEAT-093](../designs/issues-coach-move-classification-pedagogy-mini-plan.md)  
 **Proceso que se conserva:** `src/chess_statistics/` (`accuracy.py`, `phases.py`, juicios). El archivo `data/chess_statistics.sqlite` era del curso suspendido ([plan LS01](../../../lichess_statistics/01_module_implementation_plan.md)).  
 **Regla ramas:** un ítem de esta tabla por branch — [roadmap-branches.mdc](../../../../.cursor/rules/roadmap-branches.mdc)
 
