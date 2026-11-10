@@ -70,6 +70,19 @@
 </tbody>
 </table>
 
+## Reentrenar errores propios con relojes originales
+
+SPAR-16…20 de este mini plan siguen siendo la humanización del tiempo de Maia. No se renumeran. El reentrenamiento entra como **SPAR-21**, el mismo ID de [§4.10](../../spec_sparring_maia_stockfish_unificado.md#410-reentrenar-errores-propios-con-maia-y-relojes-originales-base-posterior-al-mvp-core).
+
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="../../spec_sparring_maia_stockfish_unificado.md#410-reentrenar-errores-propios-con-maia-y-relojes-originales-base-posterior-al-mvp-core">SPAR-21</a></td><td><a href="../../spec_sparring_maia_stockfish_unificado.md#spar-13">SPAR-13</a> / SPAR-07 / SPAR-09 / SPAR-10</td><td>Reentrenar una decisión propia contra Maia conservando los relojes del punto de inicio. Una 15+10 puede retomarse en 03:21 y 06:48 con su +10, no con 15 minutos nuevos.</td><td>⬜ Todo</td><td>Selección Stockfish de errores, retroceso de 2–4 decisiones propias y sesión nueva por intento. <code>[%clk]</code> se lee del prefijo anterior a la decisión, sin sumar el incremento dos veces. Reloj ausente, manual o estimado queda identificado y no se presenta como exacto. Maia sigue como rival; tutor y antiimpulsividad, si se activan, son independientes y no muestran la solución durante el intento autónomo. Preset: derrotas rapid estándar. Chess960 excluido. Aceptación y fixtures: spec §4.10.5. No implementado.</td></tr>
+</tbody>
+</table>
+
 ## Infra y aceptación (recordatorio)
 
 <table>
@@ -91,12 +104,12 @@
 <tbody>
 <tr><td>✅ Done</td><td>SPAR-01</td></tr>
 <tr><td>✅ Done</td><td>SPAR-01, SPAR-02, SPAR-03</td></tr>
-<tr><td>⬜ Todo</td><td>SPAR-04…20, SPAR-A1, SPAR-A2</td></tr>
+<tr><td>⬜ Todo</td><td>SPAR-04…21, SPAR-A1, SPAR-A2</td></tr>
 </tbody>
 </table>
 
 **Orden sugerido (MVP sparring):** SPAR-01 → SPAR-02 → SPAR-03 → SPAR-04 → SPAR-05 → SPAR-06 → **SPAR-16 → SPAR-17 → SPAR-18** (humanización en la misma entrega UI que SPAR-08) → SPAR-07 → SPAR-08 → SPAR-09 → SPAR-10 → SPAR-11 → SPAR-12 → SPAR-19 (si hay reloj en MVP) → SPAR-13.
 
-**Después del MVP:** SPAR-14 → SPAR-15 → SPAR-20.
+**Después del MVP:** SPAR-14 → SPAR-15 → SPAR-20. SPAR-21 puede seguir a SPAR-13/09/10 sin esperar la humanización ni el tutor.
 
 **Nota Lucas Chess:** configuración de «tiempo por movimiento» del motor oponente es referencia UX; implementación ChessInsight vía **SPAR-16/17/18** (config + delay de presentación + tablero), sin usar Stockfish ni eval en vivo durante el sparring.
