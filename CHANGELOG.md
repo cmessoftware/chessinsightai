@@ -52,7 +52,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - El PGN de la revisión mental carga cada capítulo publicado completo, con variantes y comentarios (#244).
 - La tabla de issues separa la prioridad del estado. Una candidata se marca con ✨ (#245).
 - SPAR-21 documenta reentrenar errores propios con Maia usando los relojes originales de la partida (#238).
-- BUG-103 registra que la descripción editada en Partidas vuelve a «Blancas vs Negras» al abrir la partida. El PR #236 no se mergea.
+- BUG-103 registra que la descripción editada en Partidas vuelve a «Blancas vs Negras» al abrir la partida (#248). El PR #236 no se mergea.
 
 ### Límites y trazabilidad
 
@@ -62,7 +62,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
-| 2026-11-10 | [#236](https://github.com/cmessoftware/chessinsightai/pull/236) | Documentación | BUG-103 queda en el tracker. El PR no se mergea: su diff reescribía un tracker viejo. |
+| 2026-11-10 | [#248](https://github.com/cmessoftware/chessinsightai/pull/248) | Documentación | BUG-103 queda en el tracker. El #236 no se mergea: su diff reescribía un tracker viejo. |
 | 2026-11-10 | [#238](https://github.com/cmessoftware/chessinsightai/pull/238) | Documentación | SPAR-21: reentrenar errores propios con Maia y los relojes originales de la partida. |
 | 2026-11-10 | [#235](https://github.com/cmessoftware/chessinsightai/pull/235) | Cambio integrado | El modo crítico ya no depende de la jugada hecha. Esa diferencia queda como revisión posterior. |
 | 2026-11-10 | [#234](https://github.com/cmessoftware/chessinsightai/pull/234) | Cambio integrado | S2 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta. |
