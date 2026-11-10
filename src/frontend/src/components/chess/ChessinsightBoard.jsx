@@ -22,6 +22,7 @@ export default function ChessinsightBoard({
     viewOnly = false,
     onMove,
     boardWidth = 420,
+    boardId = 'chessinsight-board',
     squareCircles = null,
     onSquareCirclesChange = null,
     enableSquareCircles = false,
@@ -59,16 +60,25 @@ export default function ChessinsightBoard({
 
     const options = useMemo(
         () => ({
-            id: 'chessinsight-board',
+            id: boardId,
             position: fen,
             boardOrientation: orientation === 'black' ? 'black' : 'white',
             allowDragging: !viewOnly,
             animationDurationInMs: 200,
             squareStyles,
-            boardStyle: {
-                width: `${boardWidth}px`,
-                maxWidth: '100%',
+            squareStyle: {
                 aspectRatio: '1 / 1',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'relative',
+                minWidth: 0,
+                minHeight: 0,
+            },
+            boardStyle: {
+                width: '100%',
+                height: '100%',
+                maxWidth: '100%',
             },
             onPieceDrop: ({ sourceSquare, targetSquare }) => {
                 if (viewOnly) {
@@ -86,11 +96,11 @@ export default function ChessinsightBoard({
                 : {}),
         }),
         [
+            boardId,
             fen,
             orientation,
             viewOnly,
             squareStyles,
-            boardWidth,
             onMove,
             circleMode,
             handleSquareMouseDown,
@@ -99,10 +109,13 @@ export default function ChessinsightBoard({
 
     return (
         <Box
+            data-coach-board-square
             sx={{
                 width: boardWidth,
                 maxWidth: '100%',
+                aspectRatio: '1 / 1',
                 flexShrink: 0,
+                position: 'relative',
             }}
             onContextMenu={
                 circleMode

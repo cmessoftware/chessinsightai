@@ -137,11 +137,22 @@ Volvé a desplegar si cambiás la URL de la API (Vite embebe `VITE_*` en el buil
 
 ### 3.3 Rutas del SPA (React Router)
 
-El repo incluye `src/frontend/public/_redirects` para que Render sirva `index.html` en rutas como `/coach/partidas`:
+Render no aplica `public/_redirects`. Las rewrites están en `render.yaml`, servicio `chessdash-frontend`. Un archivo publicado gana sobre la regla, así que `/assets` y el resto del build se sirven tal cual. `/api` y cualquier ruta que no esté en la lista siguen en 404.
 
-```text
-/*    /index.html   200
-```
+Sincronizá el Blueprint, o copiá las mismas reglas en el Static Site → **Redirects/Rewrites** (Action: Rewrite, Destination: `/index.html`):
+
+| Source |
+|--------|
+| `/login`, `/unauthorized` |
+| `/coach`, `/coach/*` |
+| `/games`, `/games/*` |
+| `/import`, `/import/*` |
+| `/chess-board`, `/chess-board/*` |
+| `/reports`, `/reports/*` |
+| `/logs` |
+| `/admin`, `/admin/*` |
+
+Con eso, pegar la URL, refrescar o abrir una pestaña nueva carga la app en login, Partidas, análisis por id, Posición (FEN) y Configuración. `ProtectedRoute` sigue enviando a `/login` o `/unauthorized`. `/reports` solo carga el shell; la pantalla se prueba cuando el módulo se rehabilite.
 
 ### 3.4 CORS
 

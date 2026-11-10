@@ -1,0 +1,17 @@
+---
+description: Each pull request updates CHANGELOG.md with the participating commits
+alwaysApply: true
+---
+
+# Changelog en cada PR
+
+Al abrir o actualizar un pull request, editar `CHANGELOG.md` en ese mismo PR.
+
+- Describir los commits que cambian producto o documentación. Omitir los que solo tocan `VERSION` o `README.md`, y los merges sin contenido propio.
+- Agregar una fila al inicio de la tabla de trazabilidad: fecha de merge o de apertura en UTC, número de PR, tipo y una frase con lo que hacen esos commits.
+- Sumar una viñeta en Added, Changed, Fixed o Documentation.
+- No reescribir filas ya publicadas. Solo agregar lo nuevo.
+
+Ejemplo de fila:
+
+`| 2026-11-09 | [#241](https://github.com/cmessoftware/chessinsightai/pull/241) | Cambio integrado | Las rutas de la SPA sirven index.html. |`

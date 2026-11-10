@@ -15,3 +15,6 @@ export function betaLabelFromVersion(versionText) {
 }
 
 export const BETA_LABEL = betaLabelFromVersion(versionText)
+
+/** FEAT-111: the beta label opens the changelog from PR #228. */
+export const CHANGELOG_PATH = '/changelog'

@@ -1,20 +1,30 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import {
     Alert,
-    Button,
+    Box,
     CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    IconButton,
     List,
     ListItemButton,
     ListItemText,
     Paper,
+    Tooltip,
     Typography,
 } from '@mui/material'
-import { Link as RouterLink, useLocation, useParams } from 'react-router-dom'
+import HelpOutline from '@mui/icons-material/HelpOutline'
+import { useLocation, useParams } from 'react-router-dom'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { COACH_RETURN_PARTIDAS } from '../components/coach/CoachSubNav.jsx'
 import { formatCoachGameDescription } from '../utils/coachGameDisplay.js'
-import { getDecision, getGame, listDecisions } from '../services/module07Service.js'
-import { resolveCoachPlayerColor } from '../utils/coachPlayerColor.js'
+import { createAnalysisJob, getDecision, getGame, listDecisions } from '../services/module07Service.js'
+import { coachDeepAnalysisUsername, resolveCoachPlayerColor } from '../utils/coachPlayerColor.js'
+import {
+    COACH_CRITICALITY_REFERENCE,
+    criticalitySummary,
+} from '../utils/coachCriticalityReason.js'
 import { buildReplayFromPgn } from '../utils/coachPgnReplay.js'
 import { buildTreeFromPgn, extractMovetextFromPgn } from '../utils/coachPgnTreeParse.js'
 import { loadCoachAnalysisCursor, saveCoachLastGameId } from '../utils/coachLastGameSession.js'
@@ -41,6 +51,9 @@ export default function CoachGameAnalysisPage() {
     const [detail, setDetail] = useState(null)
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [deepRunning, setDeepRunning] = useState(false)
+    const [deepQueued, setDeepQueued] = useState(false)
+    const [criterionOpen, setCriterionOpen] = useState(false)
     const [importBanner] = useState(() => location.state?.message || null)
 
     const loadDecisions = useCallback(async () => {
@@ -179,6 +192,24 @@ export default function CoachGameAnalysisPage() {
 
     const pack = detail?.review_pack
     const playerColor = resolveCoachPlayerColor(gameMeta, pack)
+    const deepUsername = coachDeepAnalysisUsername(gameMeta)
+    const waitingDeep = (deepRunning || deepQueued) && !decisions.length
+
+    const runDeepAnalysis = async () => {
+        if (!gameId || !deepUsername || deepRunning) return
+        setDeepRunning(true)
+        setError(null)
+        try {
+            await createAnalysisJob([String(gameId)], deepUsername)
+            setDeepQueued(true)
+            setLoading(true)
+            await loadDecisions()
+        } catch (err) {
+            setError(err.message || 'No se pudo encolar el análisis profundo.')
+        } finally {
+            setDeepRunning(false)
+        }
+    }
 
     const topAlerts = (
         <>
@@ -187,11 +218,11 @@ export default function CoachGameAnalysisPage() {
                     {String(error)}
                 </Alert>
             )}
-            {loading && !decisions.length && (
+            {(loading || waitingDeep) && !decisions.length && (
                 <Alert severity="info" icon={<CircularProgress size={18} />} sx={{ mb: 2 }}>
-                    {gameMeta?.analysis_job_id
-                        ? 'Esperando decisiones del job (Stockfish)…'
-                        : 'Partida importada. Revisá jugadas abajo o encolá Stockfish desde la cola de análisis.'}
+                    {waitingDeep
+                        ? 'Análisis profundo en curso. Esta pantalla espera las jugadas críticas.'
+                        : 'Partida importada. Ejecutá el análisis profundo con el icono bajo el tablero.'}
                 </Alert>
             )}
         </>
@@ -199,9 +230,36 @@ export default function CoachGameAnalysisPage() {
 
     const decisionsPanel = (
         <>
-            <Typography variant="subtitle2" gutterBottom sx={{ mt: 0.5 }}>
-                Jugadas críticas
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, mb: 0.5 }}>
+                <Typography variant="subtitle2">Jugadas críticas</Typography>
+                <Tooltip title="Criterio del listado">
+                    <IconButton
+                        size="small"
+                        aria-label="Criterio de las jugadas críticas"
+                        onClick={() => setCriterionOpen(true)}
+                    >
+                        <HelpOutline fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+            <Dialog
+                open={criterionOpen}
+                onClose={() => setCriterionOpen(false)}
+                fullWidth
+                maxWidth="sm"
+            >
+                <DialogTitle>Criterio de las jugadas críticas</DialogTitle>
+                <DialogContent>
+                    {COACH_CRITICALITY_REFERENCE.map((item) => (
+                        <Box key={item.title} sx={{ mb: 1.5 }}>
+                            <Typography variant="subtitle2">{item.title}</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {item.body}
+                            </Typography>
+                        </Box>
+                    ))}
+                </DialogContent>
+            </Dialog>
             <Paper sx={{ maxHeight: 180, overflow: 'auto', mb: 2 }}>
                 <List dense>
                     {decisions.map((d) => (
@@ -220,24 +278,15 @@ export default function CoachGameAnalysisPage() {
                         >
                             <ListItemText
                                 primary={`${d.review_pack?.move_number ?? '?'}. ${d.review_pack?.played_move?.san ?? `ply ${d.ply}`}`}
-                                secondary={`crit ${d.criticality?.toFixed?.(1) ?? d.criticality}`}
+                                secondary={criticalitySummary(d) || 'Sin puntaje'}
                             />
                         </ListItemButton>
                     ))}
                     {!decisions.length && !loading && (
                         <ListItemText
                             sx={{ p: 2 }}
-                            primary="Sin análisis Stockfish aún."
-                            secondary={
-                                <Button
-                                    size="small"
-                                    component={RouterLink}
-                                    to={COACH_RETURN_PARTIDAS}
-                                    sx={{ mt: 1, p: 0 }}
-                                >
-                                    Ir a cola de análisis
-                                </Button>
-                            }
+                            primary="Sin análisis profundo aún."
+                            secondary="El icono bajo el tablero lo ejecuta en esta pantalla."
                         />
                     )}
                 </List>
@@ -284,6 +333,11 @@ export default function CoachGameAnalysisPage() {
             }
             topAlerts={topAlerts}
             decisionsPanel={decisionsPanel}
+            deepAnalysis={{
+                onRun: runDeepAnalysis,
+                running: deepRunning || waitingDeep,
+                disabled: !deepUsername,
+            }}
         />
     )
 }
