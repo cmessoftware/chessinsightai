@@ -18,6 +18,7 @@ import {
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined'
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined'
+import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined'
 import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ExpandLess from '@mui/icons-material/ExpandLess'
@@ -41,7 +42,7 @@ function readCollapsedPreference() {
     }
 }
 
-function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports }) {
+function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports, isAdmin }) {
     const { pathname } = useLocation()
     const coachActive = activeCoachNavPath(pathname)
     const [coachOpen, setCoachOpen] = useState(() => pathname.startsWith('/coach'))
@@ -154,6 +155,11 @@ function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports }) {
                     { label: 'Reportes', path: '/reports', icon: AssessmentOutlinedIcon },
                     pathname.startsWith('/reports'),
                 )}
+            {isAdmin &&
+                renderLink(
+                    { label: 'Actividad', path: '/admin/activity', icon: HistoryOutlinedIcon },
+                    pathname.startsWith('/admin/activity'),
+                )}
         </List>
     )
 }
@@ -163,7 +169,8 @@ export default function AppShell() {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const [mobileOpen, setMobileOpen] = useState(false)
     const [collapsed, setCollapsed] = useState(() => readCollapsedPreference())
-    const { isAuthenticated, hasAccessToReports } = useAuth()
+    const { isAuthenticated, hasAccessToReports, user } = useAuth()
+    const isAdmin = Boolean(user?.roles?.includes('admin') || user?.role === 'admin')
 
     const toggleCollapsed = useCallback(() => {
         setCollapsed((prev) => {
@@ -230,6 +237,7 @@ export default function AppShell() {
                 isMobile={isMobile}
                 onNavigate={isMobile ? closeMobile : undefined}
                 hasAccessToReports={hasAccessToReports}
+                isAdmin={isAdmin}
             />
         </Box>
     )

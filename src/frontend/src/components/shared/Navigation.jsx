@@ -162,6 +162,16 @@ const Navigation = ({ onOpenSidebar }) => {
                                     Usuarios y roles
                                 </MenuItem>
                             )}
+                            {user?.roles?.includes('admin') && (
+                                <MenuItem
+                                    onClick={() => {
+                                        handleClose()
+                                        navigate('/admin/activity')
+                                    }}
+                                >
+                                    Actividad
+                                </MenuItem>
+                            )}
                             <MenuItem onClick={handleLogout}>
                                 <ExitToApp sx={{ mr: 1 }} />
                                 Cerrar Sesión

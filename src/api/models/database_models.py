@@ -52,6 +52,18 @@ class UserSession(Base):
     user = relationship("User", back_populates="sessions")
 
 
+class UserActivityLog(Base):
+    """LOG-FEAT-09: login, logout, import, statistics and deep analysis."""
+
+    __tablename__ = "user_activity_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=True, index=True)
+    username = Column(String(50), nullable=False, index=True)
+    event = Column(String(32), nullable=False, index=True)
+    occurred_at = Column(DateTime, nullable=False, index=True, server_default=func.now())
+
+
 class Games(Base):
     __tablename__ = "games"
 
