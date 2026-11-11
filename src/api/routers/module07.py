@@ -90,6 +90,20 @@ def _owner_id(request: Request) -> int:
     return int(uid)
 
 
+def _record_activity(db: Session, request: Request, event: str) -> None:
+    """LOG-FEAT-09. Logging never changes the response of the caller."""
+    from services.activity_log_service import record_activity
+
+    user = getattr(request.state, "user", None) or {}
+    username = (user.get("username") or "").strip() or str(_owner_id(request))
+    record_activity(
+        db,
+        username=username,
+        event=event,
+        user_id=user.get("user_id"),
+    )
+
+
 class IngestBody(BaseModel):
     pgn_text: str = Field(..., min_length=1)
     player_username: Optional[str] = Field(
@@ -329,6 +343,7 @@ def ingest_pgn(
     )
     total_in_pgn = parse_result.total_games_in_pgn
     imported_count = len(rows)
+    _record_activity(db, request, "import_games")
     return {
         "games": [
             _game_json(r, is_new=flag) for r, flag in zip(rows, is_new_flags, strict=True)
@@ -612,9 +627,11 @@ def post_game_chess_statistics(
     if row is None:
         raise HTTPException(status_code=404, detail="Game not found")
     try:
-        return compute_open_game_statistics(db, row.id)
+        result = compute_open_game_statistics(db, row.id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    _record_activity(db, request, "statistics")
+    return result
 
 
 @router.get("/games/{game_id}/decisions")
@@ -718,6 +735,7 @@ def create_job(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     background_tasks.add_task(run_analysis_job, job.id, owner)
+    _record_activity(db, request, "deep_analysis")
     return _job_json(job)
 
 
@@ -768,6 +786,8 @@ def ingest_and_analyze(
     background_tasks.add_task(run_analysis_job, job.id, owner)
     total_in_pgn = parse_result.total_games_in_pgn
     imported_count = len(rows)
+    _record_activity(db, request, "import_games")
+    _record_activity(db, request, "deep_analysis")
     return {
         "games": [_game_json(r) for r in rows],
         "job": _job_json(job),
@@ -886,6 +906,7 @@ def run_lichess_import(
         import_provenance=provenance,
     )
     imported_count = len(rows)
+    _record_activity(db, request, "import_games")
     return {
         "games": [
             _game_json(r, is_new=flag) for r, flag in zip(rows, is_new_flags, strict=True)
@@ -1006,6 +1027,7 @@ def run_chesscom_import(
         import_provenance=provenance,
     )
     imported_count = len(rows)
+    _record_activity(db, request, "import_games")
     return {
         "games": [
             _game_json(r, is_new=flag) for r, flag in zip(rows, is_new_flags, strict=True)

@@ -34,6 +34,24 @@ try:
     from scripts.import_personal_pgn import import_personal_pgn
 except ModuleNotFoundError:
     import_personal_pgn = None
+
+
+def _record_import(username: str, user_id=None) -> None:
+    """LOG-FEAT-09. Legacy import routes do not share the Coach request session."""
+    name = (username or "").strip()
+    if not name:
+        return
+    try:
+        from database import SessionLocal
+        from services.activity_log_service import record_activity
+
+        db = SessionLocal()
+        try:
+            record_activity(db, username=name, event="import_games", user_id=user_id)
+        finally:
+            db.close()
+    except Exception:
+        return
 from models.schemas import (
     PgnUploadResponse,
     PgnUploadJobStatus,
@@ -150,6 +168,7 @@ async def list_uploads():
 @router.post("/import/pgn/batch", response_model=PgnBatchImportResponse)
 async def start_batch_import(
     background_tasks: BackgroundTasks,
+    request: Request,
     payload: Optional[PgnBatchImportRequest] = Body(default=None),
     file_ids: Optional[List[str]] = None,
     source: str = "personal",
@@ -206,6 +225,9 @@ async def start_batch_import(
         background_tasks.add_task(
             process_import_job, import_job_id, valid_files, source
         )
+
+        actor = getattr(request.state, "user", {}) or {}
+        _record_import(actor.get("username") or "", actor.get("user_id"))
 
         return {
             "jobId": import_job_id,
@@ -535,6 +557,8 @@ async def import_personal_pgn_endpoint(
 
         # Limpiar archivo temporal
         temp_file.unlink()
+
+        _record_import(username, user.get("user_id"))
 
         return {
             "success": True,

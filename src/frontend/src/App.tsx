@@ -17,6 +17,7 @@ import LogViewerPage from './pages/LogViewerPage.jsx'
 import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
 import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
 import AdminUserManagementPage from './pages/AdminUserManagementPage.jsx'
+import AdminActivityLogPage from './pages/AdminActivityLogPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachHomePage from './pages/CoachHomePage.jsx'
 import CoachImportarPage from './pages/CoachImportarPage.jsx'
@@ -223,6 +224,14 @@ function App() {
                   element={
                     <ProtectedRoute requiredPermission="admin">
                       <AdminUserManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/activity"
+                  element={
+                    <ProtectedRoute requiredPermission="admin">
+                      <AdminActivityLogPage />
                     </ProtectedRoute>
                   }
                 />

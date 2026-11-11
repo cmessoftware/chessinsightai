@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import os
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from models.schemas import (
     UserLogin,
@@ -24,6 +24,7 @@ from models.schemas import (
 )
 from models.coach_user_roles import normalize_coach_account_roles
 from services.auth_service import AuthService
+from services.activity_log_service import ACTIVITY_EVENTS, list_activity, record_activity
 from database import get_db
 
 router = APIRouter()
@@ -90,6 +91,13 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
         # Session creation failed, but continue with token
         pass
 
+    record_activity(
+        db,
+        username=user_data["username"],
+        event="login",
+        user_id=user_data.get("user_id"),
+    )
+
     # Create response with new role system
     user_response = UserResponse(
         id=user_data["user_id"],
@@ -153,7 +161,15 @@ async def logout(
     """
     Cerrar sesión invalidando el token
     """
+    user_data = auth_service.verify_token(credentials.credentials, db)
     success = auth_service.invalidate_user_session(db, credentials.credentials)
+    if user_data:
+        record_activity(
+            db,
+            username=user_data.get("username") or "",
+            event="logout",
+            user_id=user_data.get("user_id"),
+        )
 
     return {"message": "Sesión cerrada exitosamente", "success": success}
 
@@ -202,6 +218,39 @@ async def get_roles_matrix():
         all_permissions=list(all_permissions),
         role_combinations=role_combinations,
     )
+
+
+@router.get("/activity/events")
+async def list_activity_events(
+    current_user: dict = Depends(auth_service.get_current_admin_user()),
+):
+    """LOG-FEAT-09: event catalog for the admin activity page."""
+    return {"events": [{"code": code, "label": label} for code, label in ACTIVITY_EVENTS]}
+
+
+@router.get("/activity")
+async def get_activity_log(
+    username: Optional[str] = None,
+    event: Optional[str] = None,
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    limit: int = Query(default=200, ge=1, le=500),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(auth_service.get_current_admin_user()),
+):
+    """LOG-FEAT-09: activity log. Admin only. Filters: user, dates, event."""
+    try:
+        items = list_activity(
+            db,
+            username=username,
+            event=event,
+            date_from=date_from,
+            date_to=date_to,
+            limit=limit,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"items": items}
 
 
 @router.get("/admin/account-roles", response_model=CoachAccountRolesResponse)
