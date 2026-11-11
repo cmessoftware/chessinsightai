@@ -248,6 +248,28 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><td>LOG-FEAT-08</td><td>&nbsp;</td><td>&nbsp;</td><td>Rol de Instructor</td><td>⬜ Todo</td><td>1. Agregar permisos para gestionar partidas de alumnos / grupos de alumnos. 1. Clonar estudios completos o partidas seleccionadas por filtro avanzado. 2. Insertar nuevas partidas/estudios desde menu "insertar partidas" a un alumno o grupo de alumnos. 2. Agregar permisos para ver reportes de alumnos.</td></tr>
 <tr><td>LOG-FEAT-09</td><td>&nbsp;</td><td>&nbsp;</td><td>Módulo de log de actividad de usuarios. Solo para admin</td><td>✅ Done</td><td>Página <code>/admin/activity</code>. Eventos: Login, Logout, importación de partidas, solicitud de estadísticas y análisis profundo. Campos usuario, evento, fecha y hora. Filtros por usuario, fechas y evento.</td></tr>
 <tr><td>LOG-FEAT-10</td><td>&nbsp;</td><td>&nbsp;</td><td>Módulo de registro de bug y sugerencias de mejora</td><td>⬜ Todo</td><td>Eventos a loguear como issue del repo de github.</td></tr>
+<tr><td>LOG-FEAT-01</td><td></td><td>Soporte para login con usuario de Google</td><td>⬜ Todo</td><td></td><td></td></tr>
+<tr><td>LOG-FEAT-02</td><td></td><td>Soporte para login con usuario de Chess.com</td><td>⬜ Todo</td><td></td><td></td></tr>
+<tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td></td><td></td></tr>
+<tr><td>LOG-FEAT-04</td><td></td><td>Módulo de gestión de usuarios y roles (<code>admin</code>, <code>user</code>), accesible solo para admin</td><td>✅ Done</td><td></td><td>HITL · <code>/admin/users</code>, API <code>/api/auth/users</code></td></tr>
+<tr><td>LOG-FEAT-05</td><td></td><td>opción de cambio de pass (solo admin)</td><td>✅ Done</td><td></td><td>HITL OK — cambio de contraseña en <code>/admin/users</code></td></tr>
+<tr><td>LOG-FEAT-06</td><td></td><td>Modulo de gestión de grupos</td><td>⬜ Todo</td><td>
+1. ABM de grupos.
+   1. ABM de usuarios al grupo (vista de dos paneles usuarios <--> grupo)
+   2. Asignación de un grupo al crear o modificar un usuario.
+   3. Asignación de roles al grupo.
+</td></tr>
+<tr><td>LOG-FEAT-07</td><td></td><td>Rol de Instructor</td><td>⬜ Todo</td><td>
+    1. Rol de user
+    2. Agregar permisos para gestionar grupos de alumnos.
+</td></tr>
+<tr><td>LOG-FEAT-08</td><td></td><td>Rol de Instructor</td><td>⬜ Todo</td><td>
+    1. Agregar permisos para gestionar partidas de alumnos / grupos de alumnos.
+       1. Clonar estudios completos o partidas seleccionadas por filtro avanzado.
+       2. Insertar nuevas partidas/estudios desde menu "insertar partidas" a un alumno o grupo de alumnos.
+    2. Agregar permisos para ver reportes de alumnos.
+</td></tr>
+<tr><td>LOG-FEAT-09</td><td></td><td>Módulo de log de actividad de usuarios. Solo para admin</td><td>✅ Done</td><td></td><td>Página <code>/admin/activity</code>. Eventos: Login, Logout, importación de partidas, solicitud de estadísticas y análisis profundo. Campos usuario, evento, fecha y hora. Filtros por usuario, fechas y evento.</td></tr>
 </tbody>
 </table>
 

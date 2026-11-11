@@ -206,6 +206,7 @@ export const useAuth = () => {
             '/reports': ['own_reports', 'view_stats', 'reports'],
             '/chess-board': ['chess_board'],
             '/admin/users': ['ALL'], // LOG-FEAT-04: admin only
+            '/admin/activity': ['ALL'], // LOG-FEAT-09: admin only
             '/admin/roles': ['ALL'],
         };
 

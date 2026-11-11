@@ -20,6 +20,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Comentarios y etiquetas por jugada, selector de coronación y persistencia/edición de estudios (#197, #198, #204, #214).
 - Gestión de usuarios y roles (#211); estadísticas en la interfaz y persistidas en Postgres, comparación por color y cálculo bajo demanda (#218, #225).
 - La etiqueta `beta-<commit>` abre este changelog (#228, #243, FEAT-111).
+- Un administrador consulta en `/admin/activity` el log de login, logout, importación de partidas, solicitud de estadísticas y análisis profundo, con filtros por usuario, fechas y evento (#249, LOG-FEAT-09).
 
 ### Changed
 
@@ -64,6 +65,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
 | 2026-11-11 | [#250](https://github.com/cmessoftware/chessinsightai/pull/250) | Documentación | Prioridad queda como segunda columna y el estado como icono más nombre. El spec de ejercicios suma exportar partidas o estudios. |
+| 2026-11-11 | [#249](https://github.com/cmessoftware/chessinsightai/pull/249) | Cambio integrado | El admin ve la actividad de usuarios: login, logout, importación, estadísticas y análisis profundo. |
 | 2026-11-10 | [#248](https://github.com/cmessoftware/chessinsightai/pull/248) | Documentación | BUG-103 queda en el tracker. El #236 no se mergea: su diff reescribía un tracker viejo. |
 | 2026-11-10 | [#238](https://github.com/cmessoftware/chessinsightai/pull/238) | Documentación | SPAR-21: reentrenar errores propios con Maia y los relojes originales de la partida. |
 | 2026-11-10 | [#235](https://github.com/cmessoftware/chessinsightai/pull/235) | Cambio integrado | El modo crítico ya no depende de la jugada hecha. Esa diferencia queda como revisión posterior. |
