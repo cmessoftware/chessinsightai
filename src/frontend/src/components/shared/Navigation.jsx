@@ -178,7 +178,7 @@ const Navigation = ({ onOpenSidebar }) => {
                                     navigate('/feedback')
                                 }}
                             >
-                                Reportar
+                                Comentarios
                             </MenuItem>
                             <MenuItem onClick={handleLogout}>
                                 <ExitToApp sx={{ mr: 1 }} />
