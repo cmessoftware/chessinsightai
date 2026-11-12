@@ -55,6 +55,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - La tabla de issues separa la prioridad del estado. Una candidata se marca con ✨ (#245).
 - SPAR-21 documenta reentrenar errores propios con Maia usando los relojes originales de la partida (#238).
 - BUG-103 registra que la descripción editada en Partidas vuelve a «Blancas vs Negras» al abrir la partida (#248). El PR #236 no se mergea.
+- El tracker deja Prioridad como segunda columna y el estado como icono más nombre. El spec de ejercicios suma la exportación de partidas o estudios a alumnos o grupos (#250).
 
 ### Límites y trazabilidad
 
@@ -64,6 +65,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-11 | [#250](https://github.com/cmessoftware/chessinsightai/pull/250) | Documentación | Prioridad queda como segunda columna y el estado como icono más nombre. El spec de ejercicios suma exportar partidas o estudios. |
 | 2026-11-12 | [#251](https://github.com/cmessoftware/chessinsightai/pull/251) | Cambio integrado | Un bug o una sugerencia enviados desde `/feedback` se abren como issue de GitHub. |
 | 2026-11-11 | [#249](https://github.com/cmessoftware/chessinsightai/pull/249) | Cambio integrado | El admin ve la actividad de usuarios: login, logout, importación, estadísticas y análisis profundo. |
 | 2026-11-10 | [#248](https://github.com/cmessoftware/chessinsightai/pull/248) | Documentación | BUG-103 queda en el tracker. El #236 no se mergea: su diff reescribía un tracker viejo. |
