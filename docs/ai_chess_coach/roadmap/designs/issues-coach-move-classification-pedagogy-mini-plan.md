@@ -281,6 +281,7 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
     2. Agregar permisos para ver reportes de alumnos.
 </td></tr>
 <tr><td>LOG-FEAT-09</td><td></td><td>Módulo de log de actividad de usuarios. Solo para admin</td><td>✅ Done</td><td></td><td>Página <code>/admin/activity</code>. Eventos: Login, Logout, importación de partidas, solicitud de estadísticas y análisis profundo. Campos usuario, evento, fecha y hora. Filtros por usuario, fechas y evento.</td></tr>
+<tr><td>LOG-FEAT-10</td><td></td><td>Módulo de registro de bug y sugerencias de mejora</td><td>✅ Done</td><td></td><td>Página <code>/feedback</code>. Un usuario autenticado abre un issue en GitHub, bug o sugerencia, con su usuario en el cuerpo.</td></tr>
 </tbody>
 </table>
 
@@ -387,7 +388,7 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-09, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-09, LOG-FEAT-10, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069</td></tr>
 <tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, FEAT-103…110, BUG-103, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>

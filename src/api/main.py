@@ -32,6 +32,7 @@ from routers import (
     notifications,
     analysis,
     module07,
+    feedback,
 )
 
 from middleware.cors_helpers import allowed_origins, cors_headers_for_request
@@ -103,6 +104,7 @@ app.include_router(reports.router, tags=["reports"])
 app.include_router(notifications.router, tags=["notifications"])
 app.include_router(analysis.router, tags=["analysis", "ml", "shap"])
 app.include_router(module07.router)
+app.include_router(feedback.router)
 
 
 @app.get("/")

@@ -172,6 +172,14 @@ const Navigation = ({ onOpenSidebar }) => {
                                     Actividad
                                 </MenuItem>
                             )}
+                            <MenuItem
+                                onClick={() => {
+                                    handleClose()
+                                    navigate('/feedback')
+                                }}
+                            >
+                                Reportar
+                            </MenuItem>
                             <MenuItem onClick={handleLogout}>
                                 <ExitToApp sx={{ mr: 1 }} />
                                 Cerrar Sesión
