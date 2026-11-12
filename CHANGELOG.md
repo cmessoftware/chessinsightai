@@ -21,7 +21,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Gestión de usuarios y roles (#211); estadísticas en la interfaz y persistidas en Postgres, comparación por color y cálculo bajo demanda (#218, #225).
 - La etiqueta `beta-<commit>` abre este changelog (#228, #243, FEAT-111).
 - Un administrador consulta en `/admin/activity` el log de login, logout, importación de partidas, solicitud de estadísticas y análisis profundo, con filtros por usuario, fechas y evento (#249, LOG-FEAT-09).
-- Un usuario con sesión reporta un bug o una sugerencia en `/feedback` y queda como issue de GitHub (#251, LOG-FEAT-10).
+- Un usuario con sesión envía un fallo o una idea de mejora desde Comentarios (`/feedback`) y queda como issue de GitHub (#251, LOG-FEAT-10).
 
 ### Changed
 

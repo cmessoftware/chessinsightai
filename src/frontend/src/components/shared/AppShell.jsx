@@ -19,7 +19,7 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined'
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined'
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined'
-import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined'
+import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined'
 import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ExpandLess from '@mui/icons-material/ExpandLess'
@@ -162,7 +162,7 @@ function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports, isAdm
                     pathname.startsWith('/admin/activity'),
                 )}
             {renderLink(
-                { label: 'Reportar', path: '/feedback', icon: BugReportOutlinedIcon },
+                { label: 'Comentarios', path: '/feedback', icon: CommentOutlinedIcon },
                 pathname.startsWith('/feedback'),
             )}
         </List>

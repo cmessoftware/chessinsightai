@@ -56,10 +56,10 @@ export default function FeedbackPage() {
     return (
         <Box component="form" onSubmit={submit} sx={{ maxWidth: 720 }}>
             <Typography variant="h4" gutterBottom>
-                Reportar
+                Comentarios
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Un bug o una sugerencia de mejora se abre como issue en el repositorio.
+                Contanos un fallo o una idea de mejora. Se guarda como issue en el repositorio.
             </Typography>
             {error && (
                 <Alert severity="error" sx={{ mb: 2 }}>
