@@ -22,6 +22,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - La etiqueta `beta-<commit>` abre este changelog (#228, #243, FEAT-111).
 - Un administrador consulta en `/admin/activity` el log de login, logout, importación de partidas, solicitud de estadísticas y análisis profundo, con filtros por usuario, fechas y evento (#249, LOG-FEAT-09).
 - Un usuario con sesión envía un fallo o una idea de mejora desde Comentarios (`/feedback`) y queda como issue de GitHub (#251, LOG-FEAT-10).
+- Un administrador gestiona grupos en `/admin/groups`: alta y baja, miembros en dos paneles y roles del grupo. Al crear o editar un usuario se asigna un grupo (#256, LOG-FEAT-06).
 
 ### Changed
 
@@ -66,6 +67,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-12 | [#256](https://github.com/cmessoftware/chessinsightai/pull/256) | Cambio integrado | Un administrador gestiona grupos, sus miembros y sus roles. Un usuario pertenece a un solo grupo. |
 | 2026-11-12 | [#255](https://github.com/cmessoftware/chessinsightai/pull/255) | Cambio integrado | La página de changelog muestra el Markdown con títulos, listas, enlaces y la tabla. |
 | 2026-11-11 | [#250](https://github.com/cmessoftware/chessinsightai/pull/250) | Documentación | Prioridad queda como segunda columna y el estado como icono más nombre. El spec de ejercicios suma exportar partidas o estudios. |
 | 2026-11-12 | [#251](https://github.com/cmessoftware/chessinsightai/pull/251) | Cambio integrado | Un bug o una sugerencia enviados desde `/feedback` se abren como issue de GitHub. |
