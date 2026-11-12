@@ -31,6 +31,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - En Filtros avanzados, Jugador blancas, Jugador negras y Estudio buscan por nombre parcial, con mínimo de 3 caracteres. Fuente filtra por Torneo, Chess.com, Estudios, Lichess y el resto de categorías sin asignarlas (#244).
 - En el tablero de análisis, un icono ejecuta el análisis profundo y muestra un spinner sin salir de esa pantalla (#245).
 - El panel de jugadas críticas abre el criterio del listado: puntaje, niveles y los cuatro motivos. El MultiPV no elige esas jugadas (#246).
+- La página `/changelog` muestra el archivo como documento: títulos, listas, enlaces y la tabla de pull requests (#255).
 
 ### Fixed
 
@@ -65,6 +66,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-12 | [#255](https://github.com/cmessoftware/chessinsightai/pull/255) | Cambio integrado | La página de changelog muestra el Markdown con títulos, listas, enlaces y la tabla. |
 | 2026-11-11 | [#250](https://github.com/cmessoftware/chessinsightai/pull/250) | Documentación | Prioridad queda como segunda columna y el estado como icono más nombre. El spec de ejercicios suma exportar partidas o estudios. |
 | 2026-11-12 | [#251](https://github.com/cmessoftware/chessinsightai/pull/251) | Cambio integrado | Un bug o una sugerencia enviados desde `/feedback` se abren como issue de GitHub. |
 | 2026-11-11 | [#249](https://github.com/cmessoftware/chessinsightai/pull/249) | Cambio integrado | El admin ve la actividad de usuarios: login, logout, importación, estadísticas y análisis profundo. |
