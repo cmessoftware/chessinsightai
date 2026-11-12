@@ -39,6 +39,22 @@ function authHeaders(token) {
     }
 }
 
+function GroupSelect({ labelId, value, onChange, groups, fullWidth = false }) {
+    return (
+        <FormControl size="small" fullWidth={fullWidth} sx={{ minWidth: 140 }}>
+            <InputLabel id={labelId}>Grupo</InputLabel>
+            <Select labelId={labelId} label="Grupo" value={value} onChange={onChange}>
+                <MenuItem value="">Sin grupo</MenuItem>
+                {groups.map((group) => (
+                    <MenuItem key={group.id} value={String(group.id)}>
+                        {group.name}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    )
+}
+
 function primaryRole(roles) {
     const list = roles || []
     if (list.includes('admin')) return 'admin'
@@ -49,6 +65,7 @@ function primaryRole(roles) {
 export default function AdminUserManagementPage() {
     const { token } = useAuth()
     const [users, setUsers] = useState([])
+    const [groups, setGroups] = useState([])
     const [roleCatalog, setRoleCatalog] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -58,10 +75,11 @@ export default function AdminUserManagementPage() {
         email: '',
         password: '',
         role: 'user',
+        groupId: '',
         is_active: true,
     })
     const [editingId, setEditingId] = useState(null)
-    const [editDraft, setEditDraft] = useState({ role: 'user', is_active: true })
+    const [editDraft, setEditDraft] = useState({ role: 'user', groupId: '', is_active: true })
     const [passwordTarget, setPasswordTarget] = useState(null)
     const [passwordDraft, setPasswordDraft] = useState({ password: '', confirm: '' })
     const [notice, setNotice] = useState(null)
@@ -70,17 +88,23 @@ export default function AdminUserManagementPage() {
         if (!token) return
         try {
             setLoading(true)
-            const [usersRes, rolesRes] = await Promise.all([
+            const [usersRes, rolesRes, groupsRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/api/auth/users`, { headers: authHeaders(token) }),
                 fetch(`${API_BASE_URL}/api/auth/admin/account-roles`, {
                     headers: authHeaders(token),
                 }),
+                fetch(`${API_BASE_URL}/api/auth/groups`, { headers: authHeaders(token) }),
             ])
-            if (!usersRes.ok || !rolesRes.ok) {
-                const detail = !usersRes.ok ? await usersRes.text() : await rolesRes.text()
+            if (!usersRes.ok || !rolesRes.ok || !groupsRes.ok) {
+                const detail = !usersRes.ok
+                    ? await usersRes.text()
+                    : !rolesRes.ok
+                      ? await rolesRes.text()
+                      : await groupsRes.text()
                 throw new Error(detail || 'No autorizado o error de servidor')
             }
             setUsers(await usersRes.json())
+            setGroups(await groupsRes.json())
             const rolesPayload = await rolesRes.json()
             setRoleCatalog(rolesPayload.roles || [])
             setError(null)
@@ -97,10 +121,15 @@ export default function AdminUserManagementPage() {
 
     const saveRole = async (userId) => {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/auth/users/${userId}/roles`, {
-                method: 'PUT',
+            const res = await fetch(`${API_BASE_URL}/api/auth/users/${userId}`, {
+                method: 'PATCH',
                 headers: authHeaders(token),
-                body: JSON.stringify({ roles: [editDraft.role] }),
+                body: JSON.stringify({
+                    roles: [editDraft.role],
+                    ...(editDraft.groupId
+                        ? { group_id: Number(editDraft.groupId) }
+                        : { clear_group: true }),
+                }),
             })
             if (!res.ok) throw new Error(await res.text())
             const updated = await res.json()
@@ -167,6 +196,7 @@ export default function AdminUserManagementPage() {
                     password: draft.password,
                     roles: [draft.role],
                     is_active: draft.is_active,
+                    ...(draft.groupId ? { group_id: Number(draft.groupId) } : {}),
                 }),
             })
             if (!res.ok) throw new Error(await res.text())
@@ -178,6 +208,7 @@ export default function AdminUserManagementPage() {
                 email: '',
                 password: '',
                 role: 'user',
+                groupId: '',
                 is_active: true,
             })
         } catch (err) {
@@ -240,6 +271,7 @@ export default function AdminUserManagementPage() {
                             <TableCell>Usuario</TableCell>
                             <TableCell>Email</TableCell>
                             <TableCell>Rol</TableCell>
+                            <TableCell>Grupo</TableCell>
                             <TableCell>Activo</TableCell>
                             <TableCell align="right">Acciones</TableCell>
                         </TableRow>
@@ -273,6 +305,20 @@ export default function AdminUserManagementPage() {
                                     )}
                                 </TableCell>
                                 <TableCell>
+                                    {editingId === user.id ? (
+                                        <GroupSelect
+                                            labelId={`group-${user.id}`}
+                                            value={editDraft.groupId}
+                                            groups={groups}
+                                            onChange={(e) =>
+                                                setEditDraft((d) => ({ ...d, groupId: e.target.value }))
+                                            }
+                                        />
+                                    ) : (
+                                        user.group_name || 'Sin grupo'
+                                    )}
+                                </TableCell>
+                                <TableCell>
                                     <Switch
                                         checked={Boolean(user.is_active)}
                                         onChange={() => toggleActive(user)}
@@ -297,11 +343,12 @@ export default function AdminUserManagementPage() {
                                                     setEditingId(user.id)
                                                     setEditDraft({
                                                         role: primaryRole(user.roles),
+                                                        groupId: user.group_id ? String(user.group_id) : '',
                                                         is_active: user.is_active,
                                                     })
                                                 }}
                                             >
-                                                Cambiar rol
+                                                Editar
                                             </Button>
                                             <Button
                                                 size="small"
@@ -319,7 +366,7 @@ export default function AdminUserManagementPage() {
                         ))}
                         {users.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={5}>
+                                <TableCell colSpan={6}>
                                     <Typography variant="body2" color="text.secondary">
                                         No hay usuarios en la base de datos. Creá uno o usá login legacy (admin).
                                     </Typography>
@@ -412,6 +459,13 @@ export default function AdminUserManagementPage() {
                             ))}
                         </Select>
                     </FormControl>
+                    <GroupSelect
+                        labelId="create-group"
+                        fullWidth
+                        value={draft.groupId}
+                        groups={groups}
+                        onChange={(e) => setDraft((d) => ({ ...d, groupId: e.target.value }))}
+                    />
                     <FormControlLabel
                         control={
                             <Switch

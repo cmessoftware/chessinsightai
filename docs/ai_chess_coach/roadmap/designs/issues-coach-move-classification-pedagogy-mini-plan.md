@@ -243,7 +243,7 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><td>LOG-FEAT-03</td><td>&nbsp;</td><td>&nbsp;</td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td>&nbsp;</td></tr>
 <tr><td>LOG-FEAT-04</td><td>&nbsp;</td><td>&nbsp;</td><td>Módulo de gestión de usuarios y roles (<code>admin</code>, <code>user</code>), accesible solo para admin</td><td>✅ Done</td><td>HITL · <code>/admin/users</code>, API <code>/api/auth/users</code></td></tr>
 <tr><td>LOG-FEAT-05</td><td>&nbsp;</td><td>&nbsp;</td><td>opción de cambio de pass (solo admin)</td><td>✅ Done</td><td>HITL OK — cambio de contraseña en <code>/admin/users</code></td></tr>
-<tr><td>LOG-FEAT-06</td><td>&nbsp;</td><td>&nbsp;</td><td>Modulo de gestión de grupos</td><td>⬜ Todo</td><td>1. ABM de grupos. 1. ABM de usuarios al grupo (vista de dos paneles usuarios &lt;--&gt; grupo) 2. Asignación de un grupo al crear o modificar un usuario. 3. Asignación de roles al grupo.</td></tr>
+<tr><td>LOG-FEAT-06</td><td>&nbsp;</td><td>&nbsp;</td><td>Modulo de gestión de grupos</td><td>✅ Done</td><td>Página <code>/admin/groups</code>. ABM de grupos, miembros en dos paneles y roles admin o user del grupo. Al crear o editar un usuario se asigna un grupo. Un usuario pertenece a un solo grupo.</td></tr>
 <tr><td>LOG-FEAT-07</td><td>&nbsp;</td><td>&nbsp;</td><td>Rol de Instructor</td><td>⬜ Todo</td><td>1. Rol de user 2. Agregar permisos para gestionar grupos de alumnos.</td></tr>
 <tr><td>LOG-FEAT-08</td><td>&nbsp;</td><td>&nbsp;</td><td>Rol de Instructor</td><td>⬜ Todo</td><td>1. Agregar permisos para gestionar partidas de alumnos / grupos de alumnos. 1. Clonar estudios completos o partidas seleccionadas por filtro avanzado. 2. Insertar nuevas partidas/estudios desde menu "insertar partidas" a un alumno o grupo de alumnos. 2. Agregar permisos para ver reportes de alumnos.</td></tr>
 <tr><td>LOG-FEAT-09</td><td>&nbsp;</td><td>&nbsp;</td><td>Módulo de log de actividad de usuarios. Solo para admin</td><td>✅ Done</td><td>Página <code>/admin/activity</code>. Eventos: Login, Logout, importación de partidas, solicitud de estadísticas y análisis profundo. Campos usuario, evento, fecha y hora. Filtros por usuario, fechas y evento.</td></tr>
@@ -253,7 +253,7 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <tr><td>LOG-FEAT-03</td><td></td><td>Soporte para login con usuario de Lichess</td><td>⬜ Todo</td><td></td><td></td></tr>
 <tr><td>LOG-FEAT-04</td><td></td><td>Módulo de gestión de usuarios y roles (<code>admin</code>, <code>user</code>), accesible solo para admin</td><td>✅ Done</td><td></td><td>HITL · <code>/admin/users</code>, API <code>/api/auth/users</code></td></tr>
 <tr><td>LOG-FEAT-05</td><td></td><td>opción de cambio de pass (solo admin)</td><td>✅ Done</td><td></td><td>HITL OK — cambio de contraseña en <code>/admin/users</code></td></tr>
-<tr><td>LOG-FEAT-06</td><td></td><td>Modulo de gestión de grupos</td><td>⬜ Todo</td><td>
+<tr><td>LOG-FEAT-06</td><td></td><td>Modulo de gestión de grupos</td><td>✅ Done</td><td>
 1. ABM de grupos.
    1. ABM de usuarios al grupo (vista de dos paneles usuarios <--> grupo)
    2. Asignación de un grupo al crear o modificar un usuario.
@@ -387,9 +387,9 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-09, LOG-FEAT-10, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-06, LOG-FEAT-09, LOG-FEAT-10, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, FEAT-103…110, FEAT-116, BUG-103, LOG-FEAT-01…03, LOG-FEAT-06…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, FEAT-103…110, FEAT-116, BUG-103, LOG-FEAT-01…03, LOG-FEAT-07…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>

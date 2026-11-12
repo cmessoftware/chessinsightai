@@ -18,6 +18,7 @@ import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
 import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
 import AdminUserManagementPage from './pages/AdminUserManagementPage.jsx'
 import AdminActivityLogPage from './pages/AdminActivityLogPage.jsx'
+import AdminGroupsPage from './pages/AdminGroupsPage.jsx'
 import FeedbackPage from './pages/FeedbackPage.jsx'
 import CoachJobsPage from './pages/CoachJobsPage.jsx'
 import CoachHomePage from './pages/CoachHomePage.jsx'
@@ -225,6 +226,14 @@ function App() {
                   element={
                     <ProtectedRoute requiredPermission="admin">
                       <AdminUserManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/groups"
+                  element={
+                    <ProtectedRoute requiredPermission="admin">
+                      <AdminGroupsPage />
                     </ProtectedRoute>
                   }
                 />

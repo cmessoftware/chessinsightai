@@ -78,6 +78,7 @@ class UserCreate(UserBase):
     """Modelo para crear usuario"""
 
     password: str
+    group_id: Optional[int] = None
 
     @validator("password")
     def password_strength(cls, v):
@@ -98,6 +99,8 @@ class UserUpdate(BaseModel):
     roles: Optional[List[BaseRole]] = None
     is_active: Optional[bool] = None
     password: Optional[str] = None
+    group_id: Optional[int] = None
+    clear_group: bool = False
 
     @validator("password")
     def password_strength(cls, v):
@@ -119,6 +122,8 @@ class UserResponse(UserBase):
     id: int
     created_at: datetime
     last_login: Optional[datetime] = None
+    group_id: Optional[int] = None
+    group_name: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -157,6 +162,34 @@ class CoachAccountRoleInfo(BaseModel):
 
 class CoachAccountRolesResponse(BaseModel):
     roles: List[CoachAccountRoleInfo]
+
+
+class GroupMemberInfo(BaseModel):
+    """LOG-FEAT-06: user shown in a group panel."""
+
+    id: int
+    username: str
+    email: str
+
+
+class GroupResponse(BaseModel):
+    id: int
+    name: str
+    roles: List[str]
+    members: List[GroupMemberInfo]
+
+
+class GroupCreate(BaseModel):
+    name: str
+
+
+class GroupUpdate(BaseModel):
+    name: Optional[str] = None
+    roles: Optional[List[str]] = None
+
+
+class GroupMembersUpdate(BaseModel):
+    user_ids: List[int]
 
 
 class TokenResponse(BaseModel):
