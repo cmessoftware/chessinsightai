@@ -166,6 +166,16 @@ const Navigation = ({ onOpenSidebar }) => {
                                 <MenuItem
                                     onClick={() => {
                                         handleClose()
+                                        navigate('/admin/groups')
+                                    }}
+                                >
+                                    Grupos
+                                </MenuItem>
+                            )}
+                            {user?.roles?.includes('admin') && (
+                                <MenuItem
+                                    onClick={() => {
+                                        handleClose()
                                         navigate('/admin/activity')
                                     }}
                                 >

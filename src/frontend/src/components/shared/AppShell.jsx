@@ -19,6 +19,7 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined'
 import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined'
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined'
 import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
@@ -155,6 +156,11 @@ function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports, isAdm
                 renderLink(
                     { label: 'Reportes', path: '/reports', icon: AssessmentOutlinedIcon },
                     pathname.startsWith('/reports'),
+                )}
+            {isAdmin &&
+                renderLink(
+                    { label: 'Grupos', path: '/admin/groups', icon: GroupsOutlinedIcon },
+                    pathname.startsWith('/admin/groups'),
                 )}
             {isAdmin &&
                 renderLink(

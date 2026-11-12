@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     ARRAY,
+    UniqueConstraint,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -50,6 +51,51 @@ class UserSession(Base):
 
     # Relationships
     user = relationship("User", back_populates="sessions")
+
+
+class UserGroup(Base):
+    """LOG-FEAT-06: named group of coach users."""
+
+    __tablename__ = "user_groups"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(80), unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    members = relationship(
+        "UserGroupMember", back_populates="group", cascade="all, delete-orphan"
+    )
+    group_roles = relationship(
+        "UserGroupRole", back_populates="group", cascade="all, delete-orphan"
+    )
+
+
+class UserGroupMember(Base):
+    """A user belongs to at most one group."""
+
+    __tablename__ = "user_group_members"
+
+    id = Column(Integer, primary_key=True, index=True)
+    group_id = Column(
+        Integer, ForeignKey("user_groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True
+    )
+    group = relationship("UserGroup", back_populates="members")
+
+
+class UserGroupRole(Base):
+    """Roles stored on the group (admin and/or user). They do not replace the account role."""
+
+    __tablename__ = "user_group_roles"
+    __table_args__ = (UniqueConstraint("group_id", "role", name="uq_user_group_role"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    group_id = Column(
+        Integer, ForeignKey("user_groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    role = Column(String(50), nullable=False)
+    group = relationship("UserGroup", back_populates="group_roles")
 
 
 class UserActivityLog(Base):
