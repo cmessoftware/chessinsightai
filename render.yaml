@@ -123,6 +123,9 @@ services:
       - type: rewrite
         source: /admin/*
         destination: /index.html
+      - type: rewrite
+        source: /feedback
+        destination: /index.html
 
 databases:
   - name: chess-trainer-db
