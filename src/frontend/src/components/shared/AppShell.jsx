@@ -31,6 +31,7 @@ import {
     COACH_SUB_NAV_ITEMS,
     activeCoachNavPath,
 } from '../coach/CoachSubNav.jsx'
+import { REPORT_MENU } from '../../reports/reportCatalog.js'
 
 const DRAWER_WIDTH = 260
 const COLLAPSED_WIDTH = 72
@@ -48,9 +49,11 @@ function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports, isAdm
     const { pathname } = useLocation()
     const coachActive = activeCoachNavPath(pathname)
     const [coachOpen, setCoachOpen] = useState(() => pathname.startsWith('/coach'))
+    const [reportsOpen, setReportsOpen] = useState(() => pathname.startsWith('/reports'))
 
     useEffect(() => {
         if (pathname.startsWith('/coach')) setCoachOpen(true)
+        if (pathname.startsWith('/reports')) setReportsOpen(true)
     }, [pathname])
 
     const topItems = useMemo(
@@ -152,11 +155,64 @@ function SidebarNav({ collapsed, isMobile, onNavigate, hasAccessToReports, isAdm
                 </Collapse>
             )}
 
-            {hasAccessToReports() &&
-                renderLink(
-                    { label: 'Reportes', path: '/reports', icon: AssessmentOutlinedIcon },
-                    pathname.startsWith('/reports'),
-                )}
+            {hasAccessToReports() && (
+                <>
+                    <ListItemButton
+                        onClick={() => {
+                            if (collapsed) {
+                                onNavigate?.()
+                            } else {
+                                setReportsOpen((open) => !open)
+                            }
+                        }}
+                        component={collapsed ? RouterLink : 'div'}
+                        to={collapsed ? '/reports' : undefined}
+                        selected={pathname.startsWith('/reports') && collapsed}
+                        sx={{
+                            borderRadius: 1,
+                            minHeight: 44,
+                            justifyContent: collapsed ? 'center' : 'flex-start',
+                            px: collapsed ? 1 : 2,
+                        }}
+                    >
+                        <ListItemIcon
+                            sx={{
+                                minWidth: collapsed ? 0 : 40,
+                                justifyContent: 'center',
+                                color: pathname.startsWith('/reports') ? 'primary.main' : 'inherit',
+                            }}
+                        >
+                            <AssessmentOutlinedIcon fontSize="small" />
+                        </ListItemIcon>
+                        {!collapsed && (
+                            <>
+                                <ListItemText
+                                    primary="Módulo de Reportes"
+                                    primaryTypographyProps={{ fontSize: 14 }}
+                                />
+                                {reportsOpen ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                            </>
+                        )}
+                    </ListItemButton>
+                    {!collapsed && (
+                        <Collapse in={reportsOpen} timeout="auto" unmountOnExit>
+                            <List disablePadding dense>
+                                {REPORT_MENU.map((item) =>
+                                    renderLink(
+                                        {
+                                            label: item.label,
+                                            path: item.path,
+                                            icon: AssessmentOutlinedIcon,
+                                            nested: true,
+                                        },
+                                        pathname === item.path,
+                                    ),
+                                )}
+                            </List>
+                        </Collapse>
+                    )}
+                </>
+            )}
             {isAdmin &&
                 renderLink(
                     { label: 'Grupos', path: '/admin/groups', icon: GroupsOutlinedIcon },

@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)
-**Actualizado:** 2026-11-11
+**Actualizado:** 2026-11-12
 
 > **Canónico.** No hay copia en `deep_analysis/`.
 
@@ -20,7 +20,7 @@
 
 Reunión prevista: **lunes 2026-11-09**, con entrenador de **2100 Elo FIDE y 25 años de experiencia como instructor**. Prioridad funcional: refinar FEAT-07, detección de momentos críticos y generación/comparación de candidatas.
 
-**Reportes está pendiente de implementación.** El formulario legado visible no acredita que RPT-FEAT-01…08 estén terminados. Sergio prevé deshabilitar su acceso para evitar confusión; no se da por ejecutado ese cambio. El error de rutas ya estaba detectado y se registra aquí como pendiente.
+**Reportes está pendiente de implementación.** El menú lista cada informe (RPT-FEAT-01). Cada informe se genera en Markdown o PDF (RPT-FEAT-02). Ranking por ritmo muestra mínimo, promedio y máximo con fecha, y el gráfico de los últimos 12 meses (RPT-FEAT-03). El resto de los informes sigue pendiente. El formulario legado ya no es la entrada del módulo.
 
 **Corrección del diagnóstico de corpus:** las partidas propias marcadas como elite provienen de una **actualización manual con alcance inesperado**, según Sergio. No se atribuye a una clasificación automática por nivel. Hay dos operaciones distintas: categoría local (override) y fuente/corpus persistida. Investigar ambas sin modificar datos reales para reproducir.
 
@@ -184,9 +184,9 @@ Módulo pendiente. La pantalla heredada no se presenta como funcionalidad termin
 <tr><th>Tipo-Id</th><th>Prioridad</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
 </thead>
 <tbody>
-<tr><td>RPT-FEAT-01</td><td>&nbsp;</td><td>&nbsp;</td><td>Menú <strong>Módulo de Reportes</strong> en el sidebar, con una entrada por cada reporte de esta tabla</td><td>⬜ Todo</td><td>&nbsp;</td></tr>
-<tr><td>RPT-FEAT-02</td><td>&nbsp;</td><td>RPT-FEAT-01</td><td>Generar cada reporte en PDF o en Markdown</td><td>⬜ Todo</td><td>El usuario elige el formato al generar</td></tr>
-<tr><td>RPT-FEAT-03</td><td>&nbsp;</td><td>RPT-FEAT-01</td><td>Ranking por ritmo. 1. Mínimo, promedio y máximo, cada uno con su fecha. 2. Gráfico de variación por fecha. Por defecto: últimos 12 meses.</td><td>⬜ Todo</td><td>Un ranking por ritmo (Blitz, Rapid, Classical, …)</td></tr>
+<tr><td>RPT-FEAT-01</td><td>&nbsp;</td><td>&nbsp;</td><td>Menú <strong>Módulo de Reportes</strong> en el sidebar, con una entrada por cada reporte de esta tabla</td><td>✅ Done</td><td>Sidebar: Ranking por ritmo, Precisión por ritmo, Comparación con un rival, Aperturas y defensas, Rachas y Sesgo de supervivencia. Cada entrada avisa que el informe todavía no está disponible. PDF o Markdown queda en RPT-FEAT-02.</td></tr>
+<tr><td>RPT-FEAT-02</td><td>&nbsp;</td><td>RPT-FEAT-01</td><td>Generar cada reporte en PDF o en Markdown</td><td>✅ Done</td><td>En cada informe se elige Markdown o PDF y se descarga el archivo.</td></tr>
+<tr><td>RPT-FEAT-03</td><td>&nbsp;</td><td>RPT-FEAT-01</td><td>Ranking por ritmo. 1. Mínimo, promedio y máximo, cada uno con su fecha. 2. Gráfico de variación por fecha. Por defecto: últimos 12 meses.</td><td>✅ Done</td><td>El jugador se elige entre blancas y negras de las partidas. Por defecto, el usuario de Lichess de Importación; si no hay, el de Chess.com; si no hay, el primero en orden alfabético. Un ritmo a la vez, Rapid por defecto.</td></tr>
 <tr><td>RPT-FEAT-04</td><td>&nbsp;</td><td>RPT-FEAT-01</td><td>Precisión por ritmo: la misma que calcula el proceso ya existente <code>chess_statistics</code></td><td>⬜ Todo</td><td><code>precision_general</code>, apertura, medio juego y final</td></tr>
 <tr><td>RPT-FEAT-05</td><td>&nbsp;</td><td>RPT-FEAT-03 / RPT-FEAT-04</td><td>Comparación de partidas con otro rival: el mismo ranking y la misma precisión de RPT-FEAT-03 y RPT-FEAT-04, para el rival solo en las partidas contra mí</td><td>⬜ Todo</td><td>&nbsp;</td></tr>
 <tr><td>RPT-FEAT-06</td><td>&nbsp;</td><td>RPT-FEAT-01</td><td>Aperturas y defensas utilizadas. 1. Ordenadas de la más usada a la menos usada, por línea principal (PV) y por variantes. 2. Resultado de cada caso.</td><td>⬜ Todo</td><td>&nbsp;</td></tr>
@@ -387,9 +387,9 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-06, LOG-FEAT-09, LOG-FEAT-10, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-06, LOG-FEAT-09, LOG-FEAT-10, RPT-FEAT-01, RPT-FEAT-02, RPT-FEAT-03, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, FEAT-103…110, FEAT-116, BUG-103, LOG-FEAT-01…03, LOG-FEAT-07…08, DB-FEAT-02…04, RPT-FEAT-01…09, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, FEAT-103…110, FEAT-116, BUG-103, LOG-FEAT-01…03, LOG-FEAT-07…08, DB-FEAT-02…04, RPT-FEAT-04…09, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>

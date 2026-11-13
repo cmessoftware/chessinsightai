@@ -29,6 +29,7 @@ from routers import (
     features,
     exercises,
     reports,
+    report_ranking,
     notifications,
     analysis,
     module07,
@@ -101,6 +102,7 @@ app.include_router(import_pgn.router, tags=["import"])
 app.include_router(features.router, tags=["features"])
 app.include_router(exercises.router, tags=["exercises"])
 app.include_router(reports.router, tags=["reports"])
+app.include_router(report_ranking.router)
 app.include_router(notifications.router, tags=["notifications"])
 app.include_router(analysis.router, tags=["analysis", "ml", "shap"])
 app.include_router(module07.router)
