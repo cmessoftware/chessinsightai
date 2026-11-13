@@ -14,7 +14,7 @@ import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import ImportPage from './pages/ImportPage.jsx'
 import LogViewerPage from './pages/LogViewerPage.jsx'
-import PersonalizedReportsPage from './pages/PersonalizedReportsPage.jsx'
+import ReportsModulePage from './pages/ReportsModulePage.jsx'
 import UnauthorizedPage from './pages/UnauthorizedPage.jsx'
 import AdminUserManagementPage from './pages/AdminUserManagementPage.jsx'
 import AdminActivityLogPage from './pages/AdminActivityLogPage.jsx'
@@ -209,7 +209,15 @@ function App() {
                   path="/reports"
                   element={
                     <ProtectedRoute customCheck="hasAccessToReports">
-                      <PersonalizedReportsPage />
+                      <ReportsModulePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports/:reportId"
+                  element={
+                    <ProtectedRoute customCheck="hasAccessToReports">
+                      <ReportsModulePage />
                     </ProtectedRoute>
                   }
                 />
