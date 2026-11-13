@@ -149,5 +149,6 @@ export function chartMarkdown(chart, filename) {
     if (!layout) return `${chart.title}: hace falta más de una partida para el gráfico.`
     const yLabels = layout.yTicks.map((tick) => formatRating(tick.rating)).join(' · ')
     const xLabels = layout.xTicks.map((tick) => tick.label).join(' · ')
-    return `${chart.title}\n\nRanking: ${yLabels}\n\n![${chart.title}](${filename})\n\nFechas: ${xLabels}`
+    const valueLabel = chart.valueLabel || 'Ranking'
+    return `${chart.title}\n\n${valueLabel}: ${yLabels}\n\n![${chart.title}](${filename})\n\nFechas: ${xLabels}`
 }
