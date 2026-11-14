@@ -189,15 +189,13 @@ def rows_for_player(rows: list[dict], player: str) -> list[dict]:
     return selected
 
 
-def build_ranking_report(
+def choose_player(
     rows: list[dict],
     *,
-    today: date,
-    months: int = 12,
     lichess_username: str | None = None,
     chesscom_username: str | None = None,
     player: str | None = None,
-) -> dict:
+) -> tuple[str, list[str]]:
     catalog = {name.casefold(): name for name in catalog_names(rows)}
     lichess_name = _remember(catalog, lichess_username)
     chesscom_name = _remember(catalog, chesscom_username)
@@ -211,6 +209,24 @@ def build_ranking_report(
         chosen = chesscom_name
     else:
         chosen = ordered[0] if ordered else ""
+    return chosen, ordered
+
+
+def build_ranking_report(
+    rows: list[dict],
+    *,
+    today: date,
+    months: int = 12,
+    lichess_username: str | None = None,
+    chesscom_username: str | None = None,
+    player: str | None = None,
+) -> dict:
+    chosen, ordered = choose_player(
+        rows,
+        lichess_username=lichess_username,
+        chesscom_username=chesscom_username,
+        player=player,
+    )
     filtered = rows_for_player(rows, chosen) if chosen else []
     summary = summarize_ranking(filtered, today=today, months=months)
     summary["players"] = ordered

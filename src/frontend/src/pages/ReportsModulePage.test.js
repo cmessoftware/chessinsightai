@@ -26,9 +26,16 @@ describe('ReportsModulePage', () => {
         expect(html).not.toContain('Este informe todavía no está disponible.')
     })
 
-    it('lets the user choose Markdown or PDF before generating', () => {
+    it('loads the precision report on its own page', () => {
         const html = htmlAt('/reports/precision')
         expect(html).toContain('Precisión por ritmo')
+        expect(html).toContain('Cargando la precisión')
+        expect(html).not.toContain('Este informe todavía no está disponible.')
+    })
+
+    it('lets the user choose Markdown or PDF before generating', () => {
+        const html = htmlAt('/reports/rival')
+        expect(html).toContain('Comparación con un rival')
         expect(html).toContain('Este informe todavía no está disponible.')
         expect(html).toContain('Formato')
         expect(html).toContain('Markdown')
