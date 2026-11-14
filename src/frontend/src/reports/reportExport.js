@@ -41,7 +41,7 @@ export function renderReportMarkdown(doc, formatLabel, figures = []) {
 
 function chartFigures(slug, charts) {
     return (charts || []).flatMap((chart, index) => {
-        const bytes = chartPngBytes(chart.series)
+        const bytes = chartPngBytes(chart.series, chart.comparison)
         if (!bytes?.length) return []
         const filename = (charts || []).length === 1 ? `${slug}.png` : `${slug}-${index + 1}.png`
         return [{ filename, bytes, markdown: chartMarkdown(chart, filename) }]
@@ -106,7 +106,7 @@ function num(value) {
 }
 
 function chartPageStream(chart) {
-    const layout = chartLayout(chart.series)
+    const layout = chartLayout(chart.series, chart.comparison)
     if (!layout) {
         return pageStream([{ text: chart.title }, { text: 'Hace falta más de una partida para el gráfico.' }])
     }
@@ -145,9 +145,17 @@ function chartPageStream(chart) {
         )
     })
     const [first, ...rest] = layout.points
-    commands.push(`${num(xOf(first.x))} ${num(yOf(first.y))} m`)
-    rest.forEach((point) => commands.push(`${num(xOf(point.x))} ${num(yOf(point.y))} l`))
-    commands.push('0 0.4 0.8 RG', '1.5 w', 'S')
+    if (first) {
+        commands.push(`${num(xOf(first.x))} ${num(yOf(first.y))} m`)
+        rest.forEach((point) => commands.push(`${num(xOf(point.x))} ${num(yOf(point.y))} l`))
+        commands.push('0.08 0.4 0.75 RG', '1.5 w', 'S')
+    }
+    const [other, ...otherRest] = layout.comparison || []
+    if (other) {
+        commands.push(`${num(xOf(other.x))} ${num(yOf(other.y))} m`)
+        otherRest.forEach((point) => commands.push(`${num(xOf(point.x))} ${num(yOf(point.y))} l`))
+        commands.push('0.83 0.18 0.18 RG', '1.5 w', 'S')
+    }
     return commands.join('\n')
 }
 

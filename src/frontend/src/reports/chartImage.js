@@ -111,8 +111,8 @@ function stroke(rgb, width, height, x0, y0, x1, y1, color) {
     }
 }
 
-export function chartPngBytes(series) {
-    const layout = chartLayout(series)
+export function chartPngBytes(series, comparison = null) {
+    const layout = chartLayout(series, comparison)
     if (!layout) return ''
     const { width, height } = layout
     const rgb = new Uint8Array((width * 3 + 1) * height)
@@ -127,25 +127,32 @@ export function chartPngBytes(series) {
     }
     const black = [30, 30, 30]
     const blue = [21, 101, 192]
+    const red = [211, 47, 47]
     stroke(rgb, width, height, layout.axis.left, layout.axis.top, layout.axis.left, layout.axis.bottom, black)
     stroke(rgb, width, height, layout.axis.left, layout.axis.bottom, layout.axis.right, layout.axis.bottom, black)
-    for (let index = 1; index < layout.points.length; index += 1) {
-        const previous = layout.points[index - 1]
-        const point = layout.points[index]
-        stroke(rgb, width, height, previous.x, previous.y, point.x, point.y, blue)
-    }
-    for (const point of layout.points) {
-        for (let dy = -2; dy <= 2; dy += 1) {
-            for (let dx = -2; dx <= 2; dx += 1) {
-                if (dx * dx + dy * dy <= 4) paint(rgb, width, height, point.x + dx, point.y + dy, blue[0], blue[1], blue[2])
-            }
-        }
-    }
+    drawSeries(rgb, width, height, layout.points, blue)
+    drawSeries(rgb, width, height, layout.comparison, red)
     return encodePng(width, height, rgb)
 }
 
+function drawSeries(rgb, width, height, points, color) {
+    if (!points?.length) return
+    for (let index = 1; index < points.length; index += 1) {
+        const previous = points[index - 1]
+        const point = points[index]
+        stroke(rgb, width, height, previous.x, previous.y, point.x, point.y, color)
+    }
+    for (const point of points) {
+        for (let dy = -2; dy <= 2; dy += 1) {
+            for (let dx = -2; dx <= 2; dx += 1) {
+                if (dx * dx + dy * dy <= 4) paint(rgb, width, height, point.x + dx, point.y + dy, color[0], color[1], color[2])
+            }
+        }
+    }
+}
+
 export function chartMarkdown(chart, filename) {
-    const layout = chartLayout(chart.series)
+    const layout = chartLayout(chart.series, chart.comparison)
     if (!layout) return `${chart.title}: hace falta más de una partida para el gráfico.`
     const yLabels = layout.yTicks.map((tick) => formatRating(tick.rating)).join(' · ')
     const xLabels = layout.xTicks.map((tick) => tick.label).join(' · ')

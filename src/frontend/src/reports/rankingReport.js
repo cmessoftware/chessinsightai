@@ -57,9 +57,13 @@ const CHART_WIDTH = 640
 const CHART_HEIGHT = 260
 const CHART_PAD = { left: 56, right: 16, top: 16, bottom: 40 }
 
-export function chartLayout(series) {
-    if (!series || series.length < 2) return null
-    const ratings = series.map((point) => Number(point.rating))
+export function chartLayout(series, comparison = null) {
+    const primary = series || []
+    const extra = comparison || []
+    const count = Math.max(primary.length, extra.length)
+    if (count < 2) return null
+    const ratings = [...primary, ...extra].map((point) => Number(point.rating)).filter(Number.isFinite)
+    if (!ratings.length) return null
     let min = Math.min(...ratings)
     let max = Math.max(...ratings)
     if (min === max) {
@@ -70,25 +74,32 @@ export function chartLayout(series) {
     const innerWidth = CHART_WIDTH - CHART_PAD.left - CHART_PAD.right
     const innerHeight = CHART_HEIGHT - CHART_PAD.top - CHART_PAD.bottom
     const yAt = (rating) => CHART_PAD.top + (1 - (rating - min) / span) * innerHeight
-    const points = series.map((point, index) => ({
-        x: CHART_PAD.left + (index * innerWidth) / (series.length - 1),
-        y: yAt(Number(point.rating)),
-        date: point.date,
-        rating: point.rating,
-    }))
+    const xAt = (index) => CHART_PAD.left + (index * innerWidth) / (count - 1)
+    const place = (list) =>
+        list.map((point, index) => ({
+            x: xAt(index),
+            y: yAt(Number(point.rating)),
+            date: point.date,
+            rating: point.rating,
+        }))
+    const points = place(primary)
+    const compared = extra.length ? place(extra) : []
+    const tickSource = primary.length >= extra.length ? primary : extra
+    const tickPoints = primary.length >= extra.length ? points : compared
     const yTicks = [min, min + span / 2, max].map((rating) => ({
         rating: Math.round(rating),
         y: yAt(rating),
     }))
-    const indexes = [...new Set([0, Math.floor((series.length - 1) / 2), series.length - 1])]
+    const indexes = [...new Set([0, Math.floor((tickSource.length - 1) / 2), tickSource.length - 1])]
     const xTicks = indexes.map((index) => ({
-        label: formatReportDate(series[index].date),
-        x: points[index].x,
+        label: formatReportDate(tickSource[index].date),
+        x: tickPoints[index].x,
     }))
     return {
         width: CHART_WIDTH,
         height: CHART_HEIGHT,
         points,
+        comparison: compared,
         yTicks,
         xTicks,
         axis: {
