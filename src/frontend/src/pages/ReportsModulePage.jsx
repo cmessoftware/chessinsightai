@@ -3,9 +3,10 @@ import { Box, List, ListItemButton, ListItemText, Typography } from '@mui/materi
 import { REPORT_MENU, reportFromPath } from '../reports/reportCatalog.js'
 import PrecisionReportPanel from './PrecisionReportPanel.jsx'
 import RankingReportPanel from './RankingReportPanel.jsx'
+import RivalReportPanel from './RivalReportPanel.jsx'
 import ReportExportControls from './ReportExportControls.jsx'
 
-/** RPT-FEAT-01 index, RPT-FEAT-02 export, RPT-FEAT-03 ranking, RPT-FEAT-04 precision. */
+/** Reports index, ranking, precision, and rival comparison. */
 export default function ReportsModulePage() {
     const { pathname } = useLocation()
     const report = reportFromPath(pathname)
@@ -19,6 +20,8 @@ export default function ReportsModulePage() {
                 <RankingReportPanel report={report} />
             ) : report?.id === 'RPT-FEAT-04' ? (
                 <PrecisionReportPanel report={report} />
+            ) : report?.id === 'RPT-FEAT-05' ? (
+                <RivalReportPanel report={report} />
             ) : report ? (
                 <>
                     <Typography color="text.secondary">
