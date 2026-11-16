@@ -31,6 +31,7 @@ from routers import (
     reports,
     report_ranking,
     report_precision,
+    report_rival,
     notifications,
     analysis,
     module07,
@@ -105,6 +106,7 @@ app.include_router(exercises.router, tags=["exercises"])
 app.include_router(reports.router, tags=["reports"])
 app.include_router(report_ranking.router)
 app.include_router(report_precision.router)
+app.include_router(report_rival.router)
 app.include_router(notifications.router, tags=["notifications"])
 app.include_router(analysis.router, tags=["analysis", "ml", "shap"])
 app.include_router(module07.router)
