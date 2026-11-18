@@ -83,28 +83,30 @@ export default function AdminUserManagementPage() {
     const [passwordTarget, setPasswordTarget] = useState(null)
     const [passwordDraft, setPasswordDraft] = useState({ password: '', confirm: '' })
     const [notice, setNotice] = useState(null)
+    const [invitations, setInvitations] = useState([])
+    const [inviteDraft, setInviteDraft] = useState({ email: '', groupId: '' })
+    const [inviteLink, setInviteLink] = useState('')
 
     const load = useCallback(async () => {
         if (!token) return
         try {
             setLoading(true)
-            const [usersRes, rolesRes, groupsRes] = await Promise.all([
+            const [usersRes, rolesRes, groupsRes, invitationsRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/api/auth/users`, { headers: authHeaders(token) }),
                 fetch(`${API_BASE_URL}/api/auth/admin/account-roles`, {
                     headers: authHeaders(token),
                 }),
                 fetch(`${API_BASE_URL}/api/auth/groups`, { headers: authHeaders(token) }),
+                fetch(`${API_BASE_URL}/api/auth/invitations`, { headers: authHeaders(token) }),
             ])
-            if (!usersRes.ok || !rolesRes.ok || !groupsRes.ok) {
-                const detail = !usersRes.ok
-                    ? await usersRes.text()
-                    : !rolesRes.ok
-                      ? await rolesRes.text()
-                      : await groupsRes.text()
+            if (!usersRes.ok || !rolesRes.ok || !groupsRes.ok || !invitationsRes.ok) {
+                const failed = [usersRes, rolesRes, groupsRes, invitationsRes].find((res) => !res.ok)
+                const detail = failed ? await failed.text() : ''
                 throw new Error(detail || 'No autorizado o error de servidor')
             }
             setUsers(await usersRes.json())
             setGroups(await groupsRes.json())
+            setInvitations(await invitationsRes.json())
             const rolesPayload = await rolesRes.json()
             setRoleCatalog(rolesPayload.roles || [])
             setError(null)
@@ -216,6 +218,42 @@ export default function AdminUserManagementPage() {
         }
     }
 
+    const invitePerson = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/invitations`, {
+                method: 'POST',
+                headers: authHeaders(token),
+                body: JSON.stringify({
+                    email: inviteDraft.email,
+                    ...(inviteDraft.groupId ? { group_id: Number(inviteDraft.groupId) } : {}),
+                }),
+            })
+            if (!res.ok) throw new Error(await res.text())
+            const created = await res.json()
+            const link = `${window.location.origin}/invite/${created.token}`
+            setInviteLink(link)
+            setInviteDraft({ email: '', groupId: '' })
+            setInvitations((prev) => [created, ...prev.filter((item) => item.email !== created.email)])
+            setNotice(`Invitación lista para ${created.email}. Copiá el enlace y envialo.`)
+            setError(null)
+        } catch (err) {
+            setError(err.message || 'Error al invitar')
+        }
+    }
+
+    const revokeInvitation = async (invitation) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/invitations/${invitation.id}`, {
+                method: 'DELETE',
+                headers: authHeaders(token),
+            })
+            if (!res.ok) throw new Error(await res.text())
+            setInvitations((prev) => prev.filter((item) => item.id !== invitation.id))
+        } catch (err) {
+            setError(err.message || 'Error al anular la invitación')
+        }
+    }
+
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight={320}>
@@ -263,6 +301,59 @@ export default function AdminUserManagementPage() {
             >
                 Crear usuario
             </Button>
+
+            <Paper sx={{ p: 2, mb: 2 }} variant="outlined">
+                <Typography variant="h6">Invitar</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Pedí el email. La persona abre el enlace y elige su usuario y contraseña. Sin invitación no entra.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <TextField
+                        size="small"
+                        label="Email"
+                        value={inviteDraft.email}
+                        onChange={(event) => setInviteDraft((prev) => ({ ...prev, email: event.target.value }))}
+                    />
+                    <GroupSelect
+                        labelId="invite-group"
+                        value={inviteDraft.groupId}
+                        groups={groups}
+                        onChange={(event) => setInviteDraft((prev) => ({ ...prev, groupId: event.target.value }))}
+                    />
+                    <Button variant="contained" onClick={invitePerson} disabled={!inviteDraft.email.trim()}>
+                        Invitar
+                    </Button>
+                </Box>
+                {inviteLink ? (
+                    <Typography variant="body2" sx={{ mt: 2 }}>
+                        Enlace: {inviteLink}
+                    </Typography>
+                ) : null}
+                {invitations.length > 0 ? (
+                    <Table size="small" sx={{ mt: 2 }}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Email</TableCell>
+                                <TableCell>Grupo</TableCell>
+                                <TableCell align="right">Acciones</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {invitations.map((invitation) => (
+                                <TableRow key={invitation.id}>
+                                    <TableCell>{invitation.email}</TableCell>
+                                    <TableCell>{invitation.group_name || 'Sin grupo'}</TableCell>
+                                    <TableCell align="right">
+                                        <Button size="small" onClick={() => revokeInvitation(invitation)}>
+                                            Anular
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : null}
+            </Paper>
 
             <TableContainer component={Paper}>
                 <Table size="small">

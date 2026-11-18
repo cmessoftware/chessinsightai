@@ -192,6 +192,38 @@ class GroupMembersUpdate(BaseModel):
     user_ids: List[int]
 
 
+class InvitationCreate(BaseModel):
+    """LOG-FEAT-13: the admin invites one email and may choose a group."""
+
+    email: EmailStr
+    group_id: Optional[int] = None
+
+
+class InvitationResponse(BaseModel):
+    id: int
+    email: str
+    group_id: Optional[int] = None
+    group_name: Optional[str] = None
+    token: str
+    expires_at: datetime
+
+
+class InvitationPreview(BaseModel):
+    email: str
+    group_name: Optional[str] = None
+    expires_at: datetime
+
+
+class InvitationAccept(BaseModel):
+    username: str
+    password: str
+
+    @validator("password")
+    def password_strength(cls, v):
+        assert len(v) >= 8, "Password must be at least 8 characters"
+        return v
+
+
 class TokenResponse(BaseModel):
     """Modelo de respuesta de token"""
 

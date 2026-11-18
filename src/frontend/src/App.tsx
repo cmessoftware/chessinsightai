@@ -12,6 +12,7 @@ import ErrorBoundary from './components/shared/ErrorBoundary.jsx'
 // Páginas
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import InviteAcceptPage from './pages/InviteAcceptPage.jsx'
 import ImportPage from './pages/ImportPage.jsx'
 import LogViewerPage from './pages/LogViewerPage.jsx'
 import ReportsModulePage from './pages/ReportsModulePage.jsx'
@@ -73,6 +74,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/invite/:token" element={<InviteAcceptPage />} />
               <Route path="/changelog" element={<ChangelogPage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
