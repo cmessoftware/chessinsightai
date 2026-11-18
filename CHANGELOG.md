@@ -26,6 +26,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - El módulo de reportes lista cada informe. Cada uno se descarga en Markdown o PDF. Ranking por ritmo muestra mínimo, promedio y máximo, el gráfico y el jugador elegido (#259, RPT-FEAT-01, RPT-FEAT-02, RPT-FEAT-03).
 - Precisión por ritmo muestra la media de precisión general, apertura, medio juego y final. El combo incluye ritmos aunque falte el cálculo. Un botón calcula en segundo plano las partidas que no la tienen y avisa en las notificaciones (#260, RPT-FEAT-04, RPT-FEAT-10).
 - Comparación con un rival muestra el ranking y la precisión de los dos en el mismo gráfico: azul el jugador y rojo el rival. Ocultar el módulo queda cancelado (RPT-FEAT-09) (#261, RPT-FEAT-05).
+- Un administrador invita por email desde Usuarios, copia el enlace y la persona elige usuario y contraseña. Sin invitación no se crea cuenta (#264, LOG-FEAT-13).
 
 ### Changed
 
@@ -70,6 +71,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-18 | [#264](https://github.com/cmessoftware/chessinsightai/pull/264) | Cambio integrado | Acceso por invitación: el admin invita por email y la persona crea su cuenta con el enlace. |
 | 2026-11-14 | [#261](https://github.com/cmessoftware/chessinsightai/pull/261) | Cambio integrado | Comparación con un rival superpone las curvas del jugador y del rival. Ocultar el módulo queda cancelado. |
 | 2026-11-13 | [#260](https://github.com/cmessoftware/chessinsightai/pull/260) | Cambio integrado | Precisión por ritmo muestra las medias de chess_statistics y calcula en segundo plano las partidas que todavía no la tienen. |
 | 2026-11-13 | [#259](https://github.com/cmessoftware/chessinsightai/pull/259) | Cambio integrado | El módulo de reportes abre cada informe, lo descarga en Markdown o PDF y muestra el ranking por ritmo. |

@@ -25,10 +25,23 @@ from models.schemas import (
     GroupMembersUpdate,
     GroupResponse,
     GroupUpdate,
+    InvitationAccept,
+    InvitationCreate,
+    InvitationPreview,
+    InvitationResponse,
 )
 from models.coach_user_roles import normalize_coach_account_roles
 from services.auth_service import AuthService
 from services.activity_log_service import ACTIVITY_EVENTS, list_activity, record_activity
+from services.invitation_service import (
+    InvitationError,
+    InvitationNotFound,
+    accept_invitation,
+    create_invitation,
+    list_invitations,
+    preview_invitation,
+    revoke_invitation,
+)
 from services.group_service import (
     GroupError,
     GroupNotFound,
@@ -464,3 +477,78 @@ async def remove_group(
     except GroupNotFound as exc:
         raise _group_http_error(exc) from exc
     return {"ok": True}
+
+
+def _invitation_http_error(exc: Exception) -> HTTPException:
+    if isinstance(exc, InvitationNotFound):
+        return HTTPException(status_code=404, detail=str(exc))
+    return HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/invitations", response_model=InvitationResponse)
+async def post_invitation(
+    body: InvitationCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(auth_service.get_current_admin_user()),
+):
+    """LOG-FEAT-13: invite one email. The admin copies the link."""
+    try:
+        return create_invitation(
+            db,
+            body.email,
+            group_id=body.group_id,
+            invited_by=current_user.get("user_id") or current_user.get("id"),
+        )
+    except (InvitationError, GroupNotFound) as exc:
+        raise _invitation_http_error(exc) from exc
+
+
+@router.get("/invitations", response_model=List[InvitationResponse])
+async def get_invitations(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(auth_service.get_current_admin_user()),
+):
+    """LOG-FEAT-13: pending invitations. Admin only."""
+    return list_invitations(db)
+
+
+@router.delete("/invitations/{invitation_id}")
+async def delete_invitation(
+    invitation_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(auth_service.get_current_admin_user()),
+):
+    """LOG-FEAT-13: revoke a pending invitation."""
+    try:
+        revoke_invitation(db, invitation_id)
+    except InvitationNotFound as exc:
+        raise _invitation_http_error(exc) from exc
+    return {"ok": True}
+
+
+@router.get("/invitations/token/{token}", response_model=InvitationPreview)
+async def get_invitation_preview(token: str, db: Session = Depends(get_db)):
+    """LOG-FEAT-13: the invited person sees the email before choosing a password."""
+    try:
+        return preview_invitation(db, token)
+    except (InvitationError, InvitationNotFound) as exc:
+        raise _invitation_http_error(exc) from exc
+
+
+@router.post("/invitations/token/{token}/accept")
+async def post_invitation_accept(
+    token: str,
+    body: InvitationAccept,
+    db: Session = Depends(get_db),
+):
+    """LOG-FEAT-13: create the account for an invited email."""
+    try:
+        user = accept_invitation(
+            db,
+            token,
+            body.username,
+            auth_service.get_password_hash(body.password),
+        )
+    except (InvitationError, InvitationNotFound) as exc:
+        raise _invitation_http_error(exc) from exc
+    return {"ok": True, "username": user.username}

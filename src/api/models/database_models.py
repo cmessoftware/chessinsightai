@@ -98,6 +98,23 @@ class UserGroupRole(Base):
     group = relationship("UserGroup", back_populates="group_roles")
 
 
+class UserInvitation(Base):
+    """LOG-FEAT-13: an email the admin invited, before that person has an account."""
+
+    __tablename__ = "user_invitations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(100), nullable=False, index=True)
+    group_id = Column(
+        Integer, ForeignKey("user_groups.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    token = Column(String(128), unique=True, nullable=False, index=True)
+    invited_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    expires_at = Column(DateTime, nullable=False)
+    accepted_at = Column(DateTime, nullable=True)
+
+
 class UserActivityLog(Base):
     """LOG-FEAT-09: login, logout, import, statistics and deep analysis."""
 
