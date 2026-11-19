@@ -19,6 +19,6 @@ El archivo `docs/ai_chess_coach/roadmap/roadmap-pending-checklist.md` es la vist
 npm run roadmap:sync-pending
 ```
 
-Incluir `roadmap-pending-checklist.md` en el commit junto con el tracker si cambió el conjunto de pendientes.
+Incluir `roadmap-pending-checklist.md` y `roadmap-pending-checklist-compact.md` en el commit junto con el tracker si cambió el conjunto de pendientes.
 
 **No** marcar casillas `[x]` solo en el checklist: el estado canónico vive en los trackers; el checklist se regenera desde ellos.

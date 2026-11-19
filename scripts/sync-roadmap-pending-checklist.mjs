@@ -13,39 +13,65 @@ const ROOT = path.resolve(__dirname, '..')
 const SOURCES = [
     {
         section: 'Coach UI (clasificación y catálogo)',
+        tableFormat: '6col',
         tracker:
             'docs/ai_chess_coach/roadmap/designs/issues-coach-move-classification-pedagogy-mini-plan.md',
         trackerLabel: 'issues-coach-move-classification-pedagogy-mini-plan.md',
     },
     {
         section: 'Análisis profundo (servidor)',
+        tableFormat: '5col',
         tracker: 'docs/ai_chess_coach/roadmap/deep_analysis/issues-plan-implementacion-analisis-profundo.md',
         trackerLabel: 'issues-plan-implementacion-analisis-profundo.md',
     },
     {
         section: 'Mental 1600',
+        tableFormat: '6col',
         tracker: 'docs/ai_chess_coach/roadmap/designs/coach-mental-1600-mini-plan.md',
         trackerLabel: 'coach-mental-1600-mini-plan.md',
     },
     {
         section: 'Sparring Maia (plan)',
+        tableFormat: '5col',
         tracker: 'docs/ai_chess_coach/roadmap/deep_analysis/issues-plan-implementacion-sparring-maia.md',
         trackerLabel: 'issues-plan-implementacion-sparring-maia.md',
     },
     {
         section: 'Sparring Maia (servidor)',
+        tableFormat: '5col',
         tracker: 'docs/ai_chess_coach/roadmap/deep_analysis/issues-sparring-maia-server-mini-plan.md',
         trackerLabel: 'issues-sparring-maia-server-mini-plan.md',
     },
 ]
 
 const OUT = 'docs/ai_chess_coach/roadmap/roadmap-pending-checklist.md'
+const OUT_COMPACT = 'docs/ai_chess_coach/roadmap/roadmap-pending-checklist-compact.md'
 
-function decodeHtml(text) {
-    return String(text ?? '')
+/** Título corto para compartir (columna Descripción del tracker). */
+function compactItemTitle(description, maxLen = 160) {
+    const d = String(description ?? '')
+        .replace(/\s+/g, ' ')
+        .trim()
+    if (!d) return '—'
+    if (d.length <= maxLen) return d
+    const slice = d.slice(0, maxLen)
+    const lastSpace = slice.lastIndexOf(' ')
+    if (lastSpace > Math.floor(maxLen * 0.55)) {
+        return `${slice.slice(0, lastSpace)}…`
+    }
+    return `${slice.slice(0, maxLen - 1)}…`
+}
+
+function decodeHtml(text, { plainLinks = false } = {}) {
+    let out = String(text ?? '')
         .replace(/<br\s*\/?>/gi, ' ')
         .replace(/<code>([\s\S]*?)<\/code>/gi, '`$1`')
-        .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
+    if (plainLinks) {
+        out = out.replace(/<a[^>]*>([\s\S]*?)<\/a>/gi, '$1')
+    } else {
+        out = out.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
+    }
+    return out
         .replace(/<[^>]+>/g, '')
         .replace(/&nbsp;/g, ' ')
         .replace(/&amp;/g, '&')
@@ -56,16 +82,35 @@ function decodeHtml(text) {
         .trim()
 }
 
-function parseTodoRows(fileText) {
+function parseTodoRows(fileText, tableFormat = '6col') {
+    const plainLinks = tableFormat === '5col'
     const rows = []
     for (const chunk of fileText.split('<tr>')) {
         if (!chunk.includes('⬜ Todo')) continue
-        const cells = [...chunk.matchAll(/<td>([\s\S]*?)<\/td>/g)].map((m) => decodeHtml(m[1]))
+        const cells = [...chunk.matchAll(/<td>([\s\S]*?)<\/td>/g)].map((m) =>
+            decodeHtml(m[1], { plainLinks }),
+        )
         if (cells.length < 5) continue
+        if (!cells[0] || cells[0] === 'Tipo-Id') continue
+
+        if (tableFormat === '5col' && cells.length >= 5) {
+            const [id, deps, description, , notes] = cells
+            rows.push({
+                id,
+                tableFormat: '5col',
+                priority: '—',
+                deps: deps || '—',
+                description,
+                notes: notes || '',
+            })
+            continue
+        }
+
+        if (cells.length < 6) continue
         const [id, priority, deps, description, , notes] = cells
-        if (!id || id === 'Tipo-Id') continue
         rows.push({
             id,
+            tableFormat: '6col',
             priority: priority || '—',
             deps: deps || '—',
             description,
@@ -87,6 +132,9 @@ function groupRows(rows) {
 }
 
 function itemLine(row) {
+    if (row.tableFormat === '5col') {
+        return `- [ ] **${row.id}** ⬜ Todo — ${row.description}`
+    }
     const extra = row.notes ? ` — _${row.notes}_` : ''
     const deps = row.deps !== '—' ? ` _(deps: ${row.deps})_` : ''
     return `- [ ] **${row.id}** — ${row.description}${deps}${extra}`
@@ -96,13 +144,18 @@ function renderSection(source, rows) {
     if (!rows.length) {
         return `## ${source.section}\n\n_Sin ítems ⬜ Todo en este tracker._\n`
     }
-    const { p1, p2, rest } = groupRows(rows)
     const lines = [
         `## ${source.section}`,
         '',
         `Tracker: [\`${source.trackerLabel}\`](./${path.relative('docs/ai_chess_coach/roadmap', source.tracker).replace(/\\/g, '/')})`,
         '',
     ]
+    if (source.tableFormat === '5col') {
+        const sorted = [...rows].sort((a, b) => a.id.localeCompare(b.id, 'es'))
+        lines.push(...sorted.map(itemLine), '')
+        return lines.join('\n')
+    }
+    const { p1, p2, rest } = groupRows(rows)
     if (p1.length) {
         lines.push('### Prioridad P1', '', ...p1.map(itemLine), '')
     }
@@ -115,11 +168,30 @@ function renderSection(source, rows) {
     return lines.join('\n')
 }
 
-function main() {
-    const generatedAt = new Date().toISOString().slice(0, 10)
+function compactItemLine(row) {
+    const title = compactItemTitle(row.description)
+    if (row.tableFormat === '5col') {
+        return `- **${row.id}** ⬜ Todo — ${title}`
+    }
+    return `- **${row.id}** — ${title}`
+}
+
+function renderSectionCompact(source, rows) {
+    if (!rows.length) {
+        return `## ${source.section}\n\n_Sin ítems pendientes._\n`
+    }
+    const sorted = [...rows].sort((a, b) => a.id.localeCompare(b.id, 'es'))
+    const lines = [`## ${source.section}`, '']
+    for (const row of sorted) {
+        lines.push(compactItemLine(row))
+    }
+    lines.push('')
+    return lines.join('\n')
+}
+
+function loadAllSections() {
     const sections = []
     let total = 0
-
     for (const source of SOURCES) {
         const abs = path.join(ROOT, source.tracker)
         if (!fs.existsSync(abs)) {
@@ -127,15 +199,23 @@ function main() {
             continue
         }
         const text = fs.readFileSync(abs, 'utf8')
-        const rows = parseTodoRows(text)
+        const rows = parseTodoRows(text, source.tableFormat ?? '6col')
         total += rows.length
-        sections.push(renderSection(source, rows))
+        sections.push({ source, rows })
     }
+    return { sections, total }
+}
+
+function main() {
+    const generatedAt = new Date().toISOString().slice(0, 10)
+    const { sections: sectionData, total } = loadAllSections()
+    const sections = sectionData.map(({ source, rows }) => renderSection(source, rows))
+    const compactSections = sectionData.map(({ source, rows }) => renderSectionCompact(source, rows))
 
     const body = [
         '# Roadmap pendiente (checklist)',
         '',
-        `[← Changelog](/changelog) · [Índice del roadmap](./00-roadmap-index.md)`,
+        `[← Changelog](/changelog) · [Resumen para compartir](/changelog/pendientes/resumen) · [Índice del roadmap](./00-roadmap-index.md)`,
         '',
         '_Acceso: solo administradores (ruta `/changelog/pendientes`, sesión admin)._',
         '',
@@ -156,6 +236,22 @@ function main() {
     const outPath = path.join(ROOT, OUT)
     fs.writeFileSync(outPath, `${body}\n`, 'utf8')
     console.log(`Wrote ${OUT} (${total} items)`)
+
+    const compactBody = [
+        '# Roadmap pendiente — resumen',
+        '',
+        `[Versión completa](/changelog/pendientes) · [Índice del roadmap](./00-roadmap-index.md)`,
+        '',
+        `**Actualizado:** ${generatedAt} (UTC) · **Ítems:** ${total}`,
+        '',
+        'Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-pending`.',
+        '',
+        ...compactSections,
+    ].join('\n')
+
+    const compactPath = path.join(ROOT, OUT_COMPACT)
+    fs.writeFileSync(compactPath, `${compactBody}\n`, 'utf8')
+    console.log(`Wrote ${OUT_COMPACT}`)
 }
 
 main()
