@@ -30,6 +30,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Changed
 
+- `render.yaml` del static site `chessdash-frontend` usa `staticPublishPath: ./dist` y un rewrite catch-all `/*` para cuando exista Blueprint.
 - Análisis liviano activado por el usuario (#166); gráfico de evaluación, pantalla completa, controles y panel PGN (#194, #209, #212, #217).
 - Marcas de estudio y análisis manual, filtros de importación/ritmo y búsqueda por estudio (#212, #215, #218, #224).
 - La selección masiva muestra cuántas partidas están marcadas en esta página y en otras, y pide confirmación antes de cambiar categoría o fuente (#231).
@@ -52,6 +53,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Documentation
 
+- El tutorial de Render documenta el fallback SPA sin Blueprint: regla `/*` → `/index.html` con **Rewrite** (no Redirect) y rutas de invitación/changelog/feedback.
 - Arquitectura de motores y análisis profundo (#164, #179); diseño de tutor opcional y antiimpulsividad (#199).
 - Tracker de incidencias y protocolo de revisión de criticidad/candidatas (#175, #226). La restricción a rapid o ritmos más lentos es un requisito documentado pendiente de implementar; blitz y bullet se excluyen de la validación mental.
 - Changelog de Coach con la tabla de pull requests (#228).

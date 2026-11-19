@@ -137,9 +137,19 @@ Volvé a desplegar si cambiás la URL de la API (Vite embebe `VITE_*` en el buil
 
 ### 3.3 Rutas del SPA (React Router)
 
-Render no aplica `public/_redirects`. Las rewrites están en `render.yaml`, servicio `chessdash-frontend`. Un archivo publicado gana sobre la regla, así que `/assets` y el resto del build se sirven tal cual. `/api` y cualquier ruta que no esté en la lista siguen en 404.
+Render no aplica `public/_redirects`. El repo documenta las rewrites en `render.yaml` (`chessdash-frontend`), pero **solo valen en producción** si conectás un [Blueprint](https://render.com/docs/infrastructure-as-code) al repo y sincronizás, **o** las cargás a mano en el panel.
 
-Sincronizá el Blueprint, o copiá las mismas reglas en el Static Site → **Redirects/Rewrites** (Action: Rewrite, Destination: `/index.html`):
+**Sin Blueprint (lo habitual si el static site se creó desde el wizard):** en [Render Dashboard](https://dashboard.render.com) → tu **Static Site** del frontend → pestaña **Redirects / Rewrites** → **Add Rule**:
+
+| Source | Destination | Action |
+|--------|-------------|--------|
+| `/*` | `/index.html` | **Rewrite** |
+
+No uses **Redirect** para el SPA: el navegador quedaría en `/index.html`, React Router no tiene esa ruta y en consola verás `No routes matched location "/index.html"`.
+
+Con esa sola regla basta: Render sirve primero archivos reales (`/assets/...`, `favicon`, etc.) y, si no hay archivo, reescribe a `index.html` para que React Router maneje `/coach/partidas`, `/login`, etc.
+
+Opcional (lista explícita en lugar del catch-all) — misma pestaña, Action **Rewrite**, Destination `/index.html`:
 
 | Source |
 |--------|
@@ -151,8 +161,13 @@ Sincronizá el Blueprint, o copiá las mismas reglas en el Static Site → **Red
 | `/reports`, `/reports/*` |
 | `/logs` |
 | `/admin`, `/admin/*` |
+| `/invite/*`, `/changelog`, `/feedback` |
 
-Con eso, pegar la URL, refrescar o abrir una pestaña nueva carga la app en login, Partidas, análisis por id, Posición (FEN) y Configuración. `ProtectedRoute` sigue enviando a `/login` o `/unauthorized`. `/reports` solo carga el shell; la pantalla se prueba cuando el módulo se rehabilite.
+Si en producción ves solo el texto `Not Found` (sin la UI), falta la regla `/*` → `/index.html` en **Redirects / Rewrites** del static site.
+
+**Con Blueprint más adelante:** New → Blueprint → repo con `render.yaml` → sync; o vinculá el static site existente según la doc de Render. Hasta entonces, el panel manda.
+
+Con eso, pegar la URL, refrescar o abrir una pestaña nueva carga la app en login, Partidas, análisis por id, Posición (FEN) y Configuración. `ProtectedRoute` sigue enviando a `/login` o `/unauthorized`.
 
 ### 3.4 CORS
 
