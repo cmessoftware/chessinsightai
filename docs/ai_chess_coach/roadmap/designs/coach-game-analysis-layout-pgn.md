@@ -30,7 +30,7 @@ Principio: **touch es la fuente de verdad**; el teclado es **mejora opcional** c
 
 | Contexto | Comportamiento |
 |----------|----------------|
-| **Móvil / tablet solo touch** | Barra fija **⏮ ◀ ▶ ⏭** bajo el tablero (targets ≥ 44px), texto `ply k / N`. Sin depender de atajos. PGN y lista crítica siguen siendo tocables. |
+| **Móvil / tablet solo touch** | Barra fija **⏮ ◀ ▶ ⏭** bajo el tablero (targets ≥ 44px), texto `ply k / N`. Sin depender de atajos. PGN y lista crítica siguen siendo tocables. **Jugadas en el tablero:** hoy solo drag&amp;drop; backlog **FEAT-119** — casilla origen + destino ([spec](./feat-119-board-tap-to-move.md)). |
 | **Tablet / móvil + teclado externo** (Magic Keyboard, BT) | Mismos listeners que desktop: **← →** ply ±1, **Home / End** inicio/final, **solo si** el foco **no** está en `input`, `textarea` o `[contenteditable]`. |
 | **Teclado virtual** (on-screen) | No usar ←/→ del OS; el usuario usa botones. No mostrar chip “← →” en pantallas `xs` (opcional en `sm+`). |
 | **Home/End ausentes** en teclado compacto | ⏮ = Home, ⏭ = End (misma función). |

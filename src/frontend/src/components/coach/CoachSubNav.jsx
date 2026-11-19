@@ -11,7 +11,7 @@ export const COACH_SUB_NAV_ITEMS = [
     { label: 'Inicio', path: '/coach', icon: HomeOutlinedIcon },
     { label: 'Importar Partidas', path: '/coach/importar', icon: UploadOutlinedIcon },
     { label: 'Partidas', path: '/coach/partidas', icon: FormatListBulletedOutlinedIcon },
-    { label: 'Posición (FEN)', path: '/coach/position', icon: GridOnOutlinedIcon },
+    { label: 'Cargar Posición', path: '/coach/position', icon: GridOnOutlinedIcon },
     { label: 'Configuración', path: '/coach/configuracion', icon: SettingsOutlinedIcon },
 ]
 

@@ -11,6 +11,8 @@ Shared props for Jupyter (vanilla JS + Chessground) and the Vite app (`react-che
 | `dests` | `{ [from]: string[] }` | Legal targets (Jupyter / Chessground) |
 | `onMove` | `( { from, to } ) => void` | Drop handler (React) |
 
+**Planeado (FEAT-119):** en tableros jugables de la app, entrada alternativa **tap origen → tap destino** además de drag & drop; misma semántica que `onMove` / `onPieceDrop`. Ver [feat-119-board-tap-to-move.md](../../../ai_chess_coach/roadmap/designs/feat-119-board-tap-to-move.md).
+
 Events (Jupyter): DOM `chessinsight-move` with `{ from, to, fen }`.
 
 React: `src/frontend/src/components/chess/ChessinsightBoard.jsx`.
