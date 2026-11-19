@@ -30,6 +30,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Changed
 
+- `render.yaml` del static site `chessdash-frontend` usa `staticPublishPath: ./dist` y un rewrite catch-all `/*` para cuando exista Blueprint (#265).
 - Análisis liviano activado por el usuario (#166); gráfico de evaluación, pantalla completa, controles y panel PGN (#194, #209, #212, #217).
 - Marcas de estudio y análisis manual, filtros de importación/ritmo y búsqueda por estudio (#212, #215, #218, #224).
 - La selección masiva muestra cuántas partidas están marcadas en esta página y en otras, y pide confirmación antes de cambiar categoría o fuente (#231).
@@ -52,6 +53,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Documentation
 
+- El tutorial de Render documenta el fallback SPA sin Blueprint: regla `/*` → `/index.html` con **Rewrite** (no Redirect) y rutas de invitación/changelog/feedback (#265).
 - Arquitectura de motores y análisis profundo (#164, #179); diseño de tutor opcional y antiimpulsividad (#199).
 - Tracker de incidencias y protocolo de revisión de criticidad/candidatas (#175, #226). La restricción a rapid o ritmos más lentos es un requisito documentado pendiente de implementar; blitz y bullet se excluyen de la validación mental.
 - Changelog de Coach con la tabla de pull requests (#228).
@@ -71,6 +73,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-19 | [#265](https://github.com/cmessoftware/chessinsightai/pull/265) | Documentación | Tutorial Render: fallback SPA sin Blueprint (Rewrite `/*`) y catch-all en render.yaml para futuro Blueprint. |
 | 2026-11-18 | [#264](https://github.com/cmessoftware/chessinsightai/pull/264) | Cambio integrado | Acceso por invitación: el admin invita por email y la persona crea su cuenta con el enlace. |
 | 2026-11-14 | [#261](https://github.com/cmessoftware/chessinsightai/pull/261) | Cambio integrado | Comparación con un rival superpone las curvas del jugador y del rival. Ocultar el módulo queda cancelado. |
 | 2026-11-13 | [#260](https://github.com/cmessoftware/chessinsightai/pull/260) | Cambio integrado | Precisión por ritmo muestra las medias de chess_statistics y calcula en segundo plano las partidas que todavía no la tienen. |

@@ -1,4 +1,4 @@
-# CHESS TRAINER - Versión: v0.1.791-9184762
+# CHESS TRAINER - Versión: v0.1.796-ce14f0a
 
 # chessinsightai
 
