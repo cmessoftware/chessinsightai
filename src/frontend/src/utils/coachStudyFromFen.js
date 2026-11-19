@@ -6,8 +6,8 @@ import { parseFenInput } from './parseFenInput.js'
  * @param {string} rawFen
  * @returns {{ ok: true, root: object } | { ok: false, error: string }}
  */
-export function createStudyRootFromFen(rawFen) {
-    const parsed = parseFenInput(rawFen)
+export function createStudyRootFromFen(rawFen, options = {}) {
+    const parsed = parseFenInput(rawFen, options)
     if (!parsed.ok) {
         return parsed
     }

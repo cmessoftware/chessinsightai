@@ -22,4 +22,10 @@ describe('parseFenInput', () => {
     it('rejects garbage', () => {
         expect(parseFenInput('not a fen').ok).toBe(false)
     })
+
+    it('accepts illegal placement with allowIllegal', () => {
+        const r = parseFenInput('K1k5/8/8/8/8/8/8/8 w - - 0 1', { allowIllegal: true })
+        expect(r.ok).toBe(true)
+        expect(r.fen).toContain('K1k5')
+    })
 })
