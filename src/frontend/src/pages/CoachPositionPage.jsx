@@ -11,7 +11,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { createStudyRootFromFen } from '../utils/coachStudyFromFen.js'
@@ -24,6 +24,13 @@ import {
     STARTING_FEN,
 } from '../utils/parseFenInput.js'
 import { createEmptyRoot, mainLineEndPath } from '../utils/coachVariationTree.js'
+import {
+    buildPositionStudyPgnFromTree,
+    DEFAULT_POSITION_STUDY_NAME,
+    normalizePositionStudyName,
+} from '../utils/coachPositionStudyPgn.js'
+import { PGN_HEADER_LABELS } from '../utils/pgnHeaders.js'
+import { createCoachGameFromPosition, parseApiDetail } from '../services/module07Service.js'
 
 const FEN_PARSE_OPTS = { allowIllegal: true }
 
@@ -40,6 +47,7 @@ function resetTreeFromFen(fen) {
 
 export default function CoachPositionPage() {
     const location = useLocation()
+    const navigate = useNavigate()
     const entryMessage = location.state?.message ?? null
     const [fenInput, setFenInput] = useState('')
     const [activeFen, setActiveFen] = useState(null)
@@ -49,6 +57,9 @@ export default function CoachPositionPage() {
     const [treeRoot, setTreeRoot] = useState(() => createEmptyRoot())
     const [cursorPath, setCursorPath] = useState([])
     const [editorKey, setEditorKey] = useState(0)
+    const [saveCatalogBusy, setSaveCatalogBusy] = useState(false)
+    const [saveCatalogMessage, setSaveCatalogMessage] = useState(null)
+    const [studyName, setStudyName] = useState(DEFAULT_POSITION_STUDY_NAME)
 
     const loadFenIntoStudy = useCallback((fen) => {
         const synced = resetTreeFromFen(fen)
@@ -101,6 +112,7 @@ export default function CoachPositionPage() {
         setCursorPath([])
         savePositionFenToSession(null)
         setEditorKey((k) => k + 1)
+        setStudyName(DEFAULT_POSITION_STUDY_NAME)
     }
 
     const syncTextToEditor = () => {
@@ -113,6 +125,30 @@ export default function CoachPositionPage() {
         setFenInput(result.fen)
         setEditorKey((k) => k + 1)
     }
+
+    const savePositionToCatalog = useCallback(async () => {
+        if (!activeFen || saveCatalogBusy) return
+        setSaveCatalogBusy(true)
+        setSaveCatalogMessage(null)
+        try {
+            const nameOk = normalizePositionStudyName(studyName)
+            if (!nameOk.ok) {
+                setSaveCatalogMessage(nameOk.error)
+                return
+            }
+            const built = buildPositionStudyPgnFromTree(treeRoot, { studyName: nameOk.studyName })
+            if (!built.ok) {
+                setSaveCatalogMessage(built.error)
+                return
+            }
+            const game = await createCoachGameFromPosition(built.pgn)
+            navigate(`/coach/games/${game.id}/analysis`)
+        } catch (err) {
+            setSaveCatalogMessage(parseApiDetail(err))
+        } finally {
+            setSaveCatalogBusy(false)
+        }
+    }, [activeFen, saveCatalogBusy, treeRoot, studyName, navigate])
 
     const coachPovNorm = coachPov.toLowerCase() === 'black' ? 'black' : 'white'
     const orientationNorm = orientation.toLowerCase() === 'black' ? 'black' : 'white'
@@ -160,6 +196,16 @@ export default function CoachPositionPage() {
                     <Button variant="contained" onClick={() => applyFen()}>
                         Cargar posición
                     </Button>
+                    {activeFen ? (
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            disabled={saveCatalogBusy}
+                            onClick={() => savePositionToCatalog()}
+                        >
+                            {saveCatalogBusy ? 'Guardando…' : 'Guardar en Partidas'}
+                        </Button>
+                    ) : null}
                     <Button variant="outlined" onClick={syncTextToEditor}>
                         Aplicar FEN al tablero
                     </Button>
@@ -170,6 +216,17 @@ export default function CoachPositionPage() {
                         Limpiar
                     </Button>
                 </Box>
+                {activeFen ? (
+                    <TextField
+                        label={PGN_HEADER_LABELS.StudyName || 'Nombre del estudio'}
+                        size="small"
+                        fullWidth
+                        value={studyName}
+                        onChange={(e) => setStudyName(e.target.value)}
+                        helperText="Se guarda en el PGN (filtro avanzado Estudio en Partidas)."
+                        sx={{ mb: 1.5, maxWidth: 480 }}
+                    />
+                ) : null}
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                     <FormControl size="small" sx={{ minWidth: 160 }}>
                         <InputLabel id="orient-label">Orientación tablero</InputLabel>
@@ -202,6 +259,12 @@ export default function CoachPositionPage() {
                     </Alert>
                 )}
             </Paper>
+
+            {saveCatalogMessage && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {saveCatalogMessage}
+                </Alert>
+            )}
 
             {activeFen ? (
                 <CoachStudyWorkspace

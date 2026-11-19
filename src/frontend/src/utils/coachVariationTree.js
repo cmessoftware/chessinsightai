@@ -53,6 +53,23 @@ export function getNodeAtPath(root, path) {
     return node
 }
 
+/**
+ * New study tree rooted at the cursor: FEN at `path`, optional variation subtree from there.
+ */
+export function forkStudyTreeAtPath(root, path) {
+    if (!root?.fen) {
+        return { ok: false, error: 'No hay árbol de estudio cargado.' }
+    }
+    const node = getNodeAtPath(root, path ?? [])
+    const fen = node.fen ?? root.fen
+    const treeRoot = createEmptyRoot(fen)
+    if (node.children?.length) {
+        const cloned = cloneTree(node)
+        treeRoot.children = cloned.children
+    }
+    return { ok: true, treeRoot }
+}
+
 /** Replace the prose comment on one move. The original tree is left unchanged. */
 export function withPgnCommentAtPath(root, path, comment) {
     if (!root || !path?.length) return root

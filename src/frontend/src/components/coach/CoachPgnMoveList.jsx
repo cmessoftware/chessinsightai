@@ -563,6 +563,8 @@ export default function CoachPgnMoveList({
     sourcePgn = null,
     plyUserByPathKey = null,
     onSaveStudy = null,
+    onForkPositionToCatalog = null,
+    forkPositionBusy = false,
     studyDirty = false,
     saveStudyBusy = false,
     saveStudyMessage = null,
@@ -744,6 +746,20 @@ export default function CoachPgnMoveList({
                             >
                                 {movetextVisible ? 'Ocultar panel PGN' : 'Mostrar panel PGN'}
                             </Button>
+                        )}
+                        {onForkPositionToCatalog && (
+                            <Tooltip title="Crea una partida nueva con la posición del cursor y las variantes que siguen desde ahí">
+                                <span>
+                                    <Button
+                                        size="small"
+                                        variant="outlined"
+                                        disabled={forkPositionBusy}
+                                        onClick={onForkPositionToCatalog}
+                                    >
+                                        {forkPositionBusy ? 'Guardando…' : 'Guardar en Partidas'}
+                                    </Button>
+                                </span>
+                            </Tooltip>
                         )}
                         {onSaveStudy && (
                             <Button

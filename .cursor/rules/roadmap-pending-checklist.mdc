@@ -1,0 +1,24 @@
+---
+description: Mantener el checklist de roadmap pendiente alineado con los trackers
+alwaysApply: true
+---
+
+# Checklist roadmap pendiente
+
+El archivo `docs/ai_chess_coach/roadmap/roadmap-pending-checklist.md` es la vista checklist (⬜ Todo) enlazada desde la cabecera de `CHANGELOG.md`. La ruta `/changelog/pendientes` exige sesión **admin** (`ProtectedRoute requiredPermission="admin"`); el changelog público sigue en `/changelog`.
+
+**Cuándo regenerar**
+
+- Después de cambiar el estado o filas de cualquier tracker HTML listado en `scripts/sync-roadmap-pending-checklist.mjs`.
+- En el mismo commit o PR que toque esos trackers o que cierre un ítem del roadmap (Done / en progreso).
+- Si preparás commit que solo actualiza `CHANGELOG.md` por un ítem de producto, ejecutá el sync si ese ítem también debe salir del checklist.
+
+**Comando**
+
+```bash
+npm run roadmap:sync-pending
+```
+
+Incluir `roadmap-pending-checklist.md` en el commit junto con el tracker si cambió el conjunto de pendientes.
+
+**No** marcar casillas `[x]` solo en el checklist: el estado canónico vive en los trackers; el checklist se regenera desde ellos.

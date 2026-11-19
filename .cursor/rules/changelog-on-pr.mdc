@@ -7,6 +7,7 @@ alwaysApply: true
 
 Al abrir o actualizar un pull request, editar `CHANGELOG.md` en ese mismo PR.
 
+- Si el PR cambia el estado de ítems del roadmap en los trackers, ejecutar `npm run roadmap:sync-pending` e incluir `docs/ai_chess_coach/roadmap/roadmap-pending-checklist.md` en el PR.
 - Describir los commits que cambian producto o documentación. Omitir los que solo tocan `VERSION` o `README.md`, y los merges sin contenido propio.
 - Agregar una fila al inicio de la tabla de trazabilidad: fecha de merge o de apertura en UTC, número de PR, tipo y una frase con lo que hacen esos commits.
 - Sumar una viñeta en Added, Changed, Fixed o Documentation.

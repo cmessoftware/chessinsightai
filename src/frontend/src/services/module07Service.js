@@ -41,6 +41,24 @@ export async function createBlankCoachGame() {
     return game
 }
 
+/** FEAT-103: persist a FEN position (and optional lines) as a catalog study game. */
+export async function createCoachGameFromPosition(pgnText) {
+    const text = String(pgnText || '').trim()
+    if (!text) {
+        throw new Error('PGN vacío.')
+    }
+    const data = await ingestPgn(text, {
+        corpusType: 'personal',
+        source: 'estudio',
+        maxGames: 1,
+    })
+    const game = data?.games?.[0]
+    if (!game?.id) {
+        throw new Error('No se pudo crear la partida de estudio.')
+    }
+    return game
+}
+
 export async function ingestPgn(pgnText, options = {}) {
     const {
         corpusType = 'personal',
