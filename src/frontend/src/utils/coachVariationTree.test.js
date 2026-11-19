@@ -3,6 +3,7 @@ import { Chess } from 'chess.js'
 import {
     canAddVariationSibling,
     createEmptyRoot,
+    forkStudyTreeAtPath,
     moveNumberFromPlyCount,
     deleteLeafMoveAtPath,
     demoteMainLineAtPath,
@@ -176,6 +177,25 @@ describe('withPgnCommentAtPath', () => {
         expect(root.children[1].pgnComment).toBe('comentario de la variante')
         const cleared = withPgnCommentAtPath(edited, [1], '  ')
         expect(cleared.children[1].pgnComment).toBeUndefined()
+    })
+})
+
+describe('forkStudyTreeAtPath', () => {
+    it('roots at cursor FEN with continuations from that node', () => {
+        const root = buildSimpleMainLine(['e4', 'e5', 'Nf3'])
+        const atE5 = forkStudyTreeAtPath(root, [0, 0])
+        expect(atE5.ok).toBe(true)
+        expect(atE5.treeRoot.fen).toBe(root.children[0].children[0].fen)
+        expect(atE5.treeRoot.children).toHaveLength(1)
+        expect(atE5.treeRoot.children[0].san).toBe('Nf3')
+    })
+
+    it('roots at initial FEN when cursor is on root', () => {
+        const root = buildSimpleMainLine(['e4'])
+        const atStart = forkStudyTreeAtPath(root, [])
+        expect(atStart.ok).toBe(true)
+        expect(atStart.treeRoot.fen).toBe(root.fen)
+        expect(atStart.treeRoot.children[0].san).toBe('e4')
     })
 })
 

@@ -1,13 +1,26 @@
 import { buildStudyPgnFromTree } from './coachPgnTreeParse.js'
 import { ensurePgnSetupHeader } from './coachPgnReplay.js'
-import { formatPgnHeaderBlock } from './pgnHeaders.js'
+import { formatPgnHeaderBlock, parsePgnHeaderTags } from './pgnHeaders.js'
 import { parseFenInput } from './parseFenInput.js'
+import { moveNumberFromPlyCount } from './coachVariationTree.js'
 
 function pad2(value) {
     return String(value).padStart(2, '0')
 }
 
 export const DEFAULT_POSITION_STUDY_NAME = 'Posición'
+
+/** Default StudyName when forking from analysis at `cursorPath`. */
+export function suggestForkStudyName(sourcePgn, cursorPath) {
+    const tags = sourcePgn ? parsePgnHeaderTags(sourcePgn) : {}
+    const base = String(tags.StudyName || tags.Event || 'Partida').trim() || 'Partida'
+    const ply = cursorPath?.length ?? 0
+    if (ply === 0) {
+        return `${base} · inicio`
+    }
+    const mn = moveNumberFromPlyCount(ply)
+    return `${base} · jug. ${mn}`
+}
 
 export function normalizePositionStudyName(raw) {
     const name = String(raw ?? '').trim()

@@ -4,6 +4,7 @@ import {
     buildPositionStudyHeadersPgn,
     buildPositionStudyPgnFromTree,
     normalizePositionStudyName,
+    suggestForkStudyName,
 } from './coachPositionStudyPgn.js'
 import { buildTreeFromMainLine } from './coachVariationTree.js'
 import { Chess } from 'chess.js'
@@ -26,6 +27,12 @@ describe('coachPositionStudyPgn', () => {
         expect(r.sourcePgn).toContain('[FEN "')
         expect(r.sourcePgn).toContain('[StudyName "Posición"]')
         expect(r.sourcePgn).toMatch(/\*\s*$/)
+    })
+
+    it('suggests fork study name from headers and ply', () => {
+        const pgn = '[Event "Capablanca — Alekhine"]\n\n1. e4'
+        expect(suggestForkStudyName(pgn, [])).toBe('Capablanca — Alekhine · inicio')
+        expect(suggestForkStudyName(pgn, [0])).toBe('Capablanca — Alekhine · jug. 1')
     })
 
     it('includes movetext when the tree has moves', () => {

@@ -4,11 +4,16 @@ import {
     Box,
     Button,
     CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Grid,
     IconButton,
     Paper,
     Tab,
     Tabs,
+    TextField,
     Tooltip,
     Typography,
 } from '@mui/material'
@@ -73,7 +78,13 @@ import {
 } from '../../utils/coachPgnTreeParse.js'
 import { ensurePgnGameTerminator } from '../../utils/pgnHeaders.js'
 import {
+    buildPositionStudyPgnFromTree,
+    normalizePositionStudyName,
+    suggestForkStudyName,
+} from '../../utils/coachPositionStudyPgn.js'
+import {
     createBlankCoachGame,
+    createCoachGameFromPosition,
     patchCoachGameStudyPgn,
     parseApiDetail,
 } from '../../services/module07Service.js'
@@ -86,6 +97,7 @@ import {
     deleteLeafMoveAtPath,
     deleteVariationAtPath,
     demoteMainLineAtPath,
+    forkStudyTreeAtPath,
     promotePathToMainLine,
     getNodeAtPath,
     lastUciForPath,
@@ -140,6 +152,10 @@ export default function CoachStudyWorkspace({
     const [plyUserByPathKey, setPlyUserByPathKey] = useState({})
     const [saveStudyBusy, setSaveStudyBusy] = useState(false)
     const [saveStudyMessage, setSaveStudyMessage] = useState(null)
+    const [forkDialogOpen, setForkDialogOpen] = useState(false)
+    const [forkStudyName, setForkStudyName] = useState('')
+    const [forkBusy, setForkBusy] = useState(false)
+    const [forkError, setForkError] = useState(null)
     const [boardFullscreen, setBoardFullscreen] = useState(false)
     const [fullscreenPgnVisible, setFullscreenPgnVisible] = useState(true)
     const [squareCirclesByPath, setSquareCirclesByPath] = useState({})
@@ -193,6 +209,45 @@ export default function CoachStudyWorkspace({
         onGameMetaChange,
         gameMeta,
     ])
+
+    const openForkPositionDialog = useCallback(() => {
+        if (!gameId || !treeRoot?.fen) return
+        setForkStudyName(suggestForkStudyName(effectiveSourcePgn, cursorPath))
+        setForkError(null)
+        setForkDialogOpen(true)
+    }, [gameId, treeRoot?.fen, effectiveSourcePgn, cursorPath])
+
+    const confirmForkPositionToCatalog = useCallback(async () => {
+        if (!gameId || forkBusy) return
+        setForkBusy(true)
+        setForkError(null)
+        try {
+            const nameOk = normalizePositionStudyName(forkStudyName)
+            if (!nameOk.ok) {
+                setForkError(nameOk.error)
+                return
+            }
+            const forked = forkStudyTreeAtPath(treeRoot, cursorPath)
+            if (!forked.ok) {
+                setForkError(forked.error)
+                return
+            }
+            const built = buildPositionStudyPgnFromTree(forked.treeRoot, {
+                studyName: nameOk.studyName,
+            })
+            if (!built.ok) {
+                setForkError(built.error)
+                return
+            }
+            const game = await createCoachGameFromPosition(built.pgn)
+            setForkDialogOpen(false)
+            navigate(`/coach/games/${game.id}/analysis`)
+        } catch (err) {
+            setForkError(parseApiDetail(err))
+        } finally {
+            setForkBusy(false)
+        }
+    }, [gameId, forkBusy, forkStudyName, treeRoot, cursorPath, navigate])
 
     const handleSourcePgnChange = useCallback(
         async (nextPgn) => {
@@ -739,6 +794,8 @@ export default function CoachStudyWorkspace({
         sourcePgn: effectiveSourcePgn,
         plyUserByPathKey,
         onSaveStudy: gameId ? handleSaveStudy : null,
+        onForkPositionToCatalog: gameId && treeRoot?.fen ? openForkPositionDialog : null,
+        forkPositionBusy: forkBusy,
         studyDirty,
         saveStudyBusy,
         saveStudyMessage,
@@ -1199,6 +1256,44 @@ export default function CoachStudyWorkspace({
                     {decisionsPanel}
                 </Grid>
             </Grid>
+
+            <Dialog
+                open={forkDialogOpen}
+                onClose={() => {
+                    if (!forkBusy) setForkDialogOpen(false)
+                }}
+                fullWidth
+                maxWidth="xs"
+            >
+                <DialogTitle>Nueva partida desde esta posición</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Se guardará la posición del cursor y las variantes que continúan desde aquí como una
+                        partida de estudio en el catálogo.
+                    </Typography>
+                    <TextField
+                        label="Estudio"
+                        fullWidth
+                        value={forkStudyName}
+                        onChange={(e) => setForkStudyName(e.target.value)}
+                        disabled={forkBusy}
+                        autoFocus
+                    />
+                    {forkError && (
+                        <Typography variant="caption" color="error" display="block" sx={{ mt: 1 }}>
+                            {forkError}
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setForkDialogOpen(false)} disabled={forkBusy}>
+                        Cancelar
+                    </Button>
+                    <Button variant="contained" onClick={confirmForkPositionToCatalog} disabled={forkBusy}>
+                        {forkBusy ? 'Guardando…' : 'Guardar en Partidas'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             <CoachBoardFullscreenOverlay
                 open={boardFullscreen && !criticalMode}
