@@ -18,6 +18,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - Cargar Posición permite guardar la posición (y variantes) en Partidas como estudio con FEN en el PGN, nombre de estudio editable (`StudyName`) y abrir el análisis completo (#267, FEAT-103).
 - En el análisis de una partida, **Guardar en Partidas** en el panel PGN crea una partida de estudio desde la posición del cursor (con variantes que siguen desde ahí) (#267, FEAT-103).
 - Los administradores consultan el checklist de ítems ⬜ Todo del roadmap en `/changelog/pendientes`; el enlace en `/changelog` solo se muestra con sesión admin (#267).
+- Resumen compartible del roadmap en `/changelog/pendientes/resumen` y parser correcto de pendientes Sparring / análisis profundo (#268).
 - En Coach → Posición (FEN), una paleta de piezas permite armar el tablero por arrastre, actualizar el FEN y cargar posiciones no legales con validación relajada (#266, FEAT-039).
 - Análisis con Stockfish WASM, clasificación por jugada y modelo mental 1600 (#156, #157); persistencia de clasificaciones y catálogo de partidas (#159, #161).
 - Espacio de estudio, entrada FEN, navegación y gestión de partidas (#162, #163, #165–#174).
@@ -81,6 +82,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |
 | 2026-11-19 | [#266](https://github.com/cmessoftware/chessinsightai/pull/266) | Cambio integrado | Posición (FEN): paleta de piezas por arrastre y carga de posiciones no legales (FEAT-039). |
 | 2026-11-19 | [#265](https://github.com/cmessoftware/chessinsightai/pull/265) | Documentación | Tutorial Render: fallback SPA sin Blueprint (Rewrite `/*`) y catch-all en render.yaml para futuro Blueprint. |

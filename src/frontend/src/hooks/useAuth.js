@@ -210,6 +210,7 @@ export const useAuth = () => {
             '/admin/activity': ['ALL'], // LOG-FEAT-09: admin only
             '/admin/roles': ['ALL'],
             '/changelog/pendientes': ['ALL'],
+            '/changelog/pendientes/resumen': ['ALL'],
         };
 
         const requiredPerms = routePermissions[route];

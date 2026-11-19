@@ -32,6 +32,7 @@ import CoachPositionPage from './pages/CoachPositionPage.jsx'
 import CoachPositionStudyPage from './pages/CoachPositionStudyPage.jsx'
 import ChangelogPage from './pages/ChangelogPage.jsx'
 import RoadmapPendingChecklistPage from './pages/RoadmapPendingChecklistPage.jsx'
+import RoadmapPendingChecklistCompactPage from './pages/RoadmapPendingChecklistCompactPage.jsx'
 
 // Utilidades
 import { logger } from './utils/helpers.js'
@@ -82,6 +83,14 @@ function App() {
                 element={
                   <ProtectedRoute requiredPermission="admin">
                     <RoadmapPendingChecklistPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/changelog/pendientes/resumen"
+                element={
+                  <ProtectedRoute requiredPermission="admin">
+                    <RoadmapPendingChecklistCompactPage />
                   </ProtectedRoute>
                 }
               />
