@@ -13,6 +13,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Added
 
+- En Coach → Posición (FEN), una paleta de piezas permite armar el tablero por arrastre, actualizar el FEN y cargar posiciones no legales con validación relajada (FEAT-039).
 - Análisis con Stockfish WASM, clasificación por jugada y modelo mental 1600 (#156, #157); persistencia de clasificaciones y catálogo de partidas (#159, #161).
 - Espacio de estudio, entrada FEN, navegación y gestión de partidas (#162, #163, #165–#174).
 - Importación masiva PGN, Lichess y Chess.com; selección del punto de vista (#173, #176, #177, #181, #183).

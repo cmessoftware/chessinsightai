@@ -85,7 +85,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-036</td><td>&nbsp;</td><td>FEAT-033</td><td>Agregar a descripción de la partida el ritmo y ritmo numérico (ej. Rapid 15+10)</td><td>✅ Done</td><td><code>formatCoachGameDescription</code>; API <code>description</code> + <code>time_control</code></td></tr>
 <tr><td>BUG-037</td><td>&nbsp;</td><td>&nbsp;</td><td>No funciona botón de seleccionar/deseleccionar ítem del listado de partidas</td><td>✅ Done</td><td>Poll 5s reseteaba <code>selectedIds</code> vía <code>useEffect(queueableGames)</code></td></tr>
 <tr><td>FEAT-038</td><td>&nbsp;</td><td>&nbsp;</td><td>Habilitar cargar una posición FEN desde la imagen de un tablero</td><td>🔄 WIP</td><td>Rama <code>feature/07_038_fen_from_image</code> (local, sin PR). En Posición (FEN) «Pegar imagen» y «Elegir archivo» están deshabilitados, tooltip «En progreso». El recorte del tablero (OpenCV) y el clasificador ONNX están en el working tree; la detección todavía no es confiable para cargar el FEN.</td></tr>
-<tr><td>FEAT-039</td><td>&nbsp;</td><td>&nbsp;</td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>⬜ Todo</td><td>&nbsp;</td></tr>
+<tr><td>FEAT-039</td><td>&nbsp;</td><td>&nbsp;</td><td>Habilitar cargar una posición FEN desde drag&amp;drop de iconos de piezas externas al tablero; permitir posiciones ilegales</td><td>✅ Done</td><td><code>CoachFenPieceEditor</code> en <code>/coach/posicion</code> · paleta <code>SparePiece</code> · <code>parseFenInput({ allowIllegal })</code> · rama <code>feature/07_039_fen_piece_palette</code></td></tr>
 <tr><td>FEAT-040</td><td>&nbsp;</td><td>UI-G3</td><td>Retirar <strong>Navegador de Partidas</strong> del menú principal y Home; redirect <code>/games</code> → <code>/coach/partidas</code> (alias temporal). Mantener <code>/api/chess/games</code> para admin / filtros avanzados (ver FEAT-042).</td><td>✅ Done</td><td><code>feature/11_151_feat_040_deprecate_games_navigator</code> — redirect <code>/games</code>, <code>AppShell</code></td></tr>
 <tr><td>FEAT-041</td><td>&nbsp;</td><td>FEAT-024</td><td>Retirar pestaña <strong>Tablero</strong> del AppBar; redirect <code>/chess-board</code> (y <code>/chess-board/:gameId</code> si aplica) → <code>/coach/position</code> o análisis Coach cuando haya partida.</td><td>✅ Done</td><td><code>App.tsx</code> redirects <code>/chess-board</code> → <code>/coach/position</code></td></tr>
 <tr><td>FEAT-042</td><td>&nbsp;</td><td>FEAT-040 / GC-2</td><td>Unificar UX Coach → Partidas con catálogo maestro: lista desde <code>games</code> (+ join <code>coach_games</code> para POV, jobs, análisis liviano); chips actuales; sin segunda tabla mental «Partidas vs Coach».</td><td>✅ Done</td><td><code>coach_games</code> + join <code>master_game</code>; Partidas canónica en Coach</td></tr>
@@ -232,7 +232,7 @@ El cálculo de <code>chess_statistics</code> deja el SQLite del curso suspendido
 <table>
 <thead><tr><th>Tipo-Id</th><th>Prioridad</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios / aceptación</th></tr></thead>
 <tbody>
-<tr><td>EST-BUG-01</td><td>P1</td><td>EST-FEAT-05 / FEAT-093</td><td>Calcular estadísticas en Render termina en Network Error.</td><td>⬜ Todo</td><td>Observado. Partida propia analizada durante el recorrido; identificador conservado en el material privado de revisión. Panel mantiene vacío tras la acción. Causa no confirmada: revisar respuesta HTTP, duración, logs de API y disponibilidad del motor. No atribuirlo automáticamente a CORS. Aceptación: una sola partida calculada, ambas columnas, reabrir conserva resultado y no modifica otras filas.</td></tr>
+<tr><td>EST-BUG-01</td><td>P1</td><td>EST-FEAT-05 / FEAT-093</td><td>Calcular estadísticas en Render termina en Network Error.</td><td>✅ Done</td><td>HITL OK en Render (2026-11-19): calcular desde Análisis, ambas columnas, resultado persiste al reabrir. Incidencia original en recorrido beta.</td></tr>
 <tr><td>EST-BUG-02</td><td>P1</td><td>EST-FEAT-03</td><td>Fuente de evaluación se registra como lichess para cualquier PGN con evals completas.</td><td>⬜ Todo</td><td>Código. <code>coach_game_statistics_compute.py</code>: SOURCE_EXPORT = lichess. Distinguir proveedor de importación, evaluación embebida y motor/version/profundidad cuando estén informados. Origen desconocido permanece desconocido; no inventar procedencia.</td></tr>
 <tr><td>EST-FEAT-07</td><td>P1</td><td>EST-BUG-01</td><td>Estado y errores accionables al calcular estadísticas.</td><td>⬜ Todo</td><td>Mostrar cálculo en curso, fallo y reintento; separar error de cálculo de ausencia de estadísticas. Si el tiempo de procesamiento requiere job, diseñarlo antes de asumir un timeout mayor. No presentar ceros como cálculo exitoso.</td></tr>
 </tbody>
@@ -368,7 +368,7 @@ Estado global **WIP**: M-1…M-10 implementados no implica validación pedagógi
 2. MENT-BUG-01/02/03/06: eliminar errores semánticos y fuga retrospectiva antes de evaluar fiabilidad.
 3. Sesión MENT-FEAT-01: registrar feedback incluso si esos arreglos aún no están desplegados, etiquetando versión y limitaciones.
 4. MENT-BUG-04/05/07 y MENT-FEAT-02…19 según decisiones del instructor.
-5. EST-BUG-01/02 con verificación en Render. BUG-098 está en el Blueprint; el CDN lo aplica al sincronizarlo. Reportes continúa en backlog.
+5. EST-BUG-02 con verificación en Render. EST-BUG-01 cerrado (HITL prod). BUG-098: rewrites SPA en panel o Blueprint. Reportes continúa en backlog.
 
 El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas documentadas de desacuerdo, cero P0 semánticos pendientes y pruebas de regresión de los bugs corregidos. El 80% de acuerdo de M-11 es un criterio exploratorio, no una medida de precisión general del producto. Ver [guía de sesión](../deep_analysis/coach-mental-review-2026-11-09.md).
 
@@ -379,12 +379,12 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-06, LOG-FEAT-09, LOG-FEAT-10, LOG-FEAT-13, RPT-FEAT-01, RPT-FEAT-02, RPT-FEAT-03, RPT-FEAT-04, RPT-FEAT-05, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, FEAT-039, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-06, LOG-FEAT-09, LOG-FEAT-10, LOG-FEAT-13, RPT-FEAT-01, RPT-FEAT-02, RPT-FEAT-03, RPT-FEAT-04, RPT-FEAT-05, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06, EST-BUG-01</td></tr>
 <tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069, RPT-FEAT-10</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038…039, FEAT-088, FEAT-103…110, FEAT-116, BUG-103, LOG-FEAT-01…03, LOG-FEAT-07…08, DB-FEAT-02…04, RPT-FEAT-06…08, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-01/02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038, FEAT-088, FEAT-103…110, FEAT-116, BUG-103, LOG-FEAT-01…03, LOG-FEAT-07…08, DB-FEAT-02…04, RPT-FEAT-06…08, BUG-099, FEAT-100/101, FEAT-102 (candidata), EST-BUG-02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19</td></tr>
 <tr><td>🚫 Cancelado</td><td>RPT-FEAT-09</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
 </table>
 
-**Prioridad vigente:** corrección de selección masiva y revisión de FEAT-07 para la reunión del 2026-11-09. FEAT-038/039 permanecen en backlog.
+**Prioridad vigente:** corrección de selección masiva y revisión de FEAT-07 para la reunión del 2026-11-09. FEAT-038 (imagen → FEN) sigue en backlog/WIP.

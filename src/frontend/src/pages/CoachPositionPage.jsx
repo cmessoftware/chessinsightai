@@ -15,7 +15,9 @@ import { useLocation } from 'react-router-dom'
 import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import CoachStudyWorkspace from '../components/coach/CoachStudyWorkspace.jsx'
 import { createStudyRootFromFen } from '../utils/coachStudyFromFen.js'
+import CoachFenPieceEditor from '../components/coach/CoachFenPieceEditor.jsx'
 import {
+    EMPTY_BOARD_FEN,
     loadPositionFenFromSession,
     parseFenInput,
     savePositionFenToSession,
@@ -23,8 +25,10 @@ import {
 } from '../utils/parseFenInput.js'
 import { createEmptyRoot, mainLineEndPath } from '../utils/coachVariationTree.js'
 
+const FEN_PARSE_OPTS = { allowIllegal: true }
+
 function resetTreeFromFen(fen) {
-    const built = createStudyRootFromFen(fen)
+    const built = createStudyRootFromFen(fen, FEN_PARSE_OPTS)
     if (!built.ok) {
         return null
     }
@@ -44,6 +48,7 @@ export default function CoachPositionPage() {
     const [coachPov, setCoachPov] = useState('white')
     const [treeRoot, setTreeRoot] = useState(() => createEmptyRoot())
     const [cursorPath, setCursorPath] = useState([])
+    const [editorKey, setEditorKey] = useState(0)
 
     const loadFenIntoStudy = useCallback((fen) => {
         const synced = resetTreeFromFen(fen)
@@ -61,7 +66,7 @@ export default function CoachPositionPage() {
         const fromNav = location.state?.fen
         const candidate = fromNav || loadPositionFenFromSession()
         if (!candidate) return
-        const parsed = parseFenInput(candidate)
+        const parsed = parseFenInput(candidate, FEN_PARSE_OPTS)
         if (!parsed.ok) return
         setFenInput(parsed.fen)
         loadFenIntoStudy(parsed.fen)
@@ -70,7 +75,7 @@ export default function CoachPositionPage() {
     const applyFen = useCallback(
         (raw) => {
             const text = raw ?? fenInput
-            const result = parseFenInput(text)
+            const result = parseFenInput(text, FEN_PARSE_OPTS)
             if (!result.ok) {
                 setParseError(result.error)
                 return false
@@ -84,6 +89,7 @@ export default function CoachPositionPage() {
 
     const loadStart = () => {
         setFenInput(STARTING_FEN)
+        setEditorKey((k) => k + 1)
         applyFen(STARTING_FEN)
     }
 
@@ -94,6 +100,18 @@ export default function CoachPositionPage() {
         setTreeRoot(createEmptyRoot())
         setCursorPath([])
         savePositionFenToSession(null)
+        setEditorKey((k) => k + 1)
+    }
+
+    const syncTextToEditor = () => {
+        const result = parseFenInput(fenInput, FEN_PARSE_OPTS)
+        if (!result.ok) {
+            setParseError(result.error)
+            return
+        }
+        setParseError(null)
+        setFenInput(result.fen)
+        setEditorKey((k) => k + 1)
     }
 
     const coachPovNorm = coachPov.toLowerCase() === 'black' ? 'black' : 'white'
@@ -128,9 +146,22 @@ export default function CoachPositionPage() {
                     placeholder={STARTING_FEN}
                     sx={{ mb: 1.5, fontFamily: 'monospace' }}
                 />
+                <CoachFenPieceEditor
+                    editorKey={editorKey}
+                    fen={fenInput || EMPTY_BOARD_FEN}
+                    orientation={orientationNorm}
+                    boardWidth={420}
+                    onFenChange={(next) => {
+                        setFenInput(next)
+                        setParseError(null)
+                    }}
+                />
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1.5 }}>
                     <Button variant="contained" onClick={() => applyFen()}>
                         Cargar posición
+                    </Button>
+                    <Button variant="outlined" onClick={syncTextToEditor}>
+                        Aplicar FEN al tablero
                     </Button>
                     <Button variant="outlined" onClick={loadStart}>
                         Posición inicial
