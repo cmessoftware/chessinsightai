@@ -7,6 +7,19 @@ function pad2(value) {
     return String(value).padStart(2, '0')
 }
 
+export const DEFAULT_POSITION_STUDY_NAME = 'Posición'
+
+export function normalizePositionStudyName(raw) {
+    const name = String(raw ?? '').trim()
+    if (!name) {
+        return { ok: false, error: 'Ingresá un nombre de estudio.' }
+    }
+    if (name.length > 120) {
+        return { ok: false, error: 'El nombre de estudio es demasiado largo (máx. 120 caracteres).' }
+    }
+    return { ok: true, studyName: name }
+}
+
 /**
  * Header block for a FEN-only study game (FEAT-103).
  * @param {string} rawFen
@@ -16,6 +29,10 @@ export function buildPositionStudyHeadersPgn(rawFen, options = {}) {
     const parsed = parseFenInput(rawFen)
     if (!parsed.ok) {
         return { ok: false, error: parsed.error }
+    }
+    const studyNameNorm = normalizePositionStudyName(options.studyName ?? DEFAULT_POSITION_STUDY_NAME)
+    if (!studyNameNorm.ok) {
+        return studyNameNorm
     }
     const now = options.now instanceof Date ? options.now : new Date()
     const date = `${now.getFullYear()}.${pad2(now.getMonth() + 1)}.${pad2(now.getDate())}`
@@ -32,7 +49,7 @@ export function buildPositionStudyHeadersPgn(rawFen, options = {}) {
         { tag: 'FEN', value: parsed.fen },
         { tag: 'UTCDate', value: date },
         { tag: 'UTCTime', value: time },
-        { tag: 'StudyName', value: options.studyName || 'Posición' },
+        { tag: 'StudyName', value: studyNameNorm.studyName },
     ]
     const sourcePgn = `${formatPgnHeaderBlock(rows)}\n\n*`
     return { ok: true, fen: parsed.fen, sourcePgn }

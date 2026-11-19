@@ -3,11 +3,22 @@ import { STARTING_FEN } from './parseFenInput.js'
 import {
     buildPositionStudyHeadersPgn,
     buildPositionStudyPgnFromTree,
+    normalizePositionStudyName,
 } from './coachPositionStudyPgn.js'
 import { buildTreeFromMainLine } from './coachVariationTree.js'
 import { Chess } from 'chess.js'
 
 describe('coachPositionStudyPgn', () => {
+    it('uses custom StudyName when provided', () => {
+        const r = buildPositionStudyHeadersPgn(STARTING_FEN, { studyName: 'Táctica final' })
+        expect(r.ok).toBe(true)
+        expect(r.sourcePgn).toContain('[StudyName "Táctica final"]')
+    })
+
+    it('rejects empty study name', () => {
+        expect(normalizePositionStudyName('   ').ok).toBe(false)
+    })
+
     it('builds SetUp/FEN headers for a position', () => {
         const r = buildPositionStudyHeadersPgn(STARTING_FEN)
         expect(r.ok).toBe(true)

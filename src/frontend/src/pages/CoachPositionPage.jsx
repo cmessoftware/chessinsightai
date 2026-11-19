@@ -24,7 +24,12 @@ import {
     STARTING_FEN,
 } from '../utils/parseFenInput.js'
 import { createEmptyRoot, mainLineEndPath } from '../utils/coachVariationTree.js'
-import { buildPositionStudyPgnFromTree } from '../utils/coachPositionStudyPgn.js'
+import {
+    buildPositionStudyPgnFromTree,
+    DEFAULT_POSITION_STUDY_NAME,
+    normalizePositionStudyName,
+} from '../utils/coachPositionStudyPgn.js'
+import { PGN_HEADER_LABELS } from '../utils/pgnHeaders.js'
 import { createCoachGameFromPosition, parseApiDetail } from '../services/module07Service.js'
 
 const FEN_PARSE_OPTS = { allowIllegal: true }
@@ -54,6 +59,7 @@ export default function CoachPositionPage() {
     const [editorKey, setEditorKey] = useState(0)
     const [saveCatalogBusy, setSaveCatalogBusy] = useState(false)
     const [saveCatalogMessage, setSaveCatalogMessage] = useState(null)
+    const [studyName, setStudyName] = useState(DEFAULT_POSITION_STUDY_NAME)
 
     const loadFenIntoStudy = useCallback((fen) => {
         const synced = resetTreeFromFen(fen)
@@ -106,6 +112,7 @@ export default function CoachPositionPage() {
         setCursorPath([])
         savePositionFenToSession(null)
         setEditorKey((k) => k + 1)
+        setStudyName(DEFAULT_POSITION_STUDY_NAME)
     }
 
     const syncTextToEditor = () => {
@@ -124,7 +131,12 @@ export default function CoachPositionPage() {
         setSaveCatalogBusy(true)
         setSaveCatalogMessage(null)
         try {
-            const built = buildPositionStudyPgnFromTree(treeRoot, { studyName: 'Posición' })
+            const nameOk = normalizePositionStudyName(studyName)
+            if (!nameOk.ok) {
+                setSaveCatalogMessage(nameOk.error)
+                return
+            }
+            const built = buildPositionStudyPgnFromTree(treeRoot, { studyName: nameOk.studyName })
             if (!built.ok) {
                 setSaveCatalogMessage(built.error)
                 return
@@ -136,7 +148,7 @@ export default function CoachPositionPage() {
         } finally {
             setSaveCatalogBusy(false)
         }
-    }, [activeFen, saveCatalogBusy, treeRoot, navigate])
+    }, [activeFen, saveCatalogBusy, treeRoot, studyName, navigate])
 
     const coachPovNorm = coachPov.toLowerCase() === 'black' ? 'black' : 'white'
     const orientationNorm = orientation.toLowerCase() === 'black' ? 'black' : 'white'
@@ -204,6 +216,17 @@ export default function CoachPositionPage() {
                         Limpiar
                     </Button>
                 </Box>
+                {activeFen ? (
+                    <TextField
+                        label={PGN_HEADER_LABELS.StudyName || 'Nombre del estudio'}
+                        size="small"
+                        fullWidth
+                        value={studyName}
+                        onChange={(e) => setStudyName(e.target.value)}
+                        helperText="Se guarda en el PGN (filtro avanzado Estudio en Partidas)."
+                        sx={{ mb: 1.5, maxWidth: 480 }}
+                    />
+                ) : null}
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                     <FormControl size="small" sx={{ minWidth: 160 }}>
                         <InputLabel id="orient-label">Orientación tablero</InputLabel>

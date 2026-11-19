@@ -13,7 +13,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Added
 
-- Cargar Posición permite guardar la posición (y variantes) en Partidas como estudio con FEN en el PGN y abrir el análisis completo (#267, FEAT-103).
+- Cargar Posición permite guardar la posición (y variantes) en Partidas como estudio con FEN en el PGN, nombre de estudio editable (`StudyName`) y abrir el análisis completo (#267, FEAT-103).
 - En Coach → Posición (FEN), una paleta de piezas permite armar el tablero por arrastre, actualizar el FEN y cargar posiciones no legales con validación relajada (#266, FEAT-039).
 - Análisis con Stockfish WASM, clasificación por jugada y modelo mental 1600 (#156, #157); persistencia de clasificaciones y catálogo de partidas (#159, #161).
 - Espacio de estudio, entrada FEN, navegación y gestión de partidas (#162, #163, #165–#174).
