@@ -65,7 +65,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - El PGN de la revisión mental carga cada capítulo publicado completo, con variantes y comentarios (#244).
 - La tabla de issues separa la prioridad del estado. Una candidata se marca con ✨ (#245).
 - SPAR-21 documenta reentrenar errores propios con Maia usando los relojes originales de la partida (#238).
-- BUG-103 registra que la descripción editada en Partidas vuelve a «Blancas vs Negras» al abrir la partida (#248). El PR #236 no se mergea.
+- BUG-103 cerrado (HITL): la descripción editada en Partidas ya no vuelve a «Blancas vs Negras» al abrir la partida (#266).
 - El tracker deja Prioridad como segunda columna y el estado como icono más nombre. El spec de ejercicios suma la exportación de partidas o estudios a alumnos o grupos (#250).
 
 ### Límites y trazabilidad
