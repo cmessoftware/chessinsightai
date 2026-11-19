@@ -13,7 +13,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Added
 
-- En Coach → Posición (FEN), una paleta de piezas permite armar el tablero por arrastre, actualizar el FEN y cargar posiciones no legales con validación relajada (FEAT-039).
+- En Coach → Posición (FEN), una paleta de piezas permite armar el tablero por arrastre, actualizar el FEN y cargar posiciones no legales con validación relajada (#266, FEAT-039).
 - Análisis con Stockfish WASM, clasificación por jugada y modelo mental 1600 (#156, #157); persistencia de clasificaciones y catálogo de partidas (#159, #161).
 - Espacio de estudio, entrada FEN, navegación y gestión de partidas (#162, #163, #165–#174).
 - Importación masiva PGN, Lichess y Chess.com; selección del punto de vista (#173, #176, #177, #181, #183).
@@ -74,6 +74,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-19 | [#266](https://github.com/cmessoftware/chessinsightai/pull/266) | Cambio integrado | Posición (FEN): paleta de piezas por arrastre y carga de posiciones no legales (FEAT-039). |
 | 2026-11-19 | [#265](https://github.com/cmessoftware/chessinsightai/pull/265) | Documentación | Tutorial Render: fallback SPA sin Blueprint (Rewrite `/*`) y catch-all en render.yaml para futuro Blueprint. |
 | 2026-11-18 | [#264](https://github.com/cmessoftware/chessinsightai/pull/264) | Cambio integrado | Acceso por invitación: el admin invita por email y la persona crea su cuenta con el enlace. |
 | 2026-11-14 | [#261](https://github.com/cmessoftware/chessinsightai/pull/261) | Cambio integrado | Comparación con un rival superpone las curvas del jugador y del rival. Ocultar el módulo queda cancelado. |
