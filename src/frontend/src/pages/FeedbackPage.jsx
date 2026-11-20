@@ -26,6 +26,17 @@ const MAX_FILES = 5
 const MAX_BYTES = 5 * 1024 * 1024
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif'
 
+function formatApiDetail(detail) {
+    if (!detail) return ''
+    if (typeof detail === 'string') return detail
+    if (Array.isArray(detail)) {
+        return detail
+            .map((item) => (typeof item === 'string' ? item : item?.msg || JSON.stringify(item)))
+            .join(' ')
+    }
+    return String(detail)
+}
+
 function validateImageFile(file) {
     if (!file) return 'Archivo inválido.'
     if (!ACCEPT.split(',').includes(file.type)) {
@@ -48,6 +59,7 @@ export default function FeedbackPage() {
     const [error, setError] = useState(null)
     const [created, setCreated] = useState(null)
     const [sentAttachments, setSentAttachments] = useState([])
+    const [attachmentWarnings, setAttachmentWarnings] = useState([])
     const [lightboxSrc, setLightboxSrc] = useState(null)
 
     useEffect(() => {
@@ -100,6 +112,7 @@ export default function FeedbackPage() {
         setError(null)
         setCreated(null)
         setSentAttachments([])
+        setAttachmentWarnings([])
         setSending(true)
         try {
             const form = new FormData()
@@ -116,10 +129,11 @@ export default function FeedbackPage() {
             })
             const body = await response.json().catch(() => ({}))
             if (!response.ok) {
-                throw new Error(body.detail || 'No se pudo registrar el reporte')
+                throw new Error(formatApiDetail(body.detail) || 'No se pudo registrar el reporte')
             }
             setCreated(body)
             setSentAttachments(body.attachments || [])
+            setAttachmentWarnings(body.attachment_warnings || [])
             setTitle('')
             setDescription('')
             setAttachments((prev) => {
@@ -138,67 +152,95 @@ export default function FeedbackPage() {
     const openLightbox = useCallback((src) => setLightboxSrc(src), [])
     const closeLightbox = () => setLightboxSrc(null)
 
+    const startAnother = () => {
+        setCreated(null)
+        setSentAttachments([])
+        setAttachmentWarnings([])
+        setError(null)
+        setKind('bug')
+    }
+
+    const showConfirmation = Boolean(created)
+
     return (
         <Box component="form" onSubmit={submit} sx={{ maxWidth: 720 }}>
             <Typography variant="h4" gutterBottom>
                 Comentarios
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Contanos un fallo o una idea de mejora. Se guarda como issue en el repositorio. Podés adjuntar
-                hasta {MAX_FILES} imágenes (5 MB c/u).
-            </Typography>
+            {!showConfirmation && (
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Contanos un fallo o una idea de mejora. Se guarda como issue en el repositorio. Podés adjuntar
+                    hasta {MAX_FILES} imágenes (5 MB c/u).
+                </Typography>
+            )}
             {error && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                     {error}
                 </Alert>
             )}
-            {created && (
-                <Alert severity="success" sx={{ mb: 2 }}>
-                    Quedó registrado
-                    {created.url ? (
-                        <>
-                            {' '}
-                            en{' '}
-                            <a href={created.url} target="_blank" rel="noreferrer">
-                                el issue #{created.number}
-                            </a>
-                        </>
-                    ) : null}
-                    .
-                </Alert>
+            {showConfirmation && (
+                <>
+                    {attachmentWarnings.length > 0 && (
+                        <Alert severity="warning" sx={{ mb: 2 }}>
+                            {attachmentWarnings.map((line) => (
+                                <Typography key={line} variant="body2" component="div">
+                                    {line}
+                                </Typography>
+                            ))}
+                        </Alert>
+                    )}
+                    <Alert severity="success" sx={{ mb: 2 }}>
+                        Tu reporte ya fue enviado
+                        {created.url ? (
+                            <>
+                                {' '}
+                                como{' '}
+                                <a href={created.url} target="_blank" rel="noreferrer">
+                                    issue #{created.number}
+                                </a>
+                            </>
+                        ) : null}
+                        . No hace falta volver a enviar el mismo mensaje.
+                    </Alert>
+                    {sentAttachments.length > 0 && (
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+                                Imágenes incluidas (clic para ampliar):
+                            </Typography>
+                            <Stack direction="row" flexWrap="wrap" gap={1}>
+                                {sentAttachments.map((att) => (
+                                    <Box
+                                        key={att.id}
+                                        component="button"
+                                        type="button"
+                                        onClick={() => openLightbox(att.url)}
+                                        sx={{
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            borderRadius: 1,
+                                            p: 0,
+                                            cursor: 'pointer',
+                                            bgcolor: 'background.paper',
+                                        }}
+                                    >
+                                        <Box
+                                            component="img"
+                                            src={att.url}
+                                            alt={att.filename}
+                                            sx={{ width: 96, height: 96, objectFit: 'cover', display: 'block' }}
+                                        />
+                                    </Box>
+                                ))}
+                            </Stack>
+                        </Box>
+                    )}
+                    <Button type="button" variant="contained" onClick={startAnother} sx={{ mb: 2 }}>
+                        Enviar otro comentario
+                    </Button>
+                </>
             )}
-            {sentAttachments.length > 0 && (
-                <Box sx={{ mb: 2 }}>
-                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-                        Imágenes enviadas (clic para ampliar):
-                    </Typography>
-                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                        {sentAttachments.map((att) => (
-                            <Box
-                                key={att.id}
-                                component="button"
-                                type="button"
-                                onClick={() => openLightbox(att.url)}
-                                sx={{
-                                    border: 1,
-                                    borderColor: 'divider',
-                                    borderRadius: 1,
-                                    p: 0,
-                                    cursor: 'pointer',
-                                    bgcolor: 'background.paper',
-                                }}
-                            >
-                                <Box
-                                    component="img"
-                                    src={att.url}
-                                    alt={att.filename}
-                                    sx={{ width: 96, height: 96, objectFit: 'cover', display: 'block' }}
-                                />
-                            </Box>
-                        ))}
-                    </Stack>
-                </Box>
-            )}
+            {!showConfirmation && (
+                <>
             <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                 <InputLabel id="feedback-kind-label">Tipo</InputLabel>
                 <Select
@@ -297,6 +339,8 @@ export default function FeedbackPage() {
             <Button type="submit" variant="contained" disabled={sending}>
                 {sending ? 'Enviando…' : 'Enviar'}
             </Button>
+                </>
+            )}
             <Dialog open={Boolean(lightboxSrc)} onClose={closeLightbox} maxWidth="md" fullWidth>
                 <DialogContent sx={{ p: 1, display: 'flex', justifyContent: 'center' }}>
                     {lightboxSrc && (

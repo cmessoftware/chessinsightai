@@ -14,7 +14,7 @@ from services.feedback_attachments import (
     resolve_attachment_path,
     save_image_attachment,
 )
-from services.github_feedback import FeedbackError, create_feedback_issue
+from services.github_feedback import FeedbackError, create_feedback_issue, upload_feedback_image_to_github
 
 router = APIRouter(prefix="/api/feedback", tags=["feedback"])
 
@@ -34,25 +34,72 @@ def _public_attachment_base(request: Request) -> str:
     return str(request.base_url).rstrip("/")
 
 
-async def _save_uploads(files: List[UploadFile], request: Request) -> tuple[list[tuple[str, str]], list[dict]]:
+def _github_feedback_credentials() -> tuple[str, str]:
+    import os
+
+    token = (os.environ.get("GITHUB_FEEDBACK_TOKEN") or os.environ.get("GITHUB_TOKEN") or "").strip()
+    repo = (os.environ.get("GITHUB_FEEDBACK_REPO") or "cmessoftware/chessinsightai").strip()
+    return token, repo
+
+
+def _is_local_base_url(base: str) -> bool:
+    from urllib.parse import urlparse
+
+    host = (urlparse(base).hostname or "").lower()
+    return host in {"localhost", "127.0.0.1", "::1"} or host.endswith(".local")
+
+
+async def _save_uploads(
+    files: List[UploadFile], request: Request
+) -> tuple[list[tuple[str, str]], list[dict], list[str]]:
     if len(files) > MAX_ATTACHMENT_COUNT:
         raise FeedbackAttachmentError(f"Máximo {MAX_ATTACHMENT_COUNT} imágenes por envío.")
     base = _public_attachment_base(request)
+    token, repo = _github_feedback_credentials()
     saved_meta: list[dict] = []
     markdown: list[tuple[str, str]] = []
+    warnings: list[str] = []
     for upload in files:
         if not upload.filename and not upload.content_type:
             continue
         data = await upload.read()
+        if not data:
+            continue
         meta = save_image_attachment(
             filename=upload.filename or "imagen",
             content_type=upload.content_type,
             data=data,
         )
-        url = f"{base}/api/feedback/attachments/{meta['id']}"
-        markdown.append((meta["filename"], url))
-        saved_meta.append({**meta, "url": url})
-    return markdown, saved_meta
+        local_url = f"{base}/api/feedback/attachments/{meta['id']}"
+        issue_url: str | None = None
+        if token:
+            try:
+                issue_url = upload_feedback_image_to_github(
+                    repo=repo,
+                    token=token,
+                    attachment_id=meta["id"],
+                    filename=meta["filename"],
+                    data=data,
+                    mime=meta["mime"],
+                )
+            except FeedbackError as exc:
+                if _is_local_base_url(base):
+                    warnings.append(
+                        f"{meta['filename']}: no se embebió en GitHub ({exc}). "
+                        "El PAT necesita permiso contents: write en el repo."
+                    )
+                else:
+                    issue_url = local_url
+        elif _is_local_base_url(base):
+            warnings.append(
+                f"{meta['filename']}: no se embebió en GitHub (falta GITHUB_FEEDBACK_TOKEN con contents: write)."
+            )
+        else:
+            issue_url = local_url
+        if issue_url:
+            markdown.append((meta["filename"], issue_url))
+        saved_meta.append({**meta, "url": local_url})
+    return markdown, saved_meta, warnings
 
 
 async def _submit(
@@ -66,9 +113,10 @@ async def _submit(
 ):
     image_markdown = None
     attachments: list[dict] = []
+    attachment_warnings: list[str] = []
     if files:
         try:
-            image_markdown, attachments = await _save_uploads(files, request)
+            image_markdown, attachments, attachment_warnings = await _save_uploads(files, request)
         except FeedbackAttachmentError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
     try:
@@ -91,6 +139,8 @@ async def _submit(
         raise HTTPException(status_code=status, detail=message) from exc
     if attachments:
         created["attachments"] = attachments
+    if attachment_warnings:
+        created["attachment_warnings"] = attachment_warnings
     return created
 
 

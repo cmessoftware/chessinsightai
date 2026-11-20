@@ -111,5 +111,6 @@ def append_images_to_issue_body(body: str, images: list[tuple[str, str]]) -> str
     lines = [body.rstrip(), "", "## Adjuntos"]
     for name, url in images:
         lines.append(f"![{name}]({url})")
+        lines.append(f"- [Abrir {name}]({url})")
     text = "\n".join(lines)
     return text[:8000]

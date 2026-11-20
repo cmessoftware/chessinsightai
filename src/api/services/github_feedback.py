@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import base64
 import json
+import mimetypes
 import os
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Callable, List, Optional, Tuple
 
@@ -21,6 +24,68 @@ KINDS = {
 
 class FeedbackError(Exception):
     """The report cannot be sent."""
+
+
+def _github_headers(token: str, *, content_type: str = "application/json") -> dict:
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}",
+        "User-Agent": "chessinsightai-feedback",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if content_type:
+        headers["Content-Type"] = content_type
+    return headers
+
+
+def upload_feedback_image_to_github(
+    *,
+    repo: str,
+    token: str,
+    attachment_id: str,
+    filename: str,
+    data: bytes,
+    mime: str,
+) -> str:
+    """Store image in the repo so GitHub issue markdown can load it (not localhost/camo)."""
+    ext = mimetypes.guess_extension(mime) or ""
+    if ext == ".jpe":
+        ext = ".jpg"
+    if not ext:
+        ext = os.path.splitext(filename or "")[1] or ".bin"
+    path = f".feedback/attachments/{attachment_id}{ext}"
+    encoded_path = "/".join(urllib.parse.quote(part) for part in path.split("/"))
+    payload = {
+        "message": f"feedback: attachment {attachment_id}",
+        "content": base64.b64encode(data).decode("ascii"),
+        "committer": {
+            "name": "chessinsightai-feedback",
+            "email": "41898282+github-actions[bot]@users.noreply.github.com",
+        },
+    }
+    request = urllib.request.Request(
+        f"{GITHUB_API}/repos/{repo}/contents/{encoded_path}",
+        data=json.dumps(payload).encode("utf-8"),
+        headers=_github_headers(token),
+        method="PUT",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=45) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        if exc.code in (401, 403):
+            raise FeedbackError(
+                "El token de GitHub no puede subir adjuntos (necesita permiso contents: write)."
+            ) from exc
+        raise FeedbackError(detail or f"GitHub respondió {exc.code} al subir la imagen.") from exc
+    except urllib.error.URLError as exc:
+        raise FeedbackError("No se pudo contactar a GitHub para subir la imagen.") from exc
+    content = body.get("content") or {}
+    url = (content.get("download_url") or "").strip()
+    if not url:
+        raise FeedbackError("GitHub no devolvió URL pública para la imagen.")
+    return url
 
 
 def build_issue(

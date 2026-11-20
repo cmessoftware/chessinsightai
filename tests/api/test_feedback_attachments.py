@@ -18,7 +18,7 @@ from services.feedback_attachments import (  # noqa: E402
     save_image_attachment,
     validate_image_upload,
 )
-from services.github_feedback import build_issue  # noqa: E402
+from services.github_feedback import build_issue, upload_feedback_image_to_github  # noqa: E402
 
 
 def test_validate_rejects_oversize():
@@ -44,10 +44,45 @@ def test_build_issue_appends_image_markdown():
         kind="bug",
         title="Tablero",
         description="Se ve mal.",
-        image_markdown=[("captura.png", "https://api.example.com/api/feedback/attachments/abc")],
+        image_markdown=[
+            ("captura.png", "https://raw.githubusercontent.com/o/r/main/.feedback/attachments/abc.png")
+        ],
     )
     assert "## Adjuntos" in issue["body"]
     assert "![captura.png]" in issue["body"]
+    assert "Abrir captura.png" in issue["body"]
+
+
+def test_upload_feedback_image_returns_download_url(monkeypatch):
+    captured = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def read(self):
+            return b'{"content":{"download_url":"https://raw.githubusercontent.com/o/r/x.png"}}'
+
+    def fake_urlopen(request, timeout=0):
+        captured["url"] = request.full_url
+        captured["method"] = request.method
+        return FakeResponse()
+
+    monkeypatch.setattr("services.github_feedback.urllib.request.urlopen", fake_urlopen)
+    url = upload_feedback_image_to_github(
+        repo="o/r",
+        token="tok",
+        attachment_id="a" * 32,
+        filename="shot.png",
+        data=b"\x89PNG",
+        mime="image/png",
+    )
+    assert url.endswith("x.png")
+    assert "/contents/.feedback/attachments/" in captured["url"]
+    assert captured["method"] == "PUT"
 
 
 def test_append_images_respects_limit():
