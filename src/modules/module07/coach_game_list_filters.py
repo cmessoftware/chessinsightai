@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Query
 
 from models.database_models import Games
@@ -47,6 +48,38 @@ def partial_name_ilike_pattern(raw: str) -> str:
         return ""
     escaped = "".join(f"\\{ch}" if ch in ("%", "_", "\\") else ch for ch in text)
     return f"%{escaped}%"
+
+
+def _player_name_search_tokens(raw: str) -> tuple[str, ...]:
+    """Split «Fischer, Robert James» / «Fischer Robert» into tokens (min 3 chars each)."""
+    text = (raw or "").strip()
+    if len(text) < _MIN_PARTIAL_NAME:
+        return ()
+    parts = [p.strip() for p in re.split(r"[\s,]+", text) if p.strip()]
+    tokens = tuple(dict.fromkeys(p for p in parts if len(p) >= _MIN_PARTIAL_NAME))
+    if tokens:
+        return tokens
+    return (text,) if len(text) >= _MIN_PARTIAL_NAME else ()
+
+
+def player_name_column_filter(column: Any, raw: str | None) -> Any | None:
+    """Each token must appear in the column (order-independent). BUG-125."""
+    text = normalize_partial_name(raw)
+    if not text:
+        return None
+    tokens = _player_name_search_tokens(text)
+    if not tokens:
+        return None
+    clauses = []
+    for token in tokens:
+        pat = partial_name_ilike_pattern(token)
+        if pat:
+            clauses.append(column.ilike(pat))
+    if not clauses:
+        return None
+    if len(clauses) == 1:
+        return clauses[0]
+    return and_(*clauses)
 
 
 def _normalize_date_key(raw: str | None) -> str | None:
@@ -203,16 +236,14 @@ def apply_coach_game_list_filters(
     if filters.corpus_types:
         query = query.filter(coach_model.corpus_type.in_(list(filters.corpus_types)))
 
-    white_pat = partial_name_ilike_pattern(filters.white_player or "")
-    black_pat = partial_name_ilike_pattern(filters.black_player or "")
-    if white_pat and black_pat:
-        query = query.filter(
-            or_(g.white_player.ilike(white_pat), g.black_player.ilike(black_pat))
-        )
-    elif white_pat:
-        query = query.filter(g.white_player.ilike(white_pat))
-    elif black_pat:
-        query = query.filter(g.black_player.ilike(black_pat))
+    white_clause = player_name_column_filter(g.white_player, filters.white_player)
+    black_clause = player_name_column_filter(g.black_player, filters.black_player)
+    if white_clause is not None and black_clause is not None:
+        query = query.filter(and_(white_clause, black_clause))
+    elif white_clause is not None:
+        query = query.filter(white_clause)
+    elif black_clause is not None:
+        query = query.filter(black_clause)
 
     eco_pat = wildcard_to_ilike_pattern(filters.eco or "")
     opening_pat = wildcard_to_ilike_pattern(filters.opening or "")
