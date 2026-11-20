@@ -49,6 +49,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Fixed
 
+- Filtro avanzado en Partidas: nombres PGN con coma (`Fischer, Robert James`) coinciden por palabras sueltas y en cualquier orden (`Robert Fischer`; BUG-125).
 - El modo crítico de Mental 1600 ya no depende de la jugada ya hecha. La diferencia de evaluación queda como revisión posterior (#235).
 - S2 de Mental 1600 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta (#234).
 - Mental 1600 conserva la última jugada rival al evaluar los triggers. Sin esa jugada, una FEN sola no inventa la captura ni el tempo (#233).
@@ -82,6 +83,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-20 | [#277](https://github.com/cmessoftware/chessinsightai/pull/277) | Cambio integrado | Filtro avanzado Partidas: nombres PGN por tokens y orden libre (BUG-125). |
 | 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |
 | 2026-11-19 | [#266](https://github.com/cmessoftware/chessinsightai/pull/266) | Cambio integrado | Posición (FEN): paleta de piezas por arrastre y carga de posiciones no legales (FEAT-039). |
