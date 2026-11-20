@@ -19,6 +19,8 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 - En el análisis de una partida, **Guardar en Partidas** en el panel PGN crea una partida de estudio desde la posición del cursor (con variantes que siguen desde ahí) (#267, FEAT-103).
 - Los administradores consultan el checklist de ítems ⬜ Todo del roadmap en `/changelog/pendientes`; el enlace en `/changelog` solo se muestra con sesión admin (#267).
 - Resumen compartible del roadmap en `/changelog/pendientes/resumen` y parser correcto de pendientes Sparring / análisis profundo (#268).
+- Comentarios (`/feedback`) admite hasta 5 imágenes adjuntas con vista previa y confirmación post-envío sin formulario vacío (#275, FEAT-120, FEAT-121).
+- Las imágenes de Comentarios se publican en el repo (`.feedback/attachments/`) para verse en el issue de GitHub; avisos si falta permiso `contents: write` (#275, FEAT-122).
 - En Coach → Posición (FEN), una paleta de piezas permite armar el tablero por arrastre, actualizar el FEN y cargar posiciones no legales con validación relajada (#266, FEAT-039).
 - Análisis con Stockfish WASM, clasificación por jugada y modelo mental 1600 (#156, #157); persistencia de clasificaciones y catálogo de partidas (#159, #161).
 - Espacio de estudio, entrada FEN, navegación y gestión de partidas (#162, #163, #165–#174).
@@ -49,6 +51,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Fixed
 
+- Vite deduplica `react` / `react-dom` en dev para evitar `Invalid hook call` al arrancar la SPA (#275).
 - El modo crítico de Mental 1600 ya no depende de la jugada ya hecha. La diferencia de evaluación queda como revisión posterior (#235).
 - S2 de Mental 1600 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta (#234).
 - Mental 1600 conserva la última jugada rival al evaluar los triggers. Sin esa jugada, una FEN sola no inventa la captura ni el tempo (#233).
@@ -61,6 +64,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Documentation
 
+- FEAT-123 / FEAT-124: spec de hilo de comentarios sincronizado con GitHub Issues y cierre/reapertura de issues por admin en Comentarios ([`feat-123-124-feedback-github-issues.md`](docs/ai_chess_coach/roadmap/designs/feat-123-124-feedback-github-issues.md); implementación pendiente, #275).
 - FEAT-119: spec de jugadas en móvil por casilla origen y destino (tap), además de drag and drop (#266).
 - El tutorial de Render documenta el fallback SPA sin Blueprint: regla `/*` → `/index.html` con **Rewrite** (no Redirect) y rutas de invitación/changelog/feedback (#265).
 - Arquitectura de motores y análisis profundo (#164, #179); diseño de tutor opcional y antiimpulsividad (#199).
@@ -82,6 +86,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-20 | [#275](https://github.com/cmessoftware/chessinsightai/pull/275) | Cambio integrado | Comentarios con imágenes (FEAT-120), confirmación post-envío (FEAT-121) e imágenes en GitHub vía Contents API (FEAT-122). |
 | 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |
 | 2026-11-19 | [#266](https://github.com/cmessoftware/chessinsightai/pull/266) | Cambio integrado | Posición (FEN): paleta de piezas por arrastre y carga de posiciones no legales (FEAT-039). |
