@@ -15,7 +15,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Added
 
-- Importar Partidas muestra combo **Fuente** (misma lista que en Partidas) en lugar de «Tipo de corpus»; aplica a PGN, Lichess y Chess.com (FEAT-126).
+- En **Importar Partidas**, multiselect de **categorías** (varias etiquetas por partida al importar PGN, Lichess o Chess.com); overrides v2 y filtros de Partidas respetan varias categorías (FEAT-127). Se descarta FEAT-126 (combo Fuente).
 - Cargar Posición permite guardar la posición (y variantes) en Partidas como estudio con FEN en el PGN, nombre de estudio editable (`StudyName`) y abrir el análisis completo (#267, FEAT-103).
 - En el análisis de una partida, **Guardar en Partidas** en el panel PGN crea una partida de estudio desde la posición del cursor (con variantes que siguen desde ahí) (#267, FEAT-103).
 - Los administradores consultan el checklist de ítems ⬜ Todo del roadmap en `/changelog/pendientes`; el enlace en `/changelog` solo se muestra con sesión admin (#267).

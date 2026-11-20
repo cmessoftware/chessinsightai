@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
     Alert,
     Link,
@@ -11,8 +11,18 @@ import { InfoOutlined } from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
-import CoachImportFuenteSelect from '../components/coach/CoachImportFuenteSelect.jsx'
+import CoachImportCategoriesSelect from '../components/coach/CoachImportCategoriesSelect.jsx'
 import { COACH_RETURN_PARTIDAS } from '../components/coach/CoachSubNav.jsx'
+
+const ADMIN_CORPUS = [
+    { value: 'personal', label: 'Personal' },
+    { value: 'elite', label: 'Elite' },
+    { value: 'fide', label: 'FIDE' },
+    { value: 'novice', label: 'Novice' },
+    { value: 'stockfish', label: 'Stockfish' },
+]
+
+const USER_CORPUS = [{ value: 'personal', label: 'Personal' }]
 
 function SiteSyncPlaceholder({ siteLabel }) {
     return (
@@ -31,8 +41,10 @@ function SiteSyncPlaceholder({ siteLabel }) {
 export default function UnifiedImportPage() {
     const { user } = useAuth()
     const isAdmin = user?.roles?.includes('admin')
+    const corpusOptions = useMemo(() => (isAdmin ? ADMIN_CORPUS : USER_CORPUS), [isAdmin])
     const [tab, setTab] = useState(0)
     const [corpusType, setCorpusType] = useState('personal')
+    const [importCategoryIds, setImportCategoryIds] = useState([])
 
     return (
         <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 }, maxWidth: 720, mx: 'auto' }}>
@@ -60,12 +72,7 @@ export default function UnifiedImportPage() {
                 .
             </Alert>
 
-            <CoachImportFuenteSelect
-                isAdmin={isAdmin}
-                value={corpusType}
-                onChange={setCorpusType}
-                sx={{ mb: 2 }}
-            />
+            <CoachImportCategoriesSelect value={importCategoryIds} onChange={setImportCategoryIds} />
 
             <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, textTransform: 'none' }}>
                 <Tab label="PGN" sx={{ textTransform: 'none' }} />
@@ -74,7 +81,12 @@ export default function UnifiedImportPage() {
             </Tabs>
 
             {tab === 0 && (
-                <PgnImportPanel corpusType={corpusType} />
+                <PgnImportPanel
+                    corpusType={corpusType}
+                    onCorpusChange={setCorpusType}
+                    corpusOptions={corpusOptions}
+                    importCategoryIds={importCategoryIds}
+                />
             )}
             {tab === 1 && <SiteSyncPlaceholder siteLabel="Chess.com" />}
             {tab === 2 && <SiteSyncPlaceholder siteLabel="Lichess" />}

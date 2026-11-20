@@ -3,6 +3,10 @@ import {
     Alert,
     Box,
     Button,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
     CircularProgress,
     TextField,
     Typography,
@@ -17,6 +21,7 @@ import {
 } from '../../utils/coachPgnImport.js'
 import CoachImportProgress from './CoachImportProgress.jsx'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
+import { applyCoachImportCategoryTags } from '../../utils/coachGameCategoryOverrides.js'
 
 async function readFileAsText(file) {
     return new Promise((resolve, reject) => {
@@ -27,7 +32,12 @@ async function readFileAsText(file) {
     })
 }
 
-export default function PgnImportPanel({ corpusType }) {
+export default function PgnImportPanel({
+    corpusType,
+    onCorpusChange,
+    corpusOptions,
+    importCategoryIds = [],
+}) {
     const navigate = useNavigate()
     const [pgnPaste, setPgnPaste] = useState('')
     const [pgnFile, setPgnFile] = useState(null)
@@ -63,6 +73,10 @@ export default function PgnImportPanel({ corpusType }) {
             const newCount = result.new_count ?? imported.filter((g) => g.is_new).length
             const dupCount = count - newCount
             const multiNote = pgnMultiGameImportNotice(result)
+            applyCoachImportCategoryTags(
+                imported.map((g) => g.id),
+                importCategoryIds,
+            )
             setPgnPaste('')
             setPgnFile(null)
 
@@ -141,6 +155,24 @@ export default function PgnImportPanel({ corpusType }) {
                     {String(error)}
                 </Alert>
             )}
+            {corpusOptions?.length > 1 && (
+                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                    <InputLabel id="corpus-label">Tipo de corpus</InputLabel>
+                    <Select
+                        labelId="corpus-label"
+                        value={corpusType}
+                        label="Tipo de corpus"
+                        onChange={(e) => onCorpusChange(e.target.value)}
+                    >
+                        {corpusOptions.map((o) => (
+                            <MenuItem key={o.value} value={o.value}>
+                                {o.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            )}
+
             <Typography
                 component="label"
                 htmlFor="pgn-paste-coach"

@@ -1,19 +1,32 @@
-import React, { useState } from 'react'
-import { Box, Button, Paper, Tab, Tabs, Typography } from '@mui/material'
+import React, { useMemo, useState } from 'react'
+import { Paper, Tab, Tabs, Typography } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
+import { Button } from '@mui/material'
 import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import ChesscomImportPanel from '../components/coach/ChesscomImportPanel.jsx'
 import LichessImportPanel from '../components/coach/LichessImportPanel.jsx'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
 import PovBulkPanel from '../components/coach/PovBulkPanel.jsx'
-import CoachImportFuenteSelect from '../components/coach/CoachImportFuenteSelect.jsx'
+import CoachImportCategoriesSelect from '../components/coach/CoachImportCategoriesSelect.jsx'
 import { useAuth } from '../hooks/useAuth.js'
+
+const ADMIN_CORPUS = [
+    { value: 'personal', label: 'Personal' },
+    { value: 'elite', label: 'Elite' },
+    { value: 'fide', label: 'FIDE' },
+    { value: 'novice', label: 'Novice' },
+    { value: 'stockfish', label: 'Stockfish' },
+]
+
+const USER_CORPUS = [{ value: 'personal', label: 'Personal' }]
 
 export default function CoachImportarPage() {
     const { user } = useAuth()
     const isAdmin = user?.roles?.includes('admin')
+    const corpusOptions = useMemo(() => (isAdmin ? ADMIN_CORPUS : USER_CORPUS), [isAdmin])
     const [corpusType, setCorpusType] = useState('personal')
     const [importSection, setImportSection] = useState('pgn')
+    const [importCategoryIds, setImportCategoryIds] = useState([])
 
     return (
         <CoachPageLayout>
@@ -24,12 +37,7 @@ export default function CoachImportarPage() {
                 Importá partidas (PGN, Lichess, Chess.com) o analizá una posición suelta (FEN). El jugador POV se elige
                 en <strong>Partidas</strong> al encolar Stockfish.
             </Typography>
-            <CoachImportFuenteSelect
-                isAdmin={isAdmin}
-                value={corpusType}
-                onChange={setCorpusType}
-                sx={{ mb: 2, maxWidth: 360 }}
-            />
+            <CoachImportCategoriesSelect value={importCategoryIds} onChange={setImportCategoryIds} />
             <Tabs
                 value={importSection}
                 onChange={(_e, v) => setImportSection(v)}
@@ -46,7 +54,12 @@ export default function CoachImportarPage() {
                     <Typography variant="h6" gutterBottom>
                         Importar Partidas (PGN)
                     </Typography>
-                    <PgnImportPanel corpusType={corpusType} />
+                    <PgnImportPanel
+                        corpusType={corpusType}
+                        onCorpusChange={setCorpusType}
+                        corpusOptions={corpusOptions}
+                        importCategoryIds={importCategoryIds}
+                    />
                 </Paper>
             )}
             {importSection === 'lichess' && (
@@ -58,7 +71,7 @@ export default function CoachImportarPage() {
                         Descarga lotes de hasta 200 partidas por ritmo (más recientes primero). La
                         configuración se guarda en tu cuenta.
                     </Typography>
-                    <LichessImportPanel corpusType={corpusType} />
+                    <LichessImportPanel corpusType={corpusType} importCategoryIds={importCategoryIds} />
                 </Paper>
             )}
             {importSection === 'chesscom' && (
@@ -70,7 +83,7 @@ export default function CoachImportarPage() {
                         Descarga lotes de hasta 200 partidas por ritmo desde la API pública de
                         Chess.com (archivos mensuales). La configuración se guarda en tu cuenta.
                     </Typography>
-                    <ChesscomImportPanel corpusType={corpusType} />
+                    <ChesscomImportPanel corpusType={corpusType} importCategoryIds={importCategoryIds} />
                 </Paper>
             )}
             {importSection === 'pov' && (
