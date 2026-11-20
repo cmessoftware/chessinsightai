@@ -64,6 +64,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Documentation
 
+- FEAT-123 / FEAT-124: spec de hilo de comentarios sincronizado con GitHub Issues y cierre/reapertura de issues por admin en Comentarios ([`feat-123-124-feedback-github-issues.md`](docs/ai_chess_coach/roadmap/designs/feat-123-124-feedback-github-issues.md); implementación pendiente, #275).
 - FEAT-119: spec de jugadas en móvil por casilla origen y destino (tap), además de drag and drop (#266).
 - El tutorial de Render documenta el fallback SPA sin Blueprint: regla `/*` → `/index.html` con **Rewrite** (no Redirect) y rutas de invitación/changelog/feedback (#265).
 - Arquitectura de motores y análisis profundo (#164, #179); diseño de tutor opcional y antiimpulsividad (#199).
