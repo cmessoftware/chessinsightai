@@ -15,6 +15,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Added
 
+- En **Importar Partidas**, multiselect de **categorías** (varias etiquetas por partida al importar PGN, Lichess o Chess.com); overrides v2 y filtros de Partidas respetan varias categorías (FEAT-127). Se descarta FEAT-126 (combo Fuente).
 - Cargar Posición permite guardar la posición (y variantes) en Partidas como estudio con FEN en el PGN, nombre de estudio editable (`StudyName`) y abrir el análisis completo (#267, FEAT-103).
 - En el análisis de una partida, **Guardar en Partidas** en el panel PGN crea una partida de estudio desde la posición del cursor (con variantes que siguen desde ahí) (#267, FEAT-103).
 - Los administradores consultan el checklist de ítems ⬜ Todo del roadmap en `/changelog/pendientes`; el enlace en `/changelog` solo se muestra con sesión admin (#267).
@@ -83,6 +84,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-20 | [#278](https://github.com/cmessoftware/chessinsightai/pull/278) | Cambio integrado | Importar Partidas: combo Fuente unificado con Partidas (FEAT-126). |
 | 2026-11-20 | [#277](https://github.com/cmessoftware/chessinsightai/pull/277) | Cambio integrado | Filtro avanzado Partidas: nombres PGN por tokens y orden libre (BUG-125). |
 | 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |

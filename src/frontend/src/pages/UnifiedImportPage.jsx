@@ -11,6 +11,7 @@ import { InfoOutlined } from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
+import CoachImportCategoriesSelect from '../components/coach/CoachImportCategoriesSelect.jsx'
 import { COACH_RETURN_PARTIDAS } from '../components/coach/CoachSubNav.jsx'
 
 const ADMIN_CORPUS = [
@@ -43,6 +44,7 @@ export default function UnifiedImportPage() {
     const corpusOptions = useMemo(() => (isAdmin ? ADMIN_CORPUS : USER_CORPUS), [isAdmin])
     const [tab, setTab] = useState(0)
     const [corpusType, setCorpusType] = useState('personal')
+    const [importCategoryIds, setImportCategoryIds] = useState([])
 
     return (
         <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 }, maxWidth: 720, mx: 'auto' }}>
@@ -70,6 +72,8 @@ export default function UnifiedImportPage() {
                 .
             </Alert>
 
+            <CoachImportCategoriesSelect value={importCategoryIds} onChange={setImportCategoryIds} />
+
             <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, textTransform: 'none' }}>
                 <Tab label="PGN" sx={{ textTransform: 'none' }} />
                 <Tab label="Chess.com" sx={{ textTransform: 'none' }} />
@@ -81,6 +85,7 @@ export default function UnifiedImportPage() {
                     corpusType={corpusType}
                     onCorpusChange={setCorpusType}
                     corpusOptions={corpusOptions}
+                    importCategoryIds={importCategoryIds}
                 />
             )}
             {tab === 1 && <SiteSyncPlaceholder siteLabel="Chess.com" />}

@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from 'react'
-import { Box, Button, Paper, Tab, Tabs, Typography } from '@mui/material'
+import { Paper, Tab, Tabs, Typography } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
+import { Button } from '@mui/material'
 import { CoachPageLayout } from '../components/coach/CoachSubNav.jsx'
 import ChesscomImportPanel from '../components/coach/ChesscomImportPanel.jsx'
 import LichessImportPanel from '../components/coach/LichessImportPanel.jsx'
 import PgnImportPanel from '../components/coach/PgnImportPanel.jsx'
 import PovBulkPanel from '../components/coach/PovBulkPanel.jsx'
+import CoachImportCategoriesSelect from '../components/coach/CoachImportCategoriesSelect.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 
 const ADMIN_CORPUS = [
@@ -24,6 +26,7 @@ export default function CoachImportarPage() {
     const corpusOptions = useMemo(() => (isAdmin ? ADMIN_CORPUS : USER_CORPUS), [isAdmin])
     const [corpusType, setCorpusType] = useState('personal')
     const [importSection, setImportSection] = useState('pgn')
+    const [importCategoryIds, setImportCategoryIds] = useState([])
 
     return (
         <CoachPageLayout>
@@ -34,6 +37,7 @@ export default function CoachImportarPage() {
                 Importá partidas (PGN, Lichess, Chess.com) o analizá una posición suelta (FEN). El jugador POV se elige
                 en <strong>Partidas</strong> al encolar Stockfish.
             </Typography>
+            <CoachImportCategoriesSelect value={importCategoryIds} onChange={setImportCategoryIds} />
             <Tabs
                 value={importSection}
                 onChange={(_e, v) => setImportSection(v)}
@@ -54,6 +58,7 @@ export default function CoachImportarPage() {
                         corpusType={corpusType}
                         onCorpusChange={setCorpusType}
                         corpusOptions={corpusOptions}
+                        importCategoryIds={importCategoryIds}
                     />
                 </Paper>
             )}
@@ -66,7 +71,7 @@ export default function CoachImportarPage() {
                         Descarga lotes de hasta 200 partidas por ritmo (más recientes primero). La
                         configuración se guarda en tu cuenta.
                     </Typography>
-                    <LichessImportPanel corpusType={corpusType} />
+                    <LichessImportPanel corpusType={corpusType} importCategoryIds={importCategoryIds} />
                 </Paper>
             )}
             {importSection === 'chesscom' && (
@@ -78,7 +83,7 @@ export default function CoachImportarPage() {
                         Descarga lotes de hasta 200 partidas por ritmo desde la API pública de
                         Chess.com (archivos mensuales). La configuración se guarda en tu cuenta.
                     </Typography>
-                    <ChesscomImportPanel corpusType={corpusType} />
+                    <ChesscomImportPanel corpusType={corpusType} importCategoryIds={importCategoryIds} />
                 </Paper>
             )}
             {importSection === 'pov' && (

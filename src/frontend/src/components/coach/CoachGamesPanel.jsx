@@ -70,6 +70,7 @@ import {
 } from '../../utils/coachGameCategory.js'
 import { loadCoachGameCategories } from '../../utils/coachGameCategoriesConfig.js'
 import {
+    getCoachGameCategoryOverrideIds,
     loadCoachGameCategoryOverrides,
     setCoachGameCategoryOverride,
     setCoachGameCategoryOverridesBulk,
@@ -371,9 +372,10 @@ function ResultadoCell({ game, onSaved, onError }) {
 }
 
 function PartidaCategoryCell({ game, categories, overrides, onOverridesChange }) {
+    const manualIds = getCoachGameCategoryOverrideIds(overrides, game?.id)
     const effective = resolveCoachGameCategory(game, categories, overrides)
     const automatic = resolveCoachGameCategory(game, categories, {})
-    const selectValue = effective.manual ? effective.id : COACH_CATEGORY_AUTO
+    const selectValue = manualIds.length ? manualIds[0] : COACH_CATEGORY_AUTO
     const enabledCategories = useMemo(
         () =>
             [...(categories || [])]
@@ -400,6 +402,12 @@ function PartidaCategoryCell({ game, categories, overrides, onOverridesChange })
             sx={{ minWidth: 148, maxWidth: 200 }}
             renderValue={(v) => {
                 if (v === COACH_CATEGORY_AUTO) return effective.label
+                if (manualIds.length > 1) {
+                    const labels = manualIds
+                        .map((id) => enabledCategories.find((c) => c.id === id)?.label)
+                        .filter(Boolean)
+                    if (labels.length) return labels.join(', ')
+                }
                 const cat = enabledCategories.find((c) => c.id === v)
                 return cat?.label || effective.label
             }}
