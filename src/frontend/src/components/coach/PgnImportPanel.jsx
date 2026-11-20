@@ -3,10 +3,6 @@ import {
     Alert,
     Box,
     Button,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
     CircularProgress,
     TextField,
     Typography,
@@ -31,7 +27,7 @@ async function readFileAsText(file) {
     })
 }
 
-export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptions }) {
+export default function PgnImportPanel({ corpusType }) {
     const navigate = useNavigate()
     const [pgnPaste, setPgnPaste] = useState('')
     const [pgnFile, setPgnFile] = useState(null)
@@ -145,24 +141,6 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                     {String(error)}
                 </Alert>
             )}
-            {corpusOptions.length > 1 && (
-                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                    <InputLabel id="corpus-label">Tipo de corpus</InputLabel>
-                    <Select
-                        labelId="corpus-label"
-                        value={corpusType}
-                        label="Tipo de corpus"
-                        onChange={(e) => onCorpusChange(e.target.value)}
-                    >
-                        {corpusOptions.map((o) => (
-                            <MenuItem key={o.value} value={o.value}>
-                                {o.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            )}
-
             <Typography
                 component="label"
                 htmlFor="pgn-paste-coach"
