@@ -1359,12 +1359,12 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Jugador blancas"
-                        placeholder="Parte del nombre"
+                        placeholder="Ej. Fischer o Robert Fischer"
                         helperText={
                             advancedDraft.whitePlayer.trim().length > 0 &&
                             advancedDraft.whitePlayer.trim().length < 3
                                 ? 'Mínimo 3 caracteres'
-                                : ' '
+                                : 'Cada palabra (3+ letras) debe figurar en el nombre; el orden no importa.'
                         }
                         value={advancedDraft.whitePlayer}
                         onChange={(e) =>
@@ -1378,12 +1378,12 @@ export default function CoachGamesPanel() {
                     <TextField
                         size="small"
                         label="Jugador negras"
-                        placeholder="Parte del nombre"
+                        placeholder="Ej. Fischer o Robert Fischer"
                         helperText={
                             advancedDraft.blackPlayer.trim().length > 0 &&
                             advancedDraft.blackPlayer.trim().length < 3
                                 ? 'Mínimo 3 caracteres'
-                                : ' '
+                                : 'Cada palabra (3+ letras) debe figurar en el nombre; el orden no importa.'
                         }
                         value={advancedDraft.blackPlayer}
                         onChange={(e) =>

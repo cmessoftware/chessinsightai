@@ -11,6 +11,7 @@ if str(SRC_DIR) not in sys.path:
 
 from modules.module07.coach_game_list_filters import (  # noqa: E402
     CoachGameListFilters,
+    _player_name_search_tokens,
     partial_name_ilike_pattern,
     study_name_ilike_pattern,
     wildcard_to_ilike_pattern,
@@ -72,6 +73,17 @@ def test_player_names_are_partial_and_need_three_characters():
     f = CoachGameListFilters.from_query(white_player="  Carlsen ")
     assert f.white_player == "Carlsen"
     assert partial_name_ilike_pattern(f.white_player) == "%Carlsen%"
+
+
+def test_player_name_tokens_split_comma_and_words_bug_125():
+    assert _player_name_search_tokens("Fischer, Robert James") == (
+        "Fischer",
+        "Robert",
+        "James",
+    )
+    assert _player_name_search_tokens("Robert Fischer") == ("Robert", "Fischer")
+    assert _player_name_search_tokens("Fischer") == ("Fischer",)
+    assert _player_name_search_tokens("ab") == ()
 
 
 def test_imported_range_is_parsed():
