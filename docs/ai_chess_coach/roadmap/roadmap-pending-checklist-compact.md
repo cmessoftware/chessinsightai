@@ -2,7 +2,7 @@
 
 [Versión completa](/changelog/pendientes) · [Índice del roadmap](./00-roadmap-index.md)
 
-**Actualizado:** 2026-11-19 (UTC) · **Ítems:** 106
+**Actualizado:** 2026-11-19 (UTC) · **Ítems:** 108
 
 Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-pending`.
 
@@ -11,6 +11,7 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **BUG-103** — La descripción editada desde la tabla Partidas se revierte a «Blancas vs Negras» al abrir la partida.
 - **BUG-117** — El spinner del análisis profundo no sigue el estado del trabajo solicitado.
 - **BUG-118** — El listado muestra «Puntaje 0.0» cuando falta el puntaje.
+- **BUG-121** — Importación Lichess: clasificación incorrecta del ritmo de las partidas.
 - **DB-BUG-05** — Reintentar o volver a analizar una partida puede duplicar jugadas críticas y dejar resultados parciales.
 - **DB-FEAT-02** — cambiar tabla module07_decision_points por coach_decision_points
 - **DB-FEAT-03** — cambiar tabla module07_analysis_jobs por coach_analysis_jobs
@@ -31,6 +32,7 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **FEAT-120** — Módulo de comentarios: permitir subir imágenes adjuntas.
 - **LOG-BUG-11** — Crear o editar un usuario puede guardar cambios aunque falle la asignación del grupo.
 - **LOG-BUG-12** — El filtro por fecha del registro de actividad no coincide con la fecha que muestra la tabla.
+- **FEAT-122** — Historial de reportes y comentarios: consultar estado y ampliar un reporte existente.
 - **LOG-FEAT-01** — Soporte para login con usuario de Google
 - **LOG-FEAT-02** — Soporte para login con usuario de Chess.com
 - **LOG-FEAT-03** — Soporte para login con usuario de Lichess
