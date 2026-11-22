@@ -62,6 +62,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Documentation
 
+- Roadmap: colisión FEAT-121/122 (#274 vs #275) resuelta con BUG-128 y FEAT-128; specs FEAT-120–128 y brief de revisión ChessDash ([`roadmap-id-collisions-2026-11.md`](docs/ai_chess_coach/roadmap/designs/roadmap-id-collisions-2026-11.md)).
 - FEAT-119: spec de jugadas en móvil por casilla origen y destino (tap), además de drag and drop (#266).
 - El tutorial de Render documenta el fallback SPA sin Blueprint: regla `/*` → `/index.html` con **Rewrite** (no Redirect) y rutas de invitación/changelog/feedback (#265).
 - Arquitectura de motores y análisis profundo (#164, #179); diseño de tutor opcional y antiimpulsividad (#199).
@@ -77,12 +78,13 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Límites y trazabilidad
 
-Integrado no significa validado de punta a punta en producción. Reportes sigue pendiente. BUG-099, FEAT-100 y BUG-098 quedaron integrados (#230, #231, #241); el CDN aplica las rewrites de la SPA al sincronizar el Blueprint. El cálculo de estadísticas y los bugs o mejoras del modelo mental siguen en el tracker. El PR #178 no demuestra resuelto el bug de selección masiva reportado posteriormente. #199 y #226 documentan trabajo futuro y no implementan esas funciones.
+Integrado no significa validado de punta a punta en producción. **Reportes:** RPT-FEAT-01…05 integrados (#259–#261); informes RPT-FEAT-06…08 siguen pendientes. BUG-099, FEAT-100 y BUG-098 quedaron integrados (#230, #231, #241); el CDN aplica las rewrites de la SPA al sincronizar el Blueprint. El cálculo de estadísticas y los bugs o mejoras del modelo mental siguen en el tracker. El PR #178 no demuestra resuelto el bug de selección masiva reportado posteriormente. #199 y #226 documentan trabajo futuro y no implementan esas funciones.
 
 #158 no se integró: su trabajo se dividió en #159–#164. #207 y #208 no tienen merge propio; el tracker atribuye su incorporación a #209. Se listan con su estado real para no confundir referencia documental con entrega integrada. Los títulos de la tabla conservan el texto de GitHub para facilitar auditoría.
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| _pendiente_ | _PR doc roadmap_ | Documentación | Specs FEAT-120–128, colisión #274/#275, checklist regenerado y brief ChessDash 22/11. |
 | 2026-11-20 | [#277](https://github.com/cmessoftware/chessinsightai/pull/277) | Cambio integrado | Filtro avanzado Partidas: nombres PGN por tokens y orden libre (BUG-125). |
 | 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |
