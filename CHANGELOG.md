@@ -84,7 +84,7 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
-| _pendiente_ | _PR doc roadmap_ | Documentación | Specs FEAT-120–128, colisión #274/#275, checklist regenerado y brief ChessDash 22/11. |
+| 2026-11-23 | [#279](https://github.com/cmessoftware/chessinsightai/pull/279) | Documentación | Specs FEAT-120–128, colisión #274/#275, checklist regenerado y brief ChessDash 22/11. |
 | 2026-11-20 | [#277](https://github.com/cmessoftware/chessinsightai/pull/277) | Cambio integrado | Filtro avanzado Partidas: nombres PGN por tokens y orden libre (BUG-125). |
 | 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |
