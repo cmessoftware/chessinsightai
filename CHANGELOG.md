@@ -52,6 +52,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 ### Fixed
 
 - Vite deduplica `react` / `react-dom` en dev para evitar `Invalid hook call` al arrancar la SPA (#275).
+- Filtro avanzado en Partidas: nombres PGN con coma (`Fischer, Robert James`) coinciden por palabras sueltas y en cualquier orden (`Robert Fischer`; BUG-125).
 - El modo crítico de Mental 1600 ya no depende de la jugada ya hecha. La diferencia de evaluación queda como revisión posterior (#235).
 - S2 de Mental 1600 avisa solo si el rey de quien movió queda en jaque. Dar mate no dispara esa alerta (#234).
 - Mental 1600 conserva la última jugada rival al evaluar los triggers. Sin esa jugada, una FEN sola no inventa la captura ni el tempo (#233).
@@ -80,13 +81,14 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Límites y trazabilidad
 
-Integrado no significa validado de punta a punta en producción. Reportes sigue pendiente. BUG-099, FEAT-100 y BUG-098 quedaron integrados (#230, #231, #241); el CDN aplica las rewrites de la SPA al sincronizar el Blueprint. El cálculo de estadísticas y los bugs o mejoras del modelo mental siguen en el tracker. El PR #178 no demuestra resuelto el bug de selección masiva reportado posteriormente. #199 y #226 documentan trabajo futuro y no implementan esas funciones.
+Integrado no significa validado de punta a punta en producción. **Reportes:** RPT-FEAT-01…05 integrados (#259–#261); informes RPT-FEAT-06…08 siguen pendientes. BUG-099, FEAT-100 y BUG-098 quedaron integrados (#230, #231, #241); el CDN aplica las rewrites de la SPA al sincronizar el Blueprint. El cálculo de estadísticas y los bugs o mejoras del modelo mental siguen en el tracker. El PR #178 no demuestra resuelto el bug de selección masiva reportado posteriormente. #199 y #226 documentan trabajo futuro y no implementan esas funciones.
 
 #158 no se integró: su trabajo se dividió en #159–#164. #207 y #208 no tienen merge propio; el tracker atribuye su incorporación a #209. Se listan con su estado real para no confundir referencia documental con entrega integrada. Los títulos de la tabla conservan el texto de GitHub para facilitar auditoría.
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
-| 2026-11-20 | [#275](https://github.com/cmessoftware/chessinsightai/pull/275) | Cambio integrado | Comentarios con imágenes (FEAT-120), confirmación post-envío (FEAT-121) e imágenes en GitHub vía Contents API (FEAT-122). |
+| 2026-11-23 | [#275](https://github.com/cmessoftware/chessinsightai/pull/275) | Cambio integrado | Comentarios con imágenes (FEAT-120), confirmación post-envío (FEAT-121) e imágenes en GitHub vía Contents API (FEAT-122). |
+| 2026-11-20 | [#277](https://github.com/cmessoftware/chessinsightai/pull/277) | Cambio integrado | Filtro avanzado Partidas: nombres PGN por tokens y orden libre (BUG-125). |
 | 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |
 | 2026-11-19 | [#266](https://github.com/cmessoftware/chessinsightai/pull/266) | Cambio integrado | Posición (FEN): paleta de piezas por arrastre y carga de posiciones no legales (FEAT-039). |

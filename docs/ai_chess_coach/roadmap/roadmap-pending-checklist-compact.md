@@ -2,7 +2,7 @@
 
 [Versión completa](/changelog/pendientes) · [Índice del roadmap](./00-roadmap-index.md)
 
-**Actualizado:** 2026-11-20 (UTC) · **Ítems:** 107
+**Actualizado:** 2026-11-22 (UTC) · **Ítems:** 107
 
 Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-pending`.
 
