@@ -84,10 +84,7 @@ async def _save_uploads(
                 )
             except FeedbackError as exc:
                 if _is_local_base_url(base):
-                    warnings.append(
-                        f"{meta['filename']}: no se embebió en GitHub ({exc}). "
-                        "El PAT necesita permiso contents: write en el repo."
-                    )
+                    warnings.append(f"{meta['filename']}: no se embebió en GitHub ({exc}).")
                 else:
                     issue_url = local_url
         elif _is_local_base_url(base):

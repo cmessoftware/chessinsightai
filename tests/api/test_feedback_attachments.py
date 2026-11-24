@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -18,7 +19,11 @@ from services.feedback_attachments import (  # noqa: E402
     save_image_attachment,
     validate_image_upload,
 )
-from services.github_feedback import build_issue, upload_feedback_image_to_github  # noqa: E402
+from services.github_feedback import (  # noqa: E402
+    _github_error_message,
+    build_issue,
+    upload_feedback_image_to_github,
+)
 
 
 def test_validate_rejects_oversize():
@@ -69,8 +74,12 @@ def test_upload_feedback_image_returns_download_url(monkeypatch):
     def fake_urlopen(request, timeout=0):
         captured["url"] = request.full_url
         captured["method"] = request.method
+        if request.data and b'"branch"' in request.data:
+            captured["branch"] = json.loads(request.data.decode())["branch"]
         return FakeResponse()
 
+    monkeypatch.setenv("GITHUB_FEEDBACK_ATTACHMENTS_BRANCH", "feedback-attachments")
+    monkeypatch.setattr("services.github_feedback._ensure_attachments_branch", lambda *args, **kwargs: None)
     monkeypatch.setattr("services.github_feedback.urllib.request.urlopen", fake_urlopen)
     url = upload_feedback_image_to_github(
         repo="o/r",
@@ -83,6 +92,14 @@ def test_upload_feedback_image_returns_download_url(monkeypatch):
     assert url.endswith("x.png")
     assert "/contents/.feedback/attachments/" in captured["url"]
     assert captured["method"] == "PUT"
+    assert captured["branch"] == "feedback-attachments"
+
+
+def test_github_error_message_ruleset_409():
+    raw = json.dumps({"message": "Repository rule violations found", "status": 409})
+    msg = _github_error_message(raw, status=409)
+    assert "pull request" in msg.lower() or "reglas" in msg.lower()
+    assert "feedback-attachments" in msg
 
 
 def test_append_images_respects_limit():
