@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)
-**Actualizado:** 2026-11-24
+**Actualizado:** 2026-11-25
 
 > **Canónico.** No hay copia en `deep_analysis/`.
 
@@ -73,7 +73,7 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 <tr><td>FEAT-024</td><td>&nbsp;</td><td>FEAT-22</td><td>Link FEN → <code>/coach/position</code> con posición cargada</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/172">#172</a></td></tr>
 <tr><td>FEAT-025</td><td>&nbsp;</td><td>&nbsp;</td><td>Importar Partidas: importación masiva PGN (texto/archivo, máx. 100); 1 partida → análisis; &gt;1 → Partidas</td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/173">#173</a> — HITL</td></tr>
 <tr><td>FEAT-126</td><td>&nbsp;</td><td>FEAT-025 / FEAT-064 / FEAT-078</td><td>Importar Partidas: combo <strong>Fuente</strong> (misma lista que Partidas) en lugar de «Tipo de corpus».</td><td>❌ Cancelado</td><td>No era el pedido del usuario (confundido con categorías). Revertido en favor de FEAT-127.</td></tr>
-<tr><td>FEAT-127</td><td>&nbsp;</td><td>FEAT-025 / FEAT-064 / FEAT-078 / FEAT-101</td><td>Importar Partidas: <strong>multiselect de categorías</strong> (varias etiquetas por partida; ej. Táctica, Torneo, corpus elite).</td><td>✅ Done</td><td><code>CoachImportCategoriesSelect</code>; <code>categoryOverrides.v2</code> con arrays; merge al importar PGN/Lichess/Chess.com. Rama <code>feature/11_127_import_categories_multiselect</code> (sustituye rama 126)</td></tr>
+<tr><td>FEAT-127</td><td>&nbsp;</td><td>FEAT-025 / FEAT-064 / FEAT-078 / FEAT-101</td><td>Importar Partidas: <strong>multiselect de categorías</strong> (varias etiquetas por partida; ej. Táctica, Torneo, corpus elite).</td><td>✅ Done</td><td><code>CoachImportCategoriesSelect</code>; <code>categoryOverrides.v2</code> con arrays; merge al importar PGN/Lichess/Chess.com · <code>#278</code></td></tr>
 <tr><td>FEAT-026</td><td>&nbsp;</td><td>&nbsp;</td><td>Iconos Acciones: <a href="../../img/ver.png">VER</a> / <a href="../../img/analizar.png">ANALIZAR</a> / <a href="../../img/eliminar.png">ELIMINAR</a></td><td>✅ Done</td><td><a href="https://github.com/cmessoftware/chessinsightai/pull/174">#174</a> — HITL; <a href="https://github.com/cmessoftware/chessinsightai/pull/175">#175</a> tracker</td></tr>
 <tr><td>FEAT-027</td><td>&nbsp;</td><td>&nbsp;</td><td>Importación masiva desde Lichess</td><td>✅ Done</td><td>HITL — <a href="https://github.com/cmessoftware/chessinsightai/pull/176">#176</a>; hardening en <code>feature/11_146b_feat_027_lichess_hardening</code></td></tr>
 <tr><td>FEAT-028</td><td>&nbsp;</td><td>FEAT-027</td><td>Importación masiva desde Chess.com</td><td>✅ Done</td><td>HITL OK — <code>feature/11_147_feat_028_chesscom_bulk_import</code></td></tr>
@@ -410,9 +410,9 @@ El cierre pedagógico exige casos tranquilos y críticos, ambos colores, causas 
 <tr><th>Estado</th><th>IDs</th></tr>
 </thead>
 <tbody>
-<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, FEAT-039, FEAT-103, FEAT-120, FEAT-121, FEAT-122, BUG-125, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-06, LOG-FEAT-09, LOG-FEAT-10, LOG-FEAT-13, RPT-FEAT-01, RPT-FEAT-02, RPT-FEAT-03, RPT-FEAT-04, RPT-FEAT-05, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06, EST-BUG-01</td></tr>
-<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069, RPT-FEAT-10, FEAT-127 (#278)</td></tr>
-<tr><td>⬜ Todo</td><td>FEAT-038, FEAT-088, FEAT-104…110, FEAT-116, FEAT-119, FEAT-123, FEAT-124, FEAT-128, BUG-128, LOG-FEAT-01…03, LOG-FEAT-07…08, DB-FEAT-02…04, RPT-FEAT-06…08, FEAT-101, FEAT-102 (candidata), EST-BUG-02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19, BUG-117/118</td></tr>
+<tr><td>✅ Done</td><td>FEAT-01…06, BUG-02/04/07/10/013/015/016/044/049/060/067/074/077/081/084/090, FEAT-08…11, FEAT-014/017…033, FEAT-032/035/036/040…042/046/047/048/050/051/052/053/054/055/056/057/058/059, FEAT-043/045/061/066/068/070/071/072/073/075/076/078/079/080/082/083/085/086/087/089/091/092/094/095/096/097, FEAT-039, FEAT-103, FEAT-120, FEAT-121, FEAT-122, FEAT-127, BUG-125, LOG-FEAT-04, LOG-FEAT-05, LOG-FEAT-06, LOG-FEAT-09, LOG-FEAT-10, LOG-FEAT-13, RPT-FEAT-01, RPT-FEAT-02, RPT-FEAT-03, RPT-FEAT-04, RPT-FEAT-05, BUG-037, BUG-098, BUG-099, BUG-114, FEAT-111, FEAT-112, FEAT-113, FEAT-115, MENT-BUG-01, MENT-BUG-02, MENT-BUG-03, MENT-BUG-06, DB-FEAT-01, FEAT-093, EST-FEAT-01…06, EST-BUG-01</td></tr>
+<tr><td>🔄 WIP</td><td>BUG-12, FEAT-07 (M-11 pendiente; nuevos hallazgos abiertos), FEAT-069, RPT-FEAT-10</td></tr>
+<tr><td>⬜ Todo</td><td>FEAT-038, FEAT-088, FEAT-104…110, FEAT-116, FEAT-119, FEAT-123, FEAT-124, FEAT-128, BUG-128, LOG-FEAT-01…03, LOG-FEAT-07…08, DB-FEAT-02…04, RPT-FEAT-06…08, PGM-FEAT-01…10, FEAT-101, FEAT-102 (candidata), EST-BUG-02, EST-FEAT-07, MENT-BUG-04/05/07, MENT-FEAT-01…19, BUG-117/118</td></tr>
 <tr><td>🚫 Cancelado</td><td>RPT-FEAT-09, FEAT-126</td></tr>
 <tr><td>🔁 Duplicado</td><td>FEAT-034</td></tr>
 </tbody>
