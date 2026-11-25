@@ -129,9 +129,8 @@ services:
       - type: rewrite
         source: /feedback
         destination: /index.html
-      # SPA: cualquier ruta sin archivo real sirve index.html (React Router).
       - type: rewrite
-        source: /*
+        source: /changelog/*
         destination: /index.html
 
 databases:
