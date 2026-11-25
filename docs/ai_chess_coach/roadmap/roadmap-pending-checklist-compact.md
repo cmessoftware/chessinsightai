@@ -2,7 +2,7 @@
 
 [Versión completa](/changelog/pendientes) · [Índice del roadmap](./00-roadmap-index.md)
 
-**Actualizado:** 2026-11-20 (UTC) · **Ítems:** 106
+**Actualizado:** 2026-11-25 (UTC) · **Ítems:** 116
 
 Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-pending`.
 
@@ -58,6 +58,16 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **MENT-FEAT-17** — **API, permisos e historial.**
 - **MENT-FEAT-18** — **Bandeja y resolución del feedback.**
 - **MENT-FEAT-19** — **Validación funcional HITL.**
+- **PGM-FEAT-01** — Lista de grandes maestros con partidas disponibles, generada dinámicamente desde jugadores en partidas con categoría/corpus Elite.
+- **PGM-FEAT-02** — Tablero con orientación fija al color del GM elegido (POV del alumno = color del GM).
+- **PGM-FEAT-03** — Al mover por el GM: marcar correcta o incorrecta respecto de la jugada original del PGN; el rival juega automáticamente su ply.
+- **PGM-FEAT-04** — Pistas opcionales (escalonadas) y, tras acierto, mostrar comentarios del PGN de ese ply si existen.
+- **PGM-FEAT-05** — Calificar cada jugada del GM por pérdida de centipeones respecto a la jugada de la partida (eval PGN o Stockfish WASM).
+- **PGM-FEAT-06** — Al terminar el recorrido PGN del bando GM, mostrar el resultado de la partida (tag Result / abandono).
+- **PGM-FEAT-07** — Permitir repetir la misma partida varias veces y acumular historial de puntajes (mejor intento y/o suma — fijar en impl.).
+- **PGM-FEAT-08** — Gráfico de evolución del puntaje (o cp_loss medio) entre intentos de la misma partida.
+- **PGM-FEAT-09** — Carcasa del módulo: ruta `/coach/pgm`, entrada en subnav Coach, contrato API y esquema de intentos.
+- **PGM-FEAT-10** — Importar roster PGN Mentor curado: 26 GM, máx. 100 partidas c/u (~2,6k total) a Postgres biblioteca compartida.
 - **RPT-FEAT-06** — Aperturas y defensas utilizadas. 1. Ordenadas de la más usada a la menos usada, por línea principal (PV) y por variantes. 2. Resultado de cada caso.
 - **RPT-FEAT-07** — Listado de partidas con rachas. 1. Ganadas, según la combinación: > 0 blunders propios y sin blunder del rival; > 0 blunders propios y > 0 blunders del rival;…
 - **RPT-FEAT-08** — Análisis de survivorship bias: diseñar qué presentar y cómo
