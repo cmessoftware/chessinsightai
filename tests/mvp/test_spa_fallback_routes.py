@@ -36,6 +36,7 @@ def test_direct_app_routes_serve_the_spa():
     for path in (
         "/login",
         "/changelog",
+        "/changelog/pendientes",
         "/unauthorized",
         "/coach",
         "/coach/partidas",

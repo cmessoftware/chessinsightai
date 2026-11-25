@@ -2,7 +2,7 @@
 
 [Versión completa](/changelog/pendientes) · [Índice del roadmap](./00-roadmap-index.md)
 
-**Actualizado:** 2026-11-22 (UTC) · **Ítems:** 112
+**Actualizado:** 2026-11-22 (UTC) · **Ítems:** 107
 
 Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-pending`.
 
@@ -29,12 +29,8 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **FEAT-110** — Subnav Coach «Estudios» con los estudios cargados. Al elegir uno, abrir el tablero de análisis en el primer capítulo y la lista de capítulos a la izquierda,…
 - **FEAT-116** — La pantalla de inicio (`/coach`) es la de análisis y sigue abriendo la última partida.
 - **FEAT-119** — Móvil: mover piezas en el tablero eligiendo casilla inicial y casilla final (tap/clic). Hoy solo entra bien por drag&drop.
-- **FEAT-120** — Módulo de comentarios: permitir subir imágenes adjuntas.
-- **FEAT-121** — Comentarios: confirmación post-envío sin formulario vacío.
-- **FEAT-122** — Comentarios: imágenes visibles en el issue de GitHub.
-- **FEAT-123** — Comentarios: hilo del issue en UI (leer/escribir), sincronizado con GitHub.
-- **FEAT-124** — Comentarios: admin cierra y reabre issues desde la UI.
-- **FEAT-128** — Historial de reportes: consultar estado y ampliar un reporte.
+- **FEAT-123** — Comentarios: hilo de comentarios del issue en la UI (leer y escribir), sincronizado con GitHub.
+- **FEAT-124** — Comentarios: el admin puede cerrar y reabrir issues desde la UI.
 - **LOG-BUG-11** — Crear o editar un usuario puede guardar cambios aunque falle la asignación del grupo.
 - **LOG-BUG-12** — El filtro por fecha del registro de actividad no coincide con la fecha que muestra la tabla.
 - **LOG-FEAT-01** — Soporte para login con usuario de Google
