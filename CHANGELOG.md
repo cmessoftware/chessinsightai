@@ -88,6 +88,7 @@ Integrado no significa validado de punta a punta en producción. Reportes sigue 
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-25 | [#283](https://github.com/cmessoftware/chessinsightai/pull/283) | Cambio integrado | PGM-FEAT-10: script import PGN Mentor curado, spec/roster PGM y tracker PGM-FEAT-01…10. |
 | 2026-11-20 | [#277](https://github.com/cmessoftware/chessinsightai/pull/277) | Cambio integrado | Filtro avanzado Partidas: nombres PGN por tokens y orden libre (BUG-125). |
 | 2026-11-19 | [#268](https://github.com/cmessoftware/chessinsightai/pull/268) | Cambio integrado | Checklist roadmap: vista resumen (`/changelog/pendientes/resumen`) y parser Sparring/DEEP (5 columnas). |
 | 2026-11-19 | [#267](https://github.com/cmessoftware/chessinsightai/pull/267) | Cambio integrado | FEAT-103 (guardar estudio desde Cargar Posición y desde análisis); checklist roadmap pendiente para admin (`/changelog/pendientes`). |
