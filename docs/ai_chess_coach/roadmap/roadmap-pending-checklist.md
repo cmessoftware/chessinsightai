@@ -23,6 +23,7 @@ Tracker: [`issues-coach-move-classification-pedagogy-mini-plan.md`](./designs/is
 
 - [ ] **BUG-103** — La descripción editada desde la tabla Partidas se revierte a «Blancas vs Negras» al abrir la partida. _(deps: FEAT-048 / FEAT-055)_ — _Reportado por Sergio el 2026-11-08; pendiente de reproducción técnica. Pasos: 1) editar la descripción inline en Partidas, por ejemplo «Anderssen vs NN»; 2) guardar y comprobar que la tabla muestra Anderssen como blancas y NN como negras; 3) ingresar a la partida y esperar unos segundos. Obtenido: inicialmente se muestra el valor modificado, pero luego reaparece «Blancas vs Negras». Control: al modificar los nombres desde el formulario de edición de encabezados PGN, el cambio se aplica correctamente. Esperado: conservar los nombres editados en tabla y detalle, también tras terminar la carga, refrescar y reabrir. Causa no confirmada. Copiado desde el PR #236, que no se mergea._
 - [ ] **BUG-117** — El spinner del análisis profundo no sigue el estado del trabajo solicitado. _(deps: FEAT-112 / DB-BUG-05)_ — _Al encolar desde el tablero, la UI descarta el ID y espera filas de jugadas críticas. Un trabajo fallido o completado con cero críticas puede dejar la espera activa. Con resultados previos, el spinner puede desaparecer antes de terminar el nuevo trabajo. Aceptación: consultar el estado por ID, cerrar la espera al completar o fallar, mostrar el resultado vacío o el error y permitir reintentar. Probar también una partida con resultados previos y un cambio de partida durante la espera. [Código revisado](https://github.com/cmessoftware/chessinsightai/blob/488a72f6ea246d3110c1c8672b33488860763a82/src/frontend/src/pages/CoachGameAnalysisPage.jsx#L151-L211)._
+- [ ] **BUG-128** — Importación Lichess: clasificación incorrecta del ritmo. _(deps: FEAT-027 / FEAT-032)_ — _Spec: [bug-128-lichess-import-speed-class.md](./bug-128-lichess-import-speed-class.md). Issues [#270](https://github.com/cmessoftware/chessinsightai/issues/270), [#269](https://github.com/cmessoftware/chessinsightai/issues/269). Ex-BUG-121 del PR #274 cerrado._
 - [ ] **DB-BUG-05** — Reintentar o volver a analizar una partida puede duplicar jugadas críticas y dejar resultados parciales. _(deps: FEAT-112 / FEAT-115 / BUG-117)_ — _Cada solicitud crea un trabajo. El worker confirma las filas individualmente y el listado lee todas las filas de la partida. Aceptación: un doble envío o reintento de la misma solicitud no genera trabajo duplicado. Un reanálisis intencional publica de forma atómica un conjunto de hasta cinco jugadas, con puntaje y motivos. Si falla, conserva el último conjunto completo. Probar doble envío, reanálisis y fallo a mitad. [Código revisado](https://github.com/cmessoftware/chessinsightai/blob/488a72f6ea246d3110c1c8672b33488860763a82/src/modules/module07/repository.py#L169-L248)._
 - [ ] **EST-BUG-02** — Fuente de evaluación se registra como lichess para cualquier PGN con evals completas. _(deps: EST-FEAT-03)_ — _Código. `coach_game_statistics_compute.py`: SOURCE_EXPORT = lichess. Distinguir proveedor de importación, evaluación embebida y motor/version/profundidad cuando estén informados. Origen desconocido permanece desconocido; no inventar procedencia._
 - [ ] **EST-FEAT-07** — Estado y errores accionables al calcular estadísticas. _(deps: EST-BUG-01)_ — _Mostrar cálculo en curso, fallo y reintento; separar error de cálculo de ausencia de estadísticas. Si el tiempo de procesamiento requiere job, diseñarlo antes de asumir un timeout mayor. No presentar ceros como cálculo exitoso._
@@ -58,6 +59,7 @@ Tracker: [`issues-coach-move-classification-pedagogy-mini-plan.md`](./designs/is
 ### Prioridad P2
 
 - [ ] **BUG-118** — El listado muestra «Puntaje 0.0» cuando falta el puntaje. _(deps: FEAT-115)_ — _Reproducción aislada: `criticalitySummary({ criticality: null })` devuelve «Puntaje 0.0». Aceptación: mostrar «Sin puntaje» si no hay dato, conservar un cero explícito y cubrir tanto filas antiguas como resultados nuevos. [Código revisado](https://github.com/cmessoftware/chessinsightai/blob/488a72f6ea246d3110c1c8672b33488860763a82/src/frontend/src/utils/coachCriticalityReason.js#L98-L105)._
+- [ ] **FEAT-128** — Historial de reportes: consultar estado y ampliar un reporte. _(deps: LOG-FEAT-10 / FEAT-123)_ — _Spec: [feat-128-feedback-report-history.md](./feat-128-feedback-report-history.md). Issue [#271](https://github.com/cmessoftware/chessinsightai/issues/271). Ex-FEAT-122 del PR #274; solape con FEAT-123._
 - [ ] **LOG-BUG-12** — El filtro por fecha del registro de actividad no coincide con la fecha que muestra la tabla. _(deps: LOG-FEAT-09)_ — _La API interpreta los límites en UTC y la UI muestra hora local. En Argentina, un evento del 12/11 a las 22:30 se muestra como 12/11, pero queda fuera del filtro de ese día. Aceptación: aplicar los límites en la misma zona horaria que usa la tabla y probar ambos límites del día. [Código revisado](https://github.com/cmessoftware/chessinsightai/blob/488a72f6ea246d3110c1c8672b33488860763a82/src/api/services/activity_log_service.py#L75-L83)._
 
 ### Resto
@@ -107,7 +109,7 @@ Tracker: [`issues-plan-implementacion-analisis-profundo.md`](./deep_analysis/iss
 
 ## Mental 1600
 
-_Sin ítems ⬜ Todo en este tracker._
+_Sin ítems ⬜ Todo en `coach-mental-1600-mini-plan.md`. Los **MENT-BUG/MENT-FEAT** pendientes figuran en **Coach UI** arriba._
 
 ## Sparring Maia (plan)
 
@@ -133,18 +135,6 @@ Tracker: [`issues-plan-implementacion-sparring-maia.md`](./deep_analysis/issues-
 
 Tracker: [`issues-sparring-maia-server-mini-plan.md`](./deep_analysis/issues-sparring-maia-server-mini-plan.md)
 
-- [ ] **SPAR-04** ⬜ Todo — API: `POST/GET /sparring/sessions`, estados `created→active→finished`
-- [ ] **SPAR-05** ⬜ Todo — API moves: `expected_ply` + `request_id`; unicidad `(session_id, ply)`
-- [ ] **SPAR-06** ⬜ Todo — Worker turno bot: latencia real, timeout, pausa si falla Maia (sin sustituto SF)
-- [ ] **SPAR-07** ⬜ Todo — `finish` / abandono / reloj: reglas chess.js + terminación registrada
-- [ ] **SPAR-08** ⬜ Todo — UI: configuración (color, nivel, modo, ritmo opcional); tablero = reutilizar Coach (`ChessinsightBoard`, layout `CoachStudyWorkspace`, sin eval en vivo; §4.4.1)
-- [ ] **SPAR-09** ⬜ Todo — Job post-sesión Stockfish: `POST .../analysis` idempotente, procedencia sparring
-- [ ] **SPAR-10** ⬜ Todo — UI revisión: enlace análisis Coach / decisiones post-partida
-- [ ] **SPAR-11** ⬜ Todo — Eventos outbox: `sparring.session_*`, `analysis.completed`
-- [ ] **SPAR-12** ⬜ Todo — Proveedor simulado + smoke Maia real; medir latencia/memoria
-- [ ] **SPAR-13** ⬜ Todo — Continuar desde FEN/PGN/ejercicio (origen en metadata, sesión nueva)
-- [ ] **SPAR-14** ⬜ Todo — Modos conversión / resistencia / plan versionado
-- [ ] **SPAR-15** ⬜ Todo — (Opcional) Lc0 en críticas del análisis post-sparring
 - [ ] **SPAR-16** ⬜ Todo — Config «tiempo de reflexión» del bot en UI nueva partida sparring: `instant` · `fixed_ms` · `random_ms` [min,max] · presets (p. ej. Rápido / Normal / Lento, equivalente Lucas Chess). Persistir en `model_config_snapshot` / JSON de sesión.
 - [ ] **SPAR-17** ⬜ Todo — Orquestación servidor: calcular jugada Maia en cuanto toca al bot; responder API con UCI + `model_latency_ms`; aplicar `display_delay_ms = f(config, latency)` (p. ej. `max(config_min, latency + jitter)` con tope). Cliente recibe jugada solo tras ventana de presentación acordada o recibe ambos timestamps para animar localmente.
 - [ ] **SPAR-18** ⬜ Todo — UI tablero: indicador «Maia está pensando…» durante delay; animación de pieza al expirar; opción desactivar humanización (torneo / análisis rápido). Tests: delay 0 vs 2–5 s no bloquea commit idempotente del ply.

@@ -11,6 +11,7 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **BUG-103** — La descripción editada desde la tabla Partidas se revierte a «Blancas vs Negras» al abrir la partida.
 - **BUG-117** — El spinner del análisis profundo no sigue el estado del trabajo solicitado.
 - **BUG-118** — El listado muestra «Puntaje 0.0» cuando falta el puntaje.
+- **BUG-128** — Importación Lichess: clasificación incorrecta del ritmo.
 - **DB-BUG-05** — Reintentar o volver a analizar una partida puede duplicar jugadas críticas y dejar resultados parciales.
 - **DB-FEAT-02** — cambiar tabla module07_decision_points por coach_decision_points
 - **DB-FEAT-03** — cambiar tabla module07_analysis_jobs por coach_analysis_jobs
@@ -86,7 +87,7 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 
 ## Mental 1600
 
-_Sin ítems pendientes._
+_Sin ítems ⬜ Todo en `coach-mental-1600-mini-plan.md`. Los **MENT-BUG/MENT-FEAT** pendientes figuran en **Coach UI** arriba._
 
 ## Sparring Maia (plan)
 
@@ -108,18 +109,6 @@ _Sin ítems pendientes._
 
 ## Sparring Maia (servidor)
 
-- **SPAR-04** ⬜ Todo — API: `POST/GET /sparring/sessions`, estados `created→active→finished`
-- **SPAR-05** ⬜ Todo — API moves: `expected_ply` + `request_id`; unicidad `(session_id, ply)`
-- **SPAR-06** ⬜ Todo — Worker turno bot: latencia real, timeout, pausa si falla Maia (sin sustituto SF)
-- **SPAR-07** ⬜ Todo — `finish` / abandono / reloj: reglas chess.js + terminación registrada
-- **SPAR-08** ⬜ Todo — UI: configuración (color, nivel, modo, ritmo opcional); tablero = reutilizar Coach (`ChessinsightBoard`, layout `CoachStudyWorkspace`, sin eval en vivo; §4.4.1)
-- **SPAR-09** ⬜ Todo — Job post-sesión Stockfish: `POST .../analysis` idempotente, procedencia sparring
-- **SPAR-10** ⬜ Todo — UI revisión: enlace análisis Coach / decisiones post-partida
-- **SPAR-11** ⬜ Todo — Eventos outbox: `sparring.session_*`, `analysis.completed`
-- **SPAR-12** ⬜ Todo — Proveedor simulado + smoke Maia real; medir latencia/memoria
-- **SPAR-13** ⬜ Todo — Continuar desde FEN/PGN/ejercicio (origen en metadata, sesión nueva)
-- **SPAR-14** ⬜ Todo — Modos conversión / resistencia / plan versionado
-- **SPAR-15** ⬜ Todo — (Opcional) Lc0 en críticas del análisis post-sparring
 - **SPAR-16** ⬜ Todo — Config «tiempo de reflexión» del bot en UI nueva partida sparring: `instant` · `fixed_ms` · `random_ms` [min,max] · presets (p. ej. Rápido / Normal / Lento,…
 - **SPAR-17** ⬜ Todo — Orquestación servidor: calcular jugada Maia en cuanto toca al bot; responder API con UCI + `model_latency_ms`; aplicar `display_delay_ms = f(config, latency)`…
 - **SPAR-18** ⬜ Todo — UI tablero: indicador «Maia está pensando…» durante delay; animación de pieza al expirar; opción desactivar humanización (torneo / análisis rápido). Tests:…
