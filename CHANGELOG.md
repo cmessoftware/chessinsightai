@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Script de importación PGN Mentor curado (`import_pgm_mentor_curated.py`): enum de 26 GM, prioridad por comentarios en el PGN y lotes configurables hacia `coach_games` (base PGM-FEAT-10).
+
 ### Historial recuperado de Coach / ChessDash — hasta 2026-11-09
 
 Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coach. Fuentes: [roadmap](docs/ai_chess_coach/roadmap/00-roadmap-index.md), [tracker de issues](docs/ai_chess_coach/roadmap/designs/issues-coach-move-classification-pedagogy-mini-plan.md) y metadatos de integración de GitHub. No se asigna una versión publicada nueva. Las fechas de integración de la tabla se expresan en UTC.

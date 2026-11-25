@@ -1,7 +1,7 @@
 # Issues · Clasificación de jugadas e importancia pedagógica
 
 **Estado:** Seguimiento activo (UI MVP liviano)
-**Actualizado:** 2026-11-19
+**Actualizado:** 2026-11-24
 
 > **Canónico.** No hay copia en `deep_analysis/`.
 
@@ -187,6 +187,28 @@ Ramas: `feature/11_11x_*` — un ítem por rama ([roadmap-branches.mdc](../../..
 </thead>
 <tbody>
 <tr><td>FEAT-102</td><td>P1</td><td>LOG-FEAT-07/08 / FEAT-07</td><td>Módulo general de ejercitaciones creadas por el usuario o su instructor y registro de actividad sobre partidas/posiciones marcadas como ejercicios.</td><td>✨ Candidata</td><td>A refinar. [Spec candidata y tareas EX-FEAT-01…17](../designs/analysis-user-instructor-exercises-candidate-spec.md). Ejercicios abiertos por objetivos, sin solución prefijada; rúbricas de proceso y resultado, evaluación humana/híbrida, Maia como rival por nivel y motor objetivo como evidencia. Incluye factibilidad, piloto, autoría/asignaciones, intentos y seguimiento; candidatas Stockfish/Maia/manuales, comparación cp/probabilidad y fundamento revisable por jugada. Separar práctica del alumno de feedback HITL sobre el sistema; conservar versiones y primer intento. No implementado.</td></tr>
+</tbody>
+</table>
+
+## Módulo PGM · Play as Grandmaster
+
+Inspiración: modo «Jugar como gran maestro» de Lucas Chess. El usuario **solo mueve por el bando del GM** elegido; el rival reproduce el PGN. Partidas desde catálogo **Elite**. Spec: [pgm-play-as-grandmaster-mini-plan.md](./pgm-play-as-grandmaster-mini-plan.md). Rama sugerida por ítem: `feature/11_pgm_NN_<slug>`.
+
+<table>
+<thead>
+<tr><th>Tipo-Id</th><th>Prioridad</th><th>IdRel</th><th>Descripción</th><th>Estado</th><th>Comentarios</th></tr>
+</thead>
+<tbody>
+<tr><td>PGM-FEAT-01</td><td>P1</td><td>FEAT-097 / FEAT-101</td><td>Lista de <strong>grandes maestros</strong> con partidas disponibles, generada dinámicamente desde jugadores en partidas con categoría/corpus <strong>Elite</strong>.</td><td>⬜ Todo</td><td>API agrega nombres PGN (White/Black) con conteo; al elegir GM, listar partidas donde imita ese bando. Filtros opcionales: ECO, resultado, con comentarios. Lectura compartida del corpus <code>pgn_mentor</code> (no filtrar solo por Elite del usuario). Catálogo vs LOG-FEAT-08 y asignaciones FEAT-102: <a href="./pgm-play-as-grandmaster-mini-plan.md#instructor-grupos-estudios-y-pgm">mini-plan PGM § Instructor/grupos</a>.</td></tr>
+<tr><td>PGM-FEAT-02</td><td>P1</td><td>PGM-FEAT-01 / FEAT-083</td><td>Tablero con <strong>orientación fija</strong> al color del GM elegido (POV del alumno = color del GM).</td><td>⬜ Todo</td><td>Reutilizar Chessground/Coach; desactivar o advertir giro de tablero. Claridad «Jugás como [nombre] ([blancas/negras])».</td></tr>
+<tr><td>PGM-FEAT-03</td><td>P1</td><td>PGM-FEAT-02</td><td>Al mover por el GM: marcar <strong>correcta</strong> o <strong>incorrecta</strong> respecto de la jugada original del PGN; el rival juega automáticamente su ply.</td><td>⬜ Todo</td><td>MVP: igualdad SAN/UCI. Fase 2: equivalencia por umbral cp (spec). Tras error, revelar jugada GM antes de seguir (configurable).</td></tr>
+<tr><td>PGM-FEAT-04</td><td>P1</td><td>PGM-FEAT-03 / FEAT-066</td><td><strong>Pistas</strong> opcionales (escalonadas) y, tras acierto, mostrar <strong>comentarios</strong> del PGN de ese ply si existen.</td><td>⬜ Todo</td><td>No filtrar comentarios futuros. Penalización de pista en puntaje opcional. Sin comentario en PGN → sin relleno motor en MVP.</td></tr>
+<tr><td>PGM-FEAT-05</td><td>P1</td><td>PGM-FEAT-03 / FEAT-061</td><td>Calificar cada jugada del GM por <strong>pérdida de centipeones</strong> respecto a la jugada de la partida (eval PGN o Stockfish WASM).</td><td>⬜ Todo</td><td>Normalizar a puntaje 0–100 por intento. Cachear eval si falta en PGN. Definir POV y ply en persistencia.</td></tr>
+<tr><td>PGM-FEAT-06</td><td>P2</td><td>PGM-FEAT-03</td><td>Al terminar el recorrido PGN del bando GM, mostrar el <strong>resultado</strong> de la partida (tag Result / abandono).</td><td>⬜ Todo</td><td>Pantalla resumen: resultado histórico + puntaje del intento + enlace a análisis Coach opcional.</td></tr>
+<tr><td>PGM-FEAT-07</td><td>P1</td><td>PGM-FEAT-05 / PGM-FEAT-09</td><td>Permitir <strong>repetir</strong> la misma partida varias veces y <strong>acumular</strong> historial de puntajes (mejor intento y/o suma — fijar en impl.).</td><td>⬜ Todo</td><td>Persistir por usuario + gameId + color GM. Reintentar no borra intentos previos.</td></tr>
+<tr><td>PGM-FEAT-08</td><td>P2</td><td>PGM-FEAT-07</td><td><strong>Gráfico</strong> de evolución del puntaje (o cp_loss medio) entre intentos de la misma partida.</td><td>⬜ Todo</td><td>Mínimo 2 intentos. Inspiración curvas de Reportes; eje intento o fecha.</td></tr>
+<tr><td>PGM-FEAT-09</td><td>P1</td><td>FEAT-030 / PGM-FEAT-01</td><td>Carcasa del módulo: ruta <code>/coach/pgm</code>, entrada en subnav Coach, contrato API y esquema de intentos.</td><td>⬜ Todo</td><td>Implementar antes o junto con PGM-FEAT-01. No mezclar con Sparring. Documentación solamente hasta merge.</td></tr>
+<tr><td>PGM-FEAT-10</td><td>P0</td><td>PGM-FEAT-01 / FEAT-027</td><td>Importar roster <strong>PGN Mentor</strong> curado: <strong>26 GM</strong>, máx. <strong>100</strong> partidas c/u (~2,6k total) a Postgres biblioteca <strong>compartida</strong>.</td><td>⬜ Todo</td><td>Lista canónica: <a href="./pgm-mentor-curated-roster.json">pgm-mentor-curated-roster.json</a> (Topalov, Tal, Fischer, Carlsen, … Philidor 6). ZIP en <code>data/games/fide_processed/</code>. <code>corpus_type=elite</code>, <code>import_provenance.pgn_mentor</code>. No importar los ~500k completos en MVP.</td></tr>
 </tbody>
 </table>
 

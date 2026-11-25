@@ -1,0 +1,33 @@
+{
+  "provider": "pgn_mentor",
+  "max_games_per_player": 100,
+  "selection_note": "Lista arbitraria inicial (Sergio, 2026-11-25). Slugs = nombre del ZIP en PGN Mentor. Shor→Short, Tarrach→Tarrasch, Nardof→Najdorf.",
+  "players": [
+    { "slug": "Alekhine", "display": "Alexander Alekhine" },
+    { "slug": "Anand", "display": "Viswanathan Anand" },
+    { "slug": "Capablanca", "display": "José Raúl Capablanca" },
+    { "slug": "Carlsen", "display": "Magnus Carlsen" },
+    { "slug": "Caruana", "display": "Fabiano Caruana" },
+    { "slug": "Euwe", "display": "Max Euwe" },
+    { "slug": "Fischer", "display": "Robert James Fischer" },
+    { "slug": "Karpov", "display": "Anatoly Karpov" },
+    { "slug": "Kasparov", "display": "Garry Kasparov" },
+    { "slug": "Larsen", "display": "Bent Larsen" },
+    { "slug": "Lasker", "display": "Emanuel Lasker" },
+    { "slug": "Morphy", "display": "Paul Morphy" },
+    { "slug": "Nimzowitsch", "display": "Aron Nimzowitsch" },
+    { "slug": "Panno", "display": "Oscar Panno" },
+    { "slug": "Petrosian", "display": "Tigran Petrosian" },
+    { "slug": "Philidor", "display": "François Philidor", "max_games": 6 },
+    { "slug": "PolgarJ", "display": "Judit Polgar" },
+    { "slug": "Najdorf", "display": "Miguel Najdorf" },
+    { "slug": "Quinteros", "display": "Miguel Quinteros" },
+    { "slug": "Reti", "display": "Richard Reti" },
+    { "slug": "Shirov", "display": "Alexei Shirov" },
+    { "slug": "Short", "display": "Nigel Short" },
+    { "slug": "Stein", "display": "Leonid Stein" },
+    { "slug": "Tal", "display": "Mikhail Tal" },
+    { "slug": "Tarrasch", "display": "Siegbert Tarrasch" },
+    { "slug": "Topalov", "display": "Veselin Topalov" }
+  ]
+}
