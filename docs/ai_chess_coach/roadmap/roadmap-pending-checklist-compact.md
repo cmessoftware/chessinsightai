@@ -2,7 +2,7 @@
 
 [Versión completa](/changelog/pendientes) · [Índice del roadmap](./00-roadmap-index.md)
 
-**Actualizado:** 2026-11-25 (UTC) · **Ítems:** 117
+**Actualizado:** 2026-11-25 (UTC) · **Ítems:** 119
 
 Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-pending`.
 
@@ -11,6 +11,7 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **BUG-103** — La descripción editada desde la tabla Partidas se revierte a «Blancas vs Negras» al abrir la partida.
 - **BUG-117** — El spinner del análisis profundo no sigue el estado del trabajo solicitado.
 - **BUG-118** — El listado muestra «Puntaje 0.0» cuando falta el puntaje.
+- **BUG-128** — Importación Lichess: clasificación de ritmo incorrecta (p. ej. correspondence ↔ ultrabullet).
 - **DB-BUG-05** — Reintentar o volver a analizar una partida puede duplicar jugadas críticas y dejar resultados parciales.
 - **DB-FEAT-02** — cambiar tabla module07_decision_points por coach_decision_points
 - **DB-FEAT-03** — cambiar tabla module07_analysis_jobs por coach_analysis_jobs
@@ -30,6 +31,7 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **FEAT-119** — Móvil: mover piezas en el tablero eligiendo casilla inicial y casilla final (tap/clic). Hoy solo entra bien por drag&drop.
 - **FEAT-123** — Comentarios: hilo de comentarios del issue en la UI (leer y escribir), sincronizado con GitHub.
 - **FEAT-124** — Comentarios: el admin puede cerrar y reabrir issues desde la UI.
+- **FEAT-128** — Historial de reportes: listar issues del usuario, estado y ampliar un reporte sin duplicar.
 - **LOG-BUG-11** — Crear o editar un usuario puede guardar cambios aunque falle la asignación del grupo.
 - **LOG-BUG-12** — El filtro por fecha del registro de actividad no coincide con la fecha que muestra la tabla.
 - **LOG-FEAT-01** — Soporte para login con usuario de Google
