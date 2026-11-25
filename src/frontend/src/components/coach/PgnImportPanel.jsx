@@ -21,6 +21,7 @@ import {
 } from '../../utils/coachPgnImport.js'
 import CoachImportProgress from './CoachImportProgress.jsx'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
+import { applyCoachImportCategoryTags } from '../../utils/coachGameCategoryOverrides.js'
 
 async function readFileAsText(file) {
     return new Promise((resolve, reject) => {
@@ -31,7 +32,12 @@ async function readFileAsText(file) {
     })
 }
 
-export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptions }) {
+export default function PgnImportPanel({
+    corpusType,
+    onCorpusChange,
+    corpusOptions,
+    importCategoryIds = [],
+}) {
     const navigate = useNavigate()
     const [pgnPaste, setPgnPaste] = useState('')
     const [pgnFile, setPgnFile] = useState(null)
@@ -67,6 +73,10 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
             const newCount = result.new_count ?? imported.filter((g) => g.is_new).length
             const dupCount = count - newCount
             const multiNote = pgnMultiGameImportNotice(result)
+            applyCoachImportCategoryTags(
+                imported.map((g) => g.id),
+                importCategoryIds,
+            )
             setPgnPaste('')
             setPgnFile(null)
 
@@ -145,7 +155,7 @@ export default function PgnImportPanel({ corpusType, onCorpusChange, corpusOptio
                     {String(error)}
                 </Alert>
             )}
-            {corpusOptions.length > 1 && (
+            {corpusOptions?.length > 1 && (
                 <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                     <InputLabel id="corpus-label">Tipo de corpus</InputLabel>
                     <Select

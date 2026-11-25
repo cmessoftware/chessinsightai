@@ -140,9 +140,16 @@ function itemLine(row) {
     return `- [ ] **${row.id}** — ${row.description}${deps}${extra}`
 }
 
+function emptySectionNote(section) {
+    if (section === 'Mental 1600') {
+        return '_Sin ítems ⬜ Todo en `coach-mental-1600-mini-plan.md`. Los **MENT-BUG/MENT-FEAT** pendientes figuran en **Coach UI** arriba._\n'
+    }
+    return '_Sin ítems ⬜ Todo en este tracker._\n'
+}
+
 function renderSection(source, rows) {
     if (!rows.length) {
-        return `## ${source.section}\n\n_Sin ítems ⬜ Todo en este tracker._\n`
+        return `## ${source.section}\n\n${emptySectionNote(source.section)}`
     }
     const lines = [
         `## ${source.section}`,
@@ -178,7 +185,7 @@ function compactItemLine(row) {
 
 function renderSectionCompact(source, rows) {
     if (!rows.length) {
-        return `## ${source.section}\n\n_Sin ítems pendientes._\n`
+        return `## ${source.section}\n\n${emptySectionNote(source.section)}`
     }
     const sorted = [...rows].sort((a, b) => a.id.localeCompare(b.id, 'es'))
     const lines = [`## ${source.section}`, '']
@@ -209,8 +216,19 @@ function loadAllSections() {
 function main() {
     const generatedAt = new Date().toISOString().slice(0, 10)
     const { sections: sectionData, total } = loadAllSections()
-    const sections = sectionData.map(({ source, rows }) => renderSection(source, rows))
-    const compactSections = sectionData.map(({ source, rows }) => renderSectionCompact(source, rows))
+    const seenIds = new Set()
+    const dedupeRows = (rows) =>
+        rows.filter((r) => {
+            if (seenIds.has(r.id)) return false
+            seenIds.add(r.id)
+            return true
+        })
+
+    const sections = sectionData.map(({ source, rows }) => renderSection(source, dedupeRows(rows)))
+    seenIds.clear()
+    const compactSections = sectionData.map(({ source, rows }) =>
+        renderSectionCompact(source, dedupeRows(rows)),
+    )
 
     const body = [
         '# Roadmap pendiente (checklist)',

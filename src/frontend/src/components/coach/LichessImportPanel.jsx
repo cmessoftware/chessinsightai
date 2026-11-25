@@ -22,6 +22,7 @@ import {
 import { useAuth } from '../../hooks/useAuth.js'
 import CoachImportProgress from './CoachImportProgress.jsx'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
+import { applyCoachImportCategoryTags } from '../../utils/coachGameCategoryOverrides.js'
 
 function normalizePlayerAlias(alias, lichessUsername, appUsername) {
     const a = (alias || '').trim()
@@ -52,8 +53,12 @@ const PERF_OPTIONS = [
     { value: 'correspondence', label: 'Correspondencia' },
 ]
 
-function navigateAfterImport(navigate, result) {
+function navigateAfterImport(navigate, result, importCategoryIds) {
     const imported = result.games || []
+    applyCoachImportCategoryTags(
+        imported.map((g) => g.id),
+        importCategoryIds,
+    )
     const count = result.count ?? imported.length
     const newCount = result.new_count ?? imported.filter((g) => g.is_new).length
     const dupCount = count - newCount
@@ -84,7 +89,7 @@ function navigateAfterImport(navigate, result) {
     })
 }
 
-export default function LichessImportPanel({ corpusType }) {
+export default function LichessImportPanel({ corpusType, importCategoryIds = [] }) {
     const navigate = useNavigate()
     const { user } = useAuth()
     const appUsername = user?.username || ''
@@ -214,7 +219,7 @@ export default function LichessImportPanel({ corpusType }) {
                 return
             }
             if (result.count > 0) {
-                navigateAfterImport(navigate, result)
+                navigateAfterImport(navigate, result, importCategoryIds)
                 return
             }
             setInfo('Lote sin partidas importadas.')

@@ -37,7 +37,11 @@ class JWTMiddleware:
 
         path = request.url.path
         # Verificar si la ruta está excluida
-        if path in self.excluded_paths or path.startswith("/api/auth/invitations/token/"):
+        if (
+            path in self.excluded_paths
+            or path.startswith("/api/auth/invitations/token/")
+            or (request.method == "GET" and path.startswith("/api/feedback/attachments/"))
+        ):
             return await call_next(request)
 
         # Obtener token del header Authorization

@@ -20,6 +20,7 @@ import {
 } from '../../services/module07Service.js'
 import CoachImportProgress from './CoachImportProgress.jsx'
 import { COACH_RETURN_PARTIDAS } from './CoachSubNav.jsx'
+import { applyCoachImportCategoryTags } from '../../utils/coachGameCategoryOverrides.js'
 
 const PERF_OPTIONS = [
     { value: 'bullet', label: 'Bullet' },
@@ -28,8 +29,12 @@ const PERF_OPTIONS = [
     { value: 'daily', label: 'Correspondencia' },
 ]
 
-function navigateAfterImport(navigate, result) {
+function navigateAfterImport(navigate, result, importCategoryIds) {
     const imported = result.games || []
+    applyCoachImportCategoryTags(
+        imported.map((g) => g.id),
+        importCategoryIds,
+    )
     const count = result.count ?? imported.length
     const newCount = result.new_count ?? imported.filter((g) => g.is_new).length
     const dupCount = count - newCount
@@ -60,7 +65,7 @@ function navigateAfterImport(navigate, result) {
     })
 }
 
-export default function ChesscomImportPanel({ corpusType }) {
+export default function ChesscomImportPanel({ corpusType, importCategoryIds = [] }) {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -159,7 +164,7 @@ export default function ChesscomImportPanel({ corpusType }) {
                 return
             }
             if (result.count > 0) {
-                navigateAfterImport(navigate, result)
+                navigateAfterImport(navigate, result, importCategoryIds)
                 return
             }
             setInfo('Lote sin partidas importadas.')

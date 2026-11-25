@@ -114,4 +114,18 @@ describe('coachGameCategory', () => {
             coachGameMatchesCategoryFilter(game, 'lichess', DEFAULTS, overrides),
         ).toBe(false)
     })
+
+    it('supports multiple manual category tags', () => {
+        const game = { id: 'g1', catalog_source: 'lichess' }
+        const overrides = { g1: ['torneo', 'tactico'] }
+        expect(coachGameMatchesCategoryFilter(game, 'torneo', DEFAULTS, overrides)).toBe(true)
+        expect(coachGameMatchesCategoryFilter(game, 'tactico', DEFAULTS, overrides)).toBe(true)
+        expect(coachGameMatchesCategoryFilter(game, 'lichess', DEFAULTS, overrides)).toBe(false)
+        expect(coachGameMatchesSourceFilter(game, ['tactico', 'estudio'], DEFAULTS, overrides)).toBe(
+            true,
+        )
+        const filters = listCoachGameCategoryFilters([game], DEFAULTS, overrides)
+        expect(filters.find((f) => f.id === 'torneo')?.count).toBe(1)
+        expect(filters.find((f) => f.id === 'tactico')?.count).toBe(1)
+    })
 })
