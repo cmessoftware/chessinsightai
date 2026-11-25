@@ -70,6 +70,7 @@ Se actualiza el historial desde el despliegue de Module 07 hasta la beta de Coac
 
 ### Documentation
 
+- Specs FEAT-120…127 en `docs/ai_chess_coach/roadmap/designs/` (120–122, 123–124, numeración 125, 126 cancelado, 127); índice de diseños actualizado.
 - Resumen backlog del tracker UI: **FEAT-127** en Done (post-#278); **PGM-FEAT-01…10** en Todo; checklists regenerados.
 - FEAT-123 / FEAT-124: spec de hilo de comentarios sincronizado con GitHub Issues y cierre/reapertura de issues por admin en Comentarios ([`feat-123-124-feedback-github-issues.md`](docs/ai_chess_coach/roadmap/designs/feat-123-124-feedback-github-issues.md); implementación pendiente, #275).
 - FEAT-119: spec de jugadas en móvil por casilla origen y destino (tap), además de drag and drop (#266).
@@ -93,6 +94,7 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-25 | [#285](https://github.com/cmessoftware/chessinsightai/pull/285) | Documentación | Specs FEAT-120…127 en diseños UI; índice y enlaces tracker. |
 | 2026-11-25 | [#284](https://github.com/cmessoftware/chessinsightai/pull/284) | Documentación | Resumen backlog tracker: FEAT-127 Done, PGM-FEAT en Todo; sync checklist. |
 | 2026-11-23 | [#275](https://github.com/cmessoftware/chessinsightai/pull/275) | Cambio integrado | Comentarios con imágenes (FEAT-120), confirmación post-envío (FEAT-121) e imágenes en GitHub vía Contents API (FEAT-122). |
 | 2026-11-20 | [#277](https://github.com/cmessoftware/chessinsightai/pull/277) | Cambio integrado | Filtro avanzado Partidas: nombres PGN por tokens y orden libre (BUG-125). |
