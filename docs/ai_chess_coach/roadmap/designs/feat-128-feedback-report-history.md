@@ -12,5 +12,5 @@ Listar reportes del usuario, estado y detalle; ampliar un reporte existente sin 
 ## Relación con otros ítems
 
 - **FEAT-123/124:** hilo sincronizado con GitHub Issues (lectura/escritura/cierre admin) — cubre gran parte del historial; revisar alcance antes de implementar FEAT-128 por separado.
-- **FEAT-129:** en listado e historial, mostrar cada reporte con enlace `#{número}` (sin jerga GitHub).
+- **FEAT-129:** en listado e historial, `#{número}` como texto sin enlace a GitHub.
 - Ver [roadmap-id-collisions-2026-11.md](./roadmap-id-collisions-2026-11.md).

@@ -40,9 +40,9 @@ Ver `src/api/.env.example`: `GITHUB_FEEDBACK_TOKEN`, `GITHUB_FEEDBACK_REPO`, `GI
 | UI | `src/frontend/src/pages/FeedbackPage.jsx` |
 | Tests | `tests/api/test_feedback_attachments.py` |
 
-## FEAT-129 · Número de reporte en el enlace (deriva de FEAT-121)
+## FEAT-129 · Número de reporte sin enlace (deriva de FEAT-121)
 
-Copy orientado al usuario: enlace con texto `#{número}` sin jerga GitHub. Ver [feat-129-feedback-report-number-link.md](./feat-129-feedback-report-number-link.md).
+Copy orientado al usuario: `#{número}` solo como texto, sin salida a GitHub desde el sitio. Ver [feat-129-feedback-report-number-link.md](./feat-129-feedback-report-number-link.md).
 
 ## Fuera de alcance (siguientes ítems)
 

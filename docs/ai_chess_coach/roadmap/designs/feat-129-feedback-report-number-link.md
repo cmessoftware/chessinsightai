@@ -1,4 +1,4 @@
-# FEAT-129 · Número de reporte en el enlace (sin jerga GitHub)
+# FEAT-129 · Número de reporte sin enlace a GitHub
 
 **Estado:** ✅ Done (tras merge del PR en `main`).  
 **Deriva de:** [FEAT-121](./feat-120-122-feedback-comentarios.md#feat-121--confirmación) (confirmación post-envío) · **LOG-FEAT-10**  
@@ -7,26 +7,26 @@
 
 ## Problema
 
-En la confirmación de Comentarios el texto hablaba de «issue» y del «repositorio». La mayoría de los usuarios no usa GitHub; necesitan un **número de reporte** claro para citar al equipo, sin aprender la interfaz de GitHub.
+En la confirmación de Comentarios el texto hablaba de «issue» y del «repositorio», y a veces enlazaba a GitHub. La mayoría de los usuarios no usa GitHub; solo necesitan un **número de reporte** para citar al equipo. El producto no debe ofrecer un atajo al issue en github.com.
 
 ## Objetivo
 
-Tras enviar un reporte, mostrar solo el **número** (`#123`) como texto del enlace. El `href` puede seguir apuntando a la ficha técnica (issue en GitHub) para quien quiera abrirlo; en pantalla no se nombra GitHub ni «issue».
+Tras enviar un reporte, mostrar solo el **número** (`#123`) como **texto** (sin `<a href>`). La API puede seguir devolviendo `url` para uso interno o admin; la UI de Comentarios **no** la usa ni expone enlaces externos.
 
 ## Alcance
 
 | Incluye | Excluye |
 |--------|---------|
-| Copy del intro y de la alerta de éxito en `FeedbackPage` | Cambiar backend o formato de respuesta API |
-| Enlace con etiqueta `#{number}` y `title` accesible («Ficha del reporte #N») | Quitar el enlace (FEAT-123 puede añadir vista in-app) |
-| Documentar la misma regla para FEAT-123/128 al listar reportes | Renumerar issues existentes en GitHub |
+| Copy del intro y de la alerta de éxito en `FeedbackPage` | Quitar `url` del JSON de la API |
+| `#<número>` visible, sin enlace | Vista in-app del hilo (FEAT-123) |
+| Misma regla en specs FEAT-123 / FEAT-128 para listados | Enlace «Abrir en GitHub» en la UI pública |
 
 ## Aceptación
 
 1. El párrafo introductorio no menciona «issue», «repositorio» ni GitHub.
-2. Tras éxito: mensaje del tipo «Tu reporte fue enviado» y enlace cuyo **texto visible** es solo `#<número>` (p. ej. `#271`).
-3. Sin `created.url` o sin `created.number`, el mensaje de éxito no muestra enlace roto.
-4. FEAT-123 y FEAT-128 reutilizan la misma convención al mostrar filas de «mis reportes» (spec referenciada; implementación en sus ramas).
+2. Tras éxito: «Tu reporte ya fue enviado. Número de reporte: **#&lt;n&gt;**» — el número **no** es clicable y no hay enlace a dominios de GitHub.
+3. Sin `created.number`, el mensaje de éxito omite la línea del número (sin pantalla rota).
+4. FEAT-123 y FEAT-128 listan reportes con el mismo criterio: número visible, detalle y hilo **dentro de ChessDash** (no linkout a GitHub para usuarios finales).
 
 ## Rama
 

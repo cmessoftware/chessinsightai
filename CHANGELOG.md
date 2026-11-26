@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Comentarios (`/feedback`): tras enviar, el enlace muestra solo el número de reporte (`#N`) sin jerga de GitHub (**FEAT-129**, extiende FEAT-121).
+- Comentarios (`/feedback`): tras enviar, se muestra el número de reporte (`#N`) como texto, sin enlace a GitHub (**FEAT-129**, extiende FEAT-121).
 
 ### Added
 
@@ -102,7 +102,7 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
-| 2026-11-26 | [#288](https://github.com/cmessoftware/chessinsightai/pull/288) | Cambio integrado | Comentarios: enlace con solo `#N` de reporte (**FEAT-129**, deriva FEAT-121). |
+| 2026-11-26 | [#288](https://github.com/cmessoftware/chessinsightai/pull/288) | Cambio integrado | Comentarios: `#N` de reporte sin enlace a GitHub (**FEAT-129**, deriva FEAT-121). |
 | 2026-11-26 | [#286](https://github.com/cmessoftware/chessinsightai/pull/286) | Corrección integrada | PGN de `docs/` fuera de Git LFS para evitar timeout en clone/deploy de Render. |
 | 2026-11-25 | [#285](https://github.com/cmessoftware/chessinsightai/pull/285) | Documentación | Specs FEAT-120…127 en diseños UI; índice y enlaces tracker. |
 | 2026-11-25 | [#284](https://github.com/cmessoftware/chessinsightai/pull/284) | Documentación | Resumen backlog tracker: FEAT-127 Done, PGM-FEAT en Todo; sync checklist. |

@@ -51,7 +51,7 @@ En **Comentarios**, permitir **ver y publicar comentarios** en el issue asociado
 
 - Pestaña o sección **«Mis reportes»** en `FeedbackPage` (o ruta `/feedback/issues/:number`).
 - Campo multilínea + enviar; opcional imágenes como en el alta.
-- Badge abierto/cerrado; en filas y confirmación, enlace con texto solo `#{número}` (convención **FEAT-129**); enlace secundario opcional «Abrir ficha» sin destacar GitHub.
+- Badge abierto/cerrado; en filas y confirmación, mostrar `#{número}` como **texto** sin enlace a GitHub (**FEAT-129**); conversación y estado solo en la app.
 
 ### Permisos GitHub
 

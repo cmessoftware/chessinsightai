@@ -195,18 +195,9 @@ export default function FeedbackPage() {
                             <>
                                 {' '}
                                 Número de reporte:{' '}
-                                {created.url ? (
-                                    <a
-                                        href={created.url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        title={`Ficha del reporte #${created.number}`}
-                                    >
-                                        #{created.number}
-                                    </a>
-                                ) : (
-                                    <>#{created.number}</>
-                                )}
+                                <Typography component="span" fontWeight="medium">
+                                    #{created.number}
+                                </Typography>
                                 .
                             </>
                         ) : null}{' '}
