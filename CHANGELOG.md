@@ -103,6 +103,7 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-26 | [#292](https://github.com/cmessoftware/chessinsightai/pull/292) | Cambio integrado | FEAT-123: Mis reportes, hilo y comentarios en Comentarios (proxy GitHub). |
 | 2026-11-26 | [#288](https://github.com/cmessoftware/chessinsightai/pull/288) | Cambio integrado | Comentarios: `#N` de reporte sin enlace a GitHub (**FEAT-129**, deriva FEAT-121). |
 | 2026-11-26 | [#286](https://github.com/cmessoftware/chessinsightai/pull/286) | Corrección integrada | PGN de `docs/` fuera de Git LFS para evitar timeout en clone/deploy de Render. |
 | 2026-11-25 | [#285](https://github.com/cmessoftware/chessinsightai/pull/285) | Documentación | Specs FEAT-120…127 en diseños UI; índice y enlaces tracker. |
