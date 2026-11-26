@@ -20,6 +20,7 @@ ACTIVITY_EVENTS = (
     ("deep_analysis", "Análisis profundo"),
     ("feedback_issue_closed", "Cierre de reporte (Comentarios)"),
     ("feedback_issue_reopened", "Reapertura de reporte (Comentarios)"),
+    ("feedback_issue_workflow", "Cambio de estado de flujo (Comentarios)"),
 )
 EVENT_LABELS = dict(ACTIVITY_EVENTS)
 

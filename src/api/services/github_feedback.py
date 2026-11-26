@@ -10,7 +10,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import re
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Literal, Optional, Tuple
 
 from services.feedback_attachments import append_images_to_issue_body
 
@@ -21,6 +21,49 @@ DEFAULT_ATTACHMENTS_BRANCH = "feedback-attachments"
 KINDS = {
     "bug": ("Bug", "bug"),
     "suggestion": ("Sugerencia", "enhancement"),
+}
+
+FeedbackWorkflowStatus = Literal[
+    "backlog",
+    "todo",
+    "in_progress",
+    "in_review",
+    "done",
+    "not_planned",
+    "duplicate",
+]
+
+WORKFLOW_STATUSES: dict[str, dict[str, Any]] = {
+    "backlog": {"label": "estado:backlog", "state": "open", "label_color": "c2e0c6"},
+    "todo": {"label": "estado:por-hacer", "state": "open", "label_color": "0e8a16"},
+    "in_progress": {"label": "estado:en-curso", "state": "open", "label_color": "1d76db"},
+    "in_review": {"label": "estado:en-revision", "state": "open", "label_color": "fbca04"},
+    "done": {"label": "estado:finalizado", "state": "closed", "state_reason": "completed", "label_color": "8250df"},
+    "not_planned": {
+        "label": "estado:no-planeado",
+        "state": "closed",
+        "state_reason": "not_planned",
+        "label_color": "d4d4d4",
+    },
+    "duplicate": {
+        "label": "estado:duplicado",
+        "state": "closed",
+        "state_reason": "not_planned",
+        "label_color": "cfd3d7",
+    },
+}
+
+WORKFLOW_LABEL_NAMES = {cfg["label"].lower() for cfg in WORKFLOW_STATUSES.values()}
+WORKFLOW_LABEL_NAMES.add("duplicate")
+
+WORKFLOW_STATUS_LABELS_ES = {
+    "backlog": "Backlog",
+    "todo": "Por hacer",
+    "in_progress": "En curso",
+    "in_review": "En revisión",
+    "done": "Finalizado",
+    "not_planned": "No planeado",
+    "duplicate": "Duplicado",
 }
 
 
@@ -81,12 +124,41 @@ def _issue_is_feedback_item(issue: dict) -> bool:
     return issue.get("pull_request") is None and isinstance(issue.get("number"), int)
 
 
+def _issue_label_names(issue: dict) -> set[str]:
+    names: set[str] = set()
+    for item in issue.get("labels") or []:
+        if isinstance(item, dict) and item.get("name"):
+            names.add(str(item["name"]).strip().lower())
+        elif isinstance(item, str):
+            names.add(item.strip().lower())
+    return names
+
+
+def infer_feedback_workflow_status(issue: dict) -> FeedbackWorkflowStatus:
+    labels = _issue_label_names(issue)
+    for key, cfg in WORKFLOW_STATUSES.items():
+        if cfg["label"].lower() in labels:
+            return key  # type: ignore[return-value]
+    if "duplicate" in labels or "duplicado" in labels:
+        return "duplicate"
+    state = (issue.get("state") or "open").lower()
+    if state == "closed":
+        reason = (issue.get("state_reason") or "").lower()
+        if reason == "not_planned":
+            return "not_planned"
+        return "done"
+    return "todo"
+
+
 def serialize_issue_summary(issue: dict) -> dict:
     body = issue.get("body") or ""
+    workflow_status = infer_feedback_workflow_status(issue)
     return {
         "number": issue.get("number"),
         "title": issue.get("title") or "",
         "state": issue.get("state") or "open",
+        "workflow_status": workflow_status,
+        "workflow_label": WORKFLOW_STATUS_LABELS_ES.get(workflow_status, workflow_status),
         "reporter": parse_issue_username(body),
         "created_at": issue.get("created_at"),
         "updated_at": issue.get("updated_at"),
@@ -141,6 +213,25 @@ def get_feedback_issue(repo: str, token: str, number: int) -> dict:
     return _github_api_json("GET", f"/repos/{repo}/issues/{number}", token)
 
 
+def _ensure_feedback_workflow_label(repo: str, token: str, label: str, color: str) -> None:
+    encoded = urllib.parse.quote(label)
+    try:
+        _github_api_json("GET", f"/repos/{repo}/labels/{encoded}", token)
+        return
+    except FeedbackError:
+        pass
+    try:
+        _github_api_json(
+            "POST",
+            f"/repos/{repo}/labels",
+            token,
+            body={"name": label, "color": color.lstrip("#"), "description": "Flujo Comentarios (ChessDash)"},
+        )
+    except FeedbackError as exc:
+        if "already exists" not in str(exc).lower():
+            raise
+
+
 def update_feedback_issue_state(
     repo: str,
     token: str,
@@ -156,6 +247,46 @@ def update_feedback_issue_state(
         lambda r, t, n, s: _github_api_json("PATCH", f"/repos/{r}/issues/{n}", t, body={"state": s})
     )
     updated = send(repo, token, number, normalized)
+    return serialize_issue_summary(updated)
+
+
+def update_feedback_issue_workflow(
+    repo: str,
+    token: str,
+    number: int,
+    status: str,
+    *,
+    fetcher: Callable[..., dict] | None = None,
+    patcher: Callable[..., dict] | None = None,
+    label_ensurer: Callable[..., None] | None = None,
+) -> dict:
+    key = (status or "").strip().lower()
+    if key not in WORKFLOW_STATUSES:
+        raise FeedbackError("Estado de flujo no válido.")
+    cfg = WORKFLOW_STATUSES[key]
+    get_issue = fetcher or (lambda r, t, n: _github_api_json("GET", f"/repos/{r}/issues/{n}", t))
+    raw = get_issue(repo, token, number)
+    preserved: list[str] = []
+    for item in raw.get("labels") or []:
+        if not isinstance(item, dict):
+            continue
+        name = (item.get("name") or "").strip()
+        if not name:
+            continue
+        lower = name.lower()
+        if lower in WORKFLOW_LABEL_NAMES or lower in {"duplicate", "duplicado"}:
+            continue
+        preserved.append(name)
+    new_labels = preserved + [cfg["label"]]
+    ensure = label_ensurer or _ensure_feedback_workflow_label
+    ensure(repo, token, cfg["label"], cfg.get("label_color") or "ededed")
+    payload: dict[str, Any] = {"labels": new_labels, "state": cfg["state"]}
+    if cfg["state"] == "closed" and cfg.get("state_reason"):
+        payload["state_reason"] = cfg["state_reason"]
+    elif cfg["state"] == "open" and (raw.get("state") or "").lower() == "closed":
+        payload["state_reason"] = "reopened"
+    send = patcher or (lambda r, t, n, body: _github_api_json("PATCH", f"/repos/{r}/issues/{n}", t, body=body))
+    updated = send(repo, token, number, payload)
     return serialize_issue_summary(updated)
 
 

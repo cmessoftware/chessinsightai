@@ -22,6 +22,7 @@ from services.feedback_attachments import (
 )
 from services.github_feedback import (
     FeedbackError,
+    FeedbackWorkflowStatus,
     create_feedback_issue,
     get_feedback_issue,
     list_feedback_issue_comments,
@@ -30,6 +31,7 @@ from services.github_feedback import (
     post_feedback_issue_comment,
     serialize_issue_summary,
     update_feedback_issue_state,
+    update_feedback_issue_workflow,
     upload_feedback_image_to_github,
 )
 
@@ -45,7 +47,8 @@ class FeedbackBody(BaseModel):
 
 
 class FeedbackIssueStateBody(BaseModel):
-    state: Literal["open", "closed"]
+    state: Optional[Literal["open", "closed"]] = None
+    workflow_status: Optional[FeedbackWorkflowStatus] = None
 
 
 def _public_attachment_base(request: Request) -> str:
@@ -88,6 +91,22 @@ def _require_feedback_manager(request: Request, db: Session) -> tuple[str, int |
     if not can_manage_feedback_issues(db, user_id=user_id, roles=roles):
         raise HTTPException(status_code=403, detail="Solo administradores pueden cerrar o reabrir reportes.")
     return username, user_id
+
+
+def _require_platform_admin(request: Request) -> tuple[str, int | None]:
+    user = _user_context(request)
+    username = (user.get("username") or "").strip()
+    roles = user.get("roles") or []
+    if "admin" not in roles:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo administradores de la plataforma pueden cambiar el estado del flujo.",
+        )
+    return username, user.get("user_id")
+
+
+def _can_manage_workflow(roles: list | None) -> bool:
+    return "admin" in (roles or [])
 
 
 def _require_github() -> tuple[str, str]:
@@ -264,14 +283,14 @@ def get_feedback_issue_thread(issue_number: int, request: Request, db: Session =
     if not is_chessdash_feedback_issue(raw):
         raise HTTPException(status_code=404, detail="Reporte no encontrado.")
     comments = list_feedback_issue_comments(repo, token, issue_number)
-    can_manage = can_manage_feedback_issues(
-        db, user_id=user.get("user_id"), roles=user.get("roles") or []
-    )
+    roles = user.get("roles") or []
+    can_manage = can_manage_feedback_issues(db, user_id=user.get("user_id"), roles=roles)
     return {
         "issue": serialize_issue_summary(raw),
         "initial_body": (raw.get("body") or "").strip(),
         "comments": comments,
         "can_manage_state": can_manage,
+        "can_manage_workflow": _can_manage_workflow(roles),
     }
 
 
@@ -324,8 +343,11 @@ def patch_feedback_issue_state(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """FEAT-124: cerrar o reabrir reporte (admin de cuenta o de grupo)."""
-    username, user_id = _require_feedback_manager(request, db)
+    """FEAT-124: cerrar/reabrir (admin o admin de grupo). Flujo tipo Projects: solo admin de plataforma."""
+    if body.workflow_status and body.state is not None:
+        raise HTTPException(status_code=400, detail="Enviá solo state o solo workflow_status.")
+    if not body.workflow_status and body.state is None:
+        raise HTTPException(status_code=400, detail="Falta state o workflow_status.")
     token, repo = _require_github()
     try:
         raw = get_feedback_issue(repo, token, issue_number)
@@ -333,8 +355,23 @@ def patch_feedback_issue_state(
         raise _feedback_error_to_http(exc) from exc
     if not is_chessdash_feedback_issue(raw):
         raise HTTPException(status_code=404, detail="Reporte no encontrado.")
+    if body.workflow_status:
+        username, user_id = _require_platform_admin(request)
+        try:
+            updated = update_feedback_issue_workflow(repo, token, issue_number, body.workflow_status)
+        except FeedbackError as exc:
+            raise _feedback_error_to_http(exc) from exc
+        record_activity(db, username=username, event="feedback_issue_workflow", user_id=user_id)
+        logger.info(
+            "feedback_issue_workflow #%s -> %s by %s",
+            issue_number,
+            body.workflow_status,
+            username,
+        )
+        return {"issue": updated}
+    username, user_id = _require_feedback_manager(request, db)
     try:
-        updated = update_feedback_issue_state(repo, token, issue_number, body.state)
+        updated = update_feedback_issue_state(repo, token, issue_number, body.state)  # type: ignore[arg-type]
     except FeedbackError as exc:
         raise _feedback_error_to_http(exc) from exc
     event = "feedback_issue_closed" if body.state == "closed" else "feedback_issue_reopened"
