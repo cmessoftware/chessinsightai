@@ -1,3 +1,138 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:cebd5e064ca47bd2d6573985e858da1ccc0488ab05674a096b457531012f2629
-size 16028
+[Event "C13 - Desarrollo e iniciativa frente a capturas tentadoras"]
+[Site "https://lichess.org/study/0DIi9xBK/g4XCL2I5"]
+[Date "1858.11.02"]
+[Round "-"]
+[White "Morphy, Paul"]
+[Black "Duke of Brunswick, Count"]
+[Result "1-0"]
+[ECO "C41"]
+[Opening "Philidor Defense"]
+[TimeControl "-"]
+[StudyName "Principio de Iniciativa"]
+[ReviewPOV "white"]
+[ReviewCorpus "elite"]
+[ReviewRhythm "Clasica historica de referencia, sin reloj moderno en el PGN."]
+[ChapterName "C13 - Desarrollo e iniciativa frente a capturas tentadoras"]
+
+{ Caso C13. Posicion a analizar: la anterior a 9.Bg5; juegan las blancas. La partida es el capitulo completo del estudio, con sus variantes. }
+1. e4 e5 2. Nf3 d6 3. d4 Bg4?! { Esta ya es una jugada débil. Más tarde Steinitz dijo que no se deberían sacar los alfiles antes de desarrollar los caballos. Es una regla muy buena para los principiantes. } (3... Nd7 { Era mejor. }) 4. dxe5 Bxf3 { Tiene que entregar el alfil. } (4... dxe5 5. Qxd8+ Kxd8 6. Nxe5) 5. Qxf3 { Más tarde Steinitz dijo que había que capturar con el peón. } (5. gxf3 dxe5 6. Qxd8+ Kxd8 7. f4 { Las blancas juegan este final con dos alfiles. } 7... Nf6 8. fxe5 Nxe4 9. Bg2 Nc5 10. b4 { Las blancas capturan en b7 cuando el caballo se mueva. Ganan. }) 5... dxe5 6. Bc4 { [Ríe.] Tengo un amigo que muestra esta partida y dice: "Puedo mostrarles mi partida contra el Duque de Brunswick". } 6... Nf6 { Para defenderse del mate en f7. } (6... Qf6 { Quizás intentaban perder de la misma manera. } 7. Qb3 b6 8. Nc3 c6 { Para impedir esto. } 9. Bg5 { Una jugada muy buena. } 9... Qg6 (9... Qxg5 10. Bxf7+ Ke7 11. Bxg8 { Gana. }) 10. Rd1 { No podía enrocar. } (10. O-O-O Qxg5+) 10... Be7 (10... Nd7 11. Bxf7+ Qxf7 12. Qxf7+ Kxf7 13. Rxd7+ { Las blancas ganan un peón y llegan a un final favorable. }) 11. Bxe7 Nxe7 12. Bxf7+ Qxf7 13. Rd8+ Kxd8 14. Qxf7) 7. Qb3! { Esta ya es una jugada ganadora, porque amenaza dos peones. } 7... Qe7 8. Nc3 { Si 8.Qxb7, las negras pueden jugar Db4+ y cambiar las damas, llegando a un final largo pero ganado. } (8. Qxb7 Qb4+) (8. Bxf7+ Qxf7 9. Qxb7 Bc5 10. Qc8+ Ke7 11. Qxh8 Bxf2+ 12. Ke2 $16) 8... c6 9. Bg5! { Ahora las negras están en una especie de zugzwang. No pueden desarrollar el caballo de b8 porque el peón de b7 está en el aire, y el alfil está bloqueado por la dama. } 9... b5? { Mistake. Kd8 was best. } { Y ahora Morphy termina con un hermoso sacrificio. } (9... Kd8 10. a3 Kc7 11. Bxf7 Nbd7 12. Qa2 h6 13. Bd2 a5 14. Rd1 Nc5 15. f3) 10. Nxb5! cxb5?! { Inaccuracy. Qb4+ was best. } (10... Qb4+ 11. Qxb4 Bxb4+ 12. c3 cxb5 13. Bxb5+ Ke7 14. cxb4 h6 15. Bxf6+ Kxf6 16. Rc1) 11. Bxb5+ Nbd7 (11... Kd8 12. Bxf6 { Seguido de Dd5+ y Dxa8. }) 12. O-O-O { Las blancas amenazan capturar el caballo. } 12... Rd8 { Las negras no pueden capturar con el caballo ni con la dama. } (12... O-O-O 13. Ba6+ { Y sigue Dxb7 mate. }) 13. Rxd7! Rxd7 14. Rd1 { Ahora las blancas simplemente pueden capturar el caballo y la torre y quedan con dos peones de ventaja. } 14... Qe6 15. Bxd7+ { Morphy estaba buscando una combinación brillante. } (15. Qxe6+ fxe6 16. Bxf6 { Es un final ganado fácilmente. }) 15... Nxd7? { Checkmate is now unavoidable. Qxd7 was best. } (15... Qxd7 16. Qb8+ Ke7 17. Qxe5+ Kd8 18. Qb8+ Ke7 19. e5 Ke6 20. exf6 Qc6 21. Qb3+) 16. Qb8+! Nxb8 17. Rd8# { Mate. } 1-0
+
+[Event "C14 - Sacrificio: material expuesto no prueba un error"]
+[Site "https://lichess.org/study/0DIi9xBK/g4XCL2I5"]
+[Date "1858.11.02"]
+[Round "-"]
+[White "Morphy, Paul"]
+[Black "Duke of Brunswick, Count"]
+[Result "1-0"]
+[ECO "C41"]
+[Opening "Philidor Defense"]
+[TimeControl "-"]
+[StudyName "Principio de Iniciativa"]
+[ReviewPOV "white"]
+[ReviewCorpus "elite"]
+[ReviewRhythm "Clasica historica de referencia, sin reloj moderno en el PGN."]
+[ChapterName "C14 - Sacrificio: material expuesto no prueba un error"]
+
+{ Caso C14. Posicion a analizar: la anterior a 10.Nxb5; juegan las blancas. La partida es el capitulo completo del estudio, con sus variantes. }
+1. e4 e5 2. Nf3 d6 3. d4 Bg4?! { Esta ya es una jugada débil. Más tarde Steinitz dijo que no se deberían sacar los alfiles antes de desarrollar los caballos. Es una regla muy buena para los principiantes. } (3... Nd7 { Era mejor. }) 4. dxe5 Bxf3 { Tiene que entregar el alfil. } (4... dxe5 5. Qxd8+ Kxd8 6. Nxe5) 5. Qxf3 { Más tarde Steinitz dijo que había que capturar con el peón. } (5. gxf3 dxe5 6. Qxd8+ Kxd8 7. f4 { Las blancas juegan este final con dos alfiles. } 7... Nf6 8. fxe5 Nxe4 9. Bg2 Nc5 10. b4 { Las blancas capturan en b7 cuando el caballo se mueva. Ganan. }) 5... dxe5 6. Bc4 { [Ríe.] Tengo un amigo que muestra esta partida y dice: "Puedo mostrarles mi partida contra el Duque de Brunswick". } 6... Nf6 { Para defenderse del mate en f7. } (6... Qf6 { Quizás intentaban perder de la misma manera. } 7. Qb3 b6 8. Nc3 c6 { Para impedir esto. } 9. Bg5 { Una jugada muy buena. } 9... Qg6 (9... Qxg5 10. Bxf7+ Ke7 11. Bxg8 { Gana. }) 10. Rd1 { No podía enrocar. } (10. O-O-O Qxg5+) 10... Be7 (10... Nd7 11. Bxf7+ Qxf7 12. Qxf7+ Kxf7 13. Rxd7+ { Las blancas ganan un peón y llegan a un final favorable. }) 11. Bxe7 Nxe7 12. Bxf7+ Qxf7 13. Rd8+ Kxd8 14. Qxf7) 7. Qb3! { Esta ya es una jugada ganadora, porque amenaza dos peones. } 7... Qe7 8. Nc3 { Si 8.Qxb7, las negras pueden jugar Db4+ y cambiar las damas, llegando a un final largo pero ganado. } (8. Qxb7 Qb4+) (8. Bxf7+ Qxf7 9. Qxb7 Bc5 10. Qc8+ Ke7 11. Qxh8 Bxf2+ 12. Ke2 $16) 8... c6 9. Bg5! { Ahora las negras están en una especie de zugzwang. No pueden desarrollar el caballo de b8 porque el peón de b7 está en el aire, y el alfil está bloqueado por la dama. } 9... b5? { Mistake. Kd8 was best. } { Y ahora Morphy termina con un hermoso sacrificio. } (9... Kd8 10. a3 Kc7 11. Bxf7 Nbd7 12. Qa2 h6 13. Bd2 a5 14. Rd1 Nc5 15. f3) 10. Nxb5! cxb5?! { Inaccuracy. Qb4+ was best. } (10... Qb4+ 11. Qxb4 Bxb4+ 12. c3 cxb5 13. Bxb5+ Ke7 14. cxb4 h6 15. Bxf6+ Kxf6 16. Rc1) 11. Bxb5+ Nbd7 (11... Kd8 12. Bxf6 { Seguido de Dd5+ y Dxa8. }) 12. O-O-O { Las blancas amenazan capturar el caballo. } 12... Rd8 { Las negras no pueden capturar con el caballo ni con la dama. } (12... O-O-O 13. Ba6+ { Y sigue Dxb7 mate. }) 13. Rxd7! Rxd7 14. Rd1 { Ahora las blancas simplemente pueden capturar el caballo y la torre y quedan con dos peones de ventaja. } 14... Qe6 15. Bxd7+ { Morphy estaba buscando una combinación brillante. } (15. Qxe6+ fxe6 16. Bxf6 { Es un final ganado fácilmente. }) 15... Nxd7? { Checkmate is now unavoidable. Qxd7 was best. } (15... Qxd7 16. Qb8+ Ke7 17. Qxe5+ Kd8 18. Qb8+ Ke7 19. e5 Ke6 20. exf6 Qc6 21. Qb3+) 16. Qb8+! Nxb8 17. Rd8# { Mate. } 1-0
+
+[Event "C15 - Jaque con sacrificio: dar jaque no es dejar el rey propio en jaque"]
+[Site "https://lichess.org/study/0DIi9xBK/g4XCL2I5"]
+[Date "1858.11.02"]
+[Round "-"]
+[White "Morphy, Paul"]
+[Black "Duke of Brunswick, Count"]
+[Result "1-0"]
+[ECO "C41"]
+[Opening "Philidor Defense"]
+[TimeControl "-"]
+[StudyName "Principio de Iniciativa"]
+[ReviewPOV "white"]
+[ReviewCorpus "elite"]
+[ReviewRhythm "Clasica historica de referencia, sin reloj moderno en el PGN."]
+[ChapterName "C15 - Jaque con sacrificio: dar jaque no es dejar el rey propio en jaque"]
+
+{ Caso C15. Posicion a analizar: la anterior a 16.Qb8+; juegan las blancas. La partida es el capitulo completo del estudio, con sus variantes. }
+1. e4 e5 2. Nf3 d6 3. d4 Bg4?! { Esta ya es una jugada débil. Más tarde Steinitz dijo que no se deberían sacar los alfiles antes de desarrollar los caballos. Es una regla muy buena para los principiantes. } (3... Nd7 { Era mejor. }) 4. dxe5 Bxf3 { Tiene que entregar el alfil. } (4... dxe5 5. Qxd8+ Kxd8 6. Nxe5) 5. Qxf3 { Más tarde Steinitz dijo que había que capturar con el peón. } (5. gxf3 dxe5 6. Qxd8+ Kxd8 7. f4 { Las blancas juegan este final con dos alfiles. } 7... Nf6 8. fxe5 Nxe4 9. Bg2 Nc5 10. b4 { Las blancas capturan en b7 cuando el caballo se mueva. Ganan. }) 5... dxe5 6. Bc4 { [Ríe.] Tengo un amigo que muestra esta partida y dice: "Puedo mostrarles mi partida contra el Duque de Brunswick". } 6... Nf6 { Para defenderse del mate en f7. } (6... Qf6 { Quizás intentaban perder de la misma manera. } 7. Qb3 b6 8. Nc3 c6 { Para impedir esto. } 9. Bg5 { Una jugada muy buena. } 9... Qg6 (9... Qxg5 10. Bxf7+ Ke7 11. Bxg8 { Gana. }) 10. Rd1 { No podía enrocar. } (10. O-O-O Qxg5+) 10... Be7 (10... Nd7 11. Bxf7+ Qxf7 12. Qxf7+ Kxf7 13. Rxd7+ { Las blancas ganan un peón y llegan a un final favorable. }) 11. Bxe7 Nxe7 12. Bxf7+ Qxf7 13. Rd8+ Kxd8 14. Qxf7) 7. Qb3! { Esta ya es una jugada ganadora, porque amenaza dos peones. } 7... Qe7 8. Nc3 { Si 8.Qxb7, las negras pueden jugar Db4+ y cambiar las damas, llegando a un final largo pero ganado. } (8. Qxb7 Qb4+) (8. Bxf7+ Qxf7 9. Qxb7 Bc5 10. Qc8+ Ke7 11. Qxh8 Bxf2+ 12. Ke2 $16) 8... c6 9. Bg5! { Ahora las negras están en una especie de zugzwang. No pueden desarrollar el caballo de b8 porque el peón de b7 está en el aire, y el alfil está bloqueado por la dama. } 9... b5? { Mistake. Kd8 was best. } { Y ahora Morphy termina con un hermoso sacrificio. } (9... Kd8 10. a3 Kc7 11. Bxf7 Nbd7 12. Qa2 h6 13. Bd2 a5 14. Rd1 Nc5 15. f3) 10. Nxb5! cxb5?! { Inaccuracy. Qb4+ was best. } (10... Qb4+ 11. Qxb4 Bxb4+ 12. c3 cxb5 13. Bxb5+ Ke7 14. cxb4 h6 15. Bxf6+ Kxf6 16. Rc1) 11. Bxb5+ Nbd7 (11... Kd8 12. Bxf6 { Seguido de Dd5+ y Dxa8. }) 12. O-O-O { Las blancas amenazan capturar el caballo. } 12... Rd8 { Las negras no pueden capturar con el caballo ni con la dama. } (12... O-O-O 13. Ba6+ { Y sigue Dxb7 mate. }) 13. Rxd7! Rxd7 14. Rd1 { Ahora las blancas simplemente pueden capturar el caballo y la torre y quedan con dos peones de ventaja. } 14... Qe6 15. Bxd7+ { Morphy estaba buscando una combinación brillante. } (15. Qxe6+ fxe6 16. Bxf6 { Es un final ganado fácilmente. }) 15... Nxd7? { Checkmate is now unavoidable. Qxd7 was best. } (15... Qxd7 16. Qb8+ Ke7 17. Qxe5+ Kd8 18. Qb8+ Ke7 19. e5 Ke6 20. exf6 Qc6 21. Qb3+) 16. Qb8+! Nxb8 17. Rd8# { Mate. } 1-0
+
+[Event "C16 - Resolver o mantener la tension central"]
+[Site "https://lichess.org/study/MAjiqRfC/a4uWaS04"]
+[Date "2023.10.25"]
+[Round "1"]
+[White "L'Ami, Erwin"]
+[Black "Vidit, Santosh Gujrathi"]
+[Result "1-0"]
+[WhiteElo "2627"]
+[BlackElo "2716"]
+[ECO "E32"]
+[Opening "Nimzo-Indian Defense: Classical Variation"]
+[TimeControl "-"]
+[StudyName "Metodo de la eliminacion y comparacion"]
+[ChapterName "C16 - Resolver o mantener la tension central"]
+[ReviewPOV "white"]
+[ReviewCorpus "elite"]
+[ReviewRhythm "Clasica de torneo: 45 minutos, 60 o mas, segun el evento. El PGN no trae el reloj exacto."]
+
+{ Caso C16, ejemplo E2. Posicion a analizar: la anterior a 9.cxd5; juegan las blancas. La partida es el capitulo completo del estudio. }
+1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 O-O 5. a3 Bxc3+ 6. Qxc3 Nc6 7. e3 Re8 8. Ne2 d5 9. cxd5 Ne4 10. Qd3 exd5 11. f3 Nd6 12. Nf4 g5 13. Nxd5 Nf5 14. Nc3 Nfxd4 15. Kf2 Bf5 16. e4 Be6 17. Rb1 Bb3 18. Qd2 Re5 19. h4 g4 20. Qh6 Re6 21. Qg5+ Rg6 22. Qxd8+ Rxd8 23. h5 Re6 24. Bg5 f6 25. Be3 f5 26. fxg4 fxe4 27. Kg3 Ne5 28. Rh4 c5 29. Kh2 Bc2 30. Ra1 Bd3 31. Rd1 c4 32. Bxd4 Rxd4 33. g5 Nf7 34. g6 hxg6 35. hxg6 Ne5 36. Bxd3 cxd3 37. Nxe4 Kg7 38. Kg1 Rxg6 39. Rf4 Nc4 40. Ng3 Nxb2 41. Nf5+ Kh8 42. Rxd4 Nxd1 43. Rh4+ Kg8 44. Ne7+ Kg7 45. Nxg6 Kxg6 46. Rd4 Nb2 47. Kf2 b5 48. Ke3 a5 49. Rd6+ Kf7 50. Ra6 a4 51. g4 Nc4+ 52. Kxd3 Nxa3 53. Rb6 Kg7 54. g5 Kh7 55. Ke4 Nc4 56. Ra6 a3 57. Kf5 Ne3+ 58. Kf6 Ng4+ 59. Kf7 Ne5+ 60. Kf6 Ng4+ 61. Kf5 Ne3+ 62. Kf4 Nd5+ 63. Ke5 Ne3 64. g6+ Kh6 65. Rxa3 { 1-0 White wins. } 1-0
+
+[Event "E3 - Error de pieza en la apertura"]
+[Site "https://lichess.org/study/KM1VdlIZ/3NTHt2nW"]
+[Date "1929.08.19"]
+[Round "16"]
+[White "Saemisch, Friedrich"]
+[Black "Capablanca, Jose Raul"]
+[Result "1-0"]
+[ECO "E24"]
+[Opening "Nimzo-Indian Defense: Samisch Variation"]
+[TimeControl "-"]
+[StudyName "Errores en las aperturas"]
+[ChapterName "E3 - Error de pieza en la apertura"]
+[ReviewPOV "black"]
+[ReviewCorpus "elite"]
+[ReviewRhythm "Clasica de torneo: 45 minutos, 60 o mas, segun el evento. El PGN no trae el reloj exacto."]
+
+{ Ejemplo E3. Posicion a analizar: la anterior a 9...Ba6; juegan las negras. La partida es el capitulo completo del estudio. }
+1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. a3 Bxc3+ 5. bxc3 d6 6. f3 e5 7. e4 Nc6 8. Be3 b6 9. Bd3 Ba6?? { Larry Evans: Vienna 1922.p.13. "The chess machine" blundered at move 9 right out of the box. The story goes (and it's well documented) that both his wife and his mistress had arrived at the playing hall, a double attack that unnerved him. } 10. Qa4 Bb7 11. d5 Qd7 12. dxc6 Bxc6 13. Qc2 O-O-O 14. Ne2 Qe6 15. Bg5 h6 16. Bxf6 Qxf6 17. O-O h5 18. f4 Qh6 19. Rae1 Rhe8 20. f5 Qe3+ 21. Kh1 Qc5 22. Qc1 f6 23. Rf3 Rh8 24. Qb2 a5 25. Rb1 h4 26. Nd4 Bd7 27. Nb3 Qc6 28. Nxa5 Qa8 29. Nb3 h3 30. g3 g6 31. fxg6 f5 32. Qc2 Rhg8 33. Nd2 f4 34. gxf4 Rxg6 35. f5 Rg2 36. Rg1 Rdg8 37. Rxg2 hxg2+ 38. Kg1 Qxa3 39. Rg3 Rxg3 40. hxg3 Ba4 41. Qb1 Qxc3 42. Nf3 Bb3 43. Kxg2 Bxc4 44. Bxc4 Qxc4 45. Kf2 d5 46. exd5 e4 47. Nd2 Qxd5 48. Ke2 Qxf5 49. Qxe4 Qb5+ 50. Kf3 Qa5 51. Nc4 Qa1 52. g4 Qf1+ 53. Kg3 Qg1+ 54. Kh4 Qh2+ 55. Kg5 Kb8 56. Kg6 Ka7 57. g5 b5 58. Ne5 c5 59. Qd5 Qc2+ 60. Kf6 b4 61. g6 b3 62. g7 { 1-0 White wins. } 1-0
+
+[Event "E4 - Decidir si se abre el centro"]
+[Site "https://lichess.org/study/B7MMty6b/PW3dVLRL"]
+[Date "2007.01.29"]
+[Round "3"]
+[White "Amonatov, Farrukh"]
+[Black "Rakhmanov, Alexander"]
+[Result "1-0"]
+[WhiteElo "2559"]
+[BlackElo "2473"]
+[ECO "C42"]
+[Opening "Petrov's Defense: Classical Attack, Jaenisch Variation"]
+[TimeControl "-"]
+[StudyName "Posiciones con centro abierto y cerrado"]
+[ChapterName "E4 - Decidir si se abre el centro"]
+[ReviewPOV "black"]
+[ReviewCorpus "elite"]
+[ReviewRhythm "Clasica de torneo: 45 minutos, 60 o mas, segun el evento. El PGN no trae el reloj exacto."]
+
+{ Ejemplo E4. Posicion a analizar: la anterior a 16...c5; juegan las negras. La partida es el capitulo completo del estudio. }
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 d6 4. Nf3 Nxe4 5. d4 d5 6. Bd3 Nc6 7. O-O Be7 8. c4 Nf6 9. Nc3 O-O 10. h3 Nb4 11. Be2 dxc4 12. Bxc4 c6 13. Bg5 Nbd5 14. Re1 Be6 15. Bd3 h6 16. Bd2 c5 17. Rxe6 fxe6 18. Qe2 Qc8 19. dxc5 Nxc3 20. Bxc3 Nd5 21. Qe4 Nf6 22. Qe2 Nd5 23. Bd4 Nf4 24. Qe5 Rf7 25. Bc4 Qc6 26. Re1 Bd8 27. Qd6 Qxd6 28. cxd6 Kh7 29. Ne5 Rf8 30. g3 Nd5 31. Nd7 Rf7 32. Nc5 Nb6 33. Bxe6 Rf8 34. Nxb7 Bf6 35. Bxf6 Rxf6 36. d7 Nxd7 37. Bxd7 Rb8 38. Nc5 Rxb2 39. Ne4 Rf8 40. Be6 a5 41. Bb3 a4 42. Bxa4 Rxa2 43. Bb5 Ra3 44. Bf1 Kh8 45. h4 Re8 46. Bg2 Ra7 47. Rd1 Rae7 48. Rd4 Ra7 49. Bf3 Ra3 50. Kg2 Rf8 51. Be2 Ra2 52. Bd1 Rb2 53. g4 Kh7 54. Kg3 Ra2 55. g5 hxg5 56. hxg5 Rfa8 57. Bg4 R2a3+ 58. f3 Rf8 59. Rd5 Kg6 60. Rd6+ Kh7 61. Bh5 Ra1 62. Bg6+ Kg8 63. Rd2 Ra3 64. Bh5 Kh7 65. Rh2 Kg8 66. Bg4 Re8 67. Bf5 Re5 68. Kg4 Raa5 69. Bh7+ Kf7 70. Rb2 Ra7 71. Rb6 Rc7 72. Bg6+ Ke7 73. Rb8 Kd7 74. Rg8 Kc6 75. Ng3 Re6 76. Be4+ Kc5 77. Nf5 g6 78. Nh4 { 1-0 White wins. } 1-0
+
+[Event "E5 - Ejecutar la ruptura central"]
+[Site "https://lichess.org/study/CUexpH0y/UXWWnSnW"]
+[Date "2019.02.21"]
+[Round "7.1"]
+[White "Harikrishna, Pentala"]
+[Black "Caruana, Fabiano"]
+[Result "0-1"]
+[WhiteElo "2726"]
+[BlackElo "2828"]
+[ECO "A29"]
+[Opening "English Opening: King's English Variation, Four Knights Variation, Fianchetto Line"]
+[TimeControl "-"]
+[StudyName "Ejecucion de Planes"]
+[ChapterName "E5 - Ejecutar la ruptura central"]
+[ReviewPOV "white"]
+[ReviewCorpus "elite"]
+[ReviewRhythm "Rapid. El evento es Saint Louis Champions Showdown rapid. El capitulo incluye la partida publicada en el estudio, con sus variantes."]
+
+{ Ejemplo E5. Posicion a analizar: la anterior a 15.d4; juegan las blancas. La partida es el capitulo completo del estudio, incluida la variante de 22.Bf3. }
+1. c4 e5 2. d3 Nf6 3. Nf3 Nc6 4. g3 d5 5. cxd5 Nxd5 6. Bg2 Be7 7. O-O Be6 8. Nc3 O-O 9. Bd2 a5 10. Nxd5 Bxd5 11. Bc3 Qd6 12. Qa4 Rfe8 13. Rfd1 Bf8 14. e4 Be6 15. d4 exd4 16. Nxd4 Nxd4 17. Bxd4 Qb4 18. Qc2 c6 19. a3 Qb5 20. a4 Qb3 21. Qe2 Rad8 22. Qe3?? { Blunder. Bf3 was best. } (22. Bf3 g6 23. Bc3 Bb4 24. Bf6 Bc4 25. Qe3 Qxe3 26. fxe3 Be7 27. Bd4 Bb3) 22... c5 { 0-1 Black wins. } 0-1

@@ -1,3 +1,8 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:0af03adf8ea908c3056b9e5513420dda813215e097f8e0b264480f9a75a56ecf
-size 192
+[Event "ChessInsight mental model lab"]
+[Site "Chess.com rapid"]
+[Date "2026.01.01"]
+[White "cmess1315"]
+[Black "opponent"]
+[Result "1-0"]
+
+1. e4 e5 2. Qh5 Nc6 3. Bc4 Nf6 4. Qxf7# 1-0

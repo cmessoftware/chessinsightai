@@ -23,6 +23,8 @@ data/
 !docs/ai_chess_coach_course/data/
 !docs/ai_chess_coach_course/data/games/
 !docs/ai_chess_coach_course/data/games/*.pgn
+!docs/ai_chess_coach/roadmap/deep_analysis/
+!docs/ai_chess_coach/roadmap/deep_analysis/*.pgn
 
 # course data files
 *.sqlite

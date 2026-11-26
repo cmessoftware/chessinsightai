@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Git LFS ya no aplica a PGN de `docs/` ni a fixtures de curso: evita timeouts del batch LFS en el clone de Render sobre archivos pequeños (p. ej. `coach-mental-review-2026-11-09.pgn`).
+
 ### Added
 
 - Script de importación PGN Mentor curado (`import_pgm_mentor_curated.py`): enum de 26 GM, prioridad por comentarios en el PGN y lotes configurables hacia `coach_games` (base PGM-FEAT-10).
@@ -94,6 +98,7 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-26 | [#286](https://github.com/cmessoftware/chessinsightai/pull/286) | Corrección integrada | PGN de `docs/` fuera de Git LFS para evitar timeout en clone/deploy de Render. |
 | 2026-11-25 | [#285](https://github.com/cmessoftware/chessinsightai/pull/285) | Documentación | Specs FEAT-120…127 en diseños UI; índice y enlaces tracker. |
 | 2026-11-25 | [#284](https://github.com/cmessoftware/chessinsightai/pull/284) | Documentación | Resumen backlog tracker: FEAT-127 Done, PGM-FEAT en Todo; sync checklist. |
 | 2026-11-23 | [#275](https://github.com/cmessoftware/chessinsightai/pull/275) | Cambio integrado | Comentarios con imágenes (FEAT-120), confirmación post-envío (FEAT-121) e imágenes en GitHub vía Contents API (FEAT-122). |
