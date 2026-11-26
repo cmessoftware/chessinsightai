@@ -106,6 +106,7 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-26 | [#298](https://github.com/cmessoftware/chessinsightai/pull/298) | En revisión | FEAT-130: estados de flujo en Comentarios (admin plataforma); badges en hilo. Apilado FEAT-124 si falta en `main`. |
 | 2026-11-26 | [#294](https://github.com/cmessoftware/chessinsightai/pull/294) | Cambio integrado | FEAT-124: cerrar/reabrir reportes (admin o grupo admin). |
 | 2026-11-26 | [#292](https://github.com/cmessoftware/chessinsightai/pull/292) | Cambio integrado | FEAT-123: Mis reportes, hilo y comentarios en Comentarios (proxy GitHub). |
 | 2026-11-26 | [#288](https://github.com/cmessoftware/chessinsightai/pull/288) | Cambio integrado | Comentarios: `#N` de reporte sin enlace a GitHub (**FEAT-129**, deriva FEAT-121). |
