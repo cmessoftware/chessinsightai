@@ -26,6 +26,14 @@ import {
 } from '@mui/material'
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined'
 import CloseIcon from '@mui/icons-material/Close'
+import {
+    FeedbackIssueWorkflowChip,
+    FeedbackIssueWorkflowMenu,
+} from '../components/feedback/FeedbackIssueWorkflowMenu.jsx'
+import {
+    CoachConfirmBadge,
+    CoachStatusBadge,
+} from '../components/coach/coachPanelStatus.jsx'
 import { API_BASE_URL } from '../config/api.js'
 import { useAuth } from '../hooks/useAuth.js'
 
@@ -180,6 +188,8 @@ export default function FeedbackPage() {
     const [threadError, setThreadError] = useState(null)
     const [replyText, setReplyText] = useState('')
     const [replySending, setReplySending] = useState(false)
+    const [stateChanging, setStateChanging] = useState(false)
+    const [pendingStateChange, setPendingStateChange] = useState(null)
 
     const authHeaders = useCallback(() => ({ Authorization: `Bearer ${token}` }), [token])
 
@@ -247,6 +257,10 @@ export default function FeedbackPage() {
         return () => clearInterval(id)
     }, [selectedNumber, loadThread])
 
+    useEffect(() => {
+        setPendingStateChange(null)
+    }, [selectedNumber])
+
     const openThread = (number) => {
         setPageTab('history')
         setSelectedNumber(number)
@@ -288,6 +302,56 @@ export default function FeedbackPage() {
             setSending(false)
         }
     }
+
+    const requestIssueStateChange = (nextState) => {
+        if (selectedNumber == null) return
+        const closing = nextState === 'closed'
+        setPendingStateChange({
+            nextState,
+            message: closing
+                ? `¿Cerrar el reporte #${selectedNumber}?`
+                : `¿Reabrir el reporte #${selectedNumber}?`,
+            confirmLabel: closing ? 'Cerrar reporte' : 'Reabrir reporte',
+        })
+    }
+
+    const cancelPendingStateChange = () => setPendingStateChange(null)
+
+    const confirmPendingStateChange = () => {
+        if (!pendingStateChange?.nextState) return
+        const nextState = pendingStateChange.nextState
+        setPendingStateChange(null)
+        void changeIssueState(nextState)
+    }
+
+    const applyIssuePatch = async (payload) => {
+        if (selectedNumber == null) return
+        setStateChanging(true)
+        setThreadError(null)
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/feedback/issues/${selectedNumber}`, {
+                method: 'PATCH',
+                headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+            const body = await response.json().catch(() => ({}))
+            if (!response.ok) {
+                throw new Error(formatApiDetail(body.detail) || 'No se pudo actualizar el estado')
+            }
+            setThread((prev) =>
+                prev ? { ...prev, issue: { ...prev.issue, ...(body.issue || {}) } } : prev,
+            )
+            loadIssues()
+        } catch (err) {
+            setThreadError(err.message || 'No se pudo actualizar el estado')
+        } finally {
+            setStateChanging(false)
+        }
+    }
+
+    const changeIssueState = (nextState) => applyIssuePatch({ state: nextState })
+
+    const changeIssueWorkflow = (workflowStatus) => applyIssuePatch({ workflow_status: workflowStatus })
 
     const submitReply = async (event) => {
         event.preventDefault()
@@ -431,20 +495,62 @@ export default function FeedbackPage() {
                         ← Volver al listado
                     </Button>
                     {threadLoading && !thread && <Typography variant="body2">Cargando…</Typography>}
+                    {pendingStateChange && (
+                        <Box sx={{ mb: 2 }}>
+                            <CoachConfirmBadge
+                                message={pendingStateChange.message}
+                                confirmLabel={pendingStateChange.confirmLabel}
+                                onConfirm={confirmPendingStateChange}
+                                onCancel={cancelPendingStateChange}
+                            />
+                        </Box>
+                    )}
                     {threadError && (
-                        <Alert severity="error" sx={{ mb: 2 }}>
-                            {threadError}
-                        </Alert>
+                        <Box sx={{ mb: 2 }}>
+                            <CoachStatusBadge severity="error" onDismiss={() => setThreadError(null)}>
+                                {threadError}
+                            </CoachStatusBadge>
+                        </Box>
                     )}
                     {thread && (
                         <>
                             <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap" sx={{ mb: 1 }}>
                                 <Typography variant="h6">#{thread.issue.number}</Typography>
-                                <Chip
-                                    size="small"
-                                    label={thread.issue.state === 'closed' ? 'Cerrado' : 'Abierto'}
-                                    color={thread.issue.state === 'closed' ? 'default' : 'success'}
-                                />
+                                {thread.can_manage_workflow ? (
+                                    <FeedbackIssueWorkflowMenu
+                                        workflowStatus={thread.issue.workflow_status || 'todo'}
+                                        loading={stateChanging}
+                                        onSelect={changeIssueWorkflow}
+                                    />
+                                ) : (
+                                    <FeedbackIssueWorkflowChip
+                                        workflowStatus={thread.issue.workflow_status || 'todo'}
+                                        workflowLabel={thread.issue.workflow_label}
+                                    />
+                                )}
+                                {thread.can_manage_state &&
+                                    !thread.can_manage_workflow &&
+                                    !pendingStateChange &&
+                                    (thread.issue.state === 'closed' ? (
+                                        <Button
+                                            size="small"
+                                            variant="outlined"
+                                            disabled={stateChanging}
+                                            onClick={() => requestIssueStateChange('open')}
+                                        >
+                                            Reabrir reporte
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            size="small"
+                                            color="warning"
+                                            variant="outlined"
+                                            disabled={stateChanging}
+                                            onClick={() => requestIssueStateChange('closed')}
+                                        >
+                                            Cerrar reporte
+                                        </Button>
+                                    ))}
                             </Stack>
                             <Typography variant="subtitle1" gutterBottom>
                                 {thread.issue.title}
@@ -490,9 +596,11 @@ export default function FeedbackPage() {
                                 </Box>
                             )}
                             {thread.issue.state === 'closed' && (
-                                <Alert severity="info" sx={{ mt: 2 }}>
-                                    Este reporte está cerrado. No podés agregar comentarios desde aquí.
-                                </Alert>
+                                <Box sx={{ mt: 2 }}>
+                                    <CoachStatusBadge severity="info">
+                                        Este reporte está cerrado. No podés agregar comentarios desde aquí.
+                                    </CoachStatusBadge>
+                                </Box>
                             )}
                         </>
                     )}
@@ -527,7 +635,8 @@ export default function FeedbackPage() {
                                         </Stack>
                                     }
                                     secondary={`${item.reporter ? `Por ${item.reporter} · ` : ''}${
-                                        item.state === 'closed' ? 'Cerrado' : 'Abierto'
+                                        item.workflow_label ||
+                                        (item.state === 'closed' ? 'Cerrado' : 'Abierto')
                                     } · ${formatWhen(item.updated_at)}`}
                                 />
                             </ListItemButton>

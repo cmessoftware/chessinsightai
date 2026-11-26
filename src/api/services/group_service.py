@@ -85,6 +85,29 @@ def list_groups(db: Session) -> list[dict]:
     return [_to_dict(db, group) for group in groups]
 
 
+def user_has_group_admin_role(db: Session, user_id: int) -> bool:
+    """True if the user belongs to a group whose roles include admin (LOG-FEAT-06)."""
+    row = (
+        db.query(UserGroupRole.role)
+        .join(UserGroupMember, UserGroupMember.group_id == UserGroupRole.group_id)
+        .filter(UserGroupMember.user_id == user_id, UserGroupRole.role == "admin")
+        .first()
+    )
+    return row is not None
+
+
+def can_manage_feedback_issues(db: Session | None, *, user_id: int | None, roles: list[str]) -> bool:
+    if "admin" in (roles or []):
+        return True
+    if db is None or user_id is None:
+        return False
+    try:
+        uid = int(user_id)
+    except (TypeError, ValueError):
+        return False
+    return user_has_group_admin_role(db, uid)
+
+
 def groups_for_users(db: Session, user_ids: list[int]) -> dict[int, dict]:
     if not user_ids:
         return {}

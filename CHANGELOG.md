@@ -16,10 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Comentarios (`/feedback`): tras enviar, se muestra el número de reporte (`#N`) como texto, sin enlace a GitHub (**FEAT-129**, extiende FEAT-121).
+- Comentarios: confirmación cerrar/reabrir con `CoachConfirmBadge` y avisos del hilo con `CoachStatusBadge` (mismo patrón que Partidas).
 
 ### Added
 
 - Comentarios: **Historial de reportes** con hilo y comentarios sincronizados con GitHub (**FEAT-123**); cualquier usuario autenticado puede leer y responder en reportes ajenos; API `GET/POST /api/feedback/issues`.
+- Comentarios: administradores (cuenta o grupo con rol admin) pueden **cerrar/reabrir** reportes desde el hilo (**FEAT-124**); `PATCH /api/feedback/issues/{n}` y eventos en log de actividad.
+- Comentarios: estados de flujo en español (Backlog, Por hacer, En curso, En revisión, Finalizado, No planeado, Duplicado) sincronizados con etiquetas `estado:*` en GitHub; selector solo para **admin de plataforma** (**FEAT-130**).
 - Script de importación PGN Mentor curado (`import_pgm_mentor_curated.py`): enum de 26 GM, prioridad por comentarios en el PGN y lotes configurables hacia `coach_games` (base PGM-FEAT-10).
 
 ### Historial recuperado de Coach / ChessDash — hasta 2026-11-09
@@ -103,6 +106,8 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-26 | [#298](https://github.com/cmessoftware/chessinsightai/pull/298) | En revisión | FEAT-130: estados de flujo en Comentarios (admin plataforma); badges en hilo. Apilado FEAT-124 si falta en `main`. |
+| 2026-11-26 | [#294](https://github.com/cmessoftware/chessinsightai/pull/294) | Cambio integrado | FEAT-124: cerrar/reabrir reportes (admin o grupo admin). |
 | 2026-11-26 | [#292](https://github.com/cmessoftware/chessinsightai/pull/292) | Cambio integrado | FEAT-123: Mis reportes, hilo y comentarios en Comentarios (proxy GitHub). |
 | 2026-11-26 | [#288](https://github.com/cmessoftware/chessinsightai/pull/288) | Cambio integrado | Comentarios: `#N` de reporte sin enlace a GitHub (**FEAT-129**, deriva FEAT-121). |
 | 2026-11-26 | [#286](https://github.com/cmessoftware/chessinsightai/pull/286) | Corrección integrada | PGN de `docs/` fuera de Git LFS para evitar timeout en clone/deploy de Render. |

@@ -1,6 +1,6 @@
 # FEAT-123 / FEAT-124 · Hilo de comentarios y cierre de issues en Comentarios
 
-**Estado:** FEAT-123 ✅ Done · FEAT-124 ⬜ Todo. Base adjuntos: FEAT-120…122 ([#275](https://github.com/cmessoftware/chessinsightai/pull/275)).  
+**Estado:** FEAT-123 / FEAT-124 ✅ Done. Base adjuntos: FEAT-120…122 ([#275](https://github.com/cmessoftware/chessinsightai/pull/275)).  
 **Tracker:** [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) (filas FEAT-123, FEAT-124)  
 **Relacionado:** LOG-FEAT-10, FEAT-120…122, `FeedbackPage`, `services/github_feedback.py`, `routers/feedback.py`
 
@@ -83,7 +83,7 @@ Usuario con permiso **admin** puede **cerrar** (y opcionalmente **reabrir**) un 
 
 ### Aceptación
 
-1. Solo `requiredPermission="admin"` (o equivalente API) ve **Cerrar** / **Reabrir**.
+1. Rol **admin** en la cuenta o miembro de un **grupo con rol admin** (LOG-FEAT-06) ve **Cerrar** / **Reabrir**.
 2. `PATCH` vía GitHub API (`state: closed` / `open`); la UI refleja el nuevo estado sin recargar la página entera (invalidar consulta o respuesta del PATCH).
 3. Registrar en log de actividad (extender LOG-FEAT-09): evento «feedback_issue_closed» / «feedback_issue_reopened» con número de issue y usuario admin.
 4. Usuario no admin que intenta cerrar recibe 403.
