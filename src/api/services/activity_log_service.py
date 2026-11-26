@@ -18,6 +18,8 @@ ACTIVITY_EVENTS = (
     ("import_games", "Importación de partidas"),
     ("statistics", "Solicitud de estadísticas"),
     ("deep_analysis", "Análisis profundo"),
+    ("feedback_issue_closed", "Cierre de reporte (Comentarios)"),
+    ("feedback_issue_reopened", "Reapertura de reporte (Comentarios)"),
 )
 EVENT_LABELS = dict(ACTIVITY_EVENTS)
 

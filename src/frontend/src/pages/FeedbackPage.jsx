@@ -180,6 +180,7 @@ export default function FeedbackPage() {
     const [threadError, setThreadError] = useState(null)
     const [replyText, setReplyText] = useState('')
     const [replySending, setReplySending] = useState(false)
+    const [stateChanging, setStateChanging] = useState(false)
 
     const authHeaders = useCallback(() => ({ Authorization: `Bearer ${token}` }), [token])
 
@@ -286,6 +287,38 @@ export default function FeedbackPage() {
             setError(err.message || 'No se pudo registrar el reporte')
         } finally {
             setSending(false)
+        }
+    }
+
+    const changeIssueState = async (nextState) => {
+        if (selectedNumber == null) return
+        const closing = nextState === 'closed'
+        const ok = window.confirm(
+            closing
+                ? `¿Cerrar el reporte #${selectedNumber}?`
+                : `¿Reabrir el reporte #${selectedNumber}?`,
+        )
+        if (!ok) return
+        setStateChanging(true)
+        setThreadError(null)
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/feedback/issues/${selectedNumber}`, {
+                method: 'PATCH',
+                headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ state: nextState }),
+            })
+            const body = await response.json().catch(() => ({}))
+            if (!response.ok) {
+                throw new Error(formatApiDetail(body.detail) || 'No se pudo actualizar el estado')
+            }
+            setThread((prev) =>
+                prev ? { ...prev, issue: { ...prev.issue, ...(body.issue || {}) } } : prev,
+            )
+            loadIssues()
+        } catch (err) {
+            setThreadError(err.message || 'No se pudo actualizar el estado')
+        } finally {
+            setStateChanging(false)
         }
     }
 
@@ -445,6 +478,27 @@ export default function FeedbackPage() {
                                     label={thread.issue.state === 'closed' ? 'Cerrado' : 'Abierto'}
                                     color={thread.issue.state === 'closed' ? 'default' : 'success'}
                                 />
+                                {thread.can_manage_state &&
+                                    (thread.issue.state === 'closed' ? (
+                                        <Button
+                                            size="small"
+                                            variant="outlined"
+                                            disabled={stateChanging}
+                                            onClick={() => changeIssueState('open')}
+                                        >
+                                            Reabrir reporte
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            size="small"
+                                            color="warning"
+                                            variant="outlined"
+                                            disabled={stateChanging}
+                                            onClick={() => changeIssueState('closed')}
+                                        >
+                                            Cerrar reporte
+                                        </Button>
+                                    ))}
                             </Stack>
                             <Typography variant="subtitle1" gutterBottom>
                                 {thread.issue.title}

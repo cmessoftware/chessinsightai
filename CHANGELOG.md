@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Comentarios: **Historial de reportes** con hilo y comentarios sincronizados con GitHub (**FEAT-123**); cualquier usuario autenticado puede leer y responder en reportes ajenos; API `GET/POST /api/feedback/issues`.
+- Comentarios: administradores (cuenta o grupo con rol admin) pueden **cerrar/reabrir** reportes desde el hilo (**FEAT-124**); `PATCH /api/feedback/issues/{n}` y eventos en log de actividad.
 - Script de importación PGN Mentor curado (`import_pgm_mentor_curated.py`): enum de 26 GM, prioridad por comentarios en el PGN y lotes configurables hacia `coach_games` (base PGM-FEAT-10).
 
 ### Historial recuperado de Coach / ChessDash — hasta 2026-11-09
