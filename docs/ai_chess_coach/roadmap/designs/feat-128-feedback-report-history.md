@@ -7,7 +7,7 @@
 
 ## Objetivo
 
-Listar reportes del usuario, estado y detalle; ampliar un reporte existente sin duplicar issues.
+Listar reportes del usuario, estado y detalle; ampliar un reporte existente sin duplicar issues. **Nota (2026-11):** el historial global y hilos ya cubren gran parte en **FEAT-123**; FEAT-128 queda para mejoras de filtro «solo míos» o metadatos extra si hace falta.
 
 ## Relación con otros ítems
 
