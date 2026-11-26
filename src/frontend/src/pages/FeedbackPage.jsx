@@ -157,7 +157,7 @@ function CommentBlock({ author, createdAt, body }) {
 
 export default function FeedbackPage() {
     const { token } = useAuth()
-    const [pageTab, setPageTab] = useState('new')
+    const [pageTab, setPageTab] = useState('new') // 'new' | 'history'
     const [kind, setKind] = useState('bug')
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
@@ -228,7 +228,7 @@ export default function FeedbackPage() {
     const showConfirmation = Boolean(created)
 
     useEffect(() => {
-        if (pageTab === 'mine' && !showConfirmation) {
+        if (pageTab === 'history' && !showConfirmation) {
             loadIssues()
         }
     }, [pageTab, loadIssues, showConfirmation])
@@ -248,7 +248,7 @@ export default function FeedbackPage() {
     }, [selectedNumber, loadThread])
 
     const openThread = (number) => {
-        setPageTab('mine')
+        setPageTab('history')
         setSelectedNumber(number)
         setCreated(null)
         setError(null)
@@ -333,7 +333,7 @@ export default function FeedbackPage() {
         setSelectedNumber(null)
     }
 
-    const showThread = selectedNumber != null && pageTab === 'mine'
+    const showThread = selectedNumber != null && pageTab === 'history'
 
     return (
         <Box sx={{ maxWidth: 720 }}>
@@ -343,7 +343,7 @@ export default function FeedbackPage() {
             {!showConfirmation && (
                 <Tabs value={pageTab} onChange={(_, v) => setPageTab(v)} sx={{ mb: 2 }}>
                     <Tab value="new" label="Nuevo reporte" />
-                    <Tab value="mine" label="Mis reportes" />
+                    <Tab value="history" label="Historial de reportes" />
                 </Tabs>
             )}
             {error && (
@@ -351,7 +351,7 @@ export default function FeedbackPage() {
                     {error}
                 </Alert>
             )}
-            {issuesError && pageTab === 'mine' && !showThread && (
+            {issuesError && pageTab === 'history' && !showThread && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                     {issuesError}
                 </Alert>
@@ -453,7 +453,11 @@ export default function FeedbackPage() {
                             <Typography variant="overline" display="block" color="text.secondary">
                                 Mensaje inicial
                             </Typography>
-                            <CommentBlock author="Vos" createdAt={thread.issue.created_at} body={thread.initial_body} />
+                            <CommentBlock
+                                author={thread.issue.reporter || 'Reporte'}
+                                createdAt={thread.issue.created_at}
+                                body={thread.initial_body}
+                            />
                             {thread.comments?.map((c) => (
                                 <CommentBlock
                                     key={c.id}
@@ -494,15 +498,18 @@ export default function FeedbackPage() {
                     )}
                 </Box>
             )}
-            {!showConfirmation && pageTab === 'mine' && !showThread && (
+            {!showConfirmation && pageTab === 'history' && !showThread && (
                 <Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        Todos los reportes del equipo: podés leer y comentar en cualquiera con sesión iniciada.
+                    </Typography>
                     <Button size="small" onClick={loadIssues} disabled={issuesLoading} sx={{ mb: 1 }}>
                         Actualizar
                     </Button>
                     {issuesLoading && <Typography variant="body2">Cargando…</Typography>}
                     {!issuesLoading && issues.length === 0 && (
                         <Typography variant="body2" color="text.secondary">
-                            Todavía no hay reportes con tu usuario.
+                            Todavía no hay reportes registrados.
                         </Typography>
                     )}
                     <List dense>
@@ -519,7 +526,9 @@ export default function FeedbackPage() {
                                             </Typography>
                                         </Stack>
                                     }
-                                    secondary={`${item.state === 'closed' ? 'Cerrado' : 'Abierto'} · ${formatWhen(item.updated_at)}`}
+                                    secondary={`${item.reporter ? `Por ${item.reporter} · ` : ''}${
+                                        item.state === 'closed' ? 'Cerrado' : 'Abierto'
+                                    } · ${formatWhen(item.updated_at)}`}
                                 />
                             </ListItemButton>
                         ))}

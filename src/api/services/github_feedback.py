@@ -40,13 +40,11 @@ def parse_issue_username(body: str | None) -> str | None:
     return match.group(1).strip()
 
 
-def user_may_access_issue(issue: dict, username: str, *, is_admin: bool) -> bool:
-    if is_admin:
-        return True
-    owner = parse_issue_username(issue.get("body") or "")
-    if not owner:
+def is_chessdash_feedback_issue(issue: dict) -> bool:
+    """Issue created from Comentarios (body with **Usuario:**)."""
+    if not _issue_is_feedback_item(issue):
         return False
-    return owner.lower() == username.strip().lower()
+    return parse_issue_username(issue.get("body") or "") is not None
 
 
 def _github_api_json(
@@ -84,10 +82,12 @@ def _issue_is_feedback_item(issue: dict) -> bool:
 
 
 def serialize_issue_summary(issue: dict) -> dict:
+    body = issue.get("body") or ""
     return {
         "number": issue.get("number"),
         "title": issue.get("title") or "",
         "state": issue.get("state") or "open",
+        "reporter": parse_issue_username(body),
         "created_at": issue.get("created_at"),
         "updated_at": issue.get("updated_at"),
     }
@@ -107,12 +107,11 @@ def list_feedback_issues(
     *,
     repo: str,
     token: str,
-    username: str,
     page: int = 1,
     per_page: int = 30,
     fetcher: Callable[..., list] | None = None,
 ) -> dict:
-    """Issues whose body names **Usuario:** {username} (newest first)."""
+    """All ChessDash feedback issues (body with **Usuario:**), newest activity first."""
     page = max(1, page)
     per_page = min(max(1, per_page), 100)
     get_page = fetcher or (
@@ -128,10 +127,7 @@ def list_feedback_issues(
         raise FeedbackError("Respuesta inesperada al listar reportes.")
     filtered: list[dict] = []
     for item in raw:
-        if not _issue_is_feedback_item(item):
-            continue
-        owner = parse_issue_username(item.get("body") or "")
-        if owner and owner.lower() == username.strip().lower():
+        if is_chessdash_feedback_issue(item):
             filtered.append(serialize_issue_summary(item))
     return {
         "items": filtered,

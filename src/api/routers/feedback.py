@@ -19,11 +19,11 @@ from services.github_feedback import (
     create_feedback_issue,
     get_feedback_issue,
     list_feedback_issue_comments,
+    is_chessdash_feedback_issue,
     list_feedback_issues,
     post_feedback_issue_comment,
     serialize_issue_summary,
     upload_feedback_image_to_github,
-    user_may_access_issue,
 )
 
 router = APIRouter(prefix="/api/feedback", tags=["feedback"])
@@ -214,27 +214,27 @@ async def submit_feedback_json(body: FeedbackBody, request: Request):
 
 
 @router.get("/issues")
-def list_my_feedback_issues(request: Request, page: int = 1, per_page: int = 30):
-    """FEAT-123: reportes del usuario (filtro por **Usuario:** en el cuerpo del issue)."""
-    username, _ = _require_user(request)
+def list_feedback_history(request: Request, page: int = 1, per_page: int = 30):
+    """FEAT-123: historial de reportes ChessDash (todos los usuarios autenticados)."""
+    _require_user(request)
     token, repo = _require_github()
     try:
-        return list_feedback_issues(repo=repo, token=token, username=username, page=page, per_page=per_page)
+        return list_feedback_issues(repo=repo, token=token, page=page, per_page=per_page)
     except FeedbackError as exc:
         raise _feedback_error_to_http(exc) from exc
 
 
 @router.get("/issues/{issue_number}")
-def get_my_feedback_issue(issue_number: int, request: Request):
+def get_feedback_issue_thread(issue_number: int, request: Request):
     """FEAT-123: metadatos, descripción inicial y comentarios (sin URL de GitHub)."""
-    username, is_admin = _require_user(request)
+    _require_user(request)
     token, repo = _require_github()
     try:
         raw = get_feedback_issue(repo, token, issue_number)
     except FeedbackError as exc:
         raise _feedback_error_to_http(exc) from exc
-    if not user_may_access_issue(raw, username, is_admin=is_admin):
-        raise HTTPException(status_code=403, detail="No tenés acceso a este reporte.")
+    if not is_chessdash_feedback_issue(raw):
+        raise HTTPException(status_code=404, detail="Reporte no encontrado.")
     comments = list_feedback_issue_comments(repo, token, issue_number)
     return {
         "issue": serialize_issue_summary(raw),
@@ -251,14 +251,14 @@ async def add_feedback_issue_comment(
     files: List[UploadFile] = File(default=[]),
 ):
     """FEAT-123: publicar comentario en el hilo (multipart opcional con imágenes)."""
-    username, is_admin = _require_user(request)
+    username, _ = _require_user(request)
     token, repo = _require_github()
     try:
         raw = get_feedback_issue(repo, token, issue_number)
     except FeedbackError as exc:
         raise _feedback_error_to_http(exc) from exc
-    if not user_may_access_issue(raw, username, is_admin=is_admin):
-        raise HTTPException(status_code=403, detail="No tenés acceso a este reporte.")
+    if not is_chessdash_feedback_issue(raw):
+        raise HTTPException(status_code=404, detail="Reporte no encontrado.")
     image_markdown = None
     attachment_warnings: list[str] = []
     if files:

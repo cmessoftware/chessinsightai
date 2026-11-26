@@ -14,10 +14,10 @@ if str(SRC_API) not in sys.path:
 
 from services.github_feedback import (  # noqa: E402
     build_comment_body,
+    is_chessdash_feedback_issue,
     list_feedback_issues,
     parse_issue_username,
     post_feedback_issue_comment,
-    user_may_access_issue,
 )
 
 
@@ -27,14 +27,13 @@ def test_parse_issue_username_reads_marker():
     assert parse_issue_username("sin marca") is None
 
 
-def test_user_may_access_issue_respects_owner_and_admin():
-    issue = {"body": "**Usuario:** luis\n\nHola."}
-    assert user_may_access_issue(issue, "luis", is_admin=False) is True
-    assert user_may_access_issue(issue, "ana", is_admin=False) is False
-    assert user_may_access_issue(issue, "ana", is_admin=True) is True
+def test_is_chessdash_feedback_issue():
+    assert is_chessdash_feedback_issue({"number": 1, "body": "**Usuario:** luis\n"}) is True
+    assert is_chessdash_feedback_issue({"number": 2, "body": "sin marca"}) is False
+    assert is_chessdash_feedback_issue({"number": 3, "body": "**Usuario:** x\n", "pull_request": {}}) is False
 
 
-def test_list_feedback_issues_filters_by_username():
+def test_list_feedback_issues_includes_all_chessdash_reports():
     raw_page = [
         {"number": 1, "title": "[Bug] A", "state": "open", "body": "**Usuario:** ana\n", "created_at": "t", "updated_at": "t"},
         {"number": 2, "title": "PR", "state": "open", "body": "**Usuario:** ana\n", "pull_request": {}, "created_at": "t", "updated_at": "t"},
@@ -44,9 +43,10 @@ def test_list_feedback_issues_filters_by_username():
     def fetcher(repo, token, page, per_page):
         return raw_page
 
-    result = list_feedback_issues(repo="o/r", token="t", username="ana", fetcher=fetcher)
-    assert len(result["items"]) == 1
-    assert result["items"][0]["number"] == 1
+    result = list_feedback_issues(repo="o/r", token="t", fetcher=fetcher)
+    assert len(result["items"]) == 2
+    assert {item["number"] for item in result["items"]} == {1, 3}
+    assert result["items"][0]["reporter"] == "ana"
 
 
 def test_build_comment_body_includes_username():
