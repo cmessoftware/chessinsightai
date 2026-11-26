@@ -9,7 +9,8 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Callable, List, Optional, Tuple
+import re
+from typing import Any, Callable, List, Optional, Tuple
 
 from services.feedback_attachments import append_images_to_issue_body
 
@@ -25,6 +26,161 @@ KINDS = {
 
 class FeedbackError(Exception):
     """The report cannot be sent."""
+
+
+ISSUE_USER_RE = re.compile(r"\*\*Usuario:\*\*\s*(\S+)", re.IGNORECASE)
+
+
+def parse_issue_username(body: str | None) -> str | None:
+    if not body:
+        return None
+    match = ISSUE_USER_RE.search(body)
+    if not match:
+        return None
+    return match.group(1).strip()
+
+
+def user_may_access_issue(issue: dict, username: str, *, is_admin: bool) -> bool:
+    if is_admin:
+        return True
+    owner = parse_issue_username(issue.get("body") or "")
+    if not owner:
+        return False
+    return owner.lower() == username.strip().lower()
+
+
+def _github_api_json(
+    method: str,
+    path: str,
+    token: str,
+    *,
+    body: dict | None = None,
+    query: dict | None = None,
+    timeout: float = 25,
+) -> Any:
+    url = f"{GITHUB_API}{path}"
+    if query:
+        url = f"{url}?{urllib.parse.urlencode(query)}"
+    data = None
+    headers = _github_headers(token, content_type="application/json" if body is not None else None)
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+    request = urllib.request.Request(url, data=data, headers=headers, method=method.upper())
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read().decode("utf-8")
+            if not raw:
+                return {}
+            return json.loads(raw)
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise FeedbackError(detail or f"GitHub respondió {exc.code}") from exc
+    except urllib.error.URLError as exc:
+        raise FeedbackError("No se pudo contactar a GitHub.") from exc
+
+
+def _issue_is_feedback_item(issue: dict) -> bool:
+    return issue.get("pull_request") is None and isinstance(issue.get("number"), int)
+
+
+def serialize_issue_summary(issue: dict) -> dict:
+    return {
+        "number": issue.get("number"),
+        "title": issue.get("title") or "",
+        "state": issue.get("state") or "open",
+        "created_at": issue.get("created_at"),
+        "updated_at": issue.get("updated_at"),
+    }
+
+
+def serialize_comment(comment: dict) -> dict:
+    user = comment.get("user") or {}
+    return {
+        "id": comment.get("id"),
+        "author": user.get("login") or "usuario",
+        "body": comment.get("body") or "",
+        "created_at": comment.get("created_at"),
+    }
+
+
+def list_feedback_issues(
+    *,
+    repo: str,
+    token: str,
+    username: str,
+    page: int = 1,
+    per_page: int = 30,
+    fetcher: Callable[..., list] | None = None,
+) -> dict:
+    """Issues whose body names **Usuario:** {username} (newest first)."""
+    page = max(1, page)
+    per_page = min(max(1, per_page), 100)
+    get_page = fetcher or (
+        lambda r, t, p, pp: _github_api_json(
+            "GET",
+            f"/repos/{r}/issues",
+            t,
+            query={"state": "all", "per_page": pp, "page": p, "sort": "updated", "direction": "desc"},
+        )
+    )
+    raw = get_page(repo, token, page, per_page)
+    if not isinstance(raw, list):
+        raise FeedbackError("Respuesta inesperada al listar reportes.")
+    filtered: list[dict] = []
+    for item in raw:
+        if not _issue_is_feedback_item(item):
+            continue
+        owner = parse_issue_username(item.get("body") or "")
+        if owner and owner.lower() == username.strip().lower():
+            filtered.append(serialize_issue_summary(item))
+    return {
+        "items": filtered,
+        "page": page,
+        "per_page": per_page,
+        "has_more": len(raw) >= per_page,
+    }
+
+
+def get_feedback_issue(repo: str, token: str, number: int) -> dict:
+    return _github_api_json("GET", f"/repos/{repo}/issues/{number}", token)
+
+
+def list_feedback_issue_comments(repo: str, token: str, number: int) -> list[dict]:
+    raw = _github_api_json(
+        "GET",
+        f"/repos/{repo}/issues/{number}/comments",
+        token,
+        query={"per_page": 100},
+    )
+    if not isinstance(raw, list):
+        raise FeedbackError("Respuesta inesperada al leer comentarios.")
+    return [serialize_comment(c) for c in raw]
+
+
+def build_comment_body(*, username: str, text: str, image_markdown: list[tuple[str, str]] | None = None) -> str:
+    clean = (text or "").strip()
+    if not clean and not image_markdown:
+        raise FeedbackError("El comentario es obligatorio.")
+    body = f"**Usuario:** {(username or '').strip() or 'desconocido'}\n\n{clean}"
+    if image_markdown:
+        body = append_images_to_issue_body(body, image_markdown)
+    return body[:8000]
+
+
+def post_feedback_issue_comment(
+    *,
+    repo: str,
+    token: str,
+    number: int,
+    username: str,
+    text: str,
+    image_markdown: list[tuple[str, str]] | None = None,
+    poster: Callable[..., dict] | None = None,
+) -> dict:
+    payload = {"body": build_comment_body(username=username, text=text, image_markdown=image_markdown)}
+    send = poster or (lambda r, t, n, p: _github_api_json("POST", f"/repos/{r}/issues/{n}/comments", t, body=p))
+    created = send(repo, token, number, payload)
+    return serialize_comment(created)
 
 
 def _github_headers(token: str, *, content_type: str = "application/json") -> dict:

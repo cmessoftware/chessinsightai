@@ -2,7 +2,7 @@
 
 [Versión completa](/changelog/pendientes) · [Índice del roadmap](./00-roadmap-index.md)
 
-**Actualizado:** 2026-11-26 (UTC) · **Ítems:** 117
+**Actualizado:** 2026-11-26 (UTC) · **Ítems:** 116
 
 Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-pending`.
 
@@ -28,7 +28,6 @@ Solo **módulo** e **ítem** (ID + título). Generado con `npm run roadmap:sync-
 - **FEAT-110** — Subnav Coach «Estudios» con los estudios cargados. Al elegir uno, abrir el tablero de análisis en el primer capítulo y la lista de capítulos a la izquierda,…
 - **FEAT-116** — La pantalla de inicio (`/coach`) es la de análisis y sigue abriendo la última partida.
 - **FEAT-119** — Móvil: mover piezas en el tablero eligiendo casilla inicial y casilla final (tap/clic). Hoy solo entra bien por drag&drop.
-- **FEAT-123** — Comentarios: hilo de comentarios del issue en la UI (leer y escribir), sincronizado con GitHub.
 - **FEAT-124** — Comentarios: el admin puede cerrar y reabrir issues desde la UI.
 - **LOG-BUG-11** — Crear o editar un usuario puede guardar cambios aunque falle la asignación del grupo.
 - **LOG-BUG-12** — El filtro por fecha del registro de actividad no coincide con la fecha que muestra la tabla.

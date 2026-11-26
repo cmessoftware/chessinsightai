@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Comentarios: pestaña **Mis reportes**, hilo con comentarios y respuestas sincronizadas con GitHub (**FEAT-123**); API `GET/POST /api/feedback/issues`.
 - Script de importación PGN Mentor curado (`import_pgm_mentor_curated.py`): enum de 26 GM, prioridad por comentarios en el PGN y lotes configurables hacia `coach_games` (base PGM-FEAT-10).
 
 ### Historial recuperado de Coach / ChessDash — hasta 2026-11-09

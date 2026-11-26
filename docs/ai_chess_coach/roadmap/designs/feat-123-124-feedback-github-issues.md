@@ -1,6 +1,6 @@
 # FEAT-123 / FEAT-124 · Hilo de comentarios y cierre de issues en Comentarios
 
-**Estado:** ⬜ Todo (spec consolidada; implementación pendiente). Base adjuntos: FEAT-120…122 ([#275](https://github.com/cmessoftware/chessinsightai/pull/275)).  
+**Estado:** FEAT-123 ✅ Done · FEAT-124 ⬜ Todo. Base adjuntos: FEAT-120…122 ([#275](https://github.com/cmessoftware/chessinsightai/pull/275)).  
 **Tracker:** [issues-coach-move-classification-pedagogy-mini-plan.md](./issues-coach-move-classification-pedagogy-mini-plan.md) (filas FEAT-123, FEAT-124)  
 **Relacionado:** LOG-FEAT-10, FEAT-120…122, `FeedbackPage`, `services/github_feedback.py`, `routers/feedback.py`
 
