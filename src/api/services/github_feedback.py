@@ -141,6 +141,24 @@ def get_feedback_issue(repo: str, token: str, number: int) -> dict:
     return _github_api_json("GET", f"/repos/{repo}/issues/{number}", token)
 
 
+def update_feedback_issue_state(
+    repo: str,
+    token: str,
+    number: int,
+    state: str,
+    *,
+    patcher: Callable[..., dict] | None = None,
+) -> dict:
+    normalized = (state or "").strip().lower()
+    if normalized not in ("open", "closed"):
+        raise FeedbackError("El estado debe ser open o closed.")
+    send = patcher or (
+        lambda r, t, n, s: _github_api_json("PATCH", f"/repos/{r}/issues/{n}", t, body={"state": s})
+    )
+    updated = send(repo, token, number, normalized)
+    return serialize_issue_summary(updated)
+
+
 def list_feedback_issue_comments(repo: str, token: str, number: int) -> list[dict]:
     raw = _github_api_json(
         "GET",

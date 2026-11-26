@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+import logging
+from typing import List, Literal, Optional
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from database import get_db
+from services.activity_log_service import record_activity
+from services.group_service import can_manage_feedback_issues
 
 from services.feedback_attachments import (
     FeedbackAttachmentError,
@@ -23,8 +29,11 @@ from services.github_feedback import (
     list_feedback_issues,
     post_feedback_issue_comment,
     serialize_issue_summary,
+    update_feedback_issue_state,
     upload_feedback_image_to_github,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/feedback", tags=["feedback"])
 
@@ -33,6 +42,10 @@ class FeedbackBody(BaseModel):
     kind: str = Field(..., description="bug or suggestion")
     title: str = Field(..., min_length=1, max_length=160)
     description: str = Field(..., min_length=1, max_length=8000)
+
+
+class FeedbackIssueStateBody(BaseModel):
+    state: Literal["open", "closed"]
 
 
 def _public_attachment_base(request: Request) -> str:
@@ -52,14 +65,29 @@ def _github_feedback_credentials() -> tuple[str, str]:
     return token, repo
 
 
-def _require_user(request: Request) -> tuple[str, bool]:
+def _user_context(request: Request) -> dict:
     user = getattr(request.state, "user", None) or {}
     username = (user.get("username") or "").strip()
     if not username:
         raise HTTPException(status_code=401, detail="Authentication required")
+    return user
+
+
+def _require_user(request: Request) -> tuple[str, bool]:
+    user = _user_context(request)
+    username = (user.get("username") or "").strip()
     roles = user.get("roles") or []
-    is_admin = "admin" in roles
-    return username, is_admin
+    return username, "admin" in roles
+
+
+def _require_feedback_manager(request: Request, db: Session) -> tuple[str, int | None]:
+    user = _user_context(request)
+    username = (user.get("username") or "").strip()
+    user_id = user.get("user_id")
+    roles = user.get("roles") or []
+    if not can_manage_feedback_issues(db, user_id=user_id, roles=roles):
+        raise HTTPException(status_code=403, detail="Solo administradores pueden cerrar o reabrir reportes.")
+    return username, user_id
 
 
 def _require_github() -> tuple[str, str]:
@@ -225,9 +253,9 @@ def list_feedback_history(request: Request, page: int = 1, per_page: int = 30):
 
 
 @router.get("/issues/{issue_number}")
-def get_feedback_issue_thread(issue_number: int, request: Request):
+def get_feedback_issue_thread(issue_number: int, request: Request, db: Session = Depends(get_db)):
     """FEAT-123: metadatos, descripción inicial y comentarios (sin URL de GitHub)."""
-    _require_user(request)
+    user = _user_context(request)
     token, repo = _require_github()
     try:
         raw = get_feedback_issue(repo, token, issue_number)
@@ -236,10 +264,14 @@ def get_feedback_issue_thread(issue_number: int, request: Request):
     if not is_chessdash_feedback_issue(raw):
         raise HTTPException(status_code=404, detail="Reporte no encontrado.")
     comments = list_feedback_issue_comments(repo, token, issue_number)
+    can_manage = can_manage_feedback_issues(
+        db, user_id=user.get("user_id"), roles=user.get("roles") or []
+    )
     return {
         "issue": serialize_issue_summary(raw),
         "initial_body": (raw.get("body") or "").strip(),
         "comments": comments,
+        "can_manage_state": can_manage,
     }
 
 
@@ -283,6 +315,32 @@ async def add_feedback_issue_comment(
     if attachment_warnings:
         result["attachment_warnings"] = attachment_warnings
     return result
+
+
+@router.patch("/issues/{issue_number}")
+def patch_feedback_issue_state(
+    issue_number: int,
+    body: FeedbackIssueStateBody,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """FEAT-124: cerrar o reabrir reporte (admin de cuenta o de grupo)."""
+    username, user_id = _require_feedback_manager(request, db)
+    token, repo = _require_github()
+    try:
+        raw = get_feedback_issue(repo, token, issue_number)
+    except FeedbackError as exc:
+        raise _feedback_error_to_http(exc) from exc
+    if not is_chessdash_feedback_issue(raw):
+        raise HTTPException(status_code=404, detail="Reporte no encontrado.")
+    try:
+        updated = update_feedback_issue_state(repo, token, issue_number, body.state)
+    except FeedbackError as exc:
+        raise _feedback_error_to_http(exc) from exc
+    event = "feedback_issue_closed" if body.state == "closed" else "feedback_issue_reopened"
+    record_activity(db, username=username, event=event, user_id=user_id)
+    logger.info("%s issue #%s by %s", event, issue_number, username)
+    return {"issue": updated}
 
 
 @router.get("/attachments/{attachment_id}")
