@@ -33,7 +33,7 @@ En **Comentarios**, permitir **ver y publicar comentarios** en el issue asociado
 
 ### Aceptación
 
-1. Tras elegir un issue (o desde la confirmación post-envío), la UI muestra **estado** (abierto/cerrado), título, enlace a GitHub y **lista de comentarios** ordenados por fecha (más antiguos arriba o abajo — documentar en implementación y ser consistente).
+1. Tras elegir un reporte (por `#número` o desde la confirmación post-envío), la UI muestra **estado** (abierto/cerrado), título y **lista de comentarios** en la app (sin enlace a GitHub; **FEAT-129**).
 2. Un comentario nuevo desde la app aparece en GitHub en menos de un reintento visible (recargar o poll corto).
 3. Un comentario añadido en GitHub por un maintainer se muestra tras **refrescar** o **polling** (intervalo configurable; máx. 60 s en dev).
 4. El cuerpo del comentario identifica al usuario ChessDash (`**Usuario:** …` en markdown o firma acordada), alineado con el cuerpo del issue.
@@ -51,7 +51,7 @@ En **Comentarios**, permitir **ver y publicar comentarios** en el issue asociado
 
 - Pestaña o sección **«Mis reportes»** en `FeedbackPage` (o ruta `/feedback/issues/:number`).
 - Campo multilínea + enviar; opcional imágenes como en el alta.
-- Badge abierto/cerrado; enlace «Abrir en GitHub».
+- Badge abierto/cerrado; en filas y confirmación, mostrar `#{número}` como **texto** sin enlace a GitHub (**FEAT-129**); conversación y estado solo en la app.
 
 ### Permisos GitHub
 

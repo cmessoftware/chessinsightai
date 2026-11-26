@@ -4,7 +4,7 @@
 
 _Acceso: solo administradores (ruta `/changelog/pendientes`, sesión admin)._
 
-**Actualizado:** 2026-11-25 (UTC) · **Ítems:** 117
+**Actualizado:** 2026-11-26 (UTC) · **Ítems:** 117
 
 Lista generada desde los trackers con estado **⬜ Todo**. Regenerar:
 
