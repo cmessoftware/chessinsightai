@@ -10,6 +10,7 @@ Specs y arquitectura (motores, jobs, sparring): [../deep_analysis/index.md](../d
 | [roadmap-id-collisions-2026-11.md](./roadmap-id-collisions-2026-11.md) | Renumeración **BUG-128** / **FEAT-128** tras colisión FEAT-121/122 (#274 vs #275). |
 | [feat-120-122-feedback-comentarios.md](./feat-120-122-feedback-comentarios.md) | Comentarios: adjuntos, confirmación, embed GitHub (**FEAT-120…122**, #275). |
 | [feat-123-124-feedback-github-issues.md](./feat-123-124-feedback-github-issues.md) | Hilo en UI y cierre admin (**FEAT-123…124**, backlog). |
+| [feat-129-feedback-report-number-link.md](./feat-129-feedback-report-number-link.md) | Confirmación Comentarios: enlace solo `#{número}` (**FEAT-129**, deriva FEAT-121). |
 | [feat-125-numeracion-tracker.md](./feat-125-numeracion-tracker.md) | **FEAT-125** no asignado; ver **BUG-125** ([#277](https://github.com/cmessoftware/chessinsightai/pull/277)). |
 | [feat-126-import-fuente-cancelado.md](./feat-126-import-fuente-cancelado.md) | Combo Fuente en Importar (cancelado → FEAT-127). |
 | [feat-127-import-categories-multiselect.md](./feat-127-import-categories-multiselect.md) | Multiselect categorías al importar (**FEAT-127**, #278). |

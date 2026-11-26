@@ -1,5 +1,5 @@
 /**
- * LOG-FEAT-10 + FEAT-120: report bug/suggestion (GitHub issue) with optional images.
+ * LOG-FEAT-10 + FEAT-120/129: report bug/suggestion with optional images.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -169,8 +169,8 @@ export default function FeedbackPage() {
             </Typography>
             {!showConfirmation && (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Contanos un fallo o una idea de mejora. Se guarda como issue en el repositorio. Podés adjuntar
-                    hasta {MAX_FILES} imágenes (5 MB c/u).
+                    Contanos un fallo o una idea de mejora. Te damos un número de reporte para hacer seguimiento. Podés
+                    adjuntar hasta {MAX_FILES} imágenes (5 MB c/u).
                 </Typography>
             )}
             {error && (
@@ -190,17 +190,27 @@ export default function FeedbackPage() {
                         </Alert>
                     )}
                     <Alert severity="success" sx={{ mb: 2 }}>
-                        Tu reporte ya fue enviado
-                        {created.url ? (
+                        Tu reporte ya fue enviado.
+                        {created.number != null ? (
                             <>
                                 {' '}
-                                como{' '}
-                                <a href={created.url} target="_blank" rel="noreferrer">
-                                    issue #{created.number}
-                                </a>
+                                Número de reporte:{' '}
+                                {created.url ? (
+                                    <a
+                                        href={created.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        title={`Ficha del reporte #${created.number}`}
+                                    >
+                                        #{created.number}
+                                    </a>
+                                ) : (
+                                    <>#{created.number}</>
+                                )}
+                                .
                             </>
-                        ) : null}
-                        . No hace falta volver a enviar el mismo mensaje.
+                        ) : null}{' '}
+                        No hace falta volver a enviar el mismo mensaje.
                     </Alert>
                     {sentAttachments.length > 0 && (
                         <Box sx={{ mb: 2 }}>
