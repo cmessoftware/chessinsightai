@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Comentarios: **Historial de reportes** con hilo y comentarios sincronizados con GitHub (**FEAT-123**); cualquier usuario autenticado puede leer y responder en reportes ajenos; API `GET/POST /api/feedback/issues`.
 - Script de importación PGN Mentor curado (`import_pgm_mentor_curated.py`): enum de 26 GM, prioridad por comentarios en el PGN y lotes configurables hacia `coach_games` (base PGM-FEAT-10).
 
 ### Historial recuperado de Coach / ChessDash — hasta 2026-11-09
@@ -102,6 +103,7 @@ Integrado no significa validado de punta a punta en producción. **Reportes:** R
 
 | Fecha de merge (UTC) | PR | Tipo | Cambio registrado |
 | --- | --- | --- | --- |
+| 2026-11-26 | [#292](https://github.com/cmessoftware/chessinsightai/pull/292) | Cambio integrado | FEAT-123: Mis reportes, hilo y comentarios en Comentarios (proxy GitHub). |
 | 2026-11-26 | [#288](https://github.com/cmessoftware/chessinsightai/pull/288) | Cambio integrado | Comentarios: `#N` de reporte sin enlace a GitHub (**FEAT-129**, deriva FEAT-121). |
 | 2026-11-26 | [#286](https://github.com/cmessoftware/chessinsightai/pull/286) | Corrección integrada | PGN de `docs/` fuera de Git LFS para evitar timeout en clone/deploy de Render. |
 | 2026-11-25 | [#285](https://github.com/cmessoftware/chessinsightai/pull/285) | Documentación | Specs FEAT-120…127 en diseños UI; índice y enlaces tracker. |

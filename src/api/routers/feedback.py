@@ -14,7 +14,17 @@ from services.feedback_attachments import (
     resolve_attachment_path,
     save_image_attachment,
 )
-from services.github_feedback import FeedbackError, create_feedback_issue, upload_feedback_image_to_github
+from services.github_feedback import (
+    FeedbackError,
+    create_feedback_issue,
+    get_feedback_issue,
+    list_feedback_issue_comments,
+    is_chessdash_feedback_issue,
+    list_feedback_issues,
+    post_feedback_issue_comment,
+    serialize_issue_summary,
+    upload_feedback_image_to_github,
+)
 
 router = APIRouter(prefix="/api/feedback", tags=["feedback"])
 
@@ -40,6 +50,29 @@ def _github_feedback_credentials() -> tuple[str, str]:
     token = (os.environ.get("GITHUB_FEEDBACK_TOKEN") or os.environ.get("GITHUB_TOKEN") or "").strip()
     repo = (os.environ.get("GITHUB_FEEDBACK_REPO") or "cmessoftware/chessinsightai").strip()
     return token, repo
+
+
+def _require_user(request: Request) -> tuple[str, bool]:
+    user = getattr(request.state, "user", None) or {}
+    username = (user.get("username") or "").strip()
+    if not username:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    roles = user.get("roles") or []
+    is_admin = "admin" in roles
+    return username, is_admin
+
+
+def _require_github() -> tuple[str, str]:
+    token, repo = _github_feedback_credentials()
+    if not token:
+        raise HTTPException(status_code=503, detail="El registro de reportes no está configurado.")
+    return token, repo
+
+
+def _feedback_error_to_http(exc: FeedbackError) -> HTTPException:
+    message = str(exc)
+    status = 503 if "no está configurado" in message else 502
+    return HTTPException(status_code=status, detail=message)
 
 
 def _is_local_base_url(base: str) -> bool:
@@ -178,6 +211,78 @@ async def submit_feedback_json(body: FeedbackBody, request: Request):
         title=body.title,
         description=body.description,
     )
+
+
+@router.get("/issues")
+def list_feedback_history(request: Request, page: int = 1, per_page: int = 30):
+    """FEAT-123: historial de reportes ChessDash (todos los usuarios autenticados)."""
+    _require_user(request)
+    token, repo = _require_github()
+    try:
+        return list_feedback_issues(repo=repo, token=token, page=page, per_page=per_page)
+    except FeedbackError as exc:
+        raise _feedback_error_to_http(exc) from exc
+
+
+@router.get("/issues/{issue_number}")
+def get_feedback_issue_thread(issue_number: int, request: Request):
+    """FEAT-123: metadatos, descripción inicial y comentarios (sin URL de GitHub)."""
+    _require_user(request)
+    token, repo = _require_github()
+    try:
+        raw = get_feedback_issue(repo, token, issue_number)
+    except FeedbackError as exc:
+        raise _feedback_error_to_http(exc) from exc
+    if not is_chessdash_feedback_issue(raw):
+        raise HTTPException(status_code=404, detail="Reporte no encontrado.")
+    comments = list_feedback_issue_comments(repo, token, issue_number)
+    return {
+        "issue": serialize_issue_summary(raw),
+        "initial_body": (raw.get("body") or "").strip(),
+        "comments": comments,
+    }
+
+
+@router.post("/issues/{issue_number}/comments")
+async def add_feedback_issue_comment(
+    issue_number: int,
+    request: Request,
+    text: str = Form(""),
+    files: List[UploadFile] = File(default=[]),
+):
+    """FEAT-123: publicar comentario en el hilo (multipart opcional con imágenes)."""
+    username, _ = _require_user(request)
+    token, repo = _require_github()
+    try:
+        raw = get_feedback_issue(repo, token, issue_number)
+    except FeedbackError as exc:
+        raise _feedback_error_to_http(exc) from exc
+    if not is_chessdash_feedback_issue(raw):
+        raise HTTPException(status_code=404, detail="Reporte no encontrado.")
+    image_markdown = None
+    attachment_warnings: list[str] = []
+    if files:
+        try:
+            image_markdown, _, attachment_warnings = await _save_uploads(files, request)
+        except FeedbackAttachmentError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+    try:
+        comment = post_feedback_issue_comment(
+            repo=repo,
+            token=token,
+            number=issue_number,
+            username=username,
+            text=text,
+            image_markdown=image_markdown or None,
+        )
+    except FeedbackError as exc:
+        message = str(exc)
+        status = 400 if "obligatorio" in message else 502
+        raise HTTPException(status_code=status, detail=message) from exc
+    result = {"comment": comment}
+    if attachment_warnings:
+        result["attachment_warnings"] = attachment_warnings
+    return result
 
 
 @router.get("/attachments/{attachment_id}")
