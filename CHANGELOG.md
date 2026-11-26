@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Git LFS ya no aplica a PGN de `docs/` ni a fixtures de curso: evita timeouts del batch LFS en el clone de Render sobre archivos pequeños (p. ej. `coach-mental-review-2026-11-09.pgn`).
+
 ### Added
 
 - Script de importación PGN Mentor curado (`import_pgm_mentor_curated.py`): enum de 26 GM, prioridad por comentarios en el PGN y lotes configurables hacia `coach_games` (base PGM-FEAT-10).

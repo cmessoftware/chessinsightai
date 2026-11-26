@@ -1,3 +1,8 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:45c6244ff2f9f1325fb608773504656ccda3c87b2aa58899cc73d3344d770e2b
-size 177
+[Event "F07-002 white"]
+[Site "ChessInsight lab"]
+[Date "2026.01.01"]
+[White "cmess1315"]
+[Black "opponent"]
+[Result "1-0"]
+
+1. e4 e5 2. Qh5 Nc6 3. Bc4 Nf6 4. Qxf7# 1-0
