@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import {
     Alert,
     Box,
+    Button,
     CircularProgress,
     Dialog,
     DialogContent,
@@ -148,6 +149,12 @@ export default function CoachGameAnalysisPage() {
             })
     }, [gameId])
 
+    const cancelDeepWait = useCallback(() => {
+        setDeepQueued(false)
+        setDeepRunning(false)
+        setLoading(false)
+    }, [])
+
     useEffect(() => {
         let cancelled = false
         let timer
@@ -161,13 +168,18 @@ export default function CoachGameAnalysisPage() {
                     prev && rows.some((r) => r.id === prev) ? prev : null,
                 )
                 setLoading(false)
-                if (!rows.length) {
+                if (rows.length) {
+                    setDeepQueued(false)
+                    return
+                }
+                if (deepQueued) {
                     timer = setTimeout(poll, 4000)
                 }
             } catch (err) {
                 if (!cancelled) {
                     setError(err.message)
                     setLoading(false)
+                    setDeepQueued(false)
                 }
             }
         }
@@ -178,7 +190,7 @@ export default function CoachGameAnalysisPage() {
             cancelled = true
             if (timer) clearTimeout(timer)
         }
-    }, [gameId, loadDecisions])
+    }, [gameId, loadDecisions, deepQueued])
 
     useEffect(() => {
         if (!selectedId) {
@@ -219,10 +231,28 @@ export default function CoachGameAnalysisPage() {
                 </Alert>
             )}
             {(loading || waitingDeep) && !decisions.length && (
-                <Alert severity="info" icon={<CircularProgress size={18} />} sx={{ mb: 2 }}>
-                    {waitingDeep
-                        ? 'Análisis profundo en curso. Esta pantalla espera las jugadas críticas.'
-                        : 'Partida importada. Ejecutá el análisis profundo con el icono bajo el tablero.'}
+                <Alert
+                    severity="info"
+                    icon={waitingDeep ? <CircularProgress size={18} /> : undefined}
+                    sx={{ mb: 2 }}
+                >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <Typography variant="body2">
+                            {waitingDeep
+                                ? 'Análisis profundo en curso. Esta pantalla espera las jugadas críticas (el job sigue en el servidor si salís).'
+                                : 'Partida importada. Ejecutá el análisis profundo con el icono bajo el tablero.'}
+                        </Typography>
+                        {waitingDeep ? (
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={cancelDeepWait}
+                                sx={{ alignSelf: 'flex-start' }}
+                            >
+                                Dejar de esperar aquí
+                            </Button>
+                        ) : null}
+                    </Box>
                 </Alert>
             )}
         </>
@@ -335,8 +365,8 @@ export default function CoachGameAnalysisPage() {
             decisionsPanel={decisionsPanel}
             deepAnalysis={{
                 onRun: runDeepAnalysis,
-                running: deepRunning || waitingDeep,
-                disabled: !deepUsername,
+                running: deepRunning,
+                disabled: !deepUsername || deepRunning,
             }}
         />
     )

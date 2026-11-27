@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Análisis Coach: botón **Dejar de esperar aquí** y fin del polling en bucle tras error o al salir de la espera del análisis profundo (el job en servidor no se cancela).
 - Git LFS ya no aplica a PGN de `docs/` ni a fixtures de curso: evita timeouts del batch LFS en el clone de Render sobre archivos pequeños (p. ej. `coach-mental-review-2026-11-09.pgn`).
 
 ### Changed
