@@ -30,6 +30,7 @@ import {
     lookupClassification,
     PGN_CLASSIFICATION_LEGEND,
     pgnMoveTextSx,
+    advanceMoveNumForVariationStep,
     tokenizeVariationChain,
 } from '../../utils/coachPgnDisplay.js'
 import {
@@ -275,11 +276,6 @@ function UserNagSuffix({ nag }) {
     )
 }
 
-function moveNumAfterHalf(half, moveNum) {
-    if (half.color === 'b') return moveNum + 1
-    return moveNum + 1
-}
-
 function VariationMoveToken({
     tok,
     cursorPath,
@@ -403,10 +399,14 @@ function VariationBranch({
                     (
                 </Typography>
                 {steps.map((step, stepIdx) => {
-                    const tokens = tokenizeVariationChain([step.half], moveNum)
+                    const nextHalf = steps[stepIdx + 1]?.half
+                    const tokens = tokenizeVariationChain(
+                        nextHalf ? [step.half, nextHalf] : [step.half],
+                        moveNum,
+                    )
                     const tok = tokens[0]
                     const nestedStart = Math.floor((step.half.ply - 1) / 2) + 1
-                    moveNum = moveNumAfterHalf(step.half, moveNum)
+                    moveNum = advanceMoveNumForVariationStep(step.half, moveNum, nextHalf)
                     return (
                         <Box
                             key={step.half.path.join('-')}

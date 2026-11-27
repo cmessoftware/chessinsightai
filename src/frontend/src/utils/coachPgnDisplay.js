@@ -205,6 +205,15 @@ export function tokenizeVariationChain(chain, startMoveNum) {
     return tokens
 }
 
+/** Tras mostrar un ply en rama de variante, número de jugada para el siguiente token PGN. */
+export function advanceMoveNumForVariationStep(half, moveNum, nextHalf) {
+    if (half.color === 'w') {
+        if (!nextHalf || nextHalf.color !== 'b') return moveNum + 1
+        return moveNum
+    }
+    return moveNum + 1
+}
+
 /**
  * Filas para el panel: línea principal en pares + variantes indentadas tras cada jugada.
  */
