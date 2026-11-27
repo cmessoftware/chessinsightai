@@ -1,9 +1,26 @@
 import { describe, expect, it } from 'vitest'
 import {
+    advanceMoveNumForVariationStep,
     buildLabelTooltip,
     isErrorEngineLabel,
     nagSuffixForClassification,
+    tokenizeVariationChain,
 } from './coachPgnDisplay.js'
+
+describe('variation move numbering', () => {
+    it('white+black share full move number in variation chain', () => {
+        const w = { color: 'w', san: 'Nb3' }
+        const b = { color: 'b', san: 'Bb6' }
+        expect(tokenizeVariationChain([w, b], 12).map((t) => t.prefix)).toEqual(['12.', '12...'])
+        let n = 11
+        n = advanceMoveNumForVariationStep({ color: 'b', san: 'Bc5' }, n, w)
+        expect(n).toBe(12)
+        n = advanceMoveNumForVariationStep(w, n, b)
+        expect(n).toBe(12)
+        n = advanceMoveNumForVariationStep(b, n, undefined)
+        expect(n).toBe(13)
+    })
+})
 
 describe('coachPgnDisplay CA-3', () => {
     it('nag suffix for errors only', () => {
